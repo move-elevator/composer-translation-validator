@@ -1,0 +1,70 @@
+{
+	"name": "konradmichalik/composer-translation-validator",
+	"description": "Validate translation files",
+	"license": "GPL-3.0-or-later",
+	"type": "composer-plugin",
+	"authors": [
+		{
+			"name": "Konrad Michalik",
+			"email": "hej@konradmichalik.dev",
+			"role": "Maintainer"
+		}
+	],
+	"require": {
+		"php": ">= 8.0",
+		"ext-json": "*",
+		"composer-plugin-api": "^1.0 || ^2.0",
+		"nyholm/psr7": "^1.0",
+		"symfony/console": "^4.4.11 || ^5.0.11 || ^6.0",
+		"symfony/filesystem": "^4.4.11 || ^5.0.11 || ^6.0"
+	},
+	"require-dev": {
+		"armin/editorconfig-cli": "^2.0",
+		"composer/composer": "^2.0",
+		"ergebnis/composer-normalize": "^2.44",
+		"friendsofphp/php-cs-fixer": "^3.52",
+		"roave/security-advisories": "dev-latest",
+		"symfony/translation": "^6.3 || ^7.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"KonradMichalik\\ComposerTranslationValidator\\": "src"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"ergebnis/composer-normalize": true
+		},
+		"sort-packages": true
+	},
+	"extra": {
+		"class": "KonradMichalik\\ComposerTranslationValidator\\Plugin"
+	},
+	"scripts": {
+		"check": [
+			"@composer:normalize:check",
+			"@editorconfig:lint:check",
+			"@php:lint:check",
+			"@yaml:lint:check",
+			"@xml:lint:check",
+			"@php:rector:check",
+			"@php:fixer:check"
+		],
+		"composer:normalize": "@composer normalize --no-check-lock",
+		"composer:normalize:check": "@composer normalize --no-check-lock --dry-run",
+		"editorconfig:lint": "ec --strict --fix --git-only -n",
+		"editorconfig:lint:check": "ec --strict --git-only -n",
+		"fix": [
+			"@composer:normalize",
+			"@editorconfig:lint",
+			"@php:fixer",
+			"@yaml:lint",
+			"@xml:lint",
+			"@php:rector"
+		],
+		"php:fixer": "php vendor/bin/php-cs-fixer --config=.php-cs-fixer.php fix",
+		"php:fixer:check": "php vendor/bin/php-cs-fixer --config=php-cs-fixer.php fix --dry-run --format=checkstyle > php-cs-fixer.xml || true",
+		"php:lint": "find *.php . -name '*.php' ! -path './vendor/*'  ! -path './var/*' ! -path '*node_modules/*'  ! -path './.Build/*' ! -path './public/*' -print0 | xargs -0 -n 1 -P 4 php -l",
+		"php:lint:check": "find *.php . -name '*.php' ! -path './vendor/*'  ! -path './var/*' ! -path '*node_modules/*'  ! -path './.Build/*' ! -path './public/*' -print0 | xargs -0 -n 1 -P 4 php -l"
+	}
+}

@@ -1,0 +1,44 @@
+<?php
+
+declare(strict_types=1);
+
+namespace KonradMichalik\ComposerTranslationValidator\FileDetector;
+
+class PrefixFileDetector implements DetectorInterface
+{
+    public function mapTranslationSet(array $files): array
+    {
+        $mapping = [];
+        $sourceFiles = $this->findSourceFiles($files);
+
+        foreach ($sourceFiles as $sourceFile) {
+            $sourceBaseName = basename($sourceFile);
+            $mapping[$sourceFile] = [];
+
+            foreach ($files as $file) {
+                if ($file === $sourceFile) {
+                    continue;
+                }
+
+                if (str_contains($file, $sourceBaseName)) {
+                    $mapping[$sourceFile][] = $file;
+                }
+            }
+        }
+
+        return $mapping;
+    }
+
+    private function findSourceFiles(array $files): array
+    {
+        $sourceFiles = [];
+        foreach ($files as $file) {
+            $basename = basename($file);
+            if (!preg_match('/^[a-z]{2}\./', $basename)) {
+                $sourceFiles[] = $file;
+            }
+        }
+
+        return $sourceFiles;
+    }
+}
