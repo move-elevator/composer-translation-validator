@@ -1,6 +1,6 @@
 # Composer translation validator plugin
 
-A Composer plugin that validates translations files in your project regarding mismatches between language source and target files.
+A Composer plugin that validates translation files in your project regarding mismatches between language source and target files.
 
 ## Features
 
@@ -12,7 +12,7 @@ A Composer plugin that validates translations files in your project regarding mi
 ## Installation
 
 ```bash
-composer require konradmichalik/composer-translation-validator
+composer require --dev konradmichalik/composer-translation-validator
 ```
 
 ## Usage
