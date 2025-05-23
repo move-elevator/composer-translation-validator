@@ -18,6 +18,11 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class ValidateTranslationCommand extends BaseCommand
 {
+    protected ?SymfonyStyle $io = null;
+    protected ?OutputInterface $output = null;
+    protected bool $dryRun = false;
+    protected bool $hasErrors = false;
+
     protected function configure(): void
     {
         $this->setName('validate-translations')
@@ -31,50 +36,54 @@ class ValidateTranslationCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
-        $paths = $input->getArgument('path');
-        $dryRun = $input->getOption('dry-run');
+        $this->output = $output;
+        $this->io = new SymfonyStyle($input, $output);
+        $paths = array_map(static function ($path) {
+            return str_starts_with($path, '/') ? $path : getcwd().'/'.$path;
+        }, $input->getArgument('path'));
+
+        $this->dryRun = $input->getOption('dry-run');
         $excludePatterns = $input->getOption('exclude-pattern');
         $filesystem = new Filesystem();
 
-        if (!$this->validateClass($input->getOption('file-detector'), DetectorInterface::class, $io)) {
+        if (!$this->validateClass($input->getOption('file-detector'), DetectorInterface::class)) {
             return 1;
         }
         $fileDetector = new ($input->getOption('file-detector'))();
 
-        if (!$this->validateClass($input->getOption('parser'), ParserInterface::class, $io)) {
+        if (!$this->validateClass($input->getOption('parser'), ParserInterface::class)) {
             return 1;
         }
         $parserClass = $input->getOption('parser');
 
         if (empty($paths)) {
-            $io->error('No paths provided.');
+            $this->io->error('No paths provided.');
 
             return 1;
         }
 
-        $allFiles = $this->collectFiles($paths, $parserClass::getSupportedFileExtensions(), $excludePatterns, $filesystem, $io);
+        $allFiles = $this->collectFiles($paths, $parserClass::getSupportedFileExtensions(), $excludePatterns, $filesystem);
         if (empty($allFiles)) {
-            $io->warning('No files found in the specified directories.');
+            $this->io->warning('No files found in the specified directories.');
 
             return 0;
         }
 
-        $hasErrors = $this->validateFiles($fileDetector, $parserClass, $allFiles, $output, $io);
+        $this->hasErrors = $this->validateFiles($fileDetector, $parserClass, $allFiles);
 
-        return $this->finalizeValidation($hasErrors, $dryRun, $io);
+        return $this->finalizeValidation();
     }
 
-    private function validateClass(string $class, string $interface, SymfonyStyle $io): bool
+    private function validateClass(string $class, string $interface): bool
     {
         if (!class_exists($class)) {
-            $io->error(sprintf('The class "%s" does not exist.', $class));
+            $this->io->error(sprintf('The class "%s" does not exist.', $class));
 
             return false;
         }
 
         if (!is_subclass_of($class, $interface)) {
-            $io->error(sprintf('The class "%s" must implement %s.', $class, $interface));
+            $this->io->error(sprintf('The class "%s" must implement %s.', $class, $interface));
 
             return false;
         }
@@ -82,12 +91,12 @@ class ValidateTranslationCommand extends BaseCommand
         return true;
     }
 
-    private function collectFiles(array $paths, array $extensions, ?array $excludePatterns, Filesystem $filesystem, SymfonyStyle $io): array
+    private function collectFiles(array $paths, array $extensions, ?array $excludePatterns, Filesystem $filesystem): array
     {
         $allFiles = [];
         foreach ($paths as $path) {
             if (!$filesystem->exists($path)) {
-                $io->error('The provided path "'.$path.'" is not a valid directory.');
+                $this->io->error('The provided path "'.$path.'" is not a valid directory.');
 
                 return [];
             }
@@ -103,17 +112,17 @@ class ValidateTranslationCommand extends BaseCommand
         return $allFiles;
     }
 
-    private function validateFiles($fileDetector, string $parserClass, array $allFiles, OutputInterface $output, SymfonyStyle $io): bool
+    private function validateFiles($fileDetector, string $parserClass, array $allFiles): bool
     {
         $hasErrors = false;
 
         foreach ($fileDetector->mapTranslationSet($allFiles) as $sourceFile => $targetFiles) {
             $source = new $parserClass($sourceFile);
-            $output->write('> Checking language source file: <fg=cyan>'.$source->getFileName().'</> ...');
+            $this->output->write('> Checking language source file: <fg=cyan>'.$source->getFileName().'</> ...');
             $sourceKeys = $source->extractKeys();
 
             if (!$sourceKeys) {
-                $io->error('The source file '.$sourceFile.' is not valid.');
+                $this->io->error('The source file '.$sourceFile.' is not valid.');
                 $hasErrors = true;
                 continue;
             }
@@ -123,14 +132,14 @@ class ValidateTranslationCommand extends BaseCommand
                 $missingKeys = array_diff($sourceKeys, $target->extractKeys());
 
                 if ($missingKeys) {
-                    $io->warning('Found missing keys in '.$target->getFileName());
-                    $io->table(
+                    $this->io->warning('Found missing keys in '.$target->getFileName());
+                    $this->io->table(
                         ['Language Key', $source->getFileName(), $target->getFileName()],
                         array_map(fn ($key) => [$key, $source->getContentByKey($key), $target->getContentByKey($key)], $missingKeys)
                     );
                     $hasErrors = true;
                 } else {
-                    $output->writeln(' <fg=green>✔</>');
+                    $this->output->writeln(' <fg=green>✔</>');
                 }
             }
         }
@@ -138,18 +147,21 @@ class ValidateTranslationCommand extends BaseCommand
         return $hasErrors;
     }
 
-    private function finalizeValidation(bool $hasErrors, bool $dryRun, SymfonyStyle $io): int
+    private function finalizeValidation(): int
     {
-        if ($hasErrors) {
-            $message = $dryRun
-                ? 'Language validation completed in dry-run mode. Missing keys were found.'
-                : 'Language validation failed. Missing keys were found.';
-            $io->error($message);
+        if ($this->hasErrors) {
+            if ($this->dryRun) {
+                $this->io->warning('Language validation completed in dry-run mode. Missing keys were found.');
 
-            return $dryRun ? 0 : 1;
+                return 0;
+            }
+
+            $this->io->error('Language validation failed. Missing keys were found.');
+            return 1;
         }
 
-        $io->success('Language validation succeeded. All keys are present in the target files.');
+        $message = 'Language validation succeeded. All keys are present in the target files.';
+        $this->dryRun ? $this->io->success($message) : $this->output->writeln('<fg=green>'.$message.'</>');
 
         return 0;
     }
