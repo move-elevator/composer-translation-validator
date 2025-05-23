@@ -7,7 +7,7 @@ A Composer plugin that validates translations files in your project regarding mi
 * Autodetect according source and target files
 * Detects missing translations
 * Supports the following formats:
-* XLIFF
+  * XLIFF
 
 ## Installation
 
@@ -18,7 +18,7 @@ composer require konradmichalik/composer-translation-validator
 ## Usage
 
 ```bash
-composer validate-translations /var/www/html/Resources/Private/Language
+composer validate-translations ./Resources/Private/Language
 ```
 ![console.jpg](docs/console.jpg)
 
