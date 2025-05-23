@@ -8,6 +8,7 @@ use Composer\Command\BaseCommand;
 use KonradMichalik\ComposerTranslationValidator\FileDetector\DetectorInterface;
 use KonradMichalik\ComposerTranslationValidator\FileDetector\PrefixFileDetector;
 use KonradMichalik\ComposerTranslationValidator\Parser\ParserInterface;
+use KonradMichalik\ComposerTranslationValidator\Parser\ParserUtility;
 use KonradMichalik\ComposerTranslationValidator\Parser\XliffParser;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
@@ -63,7 +64,7 @@ class ValidateTranslationCommand extends BaseCommand
             return 1;
         }
 
-        $allFiles = $this->collectFiles($paths, $parserClass::getSupportedFileExtensions(), $excludePatterns, $filesystem);
+        $allFiles = $this->collectFiles($paths, ParserUtility::resolveAllowedFileExtensions(), $excludePatterns, $filesystem);
         if (empty($allFiles)) {
             $this->io->warning('No files found in the specified directories.');
 
@@ -75,8 +76,12 @@ class ValidateTranslationCommand extends BaseCommand
         return $this->finalizeValidation();
     }
 
-    private function validateClass(string $class, string $interface): bool
+    private function validateClass(?string $class, string $interface): bool
     {
+        if (is_null($class)) {
+            return true;
+        }
+
         if (!class_exists($class)) {
             $this->io->error(sprintf('The class "%s" does not exist.', $class));
 
@@ -113,12 +118,12 @@ class ValidateTranslationCommand extends BaseCommand
         return $allFiles;
     }
 
-    private function validateFiles($fileDetector, string $parserClass, array $allFiles): bool
+    private function validateFiles($fileDetector, ?string $parserClass, array $allFiles): bool
     {
         $hasErrors = false;
 
         foreach ($fileDetector->mapTranslationSet($allFiles) as $sourceFile => $targetFiles) {
-            $source = new $parserClass($sourceFile);
+            $source = new ($parserClass ?: ParserUtility::resolveParserClass($sourceFile))($sourceFile);
             $sourceHasErrors = false;
             $this->debug('> Checking language source file: <fg=gray>'.$source->getFileDirectory().'</><fg=cyan>'.$source->getFileName().'</> ...', newLine: $this->output->isVeryVerbose());
             $sourceKeys = $source->extractKeys();
@@ -137,7 +142,7 @@ class ValidateTranslationCommand extends BaseCommand
                 if ($missingKeys) {
                     $this->debug('> Validation result: ', veryVerbose: true, newLine: false);
                     $this->debug(' <fg=red>✘</>');
-                    $this->io->warning('Found missing keys in '.$target->getFileName());
+                    $this->io->warning('Found missing keys in '.$target->getFilePath());
                     $table = new Table($this->output);
                     $table
                         ->setColumnWidths([10, 30, 30])
@@ -157,6 +162,7 @@ class ValidateTranslationCommand extends BaseCommand
                 $this->debug(sprintf('> Validation statistic: 1 source, %d target(s), %d language keys', count($targetFiles), count($sourceKeys)), veryVerbose: true);
                 $this->debug('> Validation result: ', veryVerbose: true, newLine: false);
                 $this->debug(' <fg=green>✔</>');
+                $this->debug('', veryVerbose: true);
             }
         }
 
@@ -175,6 +181,7 @@ class ValidateTranslationCommand extends BaseCommand
 
             $this->io->newLine();
             $this->io->error('Language validation failed. Missing keys were found.');
+
             return 1;
         }
 

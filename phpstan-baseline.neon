@@ -31,11 +31,6 @@ parameters:
 			path: src/Command/ValidateTranslationCommand.php
 
 		-
-			message: "#^Undefined variable\\: \\$output$#"
-			count: 1
-			path: src/Command/ValidateTranslationCommand.php
-
-		-
 			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\FileDetector\\\\DetectorInterface\\:\\:mapTranslationSet\\(\\) has parameter \\$files with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/FileDetector/DetectorInterface.php
@@ -74,6 +69,11 @@ parameters:
 			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\Parser\\\\ParserInterface\\:\\:getSupportedFileExtensions\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Parser/ParserInterface.php
+
+		-
+			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\Parser\\\\ParserUtility\\:\\:resolveAllowedFileExtensions\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Parser/ParserUtility.php
 
 		-
 			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"

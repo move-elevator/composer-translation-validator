@@ -40,7 +40,7 @@ class XliffParser implements ParserInterface
     {
         foreach ($this->xml->file->body->{'trans-unit'} as $unit) {
             if ((string) $unit['id'] === $key) {
-                return (string) $unit->source ?? null;
+                return (string) ($unit->source) ?? null;
             }
         }
 
@@ -59,7 +59,7 @@ class XliffParser implements ParserInterface
 
     public function getFileDirectory(): string
     {
-        return dirname($this->filePath) . \DIRECTORY_SEPARATOR;
+        return dirname($this->filePath).\DIRECTORY_SEPARATOR;
     }
 
     public function getFilePath(): string
