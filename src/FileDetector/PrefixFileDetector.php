@@ -20,7 +20,7 @@ class PrefixFileDetector implements DetectorInterface
                     continue;
                 }
 
-                if (str_contains($file, $sourceBaseName)) {
+                if (str_contains($file, $sourceBaseName) && dirname($file) === dirname($sourceFile)) {
                     $mapping[$sourceFile][] = $file;
                 }
             }

@@ -57,6 +57,11 @@ class XliffParser implements ParserInterface
         return $this->fileName;
     }
 
+    public function getFileDirectory(): string
+    {
+        return dirname($this->filePath) . \DIRECTORY_SEPARATOR;
+    }
+
     public function getFilePath(): string
     {
         return $this->filePath;

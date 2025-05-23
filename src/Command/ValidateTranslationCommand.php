@@ -9,6 +9,7 @@ use KonradMichalik\ComposerTranslationValidator\FileDetector\DetectorInterface;
 use KonradMichalik\ComposerTranslationValidator\FileDetector\PrefixFileDetector;
 use KonradMichalik\ComposerTranslationValidator\Parser\ParserInterface;
 use KonradMichalik\ComposerTranslationValidator\Parser\XliffParser;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -29,7 +30,7 @@ class ValidateTranslationCommand extends BaseCommand
             ->setDescription('Validates XLIFF files and checks if all target files have the same keys as the source file.')
             ->addArgument('path', InputArgument::IS_ARRAY | InputArgument::REQUIRED, 'Paths to the folders containing XLIFF files')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Run the command in dry-run mode without throwing errors')
-            ->addOption('exclude-pattern', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'Patterns to exclude specific files')
+            ->addOption('exclude', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'Patterns to exclude specific files')
             ->addOption('file-detector', null, InputOption::VALUE_REQUIRED, 'The file detector to use (FQCN)', PrefixFileDetector::class)
             ->addOption('parser', null, InputOption::VALUE_REQUIRED, 'The parser to use (FQCN)', XliffParser::class);
     }
@@ -43,7 +44,7 @@ class ValidateTranslationCommand extends BaseCommand
         }, $input->getArgument('path'));
 
         $this->dryRun = $input->getOption('dry-run');
-        $excludePatterns = $input->getOption('exclude-pattern');
+        $excludePatterns = $input->getOption('exclude');
         $filesystem = new Filesystem();
 
         if (!$this->validateClass($input->getOption('file-detector'), DetectorInterface::class)) {
@@ -118,7 +119,8 @@ class ValidateTranslationCommand extends BaseCommand
 
         foreach ($fileDetector->mapTranslationSet($allFiles) as $sourceFile => $targetFiles) {
             $source = new $parserClass($sourceFile);
-            $this->output->write('> Checking language source file: <fg=cyan>'.$source->getFileName().'</> ...');
+            $sourceHasErrors = false;
+            $this->debug('> Checking language source file: <fg=gray>'.$source->getFileDirectory().'</><fg=cyan>'.$source->getFileName().'</> ...', newLine: $this->output->isVeryVerbose());
             $sourceKeys = $source->extractKeys();
 
             if (!$sourceKeys) {
@@ -129,18 +131,32 @@ class ValidateTranslationCommand extends BaseCommand
 
             foreach ($targetFiles as $targetFile) {
                 $target = new $parserClass($targetFile);
+                $this->debug('> Checking language target file: '.$target->getFileDirectory().$target->getFileName().' ...', veryVerbose: true);
                 $missingKeys = array_diff($sourceKeys, $target->extractKeys());
 
                 if ($missingKeys) {
+                    $this->debug('> Validation result: ', veryVerbose: true, newLine: false);
+                    $this->debug(' <fg=red>✘</>');
                     $this->io->warning('Found missing keys in '.$target->getFileName());
-                    $this->io->table(
-                        ['Language Key', $source->getFileName(), $target->getFileName()],
-                        array_map(fn ($key) => [$key, $source->getContentByKey($key), $target->getContentByKey($key)], $missingKeys)
-                    );
+                    $table = new Table($this->output);
+                    $table
+                        ->setColumnWidths([10, 30, 30])
+                        ->setHeaderTitle($target->getFileName())
+                        ->setHeaders(['Language Key', $source->getLanguage(), $target->getLanguage()])
+                        ->setRows(array_map(fn ($key) => [$key, $source->getContentByKey($key), $target->getContentByKey($key)], $missingKeys))
+                        ->setStyle('box')
+                        ->render()
+                    ;
+
                     $hasErrors = true;
-                } else {
-                    $this->output->writeln(' <fg=green>✔</>');
+                    $sourceHasErrors = true;
                 }
+            }
+
+            if (!$sourceHasErrors) {
+                $this->debug(sprintf('> Validation statistic: 1 source, %d target(s), %d language keys', count($targetFiles), count($sourceKeys)), veryVerbose: true);
+                $this->debug('> Validation result: ', veryVerbose: true, newLine: false);
+                $this->debug(' <fg=green>✔</>');
             }
         }
 
@@ -151,18 +167,36 @@ class ValidateTranslationCommand extends BaseCommand
     {
         if ($this->hasErrors) {
             if ($this->dryRun) {
+                $this->io->newLine();
                 $this->io->warning('Language validation completed in dry-run mode. Missing keys were found.');
 
                 return 0;
             }
 
+            $this->io->newLine();
             $this->io->error('Language validation failed. Missing keys were found.');
             return 1;
         }
 
         $message = 'Language validation succeeded. All keys are present in the target files.';
-        $this->dryRun ? $this->io->success($message) : $this->output->writeln('<fg=green>'.$message.'</>');
+        $this->output->isVerbose() ? $this->io->success($message) : $this->output->writeln('<fg=green>'.$message.'</>');
 
         return 0;
+    }
+
+    private function debug(string $message, bool $veryVerbose = false, bool $newLine = true): void
+    {
+        if (!$this->output->isVerbose()) {
+            return;
+        }
+
+        if (!$this->output->isVeryVerbose() && $veryVerbose) {
+            return;
+        }
+
+        if ($veryVerbose) {
+            $message = '<fg=gray>'.$message.'</>';
+        }
+        $newLine ? $this->io->writeln($message) : $this->io->write($message);
     }
 }
