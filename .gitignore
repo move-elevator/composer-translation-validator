@@ -3,4 +3,8 @@
 /.phpunit.result.cache
 /.build
 /composer.lock
+/php-cs-fixer.xml
+/phpstan.xml
 /site
+/tests/Build/app/composer.lock
+/tests/Build/app/vendor
