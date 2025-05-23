@@ -1,0 +1,774 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+    <file source-language="en" target-language="de" datatype="plaintext" original="messages" date="2020-11-30T09:11:39Z" product-name="mhplus">
+        <header/>
+        <body>
+            <trans-unit id="logo.title">
+                <target>Zur mhplus Startseite</target>
+            </trans-unit>
+            <trans-unit id="logo-pfiffix.title">
+                <target>Zur PFIFFIX Startseite</target>
+            </trans-unit>
+
+            <trans-unit id="nav.back">
+                <target>zurück</target>
+            </trans-unit>
+            <trans-unit id="nav.open">
+                <target>Navigation öffnen</target>
+            </trans-unit>
+            <trans-unit id="nav.close">
+                <target>Schliessen</target>
+            </trans-unit>
+            <trans-unit id="nav.title">
+                <target>Navigation</target>
+            </trans-unit>
+            <trans-unit id="nav.main">
+                <target>Hauptnavigation</target>
+            </trans-unit>
+            <trans-unit id="nav.meta">
+                <target>Meta-Navigation</target>
+            </trans-unit>
+            <trans-unit id="nav.footer">
+                <target>Footernavigation</target>
+            </trans-unit>
+
+            <trans-unit id="card-list.cta">
+                <target>mehr erfahren</target>
+            </trans-unit>
+
+            <trans-unit id="section-index.button">
+                <target>Inhalt</target>
+            </trans-unit>
+            <trans-unit id="section-index.header">
+                <target>Inhaltsverzeichnis</target>
+            </trans-unit>
+
+            <trans-unit id="footer.dropdown.gender-hint.title">
+                <target>Hinweis zur gendergerechten Sprache</target>
+            </trans-unit>
+            <trans-unit id="footer.dropdown.gender-hint.text">
+                <target>Damit unsere Texte leicht lesbar sind, verzichten wir auf die gleichzeitige Verwendung der Sprachformen männlich, weiblich und divers. Die verkürzte Sprachform hat nur redaktionelle Gründe. Sie enthält keine Wertung.</target>
+            </trans-unit>
+            <trans-unit id="footer.social-media.head">
+                <target>Folge uns</target>
+            </trans-unit>
+            <trans-unit id="footer.social-media.facebook">
+                <target>Folge mhplus via Facebook</target>
+            </trans-unit>
+            <trans-unit id="footer.social-media.x-twitter">
+                <target>Folge mhplus via X</target>
+            </trans-unit>
+            <trans-unit id="footer.social-media.instagram">
+                <target>Folge mhplus via Instagram</target>
+            </trans-unit>
+            <trans-unit id="footer.phone-contact">
+                <target>Telefonische Erreichbarkeit</target>
+            </trans-unit>
+            <trans-unit id="footer.phone-cta">
+                <target>Jetzt anrufen</target>
+            </trans-unit>
+            <trans-unit id="footer.support">
+                <target>Sie haben Fragen oder benötigen Unterstützung?</target>
+            </trans-unit>
+
+            <trans-unit id="form.back">
+                <target>zurück</target>
+            </trans-unit>
+            <trans-unit id="form.next">
+                <target>weiter</target>
+            </trans-unit>
+            <trans-unit id="form.send">
+                <target>absenden</target>
+            </trans-unit>
+            <trans-unit id="form.date-format">
+                <target>Tag / Monat / Jahr</target>
+            </trans-unit>
+            <trans-unit id="form.mandatory">
+                <target>Notwendige Angaben</target>
+            </trans-unit>
+            <trans-unit id="form.encryption.header">
+                <target>Der Schutz Ihrer Daten ist uns wichtig!</target>
+            </trans-unit>
+            <trans-unit id="form.encryption.bodytext">
+                <target>Dieses eFormular wird über eine sichere, verschlüsselte Verbindung (SSL) an uns gesendet. Keine dieser Informationen kann von anderen Personen im Web gesehen werden!</target>
+            </trans-unit>
+            <trans-unit id="form.return-call.choose-time">
+                <target>Wählen Sie Ihren gewünschten Zeitraum aus:</target>
+            </trans-unit>
+            <trans-unit id="form.return-call.warning">
+                <target>Die Zeiten wurden aktualisiert. Bitte wählen sie ihren erwünschten Termin erneut aus.</target>
+            </trans-unit>
+            <trans-unit id="form.time">
+                <target>Uhrzeit</target>
+            </trans-unit>
+            <trans-unit id="form.time.suffix">
+                <target>Uhr</target>
+            </trans-unit>
+            <trans-unit id="form.email">
+                <target>E-Mail</target>
+            </trans-unit>
+            <trans-unit id="form.firstname">
+                <target>Vorname</target>
+            </trans-unit>
+            <trans-unit id="form.lastname">
+                <target>Name</target>
+            </trans-unit>
+            <trans-unit id="form.salutation">
+                <target>Anrede</target>
+            </trans-unit>
+            <trans-unit id="form.mr">
+                <target>Herr</target>
+            </trans-unit>
+            <trans-unit id="form.mrs">
+                <target>Frau</target>
+            </trans-unit>
+            <trans-unit id="form.organisation">
+                <target>Organisation</target>
+            </trans-unit>
+            <trans-unit id="form.please_choose">
+                <target>Bitte wählen</target>
+            </trans-unit>
+            <trans-unit id="form.privacy">
+                <target>Datenschutz</target>
+            </trans-unit>
+            <trans-unit id="form.subject">
+                <target>Betreff</target>
+            </trans-unit>
+            <trans-unit id="form.date">
+                <target>Datum</target>
+            </trans-unit>
+            <trans-unit id="form.validate.required">
+                <target>Dieses Feld muss ausgefüllt werden.</target>
+            </trans-unit>
+            <trans-unit id="form.validate.email">
+                <target>Keine gültige E-Mail-Adresse.</target>
+            </trans-unit>
+            <trans-unit id="form.validate.is_member">
+                <target>Bitte überprüfen Sie Ihre Eingaben.</target>
+            </trans-unit>
+            <trans-unit id="form.validate.fitcash.insurance_number">
+                <target>Das Programm "Fitcash Bonus" steht nur Versicherten der mhplus zur Verfügung.</target>
+            </trans-unit>
+            <trans-unit id="form.validate.fitcash.date_of_birth">
+                <target>Für die Teilnahme sind Sie zu jung. Teilnahmeberechtigt sind alle Versicherten ab 15 Jahren.</target>
+            </trans-unit>
+            <trans-unit id="form.validate.fitcash.data_incomplete">
+                <target>Bei der Übermittlung Ihrer Daten ist ein Fehler aufgetreten, versuchen Sie es bitte erneut.</target>
+            </trans-unit>
+            <trans-unit id="form.validate.day">
+                <target>Bitte wählen Sie einen Tag.</target>
+            </trans-unit>
+            <trans-unit id="form.validate.subject">
+                <target>Bitte wählen Sie einen Betreff.</target>
+            </trans-unit>
+            <trans-unit id="form.validate.service_center">
+                <target>Bitte wählen Sie ein Service Center.</target>
+            </trans-unit>
+            <trans-unit id="form.validate.time">
+                <target>Bitte wählen Sie eine Uhrzeit.</target>
+            </trans-unit>
+            <trans-unit id="form.validate.privacy">
+                <target>Bitte bestätigen Sie die Datenschutzbestimmungen.</target>
+            </trans-unit>
+            <trans-unit id="form.modal.warning.text">
+                <target>Durch das erneute Hochladen von Dateien setzen Sie Ihre aktuelle Auswahl zurück.</target>
+            </trans-unit>
+            <trans-unit id="form.modal.warning.text2">
+                <target>Möchten Sie fortfahren und Ihre Auswahl zurücksetzen?</target>
+            </trans-unit>
+            <trans-unit id="form.modal.button.reset">
+                <target>Ja, Auswahl zurücksetzen</target>
+            </trans-unit>
+            <trans-unit id="form.modal.button.no">
+                <target>Nein</target>
+            </trans-unit>
+
+            <trans-unit id="newsletter.employer">
+                <target>** Notwendige Angaben für Anmeldung zum Newsletter für Arbeitgeber</target>
+            </trans-unit>
+            <trans-unit id="newsletter.subscribe">
+                <target>Newsletter abonnieren</target>
+            </trans-unit>
+            <trans-unit id="newsletter.subscribe.employer">
+                <target>Arbeitgeber-Newsletter</target>
+            </trans-unit>
+            <trans-unit id="newsletter.subscribe.private">
+                <target>Versicherten-Newsletter</target>
+            </trans-unit>
+            <trans-unit id="newsletter.subscribe_for">
+                <target>Anmeldung für</target>
+            </trans-unit>
+            <trans-unit id="newsletter.unsubscribe">
+                <target>Newsletter abmelden</target>
+            </trans-unit>
+
+            <trans-unit id="noscript.js-disabled">
+                <target>JavaScript deaktiviert</target>
+            </trans-unit>
+            <trans-unit id="noscript.benefit-calculator">
+                <target>Bitte aktivieren Sie Javascript, um den Vorteilsrechner zu verwenden.</target>
+            </trans-unit>
+
+            <trans-unit id="social-share.facebook">
+                <target>Teilen via Facebook</target>
+            </trans-unit>
+            <trans-unit id="social-share.x-twitter">
+                <target>Teilen via X</target>
+            </trans-unit>
+            <trans-unit id="social-share.whatsapp">
+                <target>Teilen via Whatsapp</target>
+            </trans-unit>
+            <trans-unit id="social-share.mail">
+                <target>Teilen via E-mail</target>
+            </trans-unit>
+
+            <trans-unit id="benefit-calculator.no-groups">
+                <target>Wir arbeiten gerade für Sie an unserem Vorteilsrechner. Bitte haben Sie etwas Geduld.</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.service-free">
+                <target>kostenlos</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.up-to">
+                <target>bis zu</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.js-hint.headline">
+                <target>Javascript deaktiviert</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.js-hint.text">
+                <target>Bitte aktivieren Sie Javascript, um den Vorteilsrechner zu verwenden.</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.options.headline">
+                <target>Versicherte Personen auswählen</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.options.text">
+                <target>Bitte wählen Sie eine Person aus.</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.male">
+                <target>Mann</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.female">
+                <target>Frau</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.child">
+                <target>Kind</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.results.headline">
+                <target>Mein mhplus-Vorteil</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.result-prefix">
+                <target>Ich profitiere insgesamt von</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.more-information">
+                <target>Weitere Informationen</target>
+            </trans-unit>
+
+            <trans-unit id="benefit-calculator.debug.special_service">
+                <target>Besondere Leistung</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.debug.service_male">
+                <target>Leistung gültig für Mann</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.debug.service_female">
+                <target>Leistung gültig für Frau</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.debug.service_kids">
+                <target>Leistung gültig für Kind</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.debug.service_male_preselect">
+                <target>Leistung vorausgewählt für Mann</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.debug.service_female_preselect">
+                <target>Leistung vorausgewählt für Frau</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.debug.service_kids_preselect">
+                <target>Leistung vorausgewählt für Kind</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.debug.yes">
+                <target>ja</target>
+            </trans-unit>
+            <trans-unit id="benefit-calculator.debug.no">
+                <target>nein</target>
+            </trans-unit>
+
+            <trans-unit id="page-teaser.button-text">
+                <target>Weiterlesen</target>
+            </trans-unit>
+            <trans-unit id="page-teaser.button-text.news">
+                <target>Zum Beitrag</target>
+            </trans-unit>
+            <trans-unit id="page-teaser.news.headline">
+                <target>Das könnte Sie auch interessieren</target>
+            </trans-unit>
+
+            <trans-unit id="media-credits.creator">
+                <target>Urheber, Fotograf, Rechteinhaber</target>
+            </trans-unit>
+            <trans-unit id="media-credits.publisher">
+                <target>Bilddatenbank, Bezugsquelle</target>
+            </trans-unit>
+            <trans-unit id="media-credits.source">
+                <target>Foto-ID, Einzelnachweis</target>
+            </trans-unit>
+            <trans-unit id="media-credits.image">
+                <target>Bild</target>
+            </trans-unit>
+            <trans-unit id="media-credits.not_found">
+                <target>Keine Mediennachweise gefunden.</target>
+            </trans-unit>
+
+            <trans-unit id="command.media-credits.description">
+                <target>Informiert Fachbereiche oder hinterlegte E-Mail-Addressen über ablaufende Medienlizenzen</target>
+            </trans-unit>
+            <trans-unit id="command.media-credits.argument.base_url">
+                <target>Basis-URL für die Datei-Verlinkung</target>
+            </trans-unit>
+            <trans-unit id="command.media-credits.argument.interval">
+                <target>Wie viele Tage vor Ablauf der Lizenz soll informiert werden?</target>
+            </trans-unit>
+            <trans-unit id="command.media-credits.argument.mail_receivers">
+                <target>E-Mail-Adressen, welche immer benachrichtigt werden (separiert via Komma)</target>
+            </trans-unit>
+
+            <trans-unit id="command.service-center-import.description">
+                <target>Importiert sämtliche Servicecenter-Daten aus Google My Business</target>
+            </trans-unit>
+
+            <trans-unit id="email.media-credits.subject">
+                <target>mhplus-Website: Medienlizenzen müssen überprüft werden</target>
+            </trans-unit>
+            <trans-unit id="email.media-credits.headline">
+                <target>Bitte überprüfen Sie folgende Medienlizenzen auf mhplus-krankenkasse.de:</target>
+            </trans-unit>
+            <trans-unit id="email.media-credits.text">
+                <target>Sie erhalten diese E-Mail, weil Ihr Fachbereich für oben genannte Dateien als verantwortlich eingetragen wurde.</target>
+            </trans-unit>
+            <trans-unit id="email.media-credits.text_2">
+                <target>Bei Fragen wenden Sie sich gern an Elektronische Medien, Unternehmensbereich IT.</target>
+            </trans-unit>
+            <trans-unit id="email.media-credits.expire_date">
+                <target>Ablauf Medienlizenz:</target>
+            </trans-unit>
+            <trans-unit id="email.media-credits.incomplete_data">
+                <target>Medienlizenz-Angaben unvollständig</target>
+            </trans-unit>
+            <trans-unit id="email.thank_you_message">
+                <target>Vielen Dank für Ihre Nachricht!</target>
+            </trans-unit>
+            <trans-unit id="email.customer_service">
+                <target>Ihr mhplus Kundenservice</target>
+            </trans-unit>
+            <trans-unit id="email.please_note">
+                <target>Bitte beachten Sie</target>
+            </trans-unit>
+            <trans-unit id="email.service_notice">
+                <target><![CDATA[Diese Mitteilung ist eine automatisch generierte E-Mail. Bei Fragen zur mhplus hilft Ihnen unser Service-Center unter 07141 9790-0 weiter. Sie erreichen uns montags bis freitags von 07:00 Uhr bis 20:00 Uhr. Oder schreiben Sie uns eine E-Mail an <a href="mailto:info@mhplus.de" style="color: #8fcdf4; text-decoration: none;">info@mhplus.de</a>.]]></target>
+            </trans-unit>
+
+            <trans-unit id="search.button_text">
+                <target>suchen</target>
+            </trans-unit>
+            <trans-unit id="search.title">
+                <target>Wonach suchen Sie?</target>
+            </trans-unit>
+            <trans-unit id="search.placeholder">
+                <target>Stichwort oder Webcode eingeben</target>
+            </trans-unit>
+            <trans-unit id="search.placeholder_2">
+                <target>Suche oder Webcode</target>
+            </trans-unit>
+            <trans-unit id="search.sidebar_button">
+                <target>Suche</target>
+            </trans-unit>
+            <trans-unit id="search.close">
+                <target>Schließen</target>
+            </trans-unit>
+            <trans-unit id="search.reset-search">
+                <target>Suchfeld zurücksetzen</target>
+            </trans-unit>
+            <trans-unit id="search.settings">
+                <target>Sucheinstellungen</target>
+            </trans-unit>
+            <trans-unit id="search.enable_quoting">
+                <target>Suchbegriffe zusammenhängend suchen</target>
+            </trans-unit>
+            <trans-unit id="search.terms.title">
+                <target>Häufig gesuchte Themen</target>
+            </trans-unit>
+            <trans-unit id="search.rows.result">
+                <target>Ergebnisse</target>
+            </trans-unit>
+            <trans-unit id="search.tag.knowledge">
+                <target>Wissen</target>
+            </trans-unit>
+
+            <trans-unit id="news.back-link">
+                <target>zur Übersicht</target>
+            </trans-unit>
+            <trans-unit id="news.no_result">
+                <target>Es wurden keine Beiträge gefunden.</target>
+            </trans-unit>
+            <trans-unit id="news.read_more">
+                <target>Mehr lesen</target>
+            </trans-unit>
+            <trans-unit id="news.search">
+                <target>Suchen</target>
+            </trans-unit>
+            <trans-unit id="news.search.placeholder">
+                <target>Artikel durchsuchen</target>
+            </trans-unit>
+            <trans-unit id="news.tip">
+                <target>Tipp</target>
+            </trans-unit>
+            <trans-unit id="news.chips.subheader">
+                <target>Nach Themen filtern</target>
+            </trans-unit>
+            <trans-unit id="news.chips.delete-button">
+                <target>Filter zurücksetzen</target>
+            </trans-unit>
+            <trans-unit id="news.detail.chips.back-button">
+                <target>Zurück</target>
+            </trans-unit>
+
+            <trans-unit id="slider.previous">
+                <target>Vorheriger</target>
+            </trans-unit>
+            <trans-unit id="slider.next">
+                <target>Nächster</target>
+            </trans-unit>
+            <trans-unit id="slider.skip-link">
+                <target>Slider überspringen</target>
+            </trans-unit>
+            <trans-unit id="slider.end-anchor">
+                <target>Ende des Sliders</target>
+            </trans-unit>
+
+            <trans-unit id="service-center">
+                <target>Geschäftsstelle</target>
+            </trans-unit>
+            <trans-unit id="service-center.search-hidden">
+                <target>Suche</target>
+            </trans-unit>
+            <trans-unit id="service-center.search">
+                <target>suchen</target>
+            </trans-unit>
+            <trans-unit id="service-center.see-list">
+                <target>Liste ansehen</target>
+            </trans-unit>
+            <trans-unit id="service-center.contact">
+                <target>Kontakt aufnehmen</target>
+            </trans-unit>
+            <trans-unit id="service-center.mhplus">
+                <target>mhplus Betriebskrankenkasse</target>
+            </trans-unit>
+            <trans-unit id="service-center.opening-times">
+                <target>Öffnungszeiten</target>
+            </trans-unit>
+            <trans-unit id="service-center.email">
+                <target>E-Mail</target>
+            </trans-unit>
+            <trans-unit id="service-center.email-address">
+                <target>info@mhplus.de</target>
+            </trans-unit>
+            <trans-unit id="service-center.contact-form">
+                <target>Zum Kontaktformular</target>
+            </trans-unit>
+            <trans-unit id="service-center.phone-availability">
+                <target>Telefonische Erreichbarkeit</target>
+            </trans-unit>
+            <trans-unit id="service-center.more-info">
+                <target>mehr Informationen</target>
+            </trans-unit>
+            <trans-unit id="service-center.opened">
+                <target>Gerade geöffnet</target>
+            </trans-unit>
+            <trans-unit id="service-center.closed">
+                <target>Geschlossen</target>
+            </trans-unit>
+            <trans-unit id="service-center.o-clock">
+                <target>Uhr</target>
+            </trans-unit>
+            <trans-unit id="service-center.recall-form">
+                <target>Zum Rückrufformular</target>
+            </trans-unit>
+            <trans-unit id="service-centers">
+                <target>Geschäftsstellen</target>
+            </trans-unit>
+
+            <trans-unit id="service-center-import.opening.status.OPEN">
+                <target>Geöffnet</target>
+            </trans-unit>
+            <trans-unit id="service-center-import.opening.status.CLOSED_PERMANENTLY">
+                <target>Dauerhaft geschlossen</target>
+            </trans-unit>
+
+            <trans-unit id="service-center.consent.headline">
+                <target>Richtlinien akzeptieren</target>
+            </trans-unit>
+            <trans-unit id="service-center.consent.text">
+                <target>Um Google Maps anzuzeigen, müssen Sie die</target>
+            </trans-unit>
+            <trans-unit id="service-center.consent.text-2">
+                <target>Nutzungsbedingungen</target>
+            </trans-unit>
+            <trans-unit id="service-center.consent.text-3">
+                <target>akzeptieren.</target>
+            </trans-unit>
+            <trans-unit id="service-center.consent.button">
+                <target>Akzeptieren</target>
+            </trans-unit>
+            <trans-unit id="service-center.consent.icon.alt">
+                <target>Icon für wichtige Positionen auf der Karte</target>
+            </trans-unit>
+
+            <trans-unit id="top-link.jump-to-start">
+                <target>Zum Seitenanfang springen</target>
+            </trans-unit>
+            <trans-unit id="top-link.jump-to-main">
+                <target>Zum Hauptinhalt springen</target>
+            </trans-unit>
+
+            <trans-unit id="sidebar.phone">
+                <target>Telefon</target>
+            </trans-unit>
+            <trans-unit id="sidebar.email">
+                <target>E-Mail</target>
+            </trans-unit>
+            <trans-unit id="sidebar.fax">
+                <target>Fax</target>
+            </trans-unit>
+
+            <!-- pfiffix-map -->
+            <trans-unit id="pfiffix-map.program">
+                <target>Programm</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.program.1">
+                <target>PFIFFIX mini (Kindergartenkinder)</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.program.2">
+                <target>PFIFFIX medi (1. + 2. Klasse)</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.program.3">
+                <target>PFIFFIX maxi (3. + 4. Klasse)</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.locations">
+                <target>Einsatzorte</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.locations.1">
+                <target>Alle verfügbaren Bundesländer</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.locations.2">
+                <target>Baden-Württemberg</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.locations.3">
+                <target>Bayern</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.locations.4">
+                <target>Berlin</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.locations.5">
+                <target>Brandenburg</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.locations.6">
+                <target>Bremen</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.locations.7">
+                <target>Hamburg</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.locations.8">
+                <target>Hessen</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.locations.9">
+                <target>Mecklenburg-Vorpommern</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.locations.10">
+                <target>Niedersachsen</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.locations.11">
+                <target>Nordrhein-Westfalen</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.locations.12">
+                <target>Rheinland-Pfalz</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.locations.13">
+                <target>Saarland</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.locations.14">
+                <target>Sachsen-Anhalt</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.locations.15">
+                <target>Sachsen</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.locations.16">
+                <target>Schleswig-Holstein</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.locations.17">
+                <target>Thüringen</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.cooperation-partner">
+                <target>Kooperationspartner</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.search.label">
+                <target>Suche</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.search.buttontext">
+                <target>Suchen</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.email">
+                <target>E-Mail</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.phone-availability">
+                <target>Telefonische Erreichbarkeit</target>
+            </trans-unit>
+            <trans-unit id="pfiffix-map.website">
+                <target>Website</target>
+            </trans-unit>
+
+            <trans-unit id="modal.close">
+                <target>Popup schließen</target>
+            </trans-unit>
+
+            <trans-unit id="adminpanel.debughtml.label">
+                <target>HTML</target>
+            </trans-unit>
+            <trans-unit id="adminpanel.debughtml.empty-alt.label">
+                <target>Bilder ohne Alternativ-Text hervorheben (Rot)</target>
+            </trans-unit>
+            <trans-unit id="adminpanel.debughtml.empty-title.label">
+                <target>Links ohne Titel hervorheben (Gelb)</target>
+            </trans-unit>
+            <trans-unit id="adminpanel.debughtml.empty-tag.label">
+                <target>Alle Html-Elemente ohne Inhalt hervorheben (Blau)</target>
+            </trans-unit>
+
+            <trans-unit id="powermail.field.file.text-1-multi">
+                <target>Dateien hochladen</target>
+            </trans-unit>
+            <trans-unit id="powermail.field.file.text-1">
+                <target>Datei hochladen</target>
+            </trans-unit>
+            <trans-unit id="powermail.field.file.text-2">
+                <target>oder hier ablegen</target>
+            </trans-unit>
+            <trans-unit id="powermail.field.file.delete">
+                <target>Alle Dateien entfernen</target>
+            </trans-unit>
+
+            <trans-unit id="service.unavailable">
+                <target>Unser Service steht vorübergehend nicht zur Verfügung. Bitte versuchen Sie es später erneut oder nutzen Sie unseren Rückruf-Service.</target>
+            </trans-unit>
+            <trans-unit id="service.recall_button">
+                <target>zum Rückruf-Service</target>
+            </trans-unit>
+
+            <trans-unit id="internet-explorer.info">
+                <target>Wir legen Wert auf Sicherheit. Deswegen wird die Unterstützung für den Internet Explorer nicht mehr durch unsere Website bereitgestellt. Bitte verwenden Sie einen anderen Browser, zum Beispiel</target>
+            </trans-unit>
+            <trans-unit id="internet-explorer.alternative_browsers">
+                <target>Google Chrome, Firefox oder Edge</target>
+            </trans-unit>
+            <trans-unit id="internet-explorer.phone">
+                <target>Telefon</target>
+            </trans-unit>
+            <trans-unit id="internet-explorer.email">
+                <target>E-Mail</target>
+            </trans-unit>
+            <trans-unit id="internet-explorer.privacy_policy">
+                <target>Datenschutz</target>
+            </trans-unit>
+            <trans-unit id="internet-explorer.legal_notice">
+                <target>Impressum</target>
+            </trans-unit>
+
+            <trans-unit id="felogin.pfiffix.image.alt">
+                <target>Man sieht das PFIFFIX-Maskottchen</target>
+            </trans-unit>
+            <trans-unit id="felogin.permalogin">
+                <target>Angemeldet bleiben</target>
+            </trans-unit>
+
+            <trans-unit id="language-nav.title">
+                <target>Sprache</target>
+            </trans-unit>
+            <trans-unit id="language-nav.arrow">
+                <target>Ein grauer Pfeil zeigt nach rechts</target>
+            </trans-unit>
+            <trans-unit id="language-nav.switch">
+                <target>Sprache umstellen</target>
+            </trans-unit>
+            <trans-unit id="language-nav.DE">
+                <target>Sprache auf Deutsch umstellen</target>
+            </trans-unit>
+            <trans-unit id="language-nav.EN">
+                <target>Switch language to english</target>
+            </trans-unit>
+            <trans-unit id="language-nav.TR">
+                <target>Dili Türkçe olarak değiştir</target>
+            </trans-unit>
+            <trans-unit id="language-nav.UA">
+                <target>Змінити мову на українську</target>
+            </trans-unit>
+
+            <trans-unit id="ozg.service.link">
+                <target>Zur Leistung</target>
+            </trans-unit>
+            <trans-unit id="ozg.infobox.title">
+                <target>Direkte Weiterleitung aktiv</target>
+            </trans-unit>
+            <trans-unit id="ozg.infobox.message">
+                <target>Für diese OZG-Leistung ist die direkte Weiterleitung aktiv. Daher befinden sich keine Inhalte auf dieser Seite.</target>
+            </trans-unit>
+
+            <trans-unit id="sf-register.create.preview.intro-text">
+                <target>Bitte bestätigen Sie Ihre Eingaben, wenn diese korrekt sind.</target>
+            </trans-unit>
+            <trans-unit id="sf-register.mail.create.user.save.refuse-text">
+                <target>Wenn Sie die Registrierung über Ihre E-Mail-Adresse nicht ausgeführt haben, könnten sie mit dem folgenden Link alle Daten wieder löschen:</target>
+            </trans-unit>
+            <trans-unit id="sf-register.mail.create.user.save.refuse-link">
+                <target>Registrierung abbrechen und Daten entfernen</target>
+            </trans-unit>
+            <trans-unit id="sf-register.checkbox.privacy">
+                <target><![CDATA[Ich habe die <a href="%s" target="_blank">Datenschutzerklärung</a> gelesen und bin mit der Verarbeitung meiner Daten einverstanden.]]></target>
+            </trans-unit>
+
+            <trans-unit id="sys_note.hint">
+                <target>Hinweis</target>
+            </trans-unit>
+            <trans-unit id="sys_note.category.100">
+                <target>Hinweis</target>
+            </trans-unit>
+
+            <trans-unit id="target_group.more">
+                <target>Mehr Vorteile</target>
+            </trans-unit>
+
+            <trans-unit id="alert-banner.button">
+                <target>Mehr erfahren</target>
+            </trans-unit>
+            <trans-unit id="alert-banner.close">
+                <target>Banner schließen</target>
+            </trans-unit>
+
+            <trans-unit id="noResultsForTerm" xml:space="preserve">
+                <target>Keine Ergebnisse für %s gefunden</target>
+            </trans-unit>
+
+            <trans-unit id="teaser.no-results.header">
+                <target>Sie erhalten kein Suchergebnis?</target>
+            </trans-unit>
+            <trans-unit id="teaser.no-results.bodytext">
+                <target>Bitte versuchen Sie eine andere Schreibweise oder nutzen Sie ein Synonym Ihres Suchbegriffs. Sie haben trotzdem nichts gefunden?</target>
+            </trans-unit>
+            <trans-unit id="teaser.no-results.linktext">
+                <target>Kontakt aufnehmen</target>
+            </trans-unit>
+
+            <trans-unit id="disclaimer.summary">
+                <target>Haftungsausschluss</target>
+            </trans-unit>
+            <trans-unit id="disclaimer.text">
+                <target>Die medizinischen Texte in der Rubrik mhplus-krankenkasse.de/wissen geben grundlegende Informationen zu Gesundheitsthemen und Erkrankungen. Sie ersetzen nicht die fachliche Beratung durch einen Arzt oder Apotheker und dürfen nicht als Grundlage für eine eigenständige Diagnose und Behandlung verwendet werden. Bei gesundheitlichen Fragen oder Beschwerden empfehlen wir immer den Arztbesuch. Nur der behandelnde Arzt kann eine Diagnose stellen oder eine konkrete Therapieempfehlung geben. Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Die mhplus kann dennoch ausdrücklich keine Gewähr für die Richtigkeit, Vollständigkeit, Verlässlichkeit, Qualität und Aktualität geben. Werden bestimmte Untersuchungs- und Behandlungsverfahren erwähnt, so dient dies ggf. der vollständigen Informationen zu allen gängigen Möglichkeiten. Darunter sind möglicherweise auch solche, deren Nutzen und Wirkung noch nicht zweifelsfrei nachgewiesen sind, und die daher von Rechts wegen nicht im Leistungskatalog der gesetzlichen Krankenversicherung enthalten sind. Nur durch ihre Erwähnung ergibt sich kein Anspruch auf Kostenerstattung.</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
