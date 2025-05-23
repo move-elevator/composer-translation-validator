@@ -1,0 +1,91 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\Command\\\\ValidateTranslationCommand\\:\\:collectFiles\\(\\) has parameter \\$excludePatterns with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Command/ValidateTranslationCommand.php
+
+		-
+			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\Command\\\\ValidateTranslationCommand\\:\\:collectFiles\\(\\) has parameter \\$extensions with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Command/ValidateTranslationCommand.php
+
+		-
+			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\Command\\\\ValidateTranslationCommand\\:\\:collectFiles\\(\\) has parameter \\$paths with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Command/ValidateTranslationCommand.php
+
+		-
+			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\Command\\\\ValidateTranslationCommand\\:\\:collectFiles\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Command/ValidateTranslationCommand.php
+
+		-
+			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\Command\\\\ValidateTranslationCommand\\:\\:validateFiles\\(\\) has parameter \\$allFiles with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Command/ValidateTranslationCommand.php
+
+		-
+			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\Command\\\\ValidateTranslationCommand\\:\\:validateFiles\\(\\) has parameter \\$fileDetector with no type specified\\.$#"
+			count: 1
+			path: src/Command/ValidateTranslationCommand.php
+
+		-
+			message: "#^Undefined variable\\: \\$output$#"
+			count: 1
+			path: src/Command/ValidateTranslationCommand.php
+
+		-
+			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\FileDetector\\\\DetectorInterface\\:\\:mapTranslationSet\\(\\) has parameter \\$files with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FileDetector/DetectorInterface.php
+
+		-
+			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\FileDetector\\\\DetectorInterface\\:\\:mapTranslationSet\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FileDetector/DetectorInterface.php
+
+		-
+			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\FileDetector\\\\PrefixFileDetector\\:\\:findSourceFiles\\(\\) has parameter \\$files with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FileDetector/PrefixFileDetector.php
+
+		-
+			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\FileDetector\\\\PrefixFileDetector\\:\\:findSourceFiles\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FileDetector/PrefixFileDetector.php
+
+		-
+			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\FileDetector\\\\PrefixFileDetector\\:\\:mapTranslationSet\\(\\) has parameter \\$files with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FileDetector/PrefixFileDetector.php
+
+		-
+			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\FileDetector\\\\PrefixFileDetector\\:\\:mapTranslationSet\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/FileDetector/PrefixFileDetector.php
+
+		-
+			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\Parser\\\\ParserInterface\\:\\:extractKeys\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Parser/ParserInterface.php
+
+		-
+			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\Parser\\\\ParserInterface\\:\\:getSupportedFileExtensions\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Parser/ParserInterface.php
+
+		-
+			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
+			count: 1
+			path: src/Parser/XliffParser.php
+
+		-
+			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\Parser\\\\XliffParser\\:\\:extractKeys\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Parser/XliffParser.php
+
+		-
+			message: "#^Method KonradMichalik\\\\ComposerTranslationValidator\\\\Parser\\\\XliffParser\\:\\:getSupportedFileExtensions\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Parser/XliffParser.php
