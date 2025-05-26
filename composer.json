@@ -1,12 +1,12 @@
 {
-	"name": "konradmichalik/composer-translation-validator",
+	"name": "move-elevator/composer-translation-validator",
 	"description": "A Composer plugin that validates translations files in your project regarding mismatches between language source and target files.",
 	"license": "GPL-3.0-or-later",
 	"type": "composer-plugin",
 	"authors": [
 		{
 			"name": "Konrad Michalik",
-			"email": "hej@konradmichalik.dev",
+			"email": "km@move-elevator.de",
 			"role": "Maintainer"
 		}
 	],
@@ -28,7 +28,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"KonradMichalik\\ComposerTranslationValidator\\": "src"
+			"MoveElevator\\ComposerTranslationValidator\\": "src"
 		}
 	},
 	"config": {
@@ -38,7 +38,7 @@
 		"sort-packages": true
 	},
 	"extra": {
-		"class": "KonradMichalik\\ComposerTranslationValidator\\Plugin"
+		"class": "MoveElevator\\ComposerTranslationValidator\\Plugin"
 	},
 	"scripts": {
 		"check": [

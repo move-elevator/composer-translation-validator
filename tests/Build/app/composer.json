@@ -1,6 +1,6 @@
 {
 	"require": {
-		"konradmichalik/composer-translation-validator": "@dev"
+		"move-elevator/composer-translation-validator": "@dev"
 	},
 	"repositories": [
 		{
@@ -10,7 +10,7 @@
 	],
 	"config": {
 		"allow-plugins": {
-			"konradmichalik/composer-translation-validator": true
+			"move-elevator/composer-translation-validator": true
 		}
 	},
 	"scripts": {

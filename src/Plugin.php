@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace KonradMichalik\ComposerTranslationValidator;
+namespace MoveElevator\ComposerTranslationValidator;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Plugin\Capability\CommandProvider;
 use Composer\Plugin\Capable;
 use Composer\Plugin\PluginInterface;
-use KonradMichalik\ComposerTranslationValidator\Capability\ValidateTranslationCommandProvider;
+use MoveElevator\ComposerTranslationValidator\Capability\ValidateTranslationCommandProvider;
 
 class Plugin implements PluginInterface, Capable
 {

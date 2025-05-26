@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace KonradMichalik\ComposerTranslationValidator\Command;
+namespace MoveElevator\ComposerTranslationValidator\Command;
 
 use Composer\Command\BaseCommand;
-use KonradMichalik\ComposerTranslationValidator\FileDetector\DetectorInterface;
-use KonradMichalik\ComposerTranslationValidator\FileDetector\PrefixFileDetector;
-use KonradMichalik\ComposerTranslationValidator\Parser\ParserInterface;
-use KonradMichalik\ComposerTranslationValidator\Parser\ParserUtility;
-use KonradMichalik\ComposerTranslationValidator\Parser\XliffParser;
+use MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface;
+use MoveElevator\ComposerTranslationValidator\FileDetector\PrefixFileDetector;
+use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
+use MoveElevator\ComposerTranslationValidator\Parser\ParserUtility;
+use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

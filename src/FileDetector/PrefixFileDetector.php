@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace KonradMichalik\ComposerTranslationValidator\FileDetector;
+namespace MoveElevator\ComposerTranslationValidator\FileDetector;
 
 class PrefixFileDetector implements DetectorInterface
 {

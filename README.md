@@ -12,7 +12,7 @@ A Composer plugin that validates translation files in your project regarding mis
 ## Installation
 
 ```bash
-composer require --dev konradmichalik/composer-translation-validator
+composer require --dev move-elevator/composer-translation-validator
 ```
 
 ## Usage

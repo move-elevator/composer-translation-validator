@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace KonradMichalik\ComposerTranslationValidator\Capability;
+namespace MoveElevator\ComposerTranslationValidator\Capability;
 
 use Composer\Plugin\Capability\CommandProvider;
-use KonradMichalik\ComposerTranslationValidator\Command\ValidateTranslationCommand;
+use MoveElevator\ComposerTranslationValidator\Command\ValidateTranslationCommand;
 
 class ValidateTranslationCommandProvider implements CommandProvider
 {

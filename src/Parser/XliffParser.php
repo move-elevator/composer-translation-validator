@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace KonradMichalik\ComposerTranslationValidator\Parser;
+namespace MoveElevator\ComposerTranslationValidator\Parser;
 
 class XliffParser implements ParserInterface
 {
@@ -40,7 +40,7 @@ class XliffParser implements ParserInterface
     {
         foreach ($this->xml->file->body->{'trans-unit'} as $unit) {
             if ((string) $unit['id'] === $key) {
-                return (string) ($unit->source) ?? null;
+                return (string) $unit->source ?? null;
             }
         }
 

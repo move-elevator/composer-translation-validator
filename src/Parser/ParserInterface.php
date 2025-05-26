@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace KonradMichalik\ComposerTranslationValidator\Parser;
+namespace MoveElevator\ComposerTranslationValidator\Parser;
 
 interface ParserInterface
 {
