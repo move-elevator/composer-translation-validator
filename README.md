@@ -1,13 +1,13 @@
 # Composer translation validator plugin
 
-A Composer plugin that validates translation files in your project regarding mismatches between language source and target files.
+A Composer plugin that validates translation files in your project regarding mismatches between language files.
 
 ## Features
 
-* Autodetect according source and target files
+* Autodetect according language files
 * Detects missing translations
 * Supports the following formats:
-  * XLIFF
+  * XLIFF - `*.xlf`, `*.xliff`
 
 ## Installation
 

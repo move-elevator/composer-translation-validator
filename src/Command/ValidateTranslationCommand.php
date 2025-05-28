@@ -133,6 +133,7 @@ class ValidateTranslationCommand extends BaseCommand
         $hasErrors = false;
 
         foreach ($fileDetector->mapTranslationSet($allFiles) as $sourceFile => $targetFiles) {
+            /* @var ParserInterface $source */
             $source = new ($parserClass ?: ParserUtility::resolveParserClass($sourceFile))($sourceFile);
             $sourceHasErrors = false;
             $this->debug('> Checking language source file: <fg=gray>'.$source->getFileDirectory().'</><fg=cyan>'.$source->getFileName().'</> ...', newLine: $this->output->isVeryVerbose());
@@ -145,11 +146,12 @@ class ValidateTranslationCommand extends BaseCommand
             }
 
             foreach ($targetFiles as $targetFile) {
+                /* @var ParserInterface $target */
                 $target = new $parserClass($targetFile);
                 $this->debug('> Checking language target file: '.$target->getFileDirectory().$target->getFileName().' ...', veryVerbose: true);
-                $missingKeys = array_diff($sourceKeys, $target->extractKeys());
+                $missingKeys = [...array_diff($sourceKeys, $target->extractKeys()), ...array_diff($target->extractKeys(), $sourceKeys)];
 
-                if ($missingKeys) {
+                if (!empty($missingKeys)) {
                     $this->debug('> Validation result: ', veryVerbose: true, newLine: false);
                     $this->debug(' <fg=red>✘</>');
                     $this->io->warning('Found missing keys in '.$target->getFilePath());
@@ -158,7 +160,7 @@ class ValidateTranslationCommand extends BaseCommand
                         ->setColumnWidths([10, 30, 30])
                         ->setHeaderTitle($target->getFileName())
                         ->setHeaders(['Language Key', $source->getLanguage(), $target->getLanguage()])
-                        ->setRows(array_map(fn ($key) => [$key, $source->getContentByKey($key), $target->getContentByKey($key)], $missingKeys))
+                        ->setRows(array_map(static fn ($key) => [$key, $source->getContentByKey($key) ?: '<fg=yellow>–</>', $target->getContentByKey($key, 'target') ?: '<fg=yellow>–</>'], $missingKeys))
                         ->setStyle('box')
                         ->render();
 
@@ -194,7 +196,7 @@ class ValidateTranslationCommand extends BaseCommand
             return 1;
         }
 
-        $message = 'Language validation succeeded. All keys are present in the target files.';
+        $message = 'Language validation succeeded. No translation mismatches found.';
         $this->output->isVerbose() ? $this->io->success($message) : $this->output->writeln('<fg=green>'.$message.'</>');
 
         return 0;

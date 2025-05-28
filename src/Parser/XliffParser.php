@@ -39,11 +39,11 @@ class XliffParser implements ParserInterface
         return $keys;
     }
 
-    public function getContentByKey(string $key): ?string
+    public function getContentByKey(string $key, string $attribute = 'source'): ?string
     {
         foreach ($this->xml->file->body->{'trans-unit'} as $unit) {
             if ((string) $unit['id'] === $key) {
-                return ('' !== (string) $unit->source) ? (string) $unit->source : null;
+                return ('' !== (string) $unit->{$attribute}) ? (string) $unit->{$attribute} : null;
             }
         }
 
