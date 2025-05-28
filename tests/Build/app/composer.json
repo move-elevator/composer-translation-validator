@@ -15,7 +15,7 @@
 	},
 	"scripts": {
 		"translation:xliff:all": "@composer validate-translations ./Language/XLIFF-fail ./Language/XLIFF-success",
-		"translation:xliff:all:check": "@composer validate-translations ./Language/XLIFF-fail ./Language/XLIFF-success --dry-un",
+		"translation:xliff:all:check": "@composer validate-translations ./Language/XLIFF-fail ./Language/XLIFF-success --dry-run",
 		"translation:xliff:fail": "@composer validate-translations ./Language/XLIFF-fail",
 		"translation:xliff:fail:check": "@composer validate-translations ./Language/XLIFF-fail --dry-run",
 		"translation:xliff:success": "@composer validate-translations ./Language/XLIFF-success",
