@@ -22,10 +22,13 @@ class XliffParser implements ParserInterface
         if (!in_array(pathinfo($filePath, PATHINFO_EXTENSION), self::getSupportedFileExtensions(), true)) {
             throw new \InvalidArgumentException(sprintf('File "%s" is not a valid XLIFF file.', $filePath));
         }
-        $this->xml = @simplexml_load_file($filePath);
+        $this->xml = @simplexml_load_string(file_get_contents($filePath));
         $this->fileName = basename($filePath);
     }
 
+    /**
+     * @return array<int, string>|null
+     */
     public function extractKeys(): ?array
     {
         $keys = [];
@@ -40,13 +43,16 @@ class XliffParser implements ParserInterface
     {
         foreach ($this->xml->file->body->{'trans-unit'} as $unit) {
             if ((string) $unit['id'] === $key) {
-                return (string) $unit->source ?? null;
+                return ('' !== (string) $unit->source) ? (string) $unit->source : null;
             }
         }
 
         return null;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public static function getSupportedFileExtensions(): array
     {
         return ['xliff', 'xlf'];

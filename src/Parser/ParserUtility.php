@@ -6,6 +6,11 @@ namespace MoveElevator\ComposerTranslationValidator\Parser;
 
 class ParserUtility
 {
+    /**
+     * @return array<int, string>
+     *
+     * @throws \ReflectionException
+     */
     public static function resolveAllowedFileExtensions(): array
     {
         $allClasses = get_declared_classes();

@@ -12,6 +12,7 @@
 	],
 	"require": {
 		"php": ">= 8.0",
+		"ext-simplexml": "*",
 		"ext-xml": "*",
 		"composer-plugin-api": "^1.0 || ^2.0",
 		"symfony/console": "^4.4.11 || ^5.0.11 || ^6.0",
@@ -67,6 +68,6 @@
 		"php:lint": "find *.php . -name '*.php' ! -path './vendor/*'  ! -path './var/*' ! -path '*node_modules/*'  ! -path './.Build/*' ! -path './public/*' -print0 | xargs -0 -n 1 -P 4 php -l",
 		"php:lint:check": "find *.php . -name '*.php' ! -path './vendor/*'  ! -path './var/*' ! -path '*node_modules/*'  ! -path './.Build/*' ! -path './public/*' -print0 | xargs -0 -n 1 -P 4 php -l",
 		"php:stan": "php vendor/bin/phpstan --generate-baseline=phpstan-baseline.neon --allow-empty-baseline --memory-limit=2G",
-		"php:stan:check": "php vendor/bin/phpstan --no-progress --error-format=checkstyle > phpstan.xml || true"
+		"php:stan:check": "php vendor/bin/phpstan --no-progress || true"
 	}
 }
