@@ -5,11 +5,11 @@
         <body>
             <trans-unit id="key1">
                 <source/>
-                <target>German1</target>
+                <target>German Key #1</target>
             </trans-unit>
             <trans-unit id="key2">
                 <source/>
-                <target>German2</target>
+                <target>German Key #2</target>
             </trans-unit>
         </body>
     </file>
