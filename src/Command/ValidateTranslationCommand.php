@@ -97,6 +97,13 @@ class ValidateTranslationCommand extends BaseCommand
         return true;
     }
 
+    /**
+     * @param array<int, string>      $paths
+     * @param array<int, string>      $extensions
+     * @param array<int, string>|null $excludePatterns
+     *
+     * @return array<int, string>
+     */
     private function collectFiles(array $paths, array $extensions, ?array $excludePatterns, Filesystem $filesystem): array
     {
         $allFiles = [];
@@ -107,18 +114,21 @@ class ValidateTranslationCommand extends BaseCommand
                 return [];
             }
 
-            $files = array_filter(glob($path.'/*'), fn ($file) => in_array(pathinfo($file, PATHINFO_EXTENSION), $extensions, true));
+            $files = array_filter(glob($path.'/*'), static fn ($file) => in_array(pathinfo($file, PATHINFO_EXTENSION), $extensions, true));
             $allFiles = [...$allFiles, ...$files];
         }
 
         if ($excludePatterns) {
-            $allFiles = array_filter($allFiles, fn ($file) => !array_filter($excludePatterns, fn ($pattern) => fnmatch($pattern, basename($file))));
+            $allFiles = array_filter($allFiles, static fn ($file) => !array_filter($excludePatterns, static fn ($pattern) => fnmatch($pattern, basename($file))));
         }
 
         return $allFiles;
     }
 
-    private function validateFiles($fileDetector, ?string $parserClass, array $allFiles): bool
+    /**
+     * @param array<int, string> $allFiles
+     */
+    private function validateFiles(DetectorInterface $fileDetector, ?string $parserClass, array $allFiles): bool
     {
         $hasErrors = false;
 
@@ -150,8 +160,7 @@ class ValidateTranslationCommand extends BaseCommand
                         ->setHeaders(['Language Key', $source->getLanguage(), $target->getLanguage()])
                         ->setRows(array_map(fn ($key) => [$key, $source->getContentByKey($key), $target->getContentByKey($key)], $missingKeys))
                         ->setStyle('box')
-                        ->render()
-                    ;
+                        ->render();
 
                     $hasErrors = true;
                     $sourceHasErrors = true;
