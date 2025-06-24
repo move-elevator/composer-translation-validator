@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Parser;
 
+use MoveElevator\ComposerTranslationValidator\Validator\DuplicatesValidator;
+use MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator;
+
 class XliffParser implements ParserInterface
 {
     private \SimpleXMLElement|bool $xml = false;
@@ -56,6 +59,14 @@ class XliffParser implements ParserInterface
     public static function getSupportedFileExtensions(): array
     {
         return ['xliff', 'xlf'];
+    }
+
+    /**
+     * @return array<int, class-string<MismatchValidator>>
+     */
+    public static function getValidators(): array
+    {
+        return [MismatchValidator::class, DuplicatesValidator::class];
     }
 
     public function getFileName(): string
