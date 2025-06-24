@@ -19,6 +19,7 @@
 		"translation:xliff:fail": "@composer validate-translations ./Language/XLIFF-fail",
 		"translation:xliff:fail:check": "@composer validate-translations ./Language/XLIFF-fail --dry-run",
 		"translation:xliff:success": "@composer validate-translations ./Language/XLIFF-success",
-		"translation:xliff:success:check": "@composer validate-translations ./Language/XLIFF-success --dry-run"
+		"translation:xliff:success:check": "@composer validate-translations ./Language/XLIFF-success --dry-run",
+		"translation:xliff:duplicates": "@composer validate-translations ./Language/XLIFF-fail ./Language/XLIFF-success --validator=\"MoveElevator\\\\ComposerTranslationValidator\\\\Validator\\\\DuplicatesValidator\""
 	}
 }

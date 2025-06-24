@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Parser;
 
+use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
+
 class ParserUtility
 {
     /**
@@ -12,6 +14,40 @@ class ParserUtility
      * @throws \ReflectionException
      */
     public static function resolveAllowedFileExtensions(): array
+    {
+        $fileExtensions = [];
+        foreach (self::resolveParserClasses() as $parserClass) {
+            if (method_exists($parserClass, 'getSupportedFileExtensions')) {
+                $fileExtensions = [...$fileExtensions, ...$parserClass::getSupportedFileExtensions()];
+            }
+        }
+
+        return $fileExtensions;
+    }
+
+    /**
+     * @return array<int, class-string<ValidatorInterface>>
+     *
+     * @throws \ReflectionException
+     */
+    public static function resolveValidators(): array
+    {
+        $validators = [];
+        foreach (self::resolveParserClasses() as $parserClass) {
+            if (method_exists($parserClass, 'getValidators')) {
+                $validators = [...$validators, ...$parserClass::getValidators()];
+            }
+        }
+
+        return $validators;
+    }
+
+    /**
+     * @return array<int, class-string<ParserInterface>>
+     *
+     * @throws \ReflectionException
+     */
+    public static function resolveParserClasses(): array
     {
         $allClasses = get_declared_classes();
         $parserClasses = [];
@@ -23,22 +59,21 @@ class ParserUtility
             }
         }
 
-        $fileExtensions = [];
-        foreach ($parserClasses as $parserClass) {
-            if (method_exists($parserClass, 'getSupportedFileExtensions')) {
-                $fileExtensions = [...$fileExtensions, ...$parserClass::getSupportedFileExtensions()];
-            }
-        }
-
-        return $fileExtensions;
+        return $parserClasses;
     }
 
+    /**
+     * @return class-string<ParserInterface>|null
+     *
+     * @throws \ReflectionException
+     */
     public static function resolveParserClass(string $filePath): ?string
     {
         $fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);
         $parserClasses = self::resolveAllowedFileExtensions();
 
         foreach ($parserClasses as $parserClass) {
+            /* @var class-string<ParserInterface> $parserClass */
             if (in_array($fileExtension, $parserClass::getSupportedFileExtensions(), true)) {
                 return $parserClass;
             }

@@ -10,7 +10,7 @@ use MoveElevator\ComposerTranslationValidator\FileDetector\PrefixFileDetector;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserUtility;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
-use Symfony\Component\Console\Helper\Table;
+use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -33,9 +33,13 @@ class ValidateTranslationCommand extends BaseCommand
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Run the command in dry-run mode without throwing errors')
             ->addOption('exclude', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'Patterns to exclude specific files')
             ->addOption('file-detector', null, InputOption::VALUE_REQUIRED, 'The file detector to use (FQCN)', PrefixFileDetector::class)
-            ->addOption('parser', null, InputOption::VALUE_REQUIRED, 'The parser to use (FQCN)', XliffParser::class);
+            ->addOption('parser', null, InputOption::VALUE_REQUIRED, 'The parser to use (FQCN)', XliffParser::class)
+            ->addOption('validator', null, InputOption::VALUE_OPTIONAL, 'The specific validator to use (FQCN)');
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->output = $output;
@@ -49,11 +53,15 @@ class ValidateTranslationCommand extends BaseCommand
         $filesystem = new Filesystem();
 
         if (!$this->validateClass($input->getOption('file-detector'), DetectorInterface::class)) {
+            $this->io->error(sprintf('The file detector class "%s" must implement %s.', $input->getOption('file-detector'), DetectorInterface::class));
+
             return 1;
         }
         $fileDetector = new ($input->getOption('file-detector'))();
 
         if (!$this->validateClass($input->getOption('parser'), ParserInterface::class)) {
+            $this->io->error(sprintf('The parser class "%s" must implement %s.', $input->getOption('parser'), ParserInterface::class));
+
             return 1;
         }
         $parserClass = $input->getOption('parser');
@@ -71,9 +79,23 @@ class ValidateTranslationCommand extends BaseCommand
             return 0;
         }
 
-        $this->hasErrors = $this->validateFiles($fileDetector, $parserClass, $allFiles);
+        $validators = ParserUtility::resolveValidators();
+        if ($input->getOption('validator')) {
+            if (!$this->validateClass($input->getOption('validator'), ValidatorInterface::class)) {
+                $this->io->error(sprintf('The validator class "%s" must implement %s.', $input->getOption('validator'), ValidatorInterface::class));
 
-        return $this->finalizeValidation();
+                return 1;
+            }
+            $validators = [$input->getOption('validator')];
+        }
+
+        foreach ($validators as $validatorClass) {
+            $validator = new $validatorClass($input, $output);
+            $validationResult = $validator->validate($fileDetector, $parserClass, $allFiles);
+            $this->hasErrors = $this->hasErrors || $validationResult;
+        }
+
+        return $this->summary();
     }
 
     private function validateClass(?string $class, string $interface): bool
@@ -125,96 +147,25 @@ class ValidateTranslationCommand extends BaseCommand
         return $allFiles;
     }
 
-    /**
-     * @param array<int, string> $allFiles
-     */
-    private function validateFiles(DetectorInterface $fileDetector, ?string $parserClass, array $allFiles): bool
-    {
-        $hasErrors = false;
-
-        foreach ($fileDetector->mapTranslationSet($allFiles) as $sourceFile => $targetFiles) {
-            /* @var ParserInterface $source */
-            $source = new ($parserClass ?: ParserUtility::resolveParserClass($sourceFile))($sourceFile);
-            $sourceHasErrors = false;
-            $this->debug('> Checking language source file: <fg=gray>'.$source->getFileDirectory().'</><fg=cyan>'.$source->getFileName().'</> ...', newLine: $this->output->isVeryVerbose());
-            $sourceKeys = $source->extractKeys();
-
-            if (!$sourceKeys) {
-                $this->io->error('The source file '.$sourceFile.' is not valid.');
-                $hasErrors = true;
-                continue;
-            }
-
-            foreach ($targetFiles as $targetFile) {
-                /* @var ParserInterface $target */
-                $target = new $parserClass($targetFile);
-                $this->debug('> Checking language target file: '.$target->getFileDirectory().$target->getFileName().' ...', veryVerbose: true);
-                $missingKeys = [...array_diff($sourceKeys, $target->extractKeys()), ...array_diff($target->extractKeys(), $sourceKeys)];
-
-                if (!empty($missingKeys)) {
-                    $this->debug('> Validation result: ', veryVerbose: true, newLine: false);
-                    $this->debug(' <fg=red>✘</>');
-                    $this->io->warning('Found missing keys in '.$target->getFilePath());
-                    $table = new Table($this->output);
-                    $table
-                        ->setColumnWidths([10, 30, 30])
-                        ->setHeaderTitle($target->getFileName())
-                        ->setHeaders(['Language Key', $source->getLanguage(), $target->getLanguage()])
-                        ->setRows(array_map(static fn ($key) => [$key, $source->getContentByKey($key) ?: '<fg=yellow>–</>', $target->getContentByKey($key, 'target') ?: '<fg=yellow>–</>'], $missingKeys))
-                        ->setStyle('box')
-                        ->render();
-
-                    $hasErrors = true;
-                    $sourceHasErrors = true;
-                }
-            }
-
-            if (!$sourceHasErrors) {
-                $this->debug(sprintf('> Validation statistic: 1 source, %d target(s), %d language keys', count($targetFiles), count($sourceKeys)), veryVerbose: true);
-                $this->debug('> Validation result: ', veryVerbose: true, newLine: false);
-                $this->debug(' <fg=green>✔</>');
-                $this->debug('', veryVerbose: true);
-            }
-        }
-
-        return $hasErrors;
-    }
-
-    private function finalizeValidation(): int
+    private function summary(): int
     {
         if ($this->hasErrors) {
             if ($this->dryRun) {
                 $this->io->newLine();
-                $this->io->warning('Language validation completed in dry-run mode. Missing keys were found.');
+                $this->io->warning('Language validation failed and completed in dry-run mode.');
 
                 return 0;
             }
 
             $this->io->newLine();
-            $this->io->error('Language validation failed. Missing keys were found.');
+            $this->io->error('Language validation failed.');
 
             return 1;
         }
 
-        $message = 'Language validation succeeded. No translation mismatches found.';
+        $message = 'Language validation succeeded.';
         $this->output->isVerbose() ? $this->io->success($message) : $this->output->writeln('<fg=green>'.$message.'</>');
 
         return 0;
-    }
-
-    private function debug(string $message, bool $veryVerbose = false, bool $newLine = true): void
-    {
-        if (!$this->output->isVerbose()) {
-            return;
-        }
-
-        if (!$this->output->isVeryVerbose() && $veryVerbose) {
-            return;
-        }
-
-        if ($veryVerbose) {
-            $message = '<fg=gray>'.$message.'</>';
-        }
-        $newLine ? $this->io->writeln($message) : $this->io->write($message);
     }
 }
