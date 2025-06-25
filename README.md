@@ -9,8 +9,9 @@ A Composer plugin that validates translation files in your project regarding mis
 * Supports the following formats:
   * XLIFF - `*.xlf`, `*.xliff`
 * Support the following validators:
-  * [MismatchValidator.php](src/Validator/MismatchValidator.php)
-  * [DuplicatesValidator.php](src/Validator/DuplicatesValidator.php)
+  * [MismatchValidator](src/Validator/MismatchValidator.php)
+  * [DuplicatesValidator](src/Validator/DuplicatesValidator.php)
+  * [SchemaValidator](src/Validator/SchemaValidator.php)
 
 ## Installation
 
@@ -26,6 +27,15 @@ composer validate-translations ./Resources/Private/Language
 ![console.jpg](docs/console.jpg)
 
 See [ValidateTranslationCommand.php](src/Command/ValidateTranslationCommand.php) for further details.
+
+## Testing
+
+Run the following command to execute a test scenario:
+
+```bash
+test/Build/app/vendor/bin/composer translation:xliff:all:check
+
+```
 
 ## License
 

@@ -2,6 +2,9 @@
 	"require": {
 		"move-elevator/composer-translation-validator": "@dev"
 	},
+	"require-dev": {
+		"composer/composer": "^2.0"
+	},
 	"repositories": [
 		{
 			"type": "path",

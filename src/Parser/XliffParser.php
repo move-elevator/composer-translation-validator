@@ -6,6 +6,7 @@ namespace MoveElevator\ComposerTranslationValidator\Parser;
 
 use MoveElevator\ComposerTranslationValidator\Validator\DuplicatesValidator;
 use MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator;
+use MoveElevator\ComposerTranslationValidator\Validator\SchemaValidator;
 
 class XliffParser implements ParserInterface
 {
@@ -66,7 +67,7 @@ class XliffParser implements ParserInterface
      */
     public static function getValidators(): array
     {
-        return [MismatchValidator::class, DuplicatesValidator::class];
+        return [MismatchValidator::class, DuplicatesValidator::class, SchemaValidator::class];
     }
 
     public function getFileName(): string
