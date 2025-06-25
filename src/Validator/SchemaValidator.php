@@ -20,9 +20,10 @@ class SchemaValidator implements ValidatorInterface
     private SymfonyStyle $io;
 
     public function __construct(
-        protected readonly InputInterface $input,
+        protected readonly InputInterface  $input,
         protected readonly OutputInterface $output,
-    ) {
+    )
+    {
         $this->io = new SymfonyStyle($input, $output);
     }
 
@@ -46,12 +47,18 @@ class SchemaValidator implements ValidatorInterface
 
             OutputUtility::debug(
                 $this->output,
-                '> Checking language file: <fg=gray>'.$file->getFileDirectory().'</><fg=cyan>'.$file->getFileName().'</> ...',
+                '> Checking language file: <fg=gray>' . $file->getFileDirectory() . '</><fg=cyan>' . $file->getFileName() . '</> ...',
                 newLine: $this->output->isVeryVerbose()
             );
 
-            $dom = XmlUtils::loadFile($filePath);
-            $errors = XliffUtils::validateSchema($dom);
+            try {
+                $dom = XmlUtils::loadFile($filePath);
+                $errors = XliffUtils::validateSchema($dom);
+            } catch (\Exception $e) {
+                $this->io->error('Failed to validate XML schema: ' . $e->getMessage());
+                $hasErrors = true;
+                continue;
+            }
 
             if (!empty($errors)) {
                 OutputUtility::debug(
@@ -65,7 +72,7 @@ class SchemaValidator implements ValidatorInterface
                     ' <fg=red>✘</>'
                 );
 
-                $this->io->warning('Got schema errors in '.$file->getFilePath());
+                $this->io->warning('Got schema errors in ' . $file->getFilePath());
                 $table = new Table($this->output);
                 $table
                     ->setColumnWidths([10, 10])
