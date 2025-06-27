@@ -138,7 +138,7 @@ class ValidateTranslationCommand extends BaseCommand
                 if ($this->output->isVerbose()) {
                     $this->io->writeln(sprintf('Explanation: %s', $validatorInstance->explain()));
                 }
-                $this->io->writeln(sprintf('Folder Path: <fg=blue>%s</>', PathUtility::normalizeFolderPath($path)));
+                $this->io->writeln(sprintf('<fg=gray>Folder Path: %s</>', PathUtility::normalizeFolderPath($path)));
                 $this->io->newLine();
                 $validatorInstance->renderIssueSets(
                     $this->input,

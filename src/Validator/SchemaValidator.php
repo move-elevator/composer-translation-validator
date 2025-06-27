@@ -8,6 +8,7 @@ use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
+use Symfony\Component\Console\Helper\TableStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Translation\Util\XliffUtils;
@@ -41,7 +42,10 @@ class SchemaValidator extends AbstractValidator implements ValidatorInterface
         $table = new Table($output);
         $table
             ->setHeaders(['File', 'Level', 'Code', 'Message', 'Line'])
-            ->setStyle('markdown');
+            ->setStyle(
+                (new TableStyle())
+                    ->setCellHeaderFormat('%s')
+            );
 
         foreach ($issueSets as $issues) {
             foreach ($issues as $file => $errors) {
@@ -58,7 +62,7 @@ class SchemaValidator extends AbstractValidator implements ValidatorInterface
                     );
 
                     $table->addRow([
-                        $file,
+                        "<fg=red>$file</>",
                         LIBXML_ERR_WARNING === $error['level'] ? 'WARNING' : 'ERROR',
                         $error['code'],
                         trim((string) $message),

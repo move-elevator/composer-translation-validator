@@ -6,6 +6,7 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\TableStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -62,7 +63,7 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
         foreach ($issueSets as $issues) {
             $first = reset($issues);
             $allFiles = array_keys($first);
-            $header = array_merge(['Key'], $allFiles);
+            $header = array_merge(['Key'], array_map(fn ($f) => "<fg=red>$f</>", $allFiles));
 
             $rows = [];
             foreach ($issues as $key => $files) {
@@ -76,7 +77,10 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
             (new Table($output))
                 ->setHeaders($header)
                 ->setRows($rows)
-                ->setStyle('markdown')
+                ->setStyle(
+                    (new TableStyle())
+                        ->setCellHeaderFormat('%s')
+                )
                 ->render();
         }
     }
