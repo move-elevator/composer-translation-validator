@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
-use MoveElevator\ComposerTranslationValidator\Parser\ParserUtility;
+use MoveElevator\ComposerTranslationValidator\Parser\ParserRegistry;
 use Psr\Log\LoggerInterface;
 
 abstract class AbstractValidator
@@ -35,7 +35,7 @@ abstract class AbstractValidator
         );
 
         foreach ($files as $filePath) {
-            $file = new ($parserClass ?: ParserUtility::resolveParserClass($filePath))($filePath);
+            $file = new ($parserClass ?: ParserRegistry::resolveParserClass($filePath))($filePath);
             /* @var ParserInterface $file */
 
             if (!in_array($file::class, $this->supportsParser(), true)) {
