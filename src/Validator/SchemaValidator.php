@@ -28,10 +28,10 @@ class SchemaValidator implements ValidatorInterface
     }
 
     /**
-     * @param array<int, string> $allFiles
-     *
-     * @throws \ReflectionException
-     */
+    * @param array<int, string> $allFiles
+    *
+    * @throws \ReflectionException
+    */
     public function validate(DetectorInterface $fileDetector, ?string $parserClass, array $allFiles): bool
     {
         $hasErrors = false;

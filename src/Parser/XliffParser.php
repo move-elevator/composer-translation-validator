@@ -31,8 +31,8 @@ class XliffParser implements ParserInterface
     }
 
     /**
-     * @return array<int, string>|null
-     */
+    * @return array<int, string>|null
+    */
     public function extractKeys(): ?array
     {
         $keys = [];
@@ -55,16 +55,16 @@ class XliffParser implements ParserInterface
     }
 
     /**
-     * @return array<int, string>
-     */
+    * @return array<int, string>
+    */
     public static function getSupportedFileExtensions(): array
     {
         return ['xliff', 'xlf'];
     }
 
     /**
-     * @return array<int, class-string<MismatchValidator>>
-     */
+    * @return array<int, class-string<MismatchValidator>>
+    */
     public static function getValidators(): array
     {
         return [MismatchValidator::class, DuplicatesValidator::class, SchemaValidator::class];
