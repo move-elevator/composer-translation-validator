@@ -135,7 +135,6 @@ class ValidateTranslationCommand extends BaseCommand
 
             $this->io->section(sprintf('Validator: <fg=cyan>%s</>', $validator));
             foreach ($paths as $path => $sets) {
-
                 if ($this->output->isVerbose()) {
                     $this->io->writeln(sprintf('Explanation: %s', $validatorInstance->explain()));
                 }

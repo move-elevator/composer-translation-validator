@@ -45,7 +45,7 @@ class SchemaValidator extends AbstractValidator implements ValidatorInterface
 
         foreach ($issueSets as $issues) {
             foreach ($issues as $file => $errors) {
-                if ($currentFile !== $file && $currentFile !== null) {
+                if ($currentFile !== $file && null !== $currentFile) {
                     $table->addRow(new TableSeparator());
                 }
                 $currentFile = $file;
