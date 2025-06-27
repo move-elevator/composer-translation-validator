@@ -89,7 +89,7 @@ class SchemaValidator implements ValidatorInterface
                     $table->addRow([
                         LIBXML_ERR_WARNING === $error['level'] ? 'WARNING' : 'ERROR',
                         $error['code'],
-                        trim($message),
+                        trim((string) $message),
                         $error['line'],
                     ]);
                 }
