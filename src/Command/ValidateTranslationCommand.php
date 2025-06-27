@@ -7,7 +7,6 @@ namespace MoveElevator\ComposerTranslationValidator\Command;
 use Composer\Command\BaseCommand;
 use MoveElevator\ComposerTranslationValidator\FileDetector\Collector;
 use MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface;
-use MoveElevator\ComposerTranslationValidator\FileDetector\PrefixFileDetector;
 use MoveElevator\ComposerTranslationValidator\Utility\ClassUtility;
 use MoveElevator\ComposerTranslationValidator\Utility\PathUtility;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
@@ -39,7 +38,7 @@ class ValidateTranslationCommand extends BaseCommand
             ->addArgument('path', InputArgument::IS_ARRAY | InputArgument::REQUIRED, 'Paths to the folders containing XLIFF files')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Run the command in dry-run mode without throwing errors')
             ->addOption('exclude', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'Patterns to exclude specific files')
-            ->addOption('file-detector', null, InputOption::VALUE_REQUIRED, 'The file detector to use (FQCN)', PrefixFileDetector::class)
+            ->addOption('file-detector', null, InputOption::VALUE_OPTIONAL, 'The file detector to use (FQCN)')
             ->addOption('validator', null, InputOption::VALUE_OPTIONAL, 'The specific validator to use (FQCN)');
     }
 
@@ -53,6 +52,7 @@ class ValidateTranslationCommand extends BaseCommand
         $this->input = $input;
         $this->output = $output;
         $this->io = new SymfonyStyle($input, $output);
+
         $paths = array_map(static fn ($path) => str_starts_with((string) $path, '/') ? $path : getcwd().'/'.$path, $input->getArgument('path'));
 
         $this->dryRun = $input->getOption('dry-run');
@@ -63,10 +63,6 @@ class ValidateTranslationCommand extends BaseCommand
             'file detector',
             $input->getOption('file-detector')
         );
-
-        if (!$fileDetector) {
-            return Command::FAILURE;
-        }
 
         if (empty($paths)) {
             $this->io->error('No paths provided.');

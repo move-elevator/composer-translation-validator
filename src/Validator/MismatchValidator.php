@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
+use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
+use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableStyle;
 use Symfony\Component\Console\Input\InputInterface;
@@ -89,5 +91,13 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
     {
         return 'This validator checks for keys that are present in some files but not in others. '
             .'It helps to identify mismatches in translation keys across different translation files.';
+    }
+
+    /**
+     * @return class-string<ParserInterface>[]
+     */
+    public function supportsParser(): array
+    {
+        return [XliffParser::class, YamlParser::class];
     }
 }

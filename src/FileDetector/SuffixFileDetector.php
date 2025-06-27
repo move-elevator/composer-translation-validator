@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\FileDetector;
 
-class PrefixFileDetector implements DetectorInterface
+class SuffixFileDetector implements DetectorInterface
 {
     /**
      * @param array<int, string> $files
@@ -18,10 +18,10 @@ class PrefixFileDetector implements DetectorInterface
         foreach ($files as $file) {
             $basename = basename($file);
             if (
-                preg_match('/^([a-z]{2}(?:[-_][A-Z]{2})?)\.(.+)$/i', $basename, $matches) // Prefix
-                || preg_match('/^[^.]+\.[^.]+$/', $basename, $matches) // No prefix, only one dot (e.g. locallang_be.xlf)
+                preg_match('/^([^.]+)\.[a-z]{2}([-_][A-Z]{2})?(\.ya?ml|\.xlf)?$/i', $basename, $matches) // Suffix
+                || preg_match('/^[^.]+\.(ya?ml|xlf)$/i', $basename, $matches) // No prefix, only one dot (e.g. locallang_be.xlf)
             ) {
-                $key = $matches[2] ?? $matches[0];
+                $key = $matches[1];
                 $groups[$key][] = $file;
             }
         }

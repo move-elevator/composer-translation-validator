@@ -21,4 +21,9 @@ interface ValidatorInterface
     public function renderIssueSets(InputInterface $input, OutputInterface $output, array $issueSets): void;
 
     public function explain(): string;
+
+    /**
+     * @return class-string<ParserInterface>[]
+     */
+    public function supportsParser(): array;
 }

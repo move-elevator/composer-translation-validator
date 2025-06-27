@@ -13,6 +13,7 @@ class ParserRegistry
     {
         return [
             XliffParser::class,
+            YamlParser::class,
         ];
     }
 }
