@@ -6,6 +6,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Parser;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserUtility;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
+use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use PHPUnit\Framework\TestCase;
 
 final class ParserUtilityTest extends TestCase
@@ -16,7 +17,9 @@ final class ParserUtilityTest extends TestCase
 
         $this->assertContains('xliff', $extensions);
         $this->assertContains('xlf', $extensions);
-        $this->assertCount(2, array_unique($extensions));
+        $this->assertContains('yml', $extensions);
+        $this->assertContains('yaml', $extensions);
+        $this->assertCount(4, array_unique($extensions));
     }
 
     public function testResolveParserClasses(): void
@@ -24,7 +27,8 @@ final class ParserUtilityTest extends TestCase
         $parserClasses = ParserUtility::resolveParserClasses();
 
         $this->assertContains(XliffParser::class, $parserClasses);
-        $this->assertCount(1, $parserClasses);
+        $this->assertContains(YamlParser::class, $parserClasses);
+        $this->assertCount(2, $parserClasses);
     }
 
     public function testResolveParserClassWithSupportedExtension(): void
@@ -38,6 +42,16 @@ final class ParserUtilityTest extends TestCase
         $parserClass = ParserUtility::resolveParserClass($filePath);
 
         $this->assertSame(XliffParser::class, $parserClass);
+
+        $filePath = '/path/to/file.yml';
+        $parserClass = ParserUtility::resolveParserClass($filePath);
+
+        $this->assertSame(YamlParser::class, $parserClass);
+
+        $filePath = '/path/to/another.yaml';
+        $parserClass = ParserUtility::resolveParserClass($filePath);
+
+        $this->assertSame(YamlParser::class, $parserClass);
     }
 
     public function testResolveParserClassWithUnsupportedExtension(): void

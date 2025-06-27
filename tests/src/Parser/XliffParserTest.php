@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\Parser;
 
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
-use MoveElevator\ComposerTranslationValidator\Validator\DuplicatesValidator;
-use MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator;
-use MoveElevator\ComposerTranslationValidator\Validator\SchemaValidator;
 use PHPUnit\Framework\TestCase;
 
 final class XliffParserTest extends TestCase
@@ -105,7 +102,7 @@ EOT;
         file_put_contents($invalidFile, 'content');
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessageMatches('/File ".*" is not a valid XLIFF file./');
+        $this->expectExceptionMessageMatches('/File ".*" is not a valid file./');
         new XliffParser($invalidFile);
     }
 
@@ -141,12 +138,6 @@ EOT;
     {
         $extensions = XliffParser::getSupportedFileExtensions();
         $this->assertSame(['xliff', 'xlf'], $extensions);
-    }
-
-    public function testGetValidators(): void
-    {
-        $validators = XliffParser::getValidators();
-        $this->assertSame([MismatchValidator::class, DuplicatesValidator::class, SchemaValidator::class], $validators);
     }
 
     public function testGetFileName(): void
