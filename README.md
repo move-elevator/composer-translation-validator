@@ -35,7 +35,7 @@ See [ValidateTranslationCommand.php](src/Command/ValidateTranslationCommand.php)
 Run the following command to execute a test scenario:
 
 ```bash
-tests/Build/app/vendor/bin/composer translation:xliff:all:check -d tests/Build/app
+tests/vendor/bin/composer translation:xliff:all:check -d tests
 
 ```
 

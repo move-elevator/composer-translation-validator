@@ -14,7 +14,7 @@ return static function (RectorConfig $rectorConfig): void {
             __DIR__.'/tests',
         )
         ->not(
-            __DIR__.'/tests/Build',
+            __DIR__.'/tests/vendor',
         )
         ->withSymfony()
         ->withPHPUnit()
