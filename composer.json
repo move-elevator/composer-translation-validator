@@ -14,8 +14,8 @@
 		"php": "^8.1",
 		"ext-libxml": "*",
 		"ext-simplexml": "*",
-		"ext-xml": "*",
 		"composer-plugin-api": "^1.0 || ^2.0",
+		"composer/composer": "^2.0",
 		"symfony/config": "^5.0 || ^6.0 || ^7.0",
 		"symfony/console": "^5.0 || ^6.0 || ^7.0",
 		"symfony/filesystem": "^5.0 || ^6.0 || ^7.0",
@@ -23,11 +23,11 @@
 	},
 	"require-dev": {
 		"armin/editorconfig-cli": "^2.0",
-		"composer/composer": "^2.0",
 		"ergebnis/composer-normalize": "^2.44",
 		"friendsofphp/php-cs-fixer": "^3.52",
 		"phpstan/phpstan": "^1.2",
-		"roave/security-advisories": "dev-latest"
+		"roave/security-advisories": "dev-latest",
+		"shipmonk/composer-dependency-analyser": "^1.8"
 	},
 	"autoload": {
 		"psr-4": {
@@ -45,6 +45,7 @@
 	},
 	"scripts": {
 		"check": [
+			"@composer:dependencies:check",
 			"@composer:normalize:check",
 			"@editorconfig:lint:check",
 			"@php:lint:check",
@@ -53,6 +54,7 @@
 			"@php:stan:check",
 			"@php:fixer:check"
 		],
+		"composer:dependencies:check": "composer-dependency-analyser",
 		"composer:normalize": "@composer normalize --no-check-lock",
 		"composer:normalize:check": "@composer normalize --no-check-lock --dry-run",
 		"editorconfig:lint": "ec --strict --fix --git-only -n",
@@ -65,10 +67,10 @@
 			"@xml:lint",
 			"@php:stan"
 		],
-		"php:fixer": "php vendor/bin/php-cs-fixer --config=.php-cs-fixer.php fix",
-		"php:fixer:check": "php vendor/bin/php-cs-fixer --config=.php-cs-fixer.php fix --dry-run --format=checkstyle > php-cs-fixer.xml || true",
-		"php:lint": "find *.php . -name '*.php' ! -path './vendor/*'  ! -path './var/*' ! -path '*node_modules/*'  ! -path './.Build/*' ! -path './public/*' -print0 | xargs -0 -n 1 -P 4 php -l",
-		"php:lint:check": "find *.php . -name '*.php' ! -path './vendor/*'  ! -path './var/*' ! -path '*node_modules/*'  ! -path './.Build/*' ! -path './public/*' -print0 | xargs -0 -n 1 -P 4 php -l",
+		"php:fixer": "PHP_CS_FIXER_IGNORE_ENV=1 php vendor/bin/php-cs-fixer --config=.php-cs-fixer.php fix",
+		"php:fixer:check": "PHP_CS_FIXER_IGNORE_ENV=1 php vendor/bin/php-cs-fixer --config=.php-cs-fixer.php fix --dry-run --format=checkstyle > php-cs-fixer.xml || true",
+		"php:lint": "find *.php . -name '*.php' ! -path './vendor/*'  ! -path './var/*' ! -path '*node_modules/*'  ! -path './.Build/*' ! -path './public/*' ! -path './tests/*' -print0 | xargs -0 -n 1 -P 4 php -l",
+		"php:lint:check": "find *.php . -name '*.php' ! -path './vendor/*'  ! -path './var/*' ! -path '*node_modules/*'  ! -path './.Build/*' ! -path './public/*' ! -path './tests/*' -print0 | xargs -0 -n 1 -P 4 php -l",
 		"php:stan": "php vendor/bin/phpstan --generate-baseline=phpstan-baseline.neon --allow-empty-baseline --memory-limit=2G",
 		"php:stan:check": "php vendor/bin/phpstan --no-progress || true"
 	}
