@@ -15,9 +15,11 @@ class Collector
     }
 
     /**
-     * @param string[] $paths
+     * @param string[]      $paths
      * @param string[]|null $excludePatterns
+     *
      * @return array<class-string, array<string, array<mixed>>>
+     *
      * @throws \ReflectionException
      */
     public function collectFiles(array $paths, DetectorInterface $detector, ?array $excludePatterns): array

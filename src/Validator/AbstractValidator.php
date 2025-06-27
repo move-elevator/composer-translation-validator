@@ -18,9 +18,11 @@ abstract class AbstractValidator
     }
 
     /**
-     * @param string[] $files
+     * @param string[]                           $files
      * @param class-string<ParserInterface>|null $parserClass
+     *
      * @return array<string, array<mixed>>
+     *
      * @throws \ReflectionException
      */
     public function validate(array $files, ?string $parserClass): array
