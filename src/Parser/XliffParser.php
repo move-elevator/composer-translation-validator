@@ -8,11 +8,21 @@ class XliffParser extends AbstractParser implements ParserInterface
 {
     private readonly \SimpleXMLElement|bool $xml;
 
+    /**
+     * @param string $filePath Path to the XLIFF file
+     *
+     * @throws \InvalidArgumentException If file cannot be parsed as valid XML
+     */
     public function __construct(protected string $filePath)
     {
         parent::__construct($filePath);
 
-        $this->xml = @simplexml_load_string(file_get_contents($filePath));
+        $xmlContent = file_get_contents($filePath);
+        $this->xml = simplexml_load_string($xmlContent);
+
+        if (false === $this->xml) {
+            throw new \InvalidArgumentException("Failed to parse XML content from file: {$filePath}");
+        }
     }
 
     /**

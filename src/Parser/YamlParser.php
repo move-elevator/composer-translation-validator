@@ -15,7 +15,11 @@ class YamlParser extends AbstractParser implements ParserInterface
     {
         parent::__construct($filePath);
 
-        $this->yaml = Yaml::parseFile($filePath);
+        try {
+            $this->yaml = Yaml::parseFile($filePath);
+        } catch (\Exception $e) {
+            throw new \RuntimeException(sprintf('Failed to parse YAML file "%s": %s', $filePath, $e->getMessage()), 0, $e);
+        }
     }
 
     /**
