@@ -44,7 +44,7 @@ class ValidateTranslationCommand extends BaseCommand
     {
         $this->output = $output;
         $this->io = new SymfonyStyle($input, $output);
-        $paths = array_map(static fn($path) => str_starts_with((string) $path, '/') ? $path : getcwd().'/'.$path, $input->getArgument('path'));
+        $paths = array_map(static fn ($path) => str_starts_with((string) $path, '/') ? $path : getcwd().'/'.$path, $input->getArgument('path'));
 
         $this->dryRun = $input->getOption('dry-run');
         $excludePatterns = $input->getOption('exclude');
