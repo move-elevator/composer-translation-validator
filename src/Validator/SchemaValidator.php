@@ -17,21 +17,20 @@ use Symfony\Component\Translation\Util\XliffUtils;
 
 class SchemaValidator implements ValidatorInterface
 {
-    private SymfonyStyle $io;
+    private readonly SymfonyStyle $io;
 
     public function __construct(
-        protected readonly InputInterface  $input,
+        protected readonly InputInterface $input,
         protected readonly OutputInterface $output,
-    )
-    {
+    ) {
         $this->io = new SymfonyStyle($input, $output);
     }
 
     /**
-    * @param array<int, string> $allFiles
-    *
-    * @throws \ReflectionException
-    */
+     * @param array<int, string> $allFiles
+     *
+     * @throws \ReflectionException
+     */
     public function validate(DetectorInterface $fileDetector, ?string $parserClass, array $allFiles): bool
     {
         $hasErrors = false;
@@ -47,7 +46,7 @@ class SchemaValidator implements ValidatorInterface
 
             OutputUtility::debug(
                 $this->output,
-                '> Checking language file: <fg=gray>' . $file->getFileDirectory() . '</><fg=cyan>' . $file->getFileName() . '</> ...',
+                '> Checking language file: <fg=gray>'.$file->getFileDirectory().'</><fg=cyan>'.$file->getFileName().'</> ...',
                 newLine: $this->output->isVeryVerbose()
             );
 
@@ -55,7 +54,7 @@ class SchemaValidator implements ValidatorInterface
                 $dom = XmlUtils::loadFile($filePath);
                 $errors = XliffUtils::validateSchema($dom);
             } catch (\Exception $e) {
-                $this->io->error('Failed to validate XML schema: ' . $e->getMessage());
+                $this->io->error('Failed to validate XML schema: '.$e->getMessage());
                 $hasErrors = true;
                 continue;
             }
@@ -72,7 +71,7 @@ class SchemaValidator implements ValidatorInterface
                     ' <fg=red>✘</>'
                 );
 
-                $this->io->warning('Got schema errors in ' . $file->getFilePath());
+                $this->io->warning('Got schema errors in '.$file->getFilePath());
                 $table = new Table($this->output);
                 $table
                     ->setColumnWidths([10, 10])
@@ -84,7 +83,7 @@ class SchemaValidator implements ValidatorInterface
                     $message = preg_replace(
                         "/^Element ('(?:\{[^}]+\})?[^']+'):?\s*/",
                         '',
-                        $error['message']
+                        (string) $error['message']
                     );
 
                     $table->addRow([
