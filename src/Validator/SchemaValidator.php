@@ -19,7 +19,7 @@ class SchemaValidator extends AbstractValidator implements ValidatorInterface
             $dom = XmlUtils::loadFile($file->getFilePath());
             $errors = XliffUtils::validateSchema($dom);
         } catch (\Exception $e) {
-            $this->logger->error('Failed to validate XML schema: '.$e->getMessage());
+            $this->logger?->error('Failed to validate XML schema: '.$e->getMessage());
 
             return [];
         }

@@ -58,21 +58,15 @@ class ValidateTranslationCommand extends BaseCommand
         $this->dryRun = $input->getOption('dry-run');
         $excludePatterns = $input->getOption('exclude');
 
-        if (!ClassUtility::validateClass(
+        $fileDetector = $this->validateAndInstantiate(
             DetectorInterface::class,
-            $this->logger,
-            $input->getOption('file-detector'))
-        ) {
-            $this->io->error(
-                sprintf('The file detector class "%s" must implement %s.',
-                    $input->getOption('file-detector'),
-                    DetectorInterface::class
-                )
-            );
+            $input->getOption('file-detector'),
+            'file detector'
+        );
 
+        if (!$fileDetector) {
             return Command::FAILURE;
         }
-        $fileDetector = new ($input->getOption('file-detector'))();
 
         if (empty($paths)) {
             $this->io->error('No paths provided.');
@@ -170,5 +164,18 @@ class ValidateTranslationCommand extends BaseCommand
         $this->output->isVerbose() ? $this->io->success($message) : $this->output->writeln('<fg=green>'.$message.'</>');
 
         return Command::SUCCESS;
+    }
+
+    private function validateAndInstantiate(string $interface, string $className, string $type): ?object
+    {
+        if (!ClassUtility::validateClass($interface, $this->logger, $className)) {
+            $this->io->error(
+                sprintf('The %s class "%s" must implement %s.', $type, $className, $interface)
+            );
+
+            return null;
+        }
+
+        return new $className();
     }
 }

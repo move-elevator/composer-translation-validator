@@ -27,7 +27,12 @@ abstract class AbstractValidator
      */
     public function validate(array $files, ?string $parserClass): array
     {
-        $this->logger->debug('> Checking for <options=bold,underscore>schema</> ...');
+        $this->logger->debug(
+            sprintf(
+                '> Checking for <options=bold,underscore>%s</> ...',
+                substr(strrchr(static::class, '\\'), 1) ?: static::class
+            )
+        );
 
         foreach ($files as $filePath) {
             $file = new ($parserClass ?: ParserUtility::resolveParserClass($filePath))($filePath);

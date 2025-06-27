@@ -29,7 +29,7 @@ class Collector
             if (!(new Filesystem())->exists($path)) {
                 $this->logger->error('The provided path "'.$path.'" is not a valid directory.');
 
-                return [];
+                continue;
             }
 
             foreach (ParserRegistry::getAvailableParsers() as $parserClass) {

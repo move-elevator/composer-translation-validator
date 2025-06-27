@@ -19,7 +19,7 @@ class DuplicatesValidator extends AbstractValidator implements ValidatorInterfac
         $keys = $file->extractKeys();
 
         if (!$keys) {
-            $this->logger->error('The source file '.$file->getFileName().' is not valid.');
+            $this->logger?->error('The source file '.$file->getFileName().' is not valid.');
 
             return [];
         }
