@@ -6,6 +6,8 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\TableSeparator;
+use Symfony\Component\Console\Helper\TableStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -38,19 +40,29 @@ class DuplicatesValidator extends AbstractValidator implements ValidatorInterfac
     public function renderIssueSets(InputInterface $input, OutputInterface $output, array $issueSets): void
     {
         $rows = [];
+        $currentFile = null;
+
         foreach ($issueSets as $issues) {
             foreach ($issues as $file => $duplicates) {
+                if ($currentFile !== $file && null !== $currentFile) {
+                    $rows[] = new TableSeparator();
+                }
+                $currentFile = $file;
                 foreach ($duplicates as $key => $count) {
-                    $rows[] = [$file, $key, $count];
+                    $rows[] = ["<fg=red>$file</>", $key, $count];
+                    $file = ''; // Reset file for subsequent rows
                 }
             }
         }
 
         (new Table($output))
-                ->setHeaders(['File', 'Key', 'Count duplicates'])
-                ->setRows($rows)
-                ->setStyle('markdown')
-                ->render();
+            ->setHeaders(['File', 'Key', 'Count duplicates'])
+            ->setRows($rows)
+            ->setStyle(
+                (new TableStyle())
+                    ->setCellHeaderFormat('%s')
+            )
+            ->render();
     }
 
     public function explain(): string

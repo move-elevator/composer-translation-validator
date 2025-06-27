@@ -60,8 +60,8 @@ class ValidateTranslationCommand extends BaseCommand
 
         $fileDetector = $this->validateAndInstantiate(
             DetectorInterface::class,
-            $input->getOption('file-detector'),
-            'file detector'
+            'file detector',
+            $input->getOption('file-detector')
         );
 
         if (!$fileDetector) {
@@ -96,6 +96,12 @@ class ValidateTranslationCommand extends BaseCommand
             return Command::FAILURE;
         }
 
+        $this->validateAndInstantiate(
+            ValidatorInterface::class,
+            'validator',
+            $input->getOption('validator')
+        );
+
         $validators = $input->getOption('validator') ? [$input->getOption('validator')] : ValidatorRegistry::getAvailableValidators();
         $issues = [];
 
@@ -129,8 +135,10 @@ class ValidateTranslationCommand extends BaseCommand
 
             $this->io->section(sprintf('Validator: <fg=cyan>%s</>', $validator));
             foreach ($paths as $path => $sets) {
-                $this->io->writeln(sprintf('Explanation: %s', $validatorInstance->explain()));
-                $this->io->writeln(sprintf('Folder Path: %s', PathUtility::normalizeFolderPath($path)));
+                if ($this->output->isVerbose()) {
+                    $this->io->writeln(sprintf('Explanation: %s', $validatorInstance->explain()));
+                }
+                $this->io->writeln(sprintf('<fg=gray>Folder Path: %s</>', PathUtility::normalizeFolderPath($path)));
                 $this->io->newLine();
                 $validatorInstance->renderIssueSets(
                     $this->input,
@@ -166,8 +174,12 @@ class ValidateTranslationCommand extends BaseCommand
         return Command::SUCCESS;
     }
 
-    private function validateAndInstantiate(string $interface, string $className, string $type): ?object
+    private function validateAndInstantiate(string $interface, string $type, ?string $className = null): ?object
     {
+        if (null === $className) {
+            return null;
+        }
+
         if (!ClassUtility::validateClass($interface, $this->logger, $className)) {
             $this->io->error(
                 sprintf('The %s class "%s" must implement %s.', $type, $className, $interface)
