@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
+use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Helper\TableStyle;
@@ -69,5 +70,13 @@ class DuplicatesValidator extends AbstractValidator implements ValidatorInterfac
     {
         return 'This validator checks for duplicate keys in translation files. '
             .'If a key appears more than once in a file, it will be reported as an issue.';
+    }
+
+    /**
+     * @return class-string<ParserInterface>[]
+     */
+    public function supportsParser(): array
+    {
+        return [XliffParser::class];
     }
 }

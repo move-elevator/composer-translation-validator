@@ -38,6 +38,17 @@ abstract class AbstractValidator
             $file = new ($parserClass ?: ParserUtility::resolveParserClass($filePath))($filePath);
             /* @var ParserInterface $file */
 
+            if (!in_array($file::class, $this->supportsParser(), true)) {
+                $this->logger?->debug(
+                    sprintf(
+                        'The file <fg=cyan>%s</> is not supported by the validator <fg=red>%s</>.',
+                        $file->getFileName(),
+                        static::class
+                    )
+                );
+                continue;
+            }
+
             $this->logger->debug('> Checking language file: <fg=gray>'.$file->getFileDirectory().'</><fg=cyan>'.$file->getFileName().'</> ...');
 
             $validationResult = $this->processFile($file);
@@ -55,6 +66,11 @@ abstract class AbstractValidator
      * @return array<mixed>
      */
     abstract protected function processFile(ParserInterface $file): array;
+
+    /**
+     * @return class-string<ParserInterface>[]
+     */
+    abstract public function supportsParser(): array;
 
     protected function postProcess(): void
     {

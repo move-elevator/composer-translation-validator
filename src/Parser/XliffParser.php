@@ -4,30 +4,25 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Parser;
 
-use MoveElevator\ComposerTranslationValidator\Validator\DuplicatesValidator;
-use MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator;
-use MoveElevator\ComposerTranslationValidator\Validator\SchemaValidator;
-
-class XliffParser implements ParserInterface
+class XliffParser extends AbstractParser implements ParserInterface
 {
-    private \SimpleXMLElement|bool $xml = false;
-    protected string $fileName = '';
+    private readonly \SimpleXMLElement|bool $xml;
 
+    /**
+     * @param string $filePath Path to the XLIFF file
+     *
+     * @throws \InvalidArgumentException If file cannot be parsed as valid XML
+     */
     public function __construct(protected string $filePath)
     {
-        if (!file_exists($filePath)) {
-            throw new \InvalidArgumentException(sprintf('File "%s" does not exist.', $filePath));
-        }
+        parent::__construct($filePath);
 
-        if (!is_readable($filePath)) {
-            throw new \RuntimeException(sprintf('File "%s" is not readable.', $filePath));
-        }
+        $xmlContent = file_get_contents($filePath);
+        $this->xml = simplexml_load_string($xmlContent);
 
-        if (!in_array(pathinfo($filePath, PATHINFO_EXTENSION), self::getSupportedFileExtensions(), true)) {
-            throw new \InvalidArgumentException(sprintf('File "%s" is not a valid XLIFF file.', $filePath));
+        if (false === $this->xml) {
+            throw new \InvalidArgumentException("Failed to parse XML content from file: {$filePath}");
         }
-        $this->xml = @simplexml_load_string(file_get_contents($filePath));
-        $this->fileName = basename($filePath);
     }
 
     /**
@@ -60,29 +55,6 @@ class XliffParser implements ParserInterface
     public static function getSupportedFileExtensions(): array
     {
         return ['xliff', 'xlf'];
-    }
-
-    /**
-     * @return array<int, class-string<\MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface>>
-     */
-    public static function getValidators(): array
-    {
-        return [MismatchValidator::class, DuplicatesValidator::class, SchemaValidator::class];
-    }
-
-    public function getFileName(): string
-    {
-        return $this->fileName;
-    }
-
-    public function getFileDirectory(): string
-    {
-        return dirname($this->filePath).\DIRECTORY_SEPARATOR;
-    }
-
-    public function getFilePath(): string
-    {
-        return $this->filePath;
     }
 
     public function getLanguage(): string

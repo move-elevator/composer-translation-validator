@@ -23,6 +23,12 @@
 		"translation:xliff:fail:check": "@composer validate-translations ./Language/XLIFF-fail --dry-run",
 		"translation:xliff:success": "@composer validate-translations ./Language/XLIFF-success",
 		"translation:xliff:success:check": "@composer validate-translations ./Language/XLIFF-success --dry-run",
-		"translation:xliff:duplicates": "@composer validate-translations ./Language/XLIFF-fail ./Language/XLIFF-success --validator=\"MoveElevator\\\\ComposerTranslationValidator\\\\Validator\\\\DuplicatesValidator\""
+		"translation:xliff:duplicates": "@composer validate-translations ./Language/XLIFF-fail ./Language/XLIFF-success --validator=\"MoveElevator\\\\ComposerTranslationValidator\\\\Validator\\\\DuplicatesValidator\"",
+		"translation:yaml:all": "@composer validate-translations ./Language/YAML-fail ./Language/YAML-success",
+		"translation:yaml:all:check": "@composer validate-translations ./Language/YAML-fail ./Language/YAML-success --dry-run",
+		"translation:yaml:fail": "@composer validate-translations ./Language/YAML-fail",
+		"translation:yaml:fail:check": "@composer validate-translations ./Language/YAML-fail --dry-run",
+		"translation:yaml:success": "@composer validate-translations ./Language/YAML-success",
+		"translation:yaml:success:check": "@composer validate-translations ./Language/YAML-success --dry-run"
 	}
 }
