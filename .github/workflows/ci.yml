@@ -2,17 +2,16 @@ name: CI
 
 on:
   push:
-    branches:
-      - '**'
+  pull_request:
 
 jobs:
-  build:
+  run_tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         php: ['8.1', '8.2', '8.3', '8.4']
         symfony_constraint: ['^5.0', '^6.0', '^7.0']
-        prefer_stability: ['--prefer-lowest', '--prefer-stable']
+        composer_version: ['2.2', '2.3', '2.4', '2.5', '2.6', '2.7', '2.8']
 
         exclude:
           # Symfony 5.x is not compatible with PHP >= 8.1
@@ -35,7 +34,13 @@ jobs:
           - php: '8.1'
             symfony_constraint: '^7.0'
 
-    name: PHP ${{ matrix.php }} / Symfony ${{ matrix.symfony_constraint }} ${{ matrix.prefer_stability == '--prefer-lowest' && '(lowest)' || '(highest)' }}
+          # Exclude PHP 8.4 with Composer 2.2 and 2.3
+          - php: '8.4'
+            composer_version: '2.2'
+          - php: '8.4'
+            composer_version: '2.3'
+
+    name: PHP ${{ matrix.php }} / Symfony ${{ matrix.symfony_constraint }} / Composer ${{ matrix.composer_version }}
 
     steps:
       - name: Checkout code
@@ -46,10 +51,10 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: libxml, simplexml # Required by composer.json
-          tools: composer # Ensure composer is available
+          tools: composer:${{ matrix.composer_version }} # Specify Composer version
 
       - name: Install Composer dependencies
-        run: composer update --no-interaction --no-progress --no-suggest ${{ matrix.prefer_stability }}
+        run: composer update --no-interaction --no-progress --no-suggest
         env:
           # This is how we tell Composer to resolve Symfony dependencies to a specific major version
           # Composer will try to satisfy this constraint along with the existing ones in composer.json
@@ -57,3 +62,66 @@ jobs:
 
       - name: Run PHPUnit tests
         run: composer test
+
+  run_coverage_tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.1', '8.2', '8.3', '8.4']
+        symfony_constraint: ['^5.0', '^6.0', '^7.0']
+        composer_version: ['2.2', '2.3', '.4', '2.5', '2.6', '2.7', '2.8']
+
+        exclude:
+          # Symfony 5.x is not compatible with PHP >= 8.1
+          - php: '8.1'
+            symfony_constraint: '^5.0'
+          - php: '8.2'
+            symfony_constraint: '^5.0'
+          - php: '8.3'
+            symfony_constraint: '^5.0'
+          - php: '8.4'
+            symfony_constraint: '^5.0'
+
+          # Symfony 6.x is not compatible with PHP >= 8.3
+          - php: '8.3'
+            symfony_constraint: '^6.0'
+          - php: '8.4'
+            symfony_constraint: '^6.0'
+
+          # Symfony 7.x is not compatible with PHP < 8.2
+          - php: '8.1'
+            symfony_constraint: '^7.0'
+
+          # Exclude PHP 8.4 with Composer 2.2 and 2.3
+          - php: '8.4'
+            composer_version: '2.2'
+          - php: '8.4'
+            composer_version: '2.3'
+
+    name: Coverage PHP ${{ matrix.php }} / Symfony ${{ matrix.symfony_constraint }} / Composer ${{ matrix.composer_version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: libxml, simplexml # Required by composer.json
+          tools: composer:${{ matrix.composer_version }} # Specify Composer version
+
+      - name: Install Composer dependencies
+        run: composer update --no-interaction --no-progress --no-suggest
+        env:
+          SYMFONY_REQUIRE: ${{ matrix.symfony_constraint }}
+
+      - name: Run PHPUnit tests with coverage
+        run: composer test:coverage # This script is configured to generate clover.xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-report-php-${{ matrix.php }}-symfony-${{ matrix.symfony_constraint }}-composer-${{ matrix.composer_version }}
+          path: .build/coverage/clover.xml
+          retention-days: 5
