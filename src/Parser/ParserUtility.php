@@ -9,10 +9,10 @@ use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 class ParserUtility
 {
     /**
-     * @return array<int, string>
-     *
-     * @throws \ReflectionException
-     */
+    * @return array<int, string>
+    *
+    * @throws \ReflectionException
+    */
     public static function resolveAllowedFileExtensions(): array
     {
         $fileExtensions = [];
@@ -26,10 +26,10 @@ class ParserUtility
     }
 
     /**
-     * @return array<int, class-string<ValidatorInterface>>
-     *
-     * @throws \ReflectionException
-     */
+    * @return array<int, class-string<ValidatorInterface>>
+    *
+    * @throws \ReflectionException
+    */
     public static function resolveValidators(): array
     {
         $validators = [];
@@ -43,10 +43,10 @@ class ParserUtility
     }
 
     /**
-     * @return array<int, class-string<ParserInterface>>
-     *
-     * @throws \ReflectionException
-     */
+    * @return array<int, class-string<ParserInterface>>
+    *
+    * @throws \ReflectionException
+    */
     public static function resolveParserClasses(): array
     {
         $allClasses = get_declared_classes();
@@ -63,10 +63,10 @@ class ParserUtility
     }
 
     /**
-     * @return class-string<ParserInterface>|null
-     *
-     * @throws \ReflectionException
-     */
+    * @return class-string<ParserInterface>|null
+    *
+    * @throws \ReflectionException
+    */
     public static function resolveParserClass(string $filePath): ?string
     {
         $fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);

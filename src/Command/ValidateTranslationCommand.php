@@ -38,8 +38,8 @@ class ValidateTranslationCommand extends BaseCommand
     }
 
     /**
-     * @throws \ReflectionException
-     */
+    * @throws \ReflectionException
+    */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->output = $output;
@@ -120,12 +120,12 @@ class ValidateTranslationCommand extends BaseCommand
     }
 
     /**
-     * @param array<int, string>      $paths
-     * @param array<int, string>      $extensions
-     * @param array<int, string>|null $excludePatterns
-     *
-     * @return array<int, string>
-     */
+    * @param array<int, string>      $paths
+    * @param array<int, string>      $extensions
+    * @param array<int, string>|null $excludePatterns
+    *
+    * @return array<int, string>
+    */
     private function collectFiles(array $paths, array $extensions, ?array $excludePatterns, Filesystem $filesystem): array
     {
         $allFiles = [];
