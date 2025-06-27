@@ -22,13 +22,12 @@ class Collector
      *
      * @throws \ReflectionException
      */
-    public function collectFiles(array $paths, DetectorInterface $detector, ?array $excludePatterns): array
+    public function collectFiles(array $paths, ?DetectorInterface $detector = null, ?array $excludePatterns = null): array
     {
         $allFiles = [];
         foreach ($paths as $path) {
             if (!(new Filesystem())->exists($path)) {
                 $this->logger->error('The provided path "'.$path.'" is not a valid directory.');
-
                 continue;
             }
 
@@ -48,7 +47,17 @@ class Collector
                         continue;
                     }
 
-                    $allFiles[$parserClass][$path] = $detector->mapTranslationSet($files);
+                    if (null !== $detector) {
+                        $allFiles[$parserClass][$path] = $detector->mapTranslationSet($files);
+                    } else {
+                        foreach (FileDetectorRegistry::getAvailableFileDetectors() as $fileDetector) {
+                            $translationSet = (new $fileDetector())->mapTranslationSet($files);
+                            if (!empty($translationSet)) {
+                                $allFiles[$parserClass][$path] = $translationSet;
+                                continue 2;
+                            }
+                        }
+                    }
                 }
             }
         }

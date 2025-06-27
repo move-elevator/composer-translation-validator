@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
+use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
@@ -79,5 +80,13 @@ class SchemaValidator extends AbstractValidator implements ValidatorInterface
     {
         return 'Validates the XML schema of translation files against the XLIFF standard. '.
             'This ensures that the files are well-formed and adhere to the expected structure.';
+    }
+
+    /**
+     * @return class-string<ParserInterface>[]
+     */
+    public function supportsParser(): array
+    {
+        return [XliffParser::class];
     }
 }
