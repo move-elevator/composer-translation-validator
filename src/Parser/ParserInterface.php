@@ -19,4 +19,8 @@ interface ParserInterface
     public function extractKeys(): ?array;
 
     public function getContentByKey(string $key, string $attribute = 'source'): ?string;
+
+    public function getFileName(): string;
+
+    public function getFilePath(): string;
 }
