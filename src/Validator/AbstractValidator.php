@@ -27,10 +27,12 @@ abstract class AbstractValidator
      */
     public function validate(array $files, ?string $parserClass): array
     {
+        $classPart = strrchr(static::class, '\\');
+        $name = false !== $classPart ? substr($classPart, 1) : static::class;
         $this->logger->debug(
             sprintf(
                 '> Checking for <options=bold,underscore>%s</> ...',
-                substr(strrchr(static::class, '\\'), 1) ?: static::class
+                $name
             )
         );
 
