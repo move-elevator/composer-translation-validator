@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          # Lowest PHP, lowest Symfony
+          - php: '8.1'
+            symfony_constraint: '^5.0'
+            composer_flags: '--prefer-lowest'
+            name_suffix: ' (PHP 8.1, Symfony 5.x lowest)'
+          # Lowest PHP, highest Symfony
+          - php: '8.1'
+            symfony_constraint: '^7.0'
+            composer_flags: '--prefer-stable'
+            name_suffix: ' (PHP 8.1, Symfony 7.x highest)'
+          # Highest PHP, lowest Symfony
+          - php: '8.4'
+            symfony_constraint: '^5.0'
+            composer_flags: '--prefer-lowest'
+            name_suffix: ' (PHP 8.4, Symfony 5.x lowest)'
+          # Highest PHP, highest Symfony
+          - php: '8.4'
+            symfony_constraint: '^7.0'
+            composer_flags: '--prefer-stable'
+            name_suffix: ' (PHP 8.4, Symfony 7.x highest)'
+          # Middle PHP, default Symfony (latest compatible)
+          - php: '8.3'
+            symfony_constraint: '^6.0' # This constraint is just for clarity, composer will pick latest compatible
+            composer_flags: '--prefer-stable'
+            name_suffix: ' (PHP 8.3, Symfony 6.x default)'
+
+    name: PHP ${{ matrix.php }}${{ matrix.name_suffix }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: libxml, simplexml # Required by composer.json
+          tools: composer # Ensure composer is available
+
+      - name: Install Composer dependencies
+        run: composer update --no-interaction --no-progress --no-suggest ${{ matrix.composer_flags }}
+        env:
+          # This is how we tell Composer to resolve Symfony dependencies to a specific major version
+          # Composer will try to satisfy this constraint along with the existing ones in composer.json
+          SYMFONY_REQUIRE: ${{ matrix.symfony_constraint }}
+
+      - name: Run PHPUnit tests
+        run: composer test

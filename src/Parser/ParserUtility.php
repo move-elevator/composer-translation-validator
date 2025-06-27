@@ -14,10 +14,8 @@ class ParserUtility
     public static function resolveAllowedFileExtensions(): array
     {
         $fileExtensions = [];
-        foreach (self::resolveParserClasses() as $parserClass) {
-            if (method_exists($parserClass, 'getSupportedFileExtensions')) {
-                $fileExtensions = [...$fileExtensions, ...$parserClass::getSupportedFileExtensions()];
-            }
+        foreach (ParserRegistry::getAvailableParsers() as $parserClass) {
+            $fileExtensions = [...$fileExtensions, ...$parserClass::getSupportedFileExtensions()];
         }
 
         return $fileExtensions;
@@ -51,7 +49,7 @@ class ParserUtility
     public static function resolveParserClass(string $filePath): ?string
     {
         $fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);
-        $parserClasses = self::resolveAllowedFileExtensions();
+        $parserClasses = ParserRegistry::getAvailableParsers();
 
         foreach ($parserClasses as $parserClass) {
             /* @var class-string<ParserInterface> $parserClass */

@@ -33,23 +33,21 @@ class Collector
             }
 
             foreach (ParserRegistry::getAvailableParsers() as $parserClass) {
-                if (method_exists($parserClass, 'getSupportedFileExtensions')) {
-                    $files = array_filter(
-                        glob($path.'/*'),
-                        static fn ($file) => in_array(pathinfo($file, PATHINFO_EXTENSION), $parserClass::getSupportedFileExtensions(), true)
-                    );
+                $files = array_filter(
+                    glob($path.'/*'),
+                    static fn ($file) => in_array(pathinfo($file, PATHINFO_EXTENSION), $parserClass::getSupportedFileExtensions(), true)
+                );
 
-                    if ($excludePatterns) {
-                        $files = array_filter($files, static fn ($file) => !array_filter($excludePatterns, static fn ($pattern) => fnmatch($pattern, basename($file))));
-                    }
-
-                    if (empty($files)) {
-                        $this->logger->debug('No files found for parser class "'.$parserClass.'" in path "'.$path.'".');
-                        continue;
-                    }
-
-                    $allFiles[$parserClass][$path] = $detector->mapTranslationSet($files);
+                if ($excludePatterns) {
+                    $files = array_filter($files, static fn ($file) => !array_filter($excludePatterns, static fn ($pattern) => fnmatch($pattern, basename($file))));
                 }
+
+                if (empty($files)) {
+                    $this->logger->debug('No files found for parser class "'.$parserClass.'" in path "'.$path.'".');
+                    continue;
+                }
+
+                $allFiles[$parserClass][$path] = $detector->mapTranslationSet($files);
             }
         }
 

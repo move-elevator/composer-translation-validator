@@ -63,7 +63,7 @@ class XliffParser implements ParserInterface
     }
 
     /**
-     * @return array<int, class-string<MismatchValidator>>
+     * @return array<int, class-string<\MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface>>
      */
     public static function getValidators(): array
     {

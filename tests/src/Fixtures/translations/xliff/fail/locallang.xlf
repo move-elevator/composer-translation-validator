@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+    <file source-language="en" datatype="plaintext" original="messages">
+        <header/>
+        <body>
+            <trans-unit id="key1">
+                <source>English Key #1</source>
+            </trans-unit>
+            <trans-unit id="key1">
+                <source>English Key #1</source>
+            </trans-unit>
+            <trans-unit id="key2">
+                <source>English Key #2</source>
+            </trans-unit>
+            <trans-unit id="key2">
+                <source>English Key #2</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

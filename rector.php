@@ -17,6 +17,7 @@ return static function (RectorConfig $rectorConfig): void {
             __DIR__.'/tests/Build',
         )
         ->withSymfony()
+        ->withPHPUnit()
         ->skip(NullToStrictStringFuncCallArgRector::class, [
             'src/Command/ValidateTranslationCommand.php',
         ])

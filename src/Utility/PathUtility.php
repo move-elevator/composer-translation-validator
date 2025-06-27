@@ -8,19 +8,26 @@ class PathUtility
 {
     public static function normalizeFolderPath(string $path): string
     {
-        $cwd = getcwd();
-        $relativePath = str_starts_with($path, $cwd)
-            ? substr($path, strlen($cwd) + 1)
-            : $path;
+        $realPath = realpath($path);
+        if (false === $realPath) {
+            // If realpath fails, it might be a non-existent path, return as is but normalized
+            $normalizedPath = rtrim($path, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+            if (str_starts_with($normalizedPath, './')) {
+                $normalizedPath = substr($normalizedPath, 2);
+            }
 
-        if (str_starts_with($relativePath, './')) {
-            $relativePath = substr($relativePath, 2);
+            return $normalizedPath;
         }
 
-        if ('' !== $relativePath && !str_ends_with($relativePath, '/')) {
-            $relativePath .= '/';
+        $cwd = realpath(getcwd()).DIRECTORY_SEPARATOR;
+        $normalizedPath = rtrim($realPath, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+
+        if (str_starts_with($normalizedPath, $cwd)) {
+            $relativePath = substr($normalizedPath, strlen($cwd));
+
+            return $relativePath;
         }
 
-        return $relativePath;
+        return $normalizedPath;
     }
 }

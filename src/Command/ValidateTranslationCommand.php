@@ -30,7 +30,6 @@ class ValidateTranslationCommand extends BaseCommand
     protected LoggerInterface $logger;
 
     protected bool $dryRun = false;
-    protected bool $hasErrors = false;
 
     protected function configure(): void
     {
