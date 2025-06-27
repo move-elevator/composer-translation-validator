@@ -11,6 +11,10 @@
                 <source/>
                 <target>German Key #2</target>
             </trans-unit>
+            <trans-unit id="key2">
+                <source/>
+                <target>German Key #2</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

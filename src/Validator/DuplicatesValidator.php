@@ -4,114 +4,58 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
-use MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
-use MoveElevator\ComposerTranslationValidator\Parser\ParserUtility;
-use MoveElevator\ComposerTranslationValidator\Utility\OutputUtility;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
-class DuplicatesValidator implements ValidatorInterface
+class DuplicatesValidator extends AbstractValidator implements ValidatorInterface
 {
-    private readonly SymfonyStyle $io;
+    /**
+     * @return array<string, int>
+     */
+    public function processFile(ParserInterface $file): array
+    {
+        $keys = $file->extractKeys();
 
-    public function __construct(
-        protected readonly InputInterface $input,
-        protected readonly OutputInterface $output,
-    ) {
-        $this->io = new SymfonyStyle($input, $output);
+        if (!$keys) {
+            $this->logger?->error('The source file '.$file->getFileName().' is not valid.');
+
+            return [];
+        }
+
+        $duplicateKeys = array_filter(array_count_values($keys), static fn ($count) => $count > 1);
+        if (!empty($duplicateKeys)) {
+            return $duplicateKeys;
+        }
+
+        return [];
     }
 
     /**
-     * @param array<int, string> $allFiles
-     *
-     * @throws \ReflectionException
+     * @param array<array<string, array<string, int>>> $issueSets
      */
-    public function validate(DetectorInterface $fileDetector, ?string $parserClass, array $allFiles): bool
+    public function renderIssueSets(InputInterface $input, OutputInterface $output, array $issueSets): void
     {
-        $hasErrors = false;
-
-        OutputUtility::debug(
-            $this->output,
-            '> Checking for <options=bold,underscore>duplicates</> ...'
-        );
-
-        foreach ($allFiles as $filePath) {
-            /* @var ParserInterface $source */
-            $file = new ($parserClass ?: ParserUtility::resolveParserClass($filePath))($filePath);
-
-            OutputUtility::debug(
-                $this->output,
-                '> Checking language file: <fg=gray>'.$file->getFileDirectory().'</><fg=cyan>'.$file->getFileName().'</> ...',
-                newLine: $this->output->isVeryVerbose()
-            );
-
-            $keys = $file->extractKeys();
-
-            if (!$keys) {
-                $this->io->error('The source file '.$file.' is not valid.');
-                $hasErrors = true;
-                continue;
+        $rows = [];
+        foreach ($issueSets as $issues) {
+            foreach ($issues as $file => $duplicates) {
+                foreach ($duplicates as $key => $count) {
+                    $rows[] = [$file, $key, $count];
+                }
             }
-
-            $duplicateKeys = array_filter(array_count_values($keys), fn ($count) => $count > 1);
-
-            if (!empty($duplicateKeys)) {
-                OutputUtility::debug(
-                    $this->output,
-                    '> Validation result: ',
-                    veryVerbose: true,
-                    newLine: false
-                );
-                OutputUtility::debug(
-                    $this->output,
-                    ' <fg=red>✘</>'
-                );
-
-                $this->io->warning('Found duplicate keys in '.$file->getFilePath());
-                $table = new Table($this->output);
-                $table
-                    ->setColumnWidths([10, 10])
-                    ->setHeaderTitle('Duplicate Keys')
-                    ->setHeaders(['Key', 'Count'])
-                    ->setRows(
-                        array_map(
-                            static fn ($key, $count) => [$key, $count],
-                            array_keys($duplicateKeys),
-                            array_values($duplicateKeys)
-                        )
-                    )
-                    ->setStyle('box')
-                    ->render();
-
-                $hasErrors = true;
-                continue;
-            }
-
-            OutputUtility::debug(
-                $this->output,
-                sprintf('> Validation statistic: %d language keys', count($keys)),
-                veryVerbose: true
-            );
-            OutputUtility::debug(
-                $this->output,
-                '> Validation result: ',
-                veryVerbose: true,
-                newLine: false
-            );
-            OutputUtility::debug(
-                $this->output,
-                ' <fg=green>✔</>'
-            );
-            OutputUtility::debug(
-                $this->output,
-                '',
-                veryVerbose: true
-            );
         }
 
-        return $hasErrors;
+        (new Table($output))
+                ->setHeaders(['File', 'Key', 'Count duplicates'])
+                ->setRows($rows)
+                ->setStyle('markdown')
+                ->render();
+    }
+
+    public function explain(): string
+    {
+        return 'This validator checks for duplicate keys in translation files. '
+            .'If a key appears more than once in a file, it will be reported as an issue.';
     }
 }

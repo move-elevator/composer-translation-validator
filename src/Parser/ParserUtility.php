@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Parser;
 
-use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
-
 class ParserUtility
 {
     /**
@@ -23,23 +21,6 @@ class ParserUtility
         }
 
         return $fileExtensions;
-    }
-
-    /**
-     * @return array<int, class-string<ValidatorInterface>>
-     *
-     * @throws \ReflectionException
-     */
-    public static function resolveValidators(): array
-    {
-        $validators = [];
-        foreach (self::resolveParserClasses() as $parserClass) {
-            if (method_exists($parserClass, 'getValidators')) {
-                $validators = [...$validators, ...$parserClass::getValidators()];
-            }
-        }
-
-        return $validators;
     }
 
     /**

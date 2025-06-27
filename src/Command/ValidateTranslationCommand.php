@@ -5,35 +5,41 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Command;
 
 use Composer\Command\BaseCommand;
+use MoveElevator\ComposerTranslationValidator\FileDetector\Collector;
 use MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface;
 use MoveElevator\ComposerTranslationValidator\FileDetector\PrefixFileDetector;
-use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
-use MoveElevator\ComposerTranslationValidator\Parser\ParserUtility;
-use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
+use MoveElevator\ComposerTranslationValidator\Utility\ClassUtility;
+use MoveElevator\ComposerTranslationValidator\Utility\PathUtility;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
+use MoveElevator\ComposerTranslationValidator\Validator\ValidatorRegistry;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Filesystem\Filesystem;
 
 class ValidateTranslationCommand extends BaseCommand
 {
     protected ?SymfonyStyle $io = null;
+    protected ?InputInterface $input = null;
     protected ?OutputInterface $output = null;
+
+    protected LoggerInterface $logger;
+
     protected bool $dryRun = false;
     protected bool $hasErrors = false;
 
     protected function configure(): void
     {
         $this->setName('validate-translations')
-            ->setDescription('Validates XLIFF files and checks if all target files have the same keys as the source file.')
+            ->setDescription('Validates translation files with several validators.')
             ->addArgument('path', InputArgument::IS_ARRAY | InputArgument::REQUIRED, 'Paths to the folders containing XLIFF files')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Run the command in dry-run mode without throwing errors')
             ->addOption('exclude', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'Patterns to exclude specific files')
             ->addOption('file-detector', null, InputOption::VALUE_REQUIRED, 'The file detector to use (FQCN)', PrefixFileDetector::class)
-            ->addOption('parser', null, InputOption::VALUE_REQUIRED, 'The parser to use (FQCN)', XliffParser::class)
             ->addOption('validator', null, InputOption::VALUE_OPTIONAL, 'The specific validator to use (FQCN)');
     }
 
@@ -42,128 +48,134 @@ class ValidateTranslationCommand extends BaseCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $this->logger = new ConsoleLogger($output);
+
+        $this->input = $input;
         $this->output = $output;
         $this->io = new SymfonyStyle($input, $output);
         $paths = array_map(static fn ($path) => str_starts_with((string) $path, '/') ? $path : getcwd().'/'.$path, $input->getArgument('path'));
 
         $this->dryRun = $input->getOption('dry-run');
         $excludePatterns = $input->getOption('exclude');
-        $filesystem = new Filesystem();
 
-        if (!$this->validateClass($input->getOption('file-detector'), DetectorInterface::class)) {
-            $this->io->error(sprintf('The file detector class "%s" must implement %s.', $input->getOption('file-detector'), DetectorInterface::class));
+        $fileDetector = $this->validateAndInstantiate(
+            DetectorInterface::class,
+            $input->getOption('file-detector'),
+            'file detector'
+        );
 
-            return 1;
+        if (!$fileDetector) {
+            return Command::FAILURE;
         }
-        $fileDetector = new ($input->getOption('file-detector'))();
-
-        if (!$this->validateClass($input->getOption('parser'), ParserInterface::class)) {
-            $this->io->error(sprintf('The parser class "%s" must implement %s.', $input->getOption('parser'), ParserInterface::class));
-
-            return 1;
-        }
-        $parserClass = $input->getOption('parser');
 
         if (empty($paths)) {
             $this->io->error('No paths provided.');
 
-            return 1;
+            return Command::FAILURE;
         }
 
-        $allFiles = $this->collectFiles($paths, ParserUtility::resolveAllowedFileExtensions(), $excludePatterns, $filesystem);
+        $allFiles = (new Collector($this->logger))->collectFiles($paths, $fileDetector, $excludePatterns);
         if (empty($allFiles)) {
             $this->io->warning('No files found in the specified directories.');
 
-            return 0;
+            return Command::SUCCESS;
         }
 
-        $validators = ParserUtility::resolveValidators();
-        if ($input->getOption('validator')) {
-            if (!$this->validateClass($input->getOption('validator'), ValidatorInterface::class)) {
-                $this->io->error(sprintf('The validator class "%s" must implement %s.', $input->getOption('validator'), ValidatorInterface::class));
+        if (!ClassUtility::validateClass(
+            ValidatorInterface::class,
+            $this->logger,
+            $input->getOption('validator'))
+        ) {
+            $this->io->error(
+                sprintf('The validator class "%s" must implement %s.',
+                    $input->getOption('validator'),
+                    ValidatorInterface::class
+                )
+            );
 
-                return 1;
+            return Command::FAILURE;
+        }
+
+        $validators = $input->getOption('validator') ? [$input->getOption('validator')] : ValidatorRegistry::getAvailableValidators();
+        $issues = [];
+
+        // ToDo: Simplify this nested loop structure
+        foreach ($allFiles as $parser => $paths) {
+            foreach ($paths as $path => $translationSets) {
+                foreach ($translationSets as $setKey => $files) {
+                    foreach ($validators as $validator) {
+                        $result = (new $validator($this->logger))->validate($files, $parser);
+                        if ($result) {
+                            $issues[$validator][$path][$setKey] = $result;
+                        }
+                    }
+                }
             }
-            $validators = [$input->getOption('validator')];
         }
 
-        foreach ($validators as $validatorClass) {
-            $validator = new $validatorClass($input, $output);
-            $validationResult = $validator->validate($fileDetector, $parserClass, $allFiles);
-            $this->hasErrors = $this->hasErrors || $validationResult;
-        }
+        $this->renderIssues($issues);
 
-        return $this->summary();
-    }
-
-    private function validateClass(?string $class, string $interface): bool
-    {
-        if (is_null($class)) {
-            return true;
-        }
-
-        if (!class_exists($class)) {
-            $this->io->error(sprintf('The class "%s" does not exist.', $class));
-
-            return false;
-        }
-
-        if (!is_subclass_of($class, $interface)) {
-            $this->io->error(sprintf('The class "%s" must implement %s.', $class, $interface));
-
-            return false;
-        }
-
-        return true;
+        return $this->summarize(!empty($issues));
     }
 
     /**
-     * @param array<int, string>      $paths
-     * @param array<int, string>      $extensions
-     * @param array<int, string>|null $excludePatterns
-     *
-     * @return array<int, string>
+     * @param array<class-string<ValidatorInterface>, array<string, array<string, array<mixed>>>> $issues
      */
-    private function collectFiles(array $paths, array $extensions, ?array $excludePatterns, Filesystem $filesystem): array
+    private function renderIssues(array $issues): void
     {
-        $allFiles = [];
-        foreach ($paths as $path) {
-            if (!$filesystem->exists($path)) {
-                $this->io->error('The provided path "'.$path.'" is not a valid directory.');
+        foreach ($issues as $validator => $paths) {
+            $validatorInstance = new $validator($this->logger);
+            /* @var ValidatorInterface $validatorInstance */
 
-                return [];
+            $this->io->section(sprintf('Validator: <fg=cyan>%s</>', $validator));
+            foreach ($paths as $path => $sets) {
+                $this->io->writeln(sprintf('Explanation: %s', $validatorInstance->explain()));
+                $this->io->writeln(sprintf('Folder Path: %s', PathUtility::normalizeFolderPath($path)));
+                $this->io->newLine();
+                $validatorInstance->renderIssueSets(
+                    $this->input,
+                    $this->output,
+                    $sets
+                );
+
+                $this->io->newLine();
+                $this->io->newLine();
             }
-
-            $files = array_filter(glob($path.'/*'), static fn ($file) => in_array(pathinfo($file, PATHINFO_EXTENSION), $extensions, true));
-            $allFiles = [...$allFiles, ...$files];
         }
-
-        if ($excludePatterns) {
-            $allFiles = array_filter($allFiles, static fn ($file) => !array_filter($excludePatterns, static fn ($pattern) => fnmatch($pattern, basename($file))));
-        }
-
-        return $allFiles;
     }
 
-    private function summary(): int
+    private function summarize(bool $hasErrors): int
     {
-        if ($this->hasErrors) {
+        if ($hasErrors) {
             if ($this->dryRun) {
                 $this->io->newLine();
                 $this->io->warning('Language validation failed and completed in dry-run mode.');
 
-                return 0;
+                return Command::SUCCESS;
             }
 
             $this->io->newLine();
             $this->io->error('Language validation failed.');
 
-            return 1;
+            return Command::FAILURE;
         }
 
         $message = 'Language validation succeeded.';
         $this->output->isVerbose() ? $this->io->success($message) : $this->output->writeln('<fg=green>'.$message.'</>');
 
-        return 0;
+        return Command::SUCCESS;
+    }
+
+    private function validateAndInstantiate(string $interface, string $className, string $type): ?object
+    {
+        if (!ClassUtility::validateClass($interface, $this->logger, $className)) {
+            $this->io->error(
+                sprintf('The %s class "%s" must implement %s.', $type, $className, $interface)
+            );
+
+            return null;
+        }
+
+        return new $className();
     }
 }
