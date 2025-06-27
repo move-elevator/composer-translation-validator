@@ -12,6 +12,9 @@
             <trans-unit id="key2">
                 <source>English Key #2</source>
             </trans-unit>
+            <trans-unit id="key2">
+                <source>English Key #2</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>
