@@ -2,7 +2,6 @@
 /.php-cs-fixer.cache
 /.phpunit.result.cache
 /.build
-/composer.lock
 /php-cs-fixer.xml
 /phpstan.xml
 /site

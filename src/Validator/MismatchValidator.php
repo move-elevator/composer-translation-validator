@@ -15,7 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class MismatchValidator implements ValidatorInterface
 {
-    private SymfonyStyle $io;
+    private readonly SymfonyStyle $io;
 
     public function __construct(
         protected readonly InputInterface $input,
@@ -25,10 +25,10 @@ class MismatchValidator implements ValidatorInterface
     }
 
     /**
-    * @param array<int, string> $allFiles
-    *
-    * @throws \ReflectionException
-    */
+     * @param array<int, string> $allFiles
+     *
+     * @throws \ReflectionException
+     */
     public function validate(DetectorInterface $fileDetector, ?string $parserClass, array $allFiles): bool
     {
         $hasErrors = false;

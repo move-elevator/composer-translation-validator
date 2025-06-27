@@ -7,10 +7,10 @@ namespace MoveElevator\ComposerTranslationValidator\FileDetector;
 class PrefixFileDetector implements DetectorInterface
 {
     /**
-    * @param array<int, string> $files
-    *
-    * @return array<string, array<int, string>>
-    */
+     * @param array<int, string> $files
+     *
+     * @return array<string, array<int, string>>
+     */
     public function mapTranslationSet(array $files): array
     {
         $mapping = [];
@@ -35,10 +35,10 @@ class PrefixFileDetector implements DetectorInterface
     }
 
     /**
-    * @param array<int, string> $files
-    *
-    * @return array<int, string>
-    */
+     * @param array<int, string> $files
+     *
+     * @return array<int, string>
+     */
     private function findSourceFiles(array $files): array
     {
         $sourceFiles = [];

@@ -9,7 +9,7 @@ use MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface;
 interface ValidatorInterface
 {
     /**
-    * @param array<int, string> $allFiles
-    */
+     * @param array<int, string> $allFiles
+     */
     public function validate(DetectorInterface $fileDetector, ?string $parserClass, array $allFiles): bool;
 }
