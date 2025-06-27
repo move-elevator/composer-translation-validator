@@ -7,7 +7,8 @@ A Composer plugin that validates translation files in your project regarding mis
 * Autodetect according to language files
 * Detects missing translations
 * Supports the following formats:
-* XLIFF - `*.xlf`, `*.xliff`
+    - XLIFF - `*.xlf`, `*.xliff`
+    - Yaml - `*.yml`, `*.yaml`
 * Support the following validators:
     - [MismatchValidator](src/Validator/MismatchValidator.php)
     - [DuplicatesValidator](src/Validator/DuplicatesValidator.php)
