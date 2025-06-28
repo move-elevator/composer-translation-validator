@@ -126,7 +126,7 @@ jobs:
         id: download
         uses: actions/download-artifact@v4
         with:
-          name: coverage
+          name: code-coverage-report
 
       - name: Coveralls report
         uses: coverallsapp/github-action@v2
