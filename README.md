@@ -39,7 +39,7 @@ composer validate-translations [<path>]
 The command `validate-translations` can be used to validate translation files in your project. It will automatically detect the translation files based on the supported formats and run the configured validators.
 
 ```bash
-composer validate-translations [<path>] [-d|--dry-run] [-e|--exclude PATTERN] [-v|--verbose]
+composer validate-translations [<path>] [-dr|--dry-run] [-e|--exclude PATTERN] [-v|--verbose]
 ```
 
 ## 📝 Documentation

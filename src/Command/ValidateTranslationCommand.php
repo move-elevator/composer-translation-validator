@@ -35,7 +35,7 @@ class ValidateTranslationCommand extends BaseCommand
         $this->setName('validate-translations')
             ->setDescription('Validates translation files with several validators.')
             ->addArgument('path', InputArgument::IS_ARRAY | InputArgument::REQUIRED, 'Paths to the folders containing XLIFF files')
-            ->addOption('dry-run', 'd', InputOption::VALUE_NONE, 'Run the command in dry-run mode without throwing errors')
+            ->addOption('dry-run', 'dr', InputOption::VALUE_NONE, 'Run the command in dry-run mode without throwing errors')
             ->addOption('exclude', 'e', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'Patterns to exclude specific files')
             ->addOption('file-detector', 'fd', InputOption::VALUE_OPTIONAL, 'The file detector to use (FQCN)')
             ->addOption('validator', 'vd', InputOption::VALUE_OPTIONAL, 'The specific validator to use (FQCN)');
