@@ -23,6 +23,14 @@ interface ValidatorInterface
     public function explain(): string;
 
     /**
+     * @param array<string>                 $files
+     * @param class-string<ParserInterface> $parserClass
+     *
+     * @return array<string, mixed>
+     */
+    public function validate(array $files, string $parserClass): array;
+
+    /**
      * @return class-string<ParserInterface>[]
      */
     public function supportsParser(): array;

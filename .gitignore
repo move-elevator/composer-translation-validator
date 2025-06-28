@@ -6,5 +6,5 @@
 /php-cs-fixer.xml
 /phpstan.xml
 /site
-/tests/Build/app/composer.lock
-/tests/Build/app/vendor
+/tests/composer.lock
+/tests/vendor

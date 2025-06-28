@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
-use MoveElevator\ComposerTranslationValidator\Parser\ParserUtility;
+use MoveElevator\ComposerTranslationValidator\Parser\ParserRegistry;
 use Psr\Log\LoggerInterface;
 
 abstract class AbstractValidator
@@ -27,15 +27,17 @@ abstract class AbstractValidator
      */
     public function validate(array $files, ?string $parserClass): array
     {
+        $classPart = strrchr(static::class, '\\');
+        $name = false !== $classPart ? substr($classPart, 1) : static::class;
         $this->logger->debug(
             sprintf(
                 '> Checking for <options=bold,underscore>%s</> ...',
-                substr(strrchr(static::class, '\\'), 1) ?: static::class
+                $name
             )
         );
 
         foreach ($files as $filePath) {
-            $file = new ($parserClass ?: ParserUtility::resolveParserClass($filePath))($filePath);
+            $file = new ($parserClass ?: ParserRegistry::resolveParserClass($filePath))($filePath);
             /* @var ParserInterface $file */
 
             if (!in_array($file::class, $this->supportsParser(), true)) {

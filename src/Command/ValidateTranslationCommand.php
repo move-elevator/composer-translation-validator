@@ -29,17 +29,16 @@ class ValidateTranslationCommand extends BaseCommand
     protected LoggerInterface $logger;
 
     protected bool $dryRun = false;
-    protected bool $hasErrors = false;
 
     protected function configure(): void
     {
         $this->setName('validate-translations')
             ->setDescription('Validates translation files with several validators.')
             ->addArgument('path', InputArgument::IS_ARRAY | InputArgument::REQUIRED, 'Paths to the folders containing XLIFF files')
-            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Run the command in dry-run mode without throwing errors')
-            ->addOption('exclude', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'Patterns to exclude specific files')
-            ->addOption('file-detector', null, InputOption::VALUE_OPTIONAL, 'The file detector to use (FQCN)')
-            ->addOption('validator', null, InputOption::VALUE_OPTIONAL, 'The specific validator to use (FQCN)');
+            ->addOption('dry-run', 'dr', InputOption::VALUE_NONE, 'Run the command in dry-run mode without throwing errors')
+            ->addOption('exclude', 'e', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'Patterns to exclude specific files')
+            ->addOption('file-detector', 'fd', InputOption::VALUE_OPTIONAL, 'The file detector to use (FQCN)')
+            ->addOption('validator', 'vd', InputOption::VALUE_OPTIONAL, 'The specific validator to use (FQCN)');
     }
 
     /**

@@ -1,0 +1,34 @@
+{
+	"require": {
+		"move-elevator/composer-translation-validator": "@dev"
+	},
+	"require-dev": {
+		"composer/composer": "^2.0"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "./../../*"
+		}
+	],
+	"config": {
+		"allow-plugins": {
+			"move-elevator/composer-translation-validator": true
+		}
+	},
+	"scripts": {
+		"translation:xliff:all": "@composer validate-translations ./src/Fixtures/translations/xliff/fail ./src/Fixtures/translations/xliff/success",
+		"translation:xliff:all:check": "@composer validate-translations ./src/Fixtures/translations/xliff/fail ./src/Fixtures/translations/xliff/success --dry-run",
+		"translation:xliff:fail": "@composer validate-translations ./src/Fixtures/translations/xliff/fail",
+		"translation:xliff:fail:check": "@composer validate-translations ./src/Fixtures/translations/xliff/fail --dry-run",
+		"translation:xliff:success": "@composer validate-translations ./src/Fixtures/translations/xliff/success",
+		"translation:xliff:success:check": "@composer validate-translations ./src/Fixtures/translations/xliff/success --dry-run",
+		"translation:xliff:duplicates": "@composer validate-translations ./src/Fixtures/translations/xliff/fail ./src/Fixtures/translations/xliff/success --validator=\"MoveElevator\\\\ComposerTranslationValidator\\\\Validator\\\\DuplicatesValidator\"",
+		"translation:yaml:all": "@composer validate-translations ./src/Fixtures/translations/yaml/fail ./src/Fixtures/translations/yaml/success",
+		"translation:yaml:all:check": "@composer validate-translations ./src/Fixtures/translations/yaml/fail ./src/Fixtures/translations/yaml/success --dry-run",
+		"translation:yaml:fail": "@composer validate-translations ./src/Fixtures/translations/yaml/fail",
+		"translation:yaml:fail:check": "@composer validate-translations ./src/Fixtures/translations/yaml/fail --dry-run",
+		"translation:yaml:success": "@composer validate-translations ./src/Fixtures/translations/yaml/success",
+		"translation:yaml:success:check": "@composer validate-translations ./src/Fixtures/translations/yaml/success --dry-run"
+	}
+}
