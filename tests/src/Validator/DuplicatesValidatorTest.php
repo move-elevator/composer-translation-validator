@@ -64,16 +64,26 @@ final class DuplicatesValidatorTest extends TestCase
         $input = $this->createMock(InputInterface::class);
         $output = new \Symfony\Component\Console\Output\BufferedOutput();
 
-        $issueSets = [
-            [
-                'file1.xlf' => [
-                    'keyA' => 2,
-                    'keyB' => 3,
+                $issueSets = [
+            'set1' => [
+                [
+                    'file' => 'file1.xlf',
+                    'issues' => [
+                        'keyA' => 2,
+                        'keyB' => 3,
+                    ],
+                    'parser' => 'Parser\Class',
+                    'type' => 'Duplicates',
                 ],
             ],
-            [
-                'file2.xlf' => [
-                    'keyC' => 2,
+            'set2' => [
+                [
+                    'file' => 'file2.xlf',
+                    'issues' => [
+                        'keyC' => 2,
+                    ],
+                    'parser' => 'Parser\Class',
+                    'type' => 'Duplicates',
                 ],
             ],
         ];

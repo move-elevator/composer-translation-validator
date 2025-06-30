@@ -56,6 +56,7 @@ class DuplicatesValidator extends AbstractValidator implements ValidatorInterfac
                 $currentFile = $duplicates['file'];
                 foreach ($duplicates['issues'] as $key => $count) {
                     $rows[] = ['<fg=red>'.$duplicates['file'].'</>', $key, $count];
+                    $duplicates['file'] = ''; // Reset file for subsequent rows
                 }
             }
         }

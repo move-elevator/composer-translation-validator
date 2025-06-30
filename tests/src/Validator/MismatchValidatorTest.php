@@ -131,14 +131,20 @@ final class MismatchValidatorTest extends TestCase
         $output = new \Symfony\Component\Console\Output\BufferedOutput();
 
         $issueSets = [
-            [
-                'key1' => [
-                    'file1.xlf' => 'key1',
-                    'file2.xlf' => null,
+            'set1' => [
+                [
+                    'key' => 'key1',
+                    'files' => [
+                        ['file' => 'file1.xlf', 'value' => 'key1'],
+                        ['file' => 'file2.xlf', 'value' => null],
+                    ],
                 ],
-                'key3' => [
-                    'file1.xlf' => null,
-                    'file2.xlf' => 'key3',
+                [
+                    'key' => 'key3',
+                    'files' => [
+                        ['file' => 'file1.xlf', 'value' => null],
+                        ['file' => 'file2.xlf', 'value' => 'key3'],
+                    ],
                 ],
             ],
         ];
