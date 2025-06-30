@@ -35,7 +35,19 @@ class SchemaValidator extends AbstractValidator implements ValidatorInterface
     }
 
     /**
-     * @param array<array<string, array<int, array<string, mixed>>>> $issueSets
+     * @param array<string, array<int, array{
+     *     file: string,
+     *     issues: array<int, array{
+     *         level: string,
+     *         code: int,
+     *         message: string,
+     *         file: string,
+     *         line: int,
+     *         column: int
+     *     }>,
+     *     parser: string,
+     *     type: string
+     * }>> $issueSets
      */
     public function renderIssueSets(InputInterface $input, OutputInterface $output, array $issueSets): void
     {
@@ -49,13 +61,13 @@ class SchemaValidator extends AbstractValidator implements ValidatorInterface
             );
 
         foreach ($issueSets as $issues) {
-            foreach ($issues as $file => $errors) {
-                if ($currentFile !== $file && null !== $currentFile) {
+            foreach ($issues as $errors) {
+                if ($currentFile !== $errors['file'] && null !== $currentFile) {
                     $table->addRow(new TableSeparator());
                 }
-                $currentFile = $file;
+                $currentFile = $errors['file'];
 
-                foreach ($errors as $error) {
+                foreach ($errors['issues'] as $error) {
                     $message = preg_replace(
                         "/^Element ('(?:\{[^}]+\})?[^']+'):?\s*/",
                         '',
@@ -63,13 +75,13 @@ class SchemaValidator extends AbstractValidator implements ValidatorInterface
                     );
 
                     $table->addRow([
-                        "<fg=red>$file</>",
-                        LIBXML_ERR_WARNING === $error['level'] ? 'WARNING' : 'ERROR',
+                        '<fg=red>'.$errors['file'].'</>',
+                        LIBXML_ERR_WARNING === (int)$error['level'] ? 'WARNING' : 'ERROR',
                         $error['code'],
                         trim((string) $message),
                         $error['line'],
                     ]);
-                    $file = ''; // Reset file for subsequent rows
+                    $errors['file'] = ''; // Reset file for subsequent rows
                 }
             }
         }

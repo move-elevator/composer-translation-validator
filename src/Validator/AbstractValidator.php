@@ -55,7 +55,12 @@ abstract class AbstractValidator
 
             $validationResult = $this->processFile($file);
             if (!empty($validationResult)) {
-                $this->issues[$file->getFileName()] = $validationResult;
+                $this->issues[] = [
+                    'file' => $file->getFileName(),
+                    'issues' => $validationResult,
+                    'parser' => $file::class,
+                    'type' => $name,
+                ];
             }
         }
 
