@@ -13,7 +13,7 @@ class ValidatorRegistry
     {
         return [
             MismatchValidator::class,
-            DuplicatesValidator::class,
+            DuplicateKeysValidator::class,
             SchemaValidator::class,
         ];
     }

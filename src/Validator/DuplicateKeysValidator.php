@@ -12,7 +12,7 @@ use Symfony\Component\Console\Helper\TableStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DuplicatesValidator extends AbstractValidator implements ValidatorInterface
+class DuplicateKeysValidator extends AbstractValidator implements ValidatorInterface
 {
     /**
      * @return array<string, int>
