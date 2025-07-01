@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
-use MoveElevator\ComposerTranslationValidator\Validator\DuplicatesValidator;
+use MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 
-final class DuplicatesValidatorTest extends TestCase
+final class DuplicateKeysValidatorTest extends TestCase
 {
     public function testProcessFileWithDuplicates(): void
     {
@@ -21,7 +21,7 @@ final class DuplicatesValidatorTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->never())->method('error');
 
-        $validator = new DuplicatesValidator($logger);
+        $validator = new DuplicateKeysValidator($logger);
         $result = $validator->processFile($parser);
 
         $this->assertSame(['key1' => 2, 'key2' => 2], $result);
@@ -36,7 +36,7 @@ final class DuplicatesValidatorTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->never())->method('error');
 
-        $validator = new DuplicatesValidator($logger);
+        $validator = new DuplicateKeysValidator($logger);
         $result = $validator->processFile($parser);
 
         $this->assertEmpty($result);
@@ -53,7 +53,7 @@ final class DuplicatesValidatorTest extends TestCase
             ->method('error')
             ->with($this->stringContains('The source file invalid.xlf is not valid.'));
 
-        $validator = new DuplicatesValidator($logger);
+        $validator = new DuplicateKeysValidator($logger);
         $result = $validator->processFile($parser);
 
         $this->assertEmpty($result);
@@ -89,7 +89,7 @@ final class DuplicatesValidatorTest extends TestCase
         ];
 
         $logger = $this->createMock(LoggerInterface::class);
-        $validator = new DuplicatesValidator($logger);
+        $validator = new DuplicateKeysValidator($logger);
         $validator->renderIssueSets($input, $output, $issueSets);
 
         $expectedOutput = <<<'EOT'
@@ -109,7 +109,7 @@ EOT;
     public function testExplain(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $validator = new DuplicatesValidator($logger);
+        $validator = new DuplicateKeysValidator($logger);
 
         $this->assertStringContainsString('duplicate keys', $validator->explain());
     }
@@ -117,7 +117,7 @@ EOT;
     public function testSupportsParser(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $validator = new DuplicatesValidator($logger);
+        $validator = new DuplicateKeysValidator($logger);
 
         $this->assertSame([\MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class], $validator->supportsParser());
     }

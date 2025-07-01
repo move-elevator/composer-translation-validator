@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
-use MoveElevator\ComposerTranslationValidator\Validator\DuplicatesValidator;
+use MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator;
 use MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator;
 use MoveElevator\ComposerTranslationValidator\Validator\SchemaValidator;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorRegistry;
@@ -17,7 +17,7 @@ final class ValidatorRegistryTest extends TestCase
         $validators = ValidatorRegistry::getAvailableValidators();
 
         $this->assertContains(MismatchValidator::class, $validators);
-        $this->assertContains(DuplicatesValidator::class, $validators);
+        $this->assertContains(DuplicateKeysValidator::class, $validators);
         $this->assertContains(SchemaValidator::class, $validators);
         $this->assertCount(3, $validators);
     }
