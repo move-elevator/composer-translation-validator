@@ -123,22 +123,38 @@ EOT
         $output = new BufferedOutput();
 
         $issueSets = [
-            [
-                'file1.xlf' => [
-                    [
-                        'level' => LIBXML_ERR_ERROR,
-                        'code' => 76,
-                        'message' => 'Element \'trans-unit\' was not closed.',
-                        'line' => 10,
+            'file1.xlf' => [
+                [
+                    'file' => 'file1.xlf',
+                    'issues' => [
+                        [
+                            'level' => (string) LIBXML_ERR_ERROR,
+                            'code' => 76,
+                            'message' => 'Element \'trans-unit\' was not closed.',
+                            'file' => 'file1.xlf',
+                            'line' => 10,
+                            'column' => 0,
+                        ],
                     ],
+                    'parser' => 'Parser\Class',
+                    'type' => 'Schema',
                 ],
-                'file2.xlf' => [
-                    [
-                        'level' => LIBXML_ERR_WARNING,
-                        'code' => 77,
-                        'message' => 'Some warning.',
-                        'line' => 5,
+            ],
+            'file2.xlf' => [
+                [
+                    'file' => 'file2.xlf',
+                    'issues' => [
+                        [
+                            'level' => (string) LIBXML_ERR_WARNING,
+                            'code' => 77,
+                            'message' => 'Some warning.',
+                            'file' => 'file2.xlf',
+                            'line' => 5,
+                            'column' => 0,
+                        ],
                     ],
+                    'parser' => 'Parser\Class',
+                    'type' => 'Schema',
                 ],
             ],
         ];
@@ -166,5 +182,13 @@ EOT;
         $validator = new SchemaValidator($logger);
 
         $this->assertStringContainsString('XML schema', $validator->explain());
+    }
+
+    public function testSupportsParser(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new SchemaValidator($logger);
+
+        $this->assertSame([\MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class], $validator->supportsParser());
     }
 }

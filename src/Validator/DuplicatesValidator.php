@@ -36,7 +36,12 @@ class DuplicatesValidator extends AbstractValidator implements ValidatorInterfac
     }
 
     /**
-     * @param array<array<string, array<string, int>>> $issueSets
+     * @param array<string, array<int, array{
+     *      file: string,
+     *      issues: array<string, int>,
+     *      parser: string,
+     *      type: string
+     *  }>> $issueSets
      */
     public function renderIssueSets(InputInterface $input, OutputInterface $output, array $issueSets): void
     {
@@ -44,14 +49,14 @@ class DuplicatesValidator extends AbstractValidator implements ValidatorInterfac
         $currentFile = null;
 
         foreach ($issueSets as $issues) {
-            foreach ($issues as $file => $duplicates) {
-                if ($currentFile !== $file && null !== $currentFile) {
+            foreach ($issues as $duplicates) {
+                if ($currentFile !== $duplicates['file'] && null !== $currentFile) {
                     $rows[] = new TableSeparator();
                 }
-                $currentFile = $file;
-                foreach ($duplicates as $key => $count) {
-                    $rows[] = ["<fg=red>$file</>", $key, $count];
-                    $file = ''; // Reset file for subsequent rows
+                $currentFile = $duplicates['file'];
+                foreach ($duplicates['issues'] as $key => $count) {
+                    $rows[] = ['<fg=red>'.$duplicates['file'].'</>', $key, $count];
+                    $duplicates['file'] = ''; // Reset file for subsequent rows
                 }
             }
         }

@@ -55,7 +55,12 @@ abstract class AbstractValidator
 
             $validationResult = $this->processFile($file);
             if (!empty($validationResult)) {
-                $this->issues[$file->getFileName()] = $validationResult;
+                $this->issues[] = [
+                    'file' => $file->getFileName(),
+                    'issues' => $validationResult,
+                    'parser' => $file::class,
+                    'type' => $name,
+                ];
             }
         }
 
@@ -74,7 +79,7 @@ abstract class AbstractValidator
      */
     abstract public function supportsParser(): array;
 
-    protected function postProcess(): void
+    public function postProcess(): void
     {
         // This method can be overridden by subclasses to perform additional processing after validation.
     }

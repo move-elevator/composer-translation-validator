@@ -65,15 +65,25 @@ final class DuplicatesValidatorTest extends TestCase
         $output = new \Symfony\Component\Console\Output\BufferedOutput();
 
         $issueSets = [
-            [
-                'file1.xlf' => [
-                    'keyA' => 2,
-                    'keyB' => 3,
+            'file1.xlf' => [
+                [
+                    'file' => 'file1.xlf',
+                    'issues' => [
+                        'keyA' => 2,
+                        'keyB' => 3,
+                    ],
+                    'parser' => 'Parser\Class',
+                    'type' => 'Duplicates',
                 ],
             ],
-            [
-                'file2.xlf' => [
-                    'keyC' => 2,
+            'file2.xlf' => [
+                [
+                    'file' => 'file2.xlf',
+                    'issues' => [
+                        'keyC' => 2,
+                    ],
+                    'parser' => 'Parser\Class',
+                    'type' => 'Duplicates',
                 ],
             ],
         ];
@@ -102,5 +112,13 @@ EOT;
         $validator = new DuplicatesValidator($logger);
 
         $this->assertStringContainsString('duplicate keys', $validator->explain());
+    }
+
+    public function testSupportsParser(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new DuplicatesValidator($logger);
+
+        $this->assertSame([\MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class], $validator->supportsParser());
     }
 }

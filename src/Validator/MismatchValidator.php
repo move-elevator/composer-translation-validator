@@ -26,7 +26,10 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
 
             return [];
         }
-        $this->keyArray[$file->getFileName()] = $keys;
+        foreach ($keys as $key) {
+            $value = $file->getContentByKey($key);
+            $this->keyArray[$file->getFileName()][$key] = $value ?? null;
+        }
 
         return [];
     }
@@ -35,56 +38,73 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
     {
         $allKeys = [];
         foreach ($this->keyArray as $values) {
-            $allKeys[] = array_values($values);
+            $allKeys[] = array_keys($values);
         }
         $allKeys = array_unique(array_merge(...$allKeys));
 
         foreach ($allKeys as $key) {
             $missingInSome = false;
             foreach ($this->keyArray as $keys) {
-                if (!in_array($key, $keys, true)) {
+                if (!array_key_exists($key, $keys)) {
                     $missingInSome = true;
                     break;
                 }
             }
             if ($missingInSome) {
+                $result = [
+                    'key' => $key,
+                    'files' => [],
+                ];
                 foreach ($this->keyArray as $file => $keys) {
-                    $this->issues[$key][$file] = in_array($key, $keys, true)
-                        ? $keys[array_search($key, $keys, true)]
-                        : null;
+                    $result['files'][] = [
+                        'file' => $file,
+                        'value' => $keys[$key] ?? null,
+                    ];
                 }
+                $this->issues[] = $result;
             }
         }
     }
 
     /**
-     * @param array<array<string, array<string, string|null>>> $issueSets
+     * @param array<string, array<int, array{
+     *     key: string,
+     *     files: array<int, array{
+     *         file: string,
+     *         value: string|null
+     *     }>
+     * }>> $issueSets
      */
     public function renderIssueSets(InputInterface $input, OutputInterface $output, array $issueSets): void
     {
-        foreach ($issueSets as $issues) {
-            $first = reset($issues);
-            $allFiles = array_keys($first);
-            $header = array_merge(['Key'], array_map(fn ($f) => "<fg=red>$f</>", $allFiles));
+        $rows = [];
+        $header = ['Key'];
+        $allFiles = [];
 
-            $rows = [];
-            foreach ($issues as $key => $files) {
+        foreach ($issueSets as $issuesPerFile) {
+            foreach ($issuesPerFile as $issues) {
+                $key = $issues['key'];
+                $files = $issues['files'];
+                if (empty($allFiles)) {
+                    $allFiles = array_column($files, 'file');
+                    $header = array_merge(['Key'], array_map(static fn ($f) => "<fg=red>$f</>", $allFiles));
+                }
                 $row = [$key];
-                foreach ($allFiles as $file) {
-                    $row[] = array_key_exists($file, $files) && null !== $files[$file] ? $files[$file] : '<fg=yellow>–</>';
+                foreach ($files as $fileInfo) {
+                    $row[] = $fileInfo['value'] ?? '<fg=yellow><missing></>';
                 }
                 $rows[] = $row;
             }
-
-            (new Table($output))
-                ->setHeaders($header)
-                ->setRows($rows)
-                ->setStyle(
-                    (new TableStyle())
-                        ->setCellHeaderFormat('%s')
-                )
-                ->render();
         }
+
+        (new Table($output))
+            ->setHeaders($header)
+            ->setRows($rows)
+            ->setStyle(
+                (new TableStyle())
+                    ->setCellHeaderFormat('%s')
+            )
+            ->render();
     }
 
     public function explain(): string

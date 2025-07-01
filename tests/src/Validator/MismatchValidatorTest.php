@@ -36,8 +36,8 @@ final class MismatchValidatorTest extends TestCase
 
         $this->assertEquals(
             [
-                'file1.xlf' => ['key1', 'key2'],
-                'file2.xlf' => ['key2', 'key3'],
+                'file1.xlf' => ['key1' => null, 'key2' => null],
+                'file2.xlf' => ['key2' => null, 'key3' => null],
             ],
             $keyArray
         );
@@ -85,13 +85,31 @@ final class MismatchValidatorTest extends TestCase
         $issues = $issuesProperty->getValue($validator);
 
         $expectedIssues = [
-            'key1' => [
-                'file1.xlf' => 'key1',
-                'file2.xlf' => null,
+            [
+                'key' => 'key1',
+                'files' => [
+                    [
+                        'file' => 'file1.xlf',
+                        'value' => null,
+                    ],
+                    [
+                        'file' => 'file2.xlf',
+                        'value' => null,
+                    ],
+                ],
             ],
-            'key3' => [
-                'file1.xlf' => null,
-                'file2.xlf' => 'key3',
+            [
+                'key' => 'key3',
+                'files' => [
+                    [
+                        'file' => 'file1.xlf',
+                        'value' => null,
+                    ],
+                    [
+                        'file' => 'file2.xlf',
+                        'value' => null,
+                    ],
+                ],
             ],
         ];
 
@@ -131,14 +149,22 @@ final class MismatchValidatorTest extends TestCase
         $output = new \Symfony\Component\Console\Output\BufferedOutput();
 
         $issueSets = [
-            [
-                'key1' => [
-                    'file1.xlf' => 'key1',
-                    'file2.xlf' => null,
+            'dummy_file.xlf' => [
+                [
+                    'key' => 'key1',
+                    'files' => [
+                        ['file' => 'file1.xlf', 'value' => 'key1'],
+                        ['file' => 'file2.xlf', 'value' => null],
+                    ],
                 ],
-                'key3' => [
-                    'file1.xlf' => null,
-                    'file2.xlf' => 'key3',
+            ],
+            'dummy_file_2.xlf' => [
+                [
+                    'key' => 'key3',
+                    'files' => [
+                        ['file' => 'file1.xlf', 'value' => null],
+                        ['file' => 'file2.xlf', 'value' => 'key3'],
+                    ],
                 ],
             ],
         ];
@@ -151,8 +177,8 @@ final class MismatchValidatorTest extends TestCase
 +------+-----------+-----------+
 | Key  | file1.xlf | file2.xlf |
 +------+-----------+-----------+
-| key1 | key1      | –         |
-| key3 | –         | key3      |
+| key1 | key1      | <missing> |
+| key3 | <missing> | key3      |
 +------+-----------+-----------+
 EOT;
 
@@ -165,5 +191,16 @@ EOT;
         $validator = new MismatchValidator($logger);
 
         $this->assertStringContainsString('mismatches in translation keys', $validator->explain());
+    }
+
+    public function testSupportsParser(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        $this->assertSame([
+            \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class,
+            \MoveElevator\ComposerTranslationValidator\Parser\YamlParser::class,
+        ], $validator->supportsParser());
     }
 }
