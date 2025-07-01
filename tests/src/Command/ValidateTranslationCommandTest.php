@@ -112,4 +112,61 @@ class ValidateTranslationCommandTest extends TestCase
         $this->assertStringContainsString('Language validation failed', $commandTester->getDisplay());
         $this->assertSame(0, $commandTester->getStatusCode());
     }
+
+    public function testExecuteWithJsonFormat(): void
+    {
+        $application = new Application();
+        $application->add(new ValidateTranslationCommand());
+
+        $command = $application->find('validate-translations');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute([
+            'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
+            '--format' => 'json',
+        ]);
+
+        $output = json_decode($commandTester->getDisplay(), true);
+        $this->assertArrayHasKey('status', $output);
+        $this->assertSame(0, $output['status']);
+        $this->assertArrayHasKey('message', $output);
+        $this->assertStringContainsString('Language validation succeeded.', $output['message']);
+        $this->assertArrayHasKey('issues', $output);
+        $this->assertEmpty($output['issues']);
+        $this->assertSame(0, $commandTester->getStatusCode());
+    }
+
+    public function testExecuteWithValidFileDetector(): void
+    {
+        $application = new Application();
+        $application->add(new ValidateTranslationCommand());
+
+        $command = $application->find('validate-translations');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute([
+            'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
+            '--file-detector' => \MoveElevator\ComposerTranslationValidator\FileDetector\PrefixFileDetector::class,
+        ]);
+
+        $this->assertStringContainsString('Language validation succeeded.', $commandTester->getDisplay());
+        $this->assertSame(0, $commandTester->getStatusCode());
+    }
+
+    public function testExecuteWithErrorsAndVerboseOutput(): void
+    {
+        $application = new Application();
+        $application->add(new ValidateTranslationCommand());
+
+        $command = $application->find('validate-translations');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute([
+            'path' => [__DIR__.'/../Fixtures/translations/xliff/fail'],
+        ], ['verbosity' => \Symfony\Component\Console\Output\OutputInterface::VERBOSITY_VERBOSE]);
+
+        $this->assertStringContainsString('Language validation failed', $commandTester->getDisplay());
+        $this->assertStringContainsString('Explanation:', $commandTester->getDisplay());
+        $this->assertSame(1, $commandTester->getStatusCode());
+    }
 }

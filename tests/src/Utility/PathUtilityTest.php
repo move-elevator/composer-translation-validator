@@ -83,4 +83,11 @@ final class PathUtilityTest extends TestCase
         $unrelatedPath = '/another/path/to/folder';
         $this->assertSame('/another/path/to/folder/', PathUtility::normalizeFolderPath($unrelatedPath));
     }
+
+    public function testNormalizeFolderPathWithUnrelatedPathWithoutTrailingSlash(): void
+    {
+        chdir($this->tempDir);
+        $unrelatedPath = '/another/path/to/folder';
+        $this->assertSame('/another/path/to/folder/', PathUtility::normalizeFolderPath($unrelatedPath));
+    }
 }

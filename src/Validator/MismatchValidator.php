@@ -58,9 +58,7 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
                 foreach ($this->keyArray as $file => $keys) {
                     $result['files'][] = [
                         'file' => $file,
-                        'value' => array_key_exists($key, $keys)
-                        ? $keys[$key]
-                        : null,
+                        'value' => $keys[$key] ?? null,
                     ];
                 }
                 $this->issues[] = $result;

@@ -104,4 +104,19 @@ final class CollectorTest extends TestCase
 
         $this->assertEmpty($result);
     }
+
+    public function testCollectFilesWithNoMatchingFilesAndVerboseOutput(): void
+    {
+        file_put_contents($this->tempDir.'/test.txt', 'content'); // Not an .xlf file
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->exactly(2))
+            ->method('debug')
+            ->with($this->stringContains('No files found for parser class'));
+
+        $detector = $this->createMock(DetectorInterface::class);
+        $collector = new Collector($logger);
+
+        $collector->collectFiles([$this->tempDir], $detector, null);
+    }
 }

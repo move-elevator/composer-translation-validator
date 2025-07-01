@@ -123,7 +123,7 @@ EOT
         $output = new BufferedOutput();
 
         $issueSets = [
-            'set1' => [
+            'file1.xlf' => [
                 [
                     'file' => 'file1.xlf',
                     'issues' => [
@@ -140,7 +140,7 @@ EOT
                     'type' => 'Schema',
                 ],
             ],
-            'set2' => [
+            'file2.xlf' => [
                 [
                     'file' => 'file2.xlf',
                     'issues' => [
@@ -182,5 +182,13 @@ EOT;
         $validator = new SchemaValidator($logger);
 
         $this->assertStringContainsString('XML schema', $validator->explain());
+    }
+
+    public function testSupportsParser(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new SchemaValidator($logger);
+
+        $this->assertSame([\MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class], $validator->supportsParser());
     }
 }

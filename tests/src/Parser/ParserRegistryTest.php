@@ -19,4 +19,11 @@ final class ParserRegistryTest extends TestCase
         $this->assertContains(YamlParser::class, $parsers);
         $this->assertCount(2, $parsers);
     }
+
+    public function testResolveParserClass(): void
+    {
+        $this->assertSame(XliffParser::class, ParserRegistry::resolveParserClass('test.xliff'));
+        $this->assertSame(YamlParser::class, ParserRegistry::resolveParserClass('test.yaml'));
+        $this->assertNull(ParserRegistry::resolveParserClass('unknown.txt'));
+    }
 }

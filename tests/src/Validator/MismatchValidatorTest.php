@@ -149,7 +149,7 @@ final class MismatchValidatorTest extends TestCase
         $output = new \Symfony\Component\Console\Output\BufferedOutput();
 
         $issueSets = [
-            'set1' => [
+            'dummy_file.xlf' => [
                 [
                     'key' => 'key1',
                     'files' => [
@@ -157,6 +157,8 @@ final class MismatchValidatorTest extends TestCase
                         ['file' => 'file2.xlf', 'value' => null],
                     ],
                 ],
+            ],
+            'dummy_file_2.xlf' => [
                 [
                     'key' => 'key3',
                     'files' => [
@@ -189,5 +191,16 @@ EOT;
         $validator = new MismatchValidator($logger);
 
         $this->assertStringContainsString('mismatches in translation keys', $validator->explain());
+    }
+
+    public function testSupportsParser(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        $this->assertSame([
+            \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class,
+            \MoveElevator\ComposerTranslationValidator\Parser\YamlParser::class,
+        ], $validator->supportsParser());
     }
 }
