@@ -42,7 +42,13 @@ class XliffParser extends AbstractParser implements ParserInterface
     {
         foreach ($this->xml->file->body->{'trans-unit'} as $unit) {
             if ((string) $unit['id'] === $key) {
-                return ('' !== (string) $unit->{$attribute}) ? (string) $unit->{$attribute} : $this->getContentByKey($key, 'target');
+                if ('' !== (string) $unit->{$attribute}) {
+                    return (string) $unit->{$attribute};
+                }
+
+                if ('source' === $attribute) {
+                    return $this->getContentByKey($key, 'target');
+                }
             }
         }
 

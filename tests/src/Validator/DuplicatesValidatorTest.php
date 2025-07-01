@@ -64,7 +64,7 @@ final class DuplicatesValidatorTest extends TestCase
         $input = $this->createMock(InputInterface::class);
         $output = new \Symfony\Component\Console\Output\BufferedOutput();
 
-                $issueSets = [
+        $issueSets = [
             'set1' => [
                 [
                     'file' => 'file1.xlf',

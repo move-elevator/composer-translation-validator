@@ -122,6 +122,7 @@ class ValidateTranslationCommand extends BaseCommand
 
     /**
      * @param array<class-string<ValidatorInterface>, array<string, array<string, array<mixed>>>> $issues
+     *
      * @throws \JsonException
      */
     private function summarize(array $issues, string $format = 'cli'): int

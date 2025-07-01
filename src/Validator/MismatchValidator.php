@@ -94,7 +94,7 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
                 }
                 $row = [$key];
                 foreach ($files as $fileInfo) {
-                    $row[] = null !== $fileInfo['value'] ? $fileInfo['value'] : '<fg=yellow><missing></>';
+                    $row[] = $fileInfo['value'] ?? '<fg=yellow><missing></>';
                 }
                 $rows[] = $row;
             }

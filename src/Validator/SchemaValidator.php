@@ -76,7 +76,7 @@ class SchemaValidator extends AbstractValidator implements ValidatorInterface
 
                     $table->addRow([
                         '<fg=red>'.$errors['file'].'</>',
-                        LIBXML_ERR_WARNING === (int)$error['level'] ? 'WARNING' : 'ERROR',
+                        LIBXML_ERR_WARNING === (int) $error['level'] ? 'WARNING' : 'ERROR',
                         $error['code'],
                         trim((string) $message),
                         $error['line'],
