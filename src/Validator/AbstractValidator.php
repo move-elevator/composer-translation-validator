@@ -83,4 +83,9 @@ abstract class AbstractValidator
     {
         // This method can be overridden by subclasses to perform additional processing after validation.
     }
+
+    public function resultTypeOnValidationFailure(): ResultType
+    {
+        return ResultType::ERROR;
+    }
 }

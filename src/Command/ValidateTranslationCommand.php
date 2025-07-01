@@ -9,6 +9,7 @@ use MoveElevator\ComposerTranslationValidator\FileDetector\Collector;
 use MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface;
 use MoveElevator\ComposerTranslationValidator\Utility\ClassUtility;
 use MoveElevator\ComposerTranslationValidator\Utility\PathUtility;
+use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorRegistry;
 use Psr\Log\LoggerInterface;
@@ -28,6 +29,7 @@ class ValidateTranslationCommand extends BaseCommand
 
     protected LoggerInterface $logger;
 
+    protected ResultType $resultType = ResultType::SUCCESS;
     protected bool $dryRun = false;
 
     protected function configure(): void
@@ -106,8 +108,10 @@ class ValidateTranslationCommand extends BaseCommand
             foreach ($paths as $path => $translationSets) {
                 foreach ($translationSets as $setKey => $files) {
                     foreach ($validators as $validator) {
-                        $result = (new $validator($this->logger))->validate($files, $parser);
+                        $validatorInstance = new $validator($this->logger);
+                        $result = $validatorInstance->validate($files, $parser);
                         if ($result) {
+                            $this->resultType = $this->resultType->max($validatorInstance->resultTypeOnValidationFailure());
                             $issues[$validator][$path][$setKey] = $result;
                         }
                     }
@@ -180,24 +184,21 @@ class ValidateTranslationCommand extends BaseCommand
     private function renderCliResult(array $issues): int
     {
         $this->renderIssues($issues);
-        if (!empty($issues)) {
-            if ($this->dryRun) {
-                $this->io->newLine();
-                $this->io->warning('Language validation failed and completed in dry-run mode.');
-
-                return Command::SUCCESS;
-            }
-
+        if ($this->resultType->notFullySuccessful()) {
             $this->io->newLine();
-            $this->io->error('Language validation failed.');
-
-            return Command::FAILURE;
+            $this->io->{$this->dryRun ? 'warning' : 'error'}(
+                $this->dryRun
+                    ? 'Language validation failed and completed in dry-run mode.'
+                    : 'Language validation failed.'
+            );
+        } else {
+            $message = 'Language validation succeeded.';
+            $this->output->isVerbose()
+                ? $this->io->success($message)
+                : $this->output->writeln('<fg=green>'.$message.'</>');
         }
 
-        $message = 'Language validation succeeded.';
-        $this->output->isVerbose() ? $this->io->success($message) : $this->output->writeln('<fg=green>'.$message.'</>');
-
-        return Command::SUCCESS;
+        return $this->resultType->resolveErrorToCommandExitCode($this->dryRun, false);
     }
 
     /**

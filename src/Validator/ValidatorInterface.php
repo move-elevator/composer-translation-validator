@@ -34,4 +34,6 @@ interface ValidatorInterface
      * @return class-string<ParserInterface>[]
      */
     public function supportsParser(): array;
+
+    public function resultTypeOnValidationFailure(): ResultType;
 }
