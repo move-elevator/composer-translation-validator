@@ -43,7 +43,7 @@ class ValidateTranslationCommand extends BaseCommand
     }
 
     /**
-     * @throws \ReflectionException
+     * @throws \ReflectionException|\JsonException
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -121,7 +121,12 @@ class ValidateTranslationCommand extends BaseCommand
     }
 
     /**
+     * Summarizes validation results in the specified format.
+     *
      * @param array<class-string<ValidatorInterface>, array<string, array<string, array<mixed>>>> $issues
+     * @param string                                                                              $format Output format ('cli' or 'json')
+     *
+     * @return int Command exit code
      *
      * @throws \JsonException
      */
@@ -139,7 +144,12 @@ class ValidateTranslationCommand extends BaseCommand
     }
 
     /**
+     * Renders validation results as JSON output.
+     *
      * @param array<class-string<ValidatorInterface>, array<string, array<string, array<mixed>>>> $issues
+     *
+     * @return int Command exit code
+     * @throws \JsonException
      */
     private function renderJsonResult(array $issues): int
     {
@@ -190,6 +200,8 @@ class ValidateTranslationCommand extends BaseCommand
     }
 
     /**
+     * Renders validation issues using validator-specific formatters.
+     *
      * @param array<class-string<ValidatorInterface>, array<string, array<string, array<mixed>>>> $issues
      */
     private function renderIssues(array $issues): void

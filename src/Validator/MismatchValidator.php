@@ -81,7 +81,6 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
         $header = ['Key'];
         $allFiles = [];
 
-        // Sammle alle Dateinamen (Spalten) und baue die Zeilen
         foreach ($issueSets as $issuesPerFile) {
             foreach ($issuesPerFile as $issues) {
                 $key = $issues['key'];
