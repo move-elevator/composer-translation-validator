@@ -36,21 +36,13 @@ class Output
      * Summarizes validation results in the specified format.
      *
      * @return int Command exit code
+     *
+     * @throws \JsonException
      */
     public function summarize(): int
     {
-        $class = 'MoveElevator\\ComposerTranslationValidator\\Result\\'.ucfirst($this->format->value).'Renderer';
-
-        if (!class_exists($class)) {
-            $this->logger->error(
-                'Renderer class {class} does not exist.',
-                ['class' => $class]
-            );
-
-            return Command::FAILURE;
-        }
-
-        $renderer = new $class(
+        $renderer = RendererFactory::create(
+            $this->format,
             $this->logger,
             $this->output,
             $this->input,
@@ -59,6 +51,15 @@ class Output
             $this->dryRun,
             $this->strict
         );
+
+        if (null === $renderer) {
+            $this->logger->error(
+                'Renderer für das Format {format} existiert nicht.',
+                ['format' => $this->format->value]
+            );
+
+            return Command::FAILURE;
+        }
 
         return $renderer->renderResult();
     }
