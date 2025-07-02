@@ -48,12 +48,12 @@ final class JsonRendererTest extends TestCase
     public function testRenderResultError(): void
     {
         $issues = [
-            'MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator' => [
+            \MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator::class => [
                 'file1.xlf' => [
                     'set1' => [
                         'file' => 'file1.xlf',
                         'issues' => ['keyA' => 2],
-                        'parser' => 'MoveElevator\ComposerTranslationValidator\Parser\XliffParser',
+                        'parser' => \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class,
                         'type' => 'DuplicateKeysValidator',
                     ],
                 ],
@@ -80,12 +80,12 @@ final class JsonRendererTest extends TestCase
     public function testRenderResultErrorDryRun(): void
     {
         $issues = [
-            'MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator' => [
+            \MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator::class => [
                 'file1.xlf' => [
                     'set1' => [
                         'file' => 'file1.xlf',
                         'issues' => ['keyA' => 2],
-                        'parser' => 'MoveElevator\ComposerTranslationValidator\Parser\XliffParser',
+                        'parser' => \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class,
                         'type' => 'DuplicateKeysValidator',
                     ],
                 ],
@@ -113,12 +113,12 @@ final class JsonRendererTest extends TestCase
     public function testRenderResultWarningStrict(): void
     {
         $issues = [
-            'MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator' => [
+            \MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator::class => [
                 'file1.xlf' => [
                     'set1' => [
                         'file' => 'file1.xlf',
                         'issues' => ['keyA' => 2],
-                        'parser' => 'MoveElevator\ComposerTranslationValidator\Parser\XliffParser',
+                        'parser' => \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class,
                         'type' => 'MismatchValidator',
                     ],
                 ],
@@ -147,12 +147,12 @@ final class JsonRendererTest extends TestCase
     public function testRenderResultWarningNotStrict(): void
     {
         $issues = [
-            'MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator' => [
+            \MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator::class => [
                 'file1.xlf' => [
                     'set1' => [
                         'file' => 'file1.xlf',
                         'issues' => ['keyA' => 2],
-                        'parser' => 'MoveElevator\ComposerTranslationValidator\Parser\XliffParser',
+                        'parser' => \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class,
                         'type' => 'MismatchValidator',
                     ],
                 ],

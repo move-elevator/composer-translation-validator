@@ -47,7 +47,7 @@ final class CliRendererTest extends TestCase
     public function testRenderResultError(): void
     {
         $issues = [
-            'MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator' => [
+            \MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator::class => [
                 'path' => [
                     'file1.xlf' => [
                         [
@@ -55,7 +55,7 @@ final class CliRendererTest extends TestCase
                             'issues' => [
                                 'key2' => 2,
                             ],
-                            'parser' => 'MoveElevator\\ComposerTranslationValidator\\Parser\\XliffParser',
+                            'parser' => \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class,
                             'type' => 'DuplicateKeysValidator',
                         ],
                     ],
@@ -80,7 +80,7 @@ final class CliRendererTest extends TestCase
     public function testRenderResultErrorDryRun(): void
     {
         $issues = [
-            'MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator' => [
+            \MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator::class => [
                 'path' => [
                     'file1.xlf' => [
                         [
@@ -88,7 +88,7 @@ final class CliRendererTest extends TestCase
                             'issues' => [
                                 'key2' => 2,
                             ],
-                            'parser' => 'MoveElevator\\ComposerTranslationValidator\\Parser\\XliffParser',
+                            'parser' => \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class,
                             'type' => 'DuplicateKeysValidator',
                         ],
                     ],
@@ -118,7 +118,7 @@ final class CliRendererTest extends TestCase
     public function testRenderResultWarningStrict(): void
     {
         $issues = [
-            'MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator' => [
+            \MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator::class => [
                 'path' => [
                     'file1.xlf' => [
                         [
@@ -126,7 +126,7 @@ final class CliRendererTest extends TestCase
                             'issues' => [
                                 'key2' => 2,
                             ],
-                            'parser' => 'MoveElevator\\ComposerTranslationValidator\\Parser\\XliffParser',
+                            'parser' => \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class,
                             'type' => 'DuplicateKeysValidator',
                         ],
                     ],
@@ -157,7 +157,7 @@ final class CliRendererTest extends TestCase
     public function testRenderIssuesVerboseOutput(): void
     {
         $issues = [
-            'MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator' => [
+            \MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator::class => [
                 'path' => [
                     'file1.xlf' => [
                         [
@@ -165,7 +165,7 @@ final class CliRendererTest extends TestCase
                             'issues' => [
                                 'key2' => 2,
                             ],
-                            'parser' => 'MoveElevator\\ComposerTranslationValidator\\Parser\\XliffParser',
+                            'parser' => \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class,
                             'type' => 'DuplicateKeysValidator',
                         ],
                     ],
