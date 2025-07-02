@@ -73,7 +73,7 @@ class ValidateTranslationCommandTest extends TestCase
 
         $commandTester->execute([
             'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
-            '--validator' => 'Invalid\Validator\Class',
+            '--validator' => 'Invalid\\Validator\\Class',
         ]);
 
         $this->assertStringContainsString('must implement', $commandTester->getDisplay());
@@ -168,5 +168,79 @@ class ValidateTranslationCommandTest extends TestCase
         $this->assertStringContainsString('Language validation failed', $commandTester->getDisplay());
         $this->assertStringContainsString('Explanation:', $commandTester->getDisplay());
         $this->assertSame(1, $commandTester->getStatusCode());
+    }
+
+    public function testExecuteWithJsonFormatAndErrors(): void
+    {
+        $application = new Application();
+        $application->add(new ValidateTranslationCommand());
+
+        $command = $application->find('validate-translations');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute([
+            'path' => [__DIR__.'/../Fixtures/translations/xliff/fail'],
+            '--format' => 'json',
+        ]);
+
+        $output = json_decode($commandTester->getDisplay(), true);
+        $this->assertArrayHasKey('status', $output);
+        $this->assertSame(1, $output['status']);
+        $this->assertArrayHasKey('message', $output);
+        $this->assertStringContainsString('Language validation failed.', $output['message']);
+        $this->assertArrayHasKey('issues', $output);
+        $this->assertNotEmpty($output['issues']);
+        $this->assertSame(1, $commandTester->getStatusCode());
+    }
+
+    public function testExecuteWithInvalidFormat(): void
+    {
+        $application = new Application();
+        $application->add(new ValidateTranslationCommand());
+
+        $command = $application->find('validate-translations');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute([
+            'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
+            '--format' => 'invalid',
+        ]);
+
+        $this->assertStringContainsString('Invalid output format specified.', $commandTester->getDisplay());
+        $this->assertSame(1, $commandTester->getStatusCode());
+    }
+
+    public function testExecuteWithNullFileDetector(): void
+    {
+        $application = new Application();
+        $application->add(new ValidateTranslationCommand());
+
+        $command = $application->find('validate-translations');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute([
+            'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
+            '--file-detector' => null,
+        ]);
+
+        $this->assertStringContainsString('Language validation succeeded.', $commandTester->getDisplay());
+        $this->assertSame(0, $commandTester->getStatusCode());
+    }
+
+    public function testExecuteWithNullValidator(): void
+    {
+        $application = new Application();
+        $application->add(new ValidateTranslationCommand());
+
+        $command = $application->find('validate-translations');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute([
+            'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
+            '--validator' => null,
+        ]);
+
+        $this->assertStringContainsString('Language validation succeeded.', $commandTester->getDisplay());
+        $this->assertSame(0, $commandTester->getStatusCode());
     }
 }

@@ -42,6 +42,11 @@ class ConcreteValidator extends AbstractValidator implements ValidatorInterface
         return 'This is a concrete validator for testing.';
     }
 
+    public function validate(array $files, ?string $parserClass): array
+    {
+        return parent::validate($files, $parserClass);
+    }
+
     public function renderIssueSets(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface $output, array $issueSets): void
     {
         // Dummy implementation for testing AbstractValidator
@@ -50,8 +55,12 @@ class ConcreteValidator extends AbstractValidator implements ValidatorInterface
     public function postProcess(): void
     {
         if ($this->addPostProcessIssue) {
-            // Simulate adding an issue to the internal issues array
-            // This is a dummy implementation for testing purposes
+            $reflection = new \ReflectionClass($this);
+            $issuesProperty = $reflection->getProperty('issues');
+            $issuesProperty->setAccessible(true);
+            $currentIssues = $issuesProperty->getValue($this);
+            $currentIssues[] = ['postProcessIssue'];
+            $issuesProperty->setValue($this, $currentIssues);
         }
     }
 }
@@ -163,5 +172,17 @@ final class AbstractValidatorTest extends TestCase
         $parserClass = TestParser::class;
 
         $validator->validate($files, $parserClass);
+    }
+
+    public function testPostProcessAddsIssue(): void
+    {
+        $validator = new ConcreteValidator($this->loggerMock);
+        $validator->addPostProcessIssue = true;
+        $files = ['/path/to/some_file.xlf'];
+        $parserClass = TestParser::class;
+
+        $result = $validator->validate($files, $parserClass);
+
+        $this->assertContains(['postProcessIssue'], $result);
     }
 }
