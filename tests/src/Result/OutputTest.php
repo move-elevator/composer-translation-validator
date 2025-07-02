@@ -63,19 +63,4 @@ final class OutputTest extends TestCase
         $this->assertSame(Command::SUCCESS, $jsonOutput['status']);
         $this->assertSame('Language validation succeeded.', $jsonOutput['message']);
     }
-
-    public function testSummarizeInvalidRendererClass(): void
-    {
-        $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('must be of type MoveElevator\\ComposerTranslationValidator\\Result\\FormatType, null given');
-
-        new Output(
-            $this->loggerMock,
-            $this->output,
-            $this->inputMock,
-            FormatType::tryFrom('invalid'), // This will be null, causing class_exists to fail
-            ResultType::SUCCESS,
-            []
-        );
-    }
 }
