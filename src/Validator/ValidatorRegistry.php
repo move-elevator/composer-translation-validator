@@ -14,6 +14,7 @@ class ValidatorRegistry
         return [
             MismatchValidator::class,
             DuplicateKeysValidator::class,
+            DuplicateValuesValidator::class,
             SchemaValidator::class,
         ];
     }

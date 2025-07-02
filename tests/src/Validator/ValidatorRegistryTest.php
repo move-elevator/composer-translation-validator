@@ -19,6 +19,6 @@ final class ValidatorRegistryTest extends TestCase
         $this->assertContains(MismatchValidator::class, $validators);
         $this->assertContains(DuplicateKeysValidator::class, $validators);
         $this->assertContains(SchemaValidator::class, $validators);
-        $this->assertCount(3, $validators);
+        $this->assertCount(4, $validators);
     }
 }
