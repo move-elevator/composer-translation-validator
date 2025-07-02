@@ -57,13 +57,8 @@ class CliRenderer implements RendererInterface
     private function renderIssues(): void
     {
         foreach ($this->issues as $validator => $paths) {
-            try {
-                $validatorInstance = new $validator($this->logger);
-                /* @var ValidatorInterface $validatorInstance */
-            } catch (\Exception $e) {
-                $this->logger->error(sprintf('Failed to instantiate validator %s: %s', $validator, $e->getMessage()));
-                continue;
-            }
+            $validatorInstance = new $validator($this->logger);
+            /* @var ValidatorInterface $validatorInstance */
 
             $this->io->section(sprintf('Validator: <fg=cyan>%s</>', $validator));
             foreach ($paths as $path => $sets) {

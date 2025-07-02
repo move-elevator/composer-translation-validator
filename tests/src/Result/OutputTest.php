@@ -59,8 +59,28 @@ final class OutputTest extends TestCase
         $exitCode = $output->summarize();
 
         $this->assertSame(Command::SUCCESS, $exitCode);
-        $jsonOutput = json_decode($this->output->fetch(), true);
+        $rawOutput = $this->output->fetch();
+        $jsonOutput = json_decode($rawOutput, true);
+        $this->assertNotNull($jsonOutput, 'JSON output should be valid');
+        $this->assertJson($rawOutput, 'Output should be valid JSON');
         $this->assertSame(Command::SUCCESS, $jsonOutput['status']);
         $this->assertSame('Language validation succeeded.', $jsonOutput['message']);
+    }
+
+    public function testSummarizeCliFormatFailure(): void
+    {
+        $output = new Output(
+            $this->loggerMock,
+            $this->output,
+            $this->inputMock,
+            FormatType::CLI,
+            ResultType::ERROR,
+            []
+        );
+
+        $exitCode = $output->summarize();
+
+        $this->assertSame(Command::FAILURE, $exitCode);
+        $this->assertStringContainsString('Language validation failed.', $this->output->fetch());
     }
 }
