@@ -31,17 +31,54 @@ class ValidateTranslationCommand extends BaseCommand
 
     protected ResultType $resultType = ResultType::SUCCESS;
     protected bool $dryRun = false;
+    protected bool $strict = false;
 
     protected function configure(): void
     {
         $this->setName('validate-translations')
             ->setDescription('Validates translation files with several validators.')
-            ->addArgument('path', InputArgument::IS_ARRAY | InputArgument::REQUIRED, 'Paths to the folders containing XLIFF files')
-            ->addOption('dry-run', 'dr', InputOption::VALUE_NONE, 'Run the command in dry-run mode without throwing errors')
-            ->addOption('exclude', 'e', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'Patterns to exclude specific files')
-            ->addOption('file-detector', 'fd', InputOption::VALUE_OPTIONAL, 'The file detector to use (FQCN)')
-            ->addOption('validator', 'vd', InputOption::VALUE_OPTIONAL, 'The specific validator to use (FQCN)')
-            ->addOption('format', 'f', InputOption::VALUE_OPTIONAL, 'Output format: cli or json', 'cli');
+            ->addArgument(
+                'path',
+                InputArgument::IS_ARRAY | InputArgument::REQUIRED,
+                'Paths to the folders containing translation files'
+            )
+            ->addOption(
+                'dry-run',
+                'dr',
+                InputOption::VALUE_NONE,
+                'Run the command in dry-run mode without throwing errors'
+            )
+            ->addOption(
+                'strict',
+                null,
+                InputOption::VALUE_NONE,
+                'Fail on warnings as errors'
+            )
+            ->addOption(
+                'format',
+                'f',
+                InputOption::VALUE_OPTIONAL,
+                'Output format: cli or json',
+                'cli'
+            )
+            ->addOption(
+                'exclude',
+                'e',
+                InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED,
+                'Patterns to exclude specific files'
+            )
+            ->addOption(
+                'file-detector',
+                'fd',
+                InputOption::VALUE_OPTIONAL,
+                'The file detector to use (FQCN)'
+            )
+            ->addOption(
+                'validator',
+                'vd',
+                InputOption::VALUE_OPTIONAL,
+                'The specific validator to use (FQCN)'
+            );
     }
 
     /**
@@ -58,6 +95,7 @@ class ValidateTranslationCommand extends BaseCommand
         $paths = array_map(static fn ($path) => str_starts_with((string) $path, '/') ? $path : getcwd().'/'.$path, $input->getArgument('path'));
 
         $this->dryRun = $input->getOption('dry-run');
+        $this->strict = $input->getOption('strict');
         $excludePatterns = $input->getOption('exclude');
 
         $fileDetector = $this->validateAndInstantiate(
@@ -198,7 +236,7 @@ class ValidateTranslationCommand extends BaseCommand
                 : $this->output->writeln('<fg=green>'.$message.'</>');
         }
 
-        return $this->resultType->resolveErrorToCommandExitCode($this->dryRun, false);
+        return $this->resultType->resolveErrorToCommandExitCode($this->dryRun, $this->strict);
     }
 
     /**
