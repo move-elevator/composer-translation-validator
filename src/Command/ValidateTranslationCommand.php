@@ -7,8 +7,9 @@ namespace MoveElevator\ComposerTranslationValidator\Command;
 use Composer\Command\BaseCommand;
 use MoveElevator\ComposerTranslationValidator\FileDetector\Collector;
 use MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface;
+use MoveElevator\ComposerTranslationValidator\Result\FormatType;
+use MoveElevator\ComposerTranslationValidator\Result\Output;
 use MoveElevator\ComposerTranslationValidator\Utility\ClassUtility;
-use MoveElevator\ComposerTranslationValidator\Utility\PathUtility;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorRegistry;
@@ -59,7 +60,7 @@ class ValidateTranslationCommand extends BaseCommand
                 'f',
                 InputOption::VALUE_OPTIONAL,
                 'Output format: cli or json',
-                'cli'
+                FormatType::CLI->value
             )
             ->addOption(
                 'exclude',
@@ -157,116 +158,24 @@ class ValidateTranslationCommand extends BaseCommand
             }
         }
 
-        $format = $input->getOption('format');
+        $format = FormatType::tryFrom($input->getOption('format'));
 
-        return $this->summarize($issues, $format);
-    }
+        if (null === $format) {
+            $this->io->error('Invalid output format specified. Use "cli" or "json".');
 
-    /**
-     * Summarizes validation results in the specified format.
-     *
-     * @param array<class-string<ValidatorInterface>, array<string, array<string, array<mixed>>>> $issues
-     * @param string                                                                              $format Output format ('cli' or 'json')
-     *
-     * @return int Command exit code
-     *
-     * @throws \JsonException
-     */
-    private function summarize(array $issues, string $format = 'cli'): int
-    {
-        if ('json' === $format) {
-            return $this->renderJsonResult($issues);
-        }
-        if ('cli' === $format) {
-            return $this->renderCliResult($issues);
-        }
-        $this->io->error('Invalid output format specified. Use "cli" or "json".');
-
-        return Command::FAILURE;
-    }
-
-    /**
-     * Renders validation results as JSON output.
-     *
-     * @param array<class-string<ValidatorInterface>, array<string, array<string, array<mixed>>>> $issues
-     *
-     * @return int Command exit code
-     *
-     * @throws \JsonException
-     */
-    private function renderJsonResult(array $issues): int
-    {
-        $result = [
-            'status' => Command::SUCCESS,
-            'message' => 'Language validation succeeded.',
-            'issues' => $issues,
-        ];
-
-        if (!empty($issues)) {
-            $result['message'] = 'Language validation failed.';
-            $result['status'] = Command::FAILURE;
-            if ($this->dryRun) {
-                $result['message'] = 'Language validation failed and completed in dry-run mode.';
-                $result['status'] = Command::SUCCESS;
-            }
+            return Command::FAILURE;
         }
 
-        $this->output->writeln(json_encode($result, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-
-        return $result['status'];
-    }
-
-    /**
-     * @param array<class-string<ValidatorInterface>, array<string, array<string, array<mixed>>>> $issues
-     */
-    private function renderCliResult(array $issues): int
-    {
-        $this->renderIssues($issues);
-        if ($this->resultType->notFullySuccessful()) {
-            $this->io->newLine();
-            $this->io->{$this->dryRun ? 'warning' : 'error'}(
-                $this->dryRun
-                    ? 'Language validation failed and completed in dry-run mode.'
-                    : 'Language validation failed.'
-            );
-        } else {
-            $message = 'Language validation succeeded.';
-            $this->output->isVerbose()
-                ? $this->io->success($message)
-                : $this->output->writeln('<fg=green>'.$message.'</>');
-        }
-
-        return $this->resultType->resolveErrorToCommandExitCode($this->dryRun, $this->strict);
-    }
-
-    /**
-     * Renders validation issues using validator-specific formatters.
-     *
-     * @param array<class-string<ValidatorInterface>, array<string, array<string, array<mixed>>>> $issues
-     */
-    private function renderIssues(array $issues): void
-    {
-        foreach ($issues as $validator => $paths) {
-            $validatorInstance = new $validator($this->logger);
-            /* @var ValidatorInterface $validatorInstance */
-
-            $this->io->section(sprintf('Validator: <fg=cyan>%s</>', $validator));
-            foreach ($paths as $path => $sets) {
-                if ($this->output->isVerbose()) {
-                    $this->io->writeln(sprintf('Explanation: %s', $validatorInstance->explain()));
-                }
-                $this->io->writeln(sprintf('<fg=gray>Folder Path: %s</>', PathUtility::normalizeFolderPath($path)));
-                $this->io->newLine();
-                $validatorInstance->renderIssueSets(
-                    $this->input,
-                    $this->output,
-                    $sets
-                );
-
-                $this->io->newLine();
-                $this->io->newLine();
-            }
-        }
+        return (new Output(
+            $this->logger,
+            $this->output,
+            $this->input,
+            $format,
+            $this->resultType,
+            $issues,
+            $this->dryRun,
+            $this->strict
+        ))->summarize();
     }
 
     private function validateAndInstantiate(string $interface, string $type, ?string $className = null): ?object
