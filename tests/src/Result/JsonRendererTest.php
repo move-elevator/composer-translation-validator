@@ -6,7 +6,6 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 
 use MoveElevator\ComposerTranslationValidator\Result\JsonRenderer;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
-use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
