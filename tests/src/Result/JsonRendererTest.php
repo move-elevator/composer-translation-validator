@@ -39,7 +39,9 @@ final class JsonRendererTest extends TestCase
         $exitCode = $renderer->renderResult();
 
         $this->assertSame(0, $exitCode);
-        $output = json_decode($this->output->fetch(), true);
+        $jsonOutput = $this->output->fetch();
+        $output = json_decode($jsonOutput, true);
+        $this->assertNotNull($output, 'Failed to decode JSON output: '.$jsonOutput);
         $this->assertSame(0, $output['status']);
         $this->assertSame('Language validation succeeded.', $output['message']);
         $this->assertEmpty($output['issues']);
