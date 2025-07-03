@@ -69,7 +69,7 @@ final class ClassUtilityTest extends TestCase
     {
         $loggedMessages = [];
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->method('error')->willReturnCallback(function ($message) use (&$loggedMessages) {
+        $logger->method('error')->willReturnCallback(function (string|\Stringable $message) use (&$loggedMessages): void {
             $loggedMessages[] = $message;
         });
 
@@ -83,7 +83,7 @@ final class ClassUtilityTest extends TestCase
     {
         $loggedMessages = [];
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->method('error')->willReturnCallback(function ($message) use (&$loggedMessages) {
+        $logger->method('error')->willReturnCallback(function (string|\Stringable $message) use (&$loggedMessages): void {
             $loggedMessages[] = $message;
         });
 
