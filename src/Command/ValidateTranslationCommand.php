@@ -201,7 +201,7 @@ class ValidateTranslationCommand extends BaseCommand
         }
         $classes = [];
 
-        if (str_contains(',', $className)) {
+        if (str_contains($className, ',')) {
             $classNames = explode(',', $className);
             foreach ($classNames as $name) {
                 ClassUtility::instantiate($interface, $this->logger, $type, $name);
