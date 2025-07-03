@@ -33,6 +33,9 @@ class DuplicateValuesValidator extends AbstractValidator implements ValidatorInt
 
         foreach ($keys as $key) {
             $value = $file->getContentByKey($key);
+            if (null === $value) {
+                continue;
+            }
             $this->valuesArray[$file->getFileName()][$value][] = $key;
         }
 
@@ -58,28 +61,28 @@ class DuplicateValuesValidator extends AbstractValidator implements ValidatorInt
     }
 
     /**
-     * @param array<string, array<int, array{
-     *      file: string,
-     *      issues: array<string, array<int, string>>,
-     *  }>> $issueSets
+     * @param array<string, array<int, array{file: string, issues: array<string, array<int, string>>}>> $issueSets
      */
     public function renderIssueSets(InputInterface $input, OutputInterface $output, array $issueSets): void
     {
         $rows = [];
         $currentFile = null;
 
-        foreach ($issueSets as $duplicate) {
-            if ($currentFile !== $duplicate['file'] && null !== $currentFile) {
-                $rows[] = new TableSeparator();
-            }
-            $currentFile = $duplicate['file'];
-            foreach ($duplicate['issues'] as $value => $keys) {
-                $rows[] = [
-                    '<fg=red>'.$duplicate['file'].'</>',
-                    implode("\n", $keys),
-                    '<fg=yellow>'.$value.'</>',
-                ];
-                $duplicate['file'] = '';
+        foreach ($issueSets as $issueSet) {
+            foreach ($issueSet as $duplicate) {
+                if ($currentFile !== $duplicate['file'] && null !== $currentFile) {
+                    $rows[] = new TableSeparator();
+                }
+                $currentFile = $duplicate['file'];
+                $fileName = $duplicate['file'];
+                foreach ($duplicate['issues'] as $value => $keys) {
+                    $rows[] = [
+                        '<fg=red>'.$fileName.'</>',
+                        implode("\n", $keys),
+                        '<fg=yellow>'.$value.'</>',
+                    ];
+                    $fileName = '';
+                }
             }
         }
 

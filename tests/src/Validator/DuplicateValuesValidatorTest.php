@@ -173,16 +173,20 @@ final class DuplicateValuesValidatorTest extends TestCase
         $output = new BufferedOutput();
 
         $issueSets = [
-            [
-                'file' => 'file1.xlf',
-                'issues' => [
-                    'valueA' => ['key1', 'key3'],
+            'file1.xlf' => [
+                [
+                    'file' => 'file1.xlf',
+                    'issues' => [
+                        'valueA' => ['key1', 'key3'],
+                    ],
                 ],
             ],
-            [
-                'file' => 'file2.xlf',
-                'issues' => [
-                    'valueX' => ['keyA', 'keyB'],
+            'file2.xlf' => [
+                [
+                    'file' => 'file2.xlf',
+                    'issues' => [
+                        'valueX' => ['keyA', 'keyB'],
+                    ],
                 ],
             ],
         ];
@@ -208,7 +212,6 @@ EOT;
     public function testExplain(): void
     {
         $validator = new DuplicateValuesValidator($this->loggerMock);
-        $this->assertIsString($validator->explain());
         $this->assertStringContainsString('duplicate values', $validator->explain());
     }
 
