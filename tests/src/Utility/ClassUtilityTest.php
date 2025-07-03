@@ -56,4 +56,49 @@ final class ClassUtilityTest extends TestCase
 
         $this->assertTrue(ClassUtility::validateClass(DummyInterface::class, $logger, ValidClass::class));
     }
+
+    public function testInstantiateWithNullClass(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('error');
+
+        $this->assertNull(ClassUtility::instantiate(DummyInterface::class, $logger, 'test', null));
+    }
+
+    public function testInstantiateWithNonExistentClass(): void
+    {
+        $loggedMessages = [];
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->method('error')->willReturnCallback(function ($message) use (&$loggedMessages) {
+            $loggedMessages[] = $message;
+        });
+
+        ClassUtility::instantiate(DummyInterface::class, $logger, 'test', 'NonExistentClass');
+
+        $this->assertStringContainsString('The class "NonExistentClass" does not exist.', $loggedMessages[0]);
+        $this->assertStringContainsString('The test class "NonExistentClass" must implement MoveElevator\ComposerTranslationValidator\Tests\Utility\DummyInterface', $loggedMessages[1]);
+    }
+
+    public function testInstantiateWithClassNotImplementingInterface(): void
+    {
+        $loggedMessages = [];
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->method('error')->willReturnCallback(function ($message) use (&$loggedMessages) {
+            $loggedMessages[] = $message;
+        });
+
+        $this->assertNull(ClassUtility::instantiate(DummyInterface::class, $logger, 'test', InvalidClass::class));
+
+        $this->assertStringContainsString('The test class "MoveElevator\ComposerTranslationValidator\Tests\Utility\InvalidClass" must implement MoveElevator\ComposerTranslationValidator\Tests\Utility\DummyInterface', $loggedMessages[1]);
+    }
+
+    public function testInstantiateWithValidClass(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('error');
+
+        $instance = ClassUtility::instantiate(DummyInterface::class, $logger, 'test', ValidClass::class);
+
+        $this->assertInstanceOf(ValidClass::class, $instance);
+    }
 }
