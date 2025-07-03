@@ -71,13 +71,18 @@ class ValidateTranslationCommandTest extends TestCase
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
 
-        $commandTester->execute([
-            'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
-            '--validator' => 'Invalid\\Validator\\Class',
-        ]);
-
-        $this->assertStringContainsString('must implement', $commandTester->getDisplay());
-        $this->assertSame(1, $commandTester->getStatusCode());
+        try {
+            $commandTester->execute([
+                'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
+                '--only' => 'Invalid\\Validator\\Class',
+            ]);
+            $this->fail('Expected exception was not thrown.');
+        } catch (\Throwable $e) {
+            $this->assertStringContainsString(
+                'Class "Invalid\Validator\Class" not found',
+                $e->getMessage()
+            );
+        }
     }
 
     public function testExecuteWithErrors(): void
@@ -237,7 +242,7 @@ class ValidateTranslationCommandTest extends TestCase
 
         $commandTester->execute([
             'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
-            '--validator' => null,
+            '--skip' => null,
         ]);
 
         $this->assertStringContainsString('Language validation succeeded.', $commandTester->getDisplay());
