@@ -36,7 +36,7 @@ class CliRenderer implements RendererInterface
         $this->renderIssues();
         if ($this->resultType->notFullySuccessful()) {
             $this->io->newLine();
-            $this->io->{$this->dryRun ? 'warning' : 'error'}(
+            $this->io->{$this->dryRun || ResultType::WARNING === $this->resultType ? 'warning' : 'error'}(
                 $this->dryRun
                     ? 'Language validation failed and completed in dry-run mode.'
                     : 'Language validation failed.'

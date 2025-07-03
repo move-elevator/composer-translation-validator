@@ -9,6 +9,9 @@
             <trans-unit id="key1">
                 <source>English Key #1</source>
             </trans-unit>
+            <trans-unit id="key3">
+                <source>English Key #1</source>
+            </trans-unit>
             <trans-unit id="key2">
                 <source>English Key #2</source>
             </trans-unit>

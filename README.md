@@ -46,22 +46,23 @@ composer validate-translations [<path>] [-dr|--dry-run] [-f|--format cli|json] [
 
 ### Supported Formats
 
-The plugin supports the following translation file formats:
+The plugin supports the following translation file formats (and targets the following frameworks):
 
-| Format | File endings       | Description                                                                                                    | Example files                          |
-|--------|--------------------|----------------------------------------------------------------------------------------------------------------|----------------------------------------|
-| XLIFF  | `*.xlf`, `*.xliff` | Supports source/target translations in xliff language files. Used e.g. within [TYPO3 CMS](https://typo3.org/). | `locallang.xlf`, `de.locallang.xlf`    |
-| Yaml   | `*.yml`, `*.yaml`  | Supports yaml language files. Used e.g. within [Symfony Framework](https://symfony.com/).                      | `messages.en.yaml`, `messages.de.yaml` |
+| Format | Description                                                                                                  | Framework | Example files                          |
+|--------|--------------------------------------------------------------------------------------------------------------|-----------|----------------------------------------|
+| XLIFF  | Supports source/target translations in xliff language files. | [TYPO3 CMS](https://typo3.org/)          | `locallang.xlf`, `de.locallang.xlf`    |
+| Yaml   | Supports yaml language files.                     | [Symfony Framework](https://symfony.com/)          | `messages.en.yaml`, `messages.de.yaml` |
 
 ### Validators
 
 The following validators are available:
 
-| Validator                | Function                                                                                                                                                                 | Supports    |
-|--------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
-| `MismatchValidator`      | This validator checks for keys that are present in some files but not in others. It helps to identify mismatches in translation keys across different translation files. | XLIFF, Yaml |
-| `DuplicateKeysValidator` | This validator checks for duplicate keys in translation files.                                                                                                           | XLIFF       |
-| `SchemaValidator`        | Validates the XML schema of translation files against the XLIFF standard. See available [schemas](https://github.com/symfony/translation/tree/6.4/Resources/schemas).    | XLIFF       |
+| Validator                  | Function                                                                                                                                                                 | Supports    | Throws  |
+|----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|---------|
+| `MismatchValidator`        | This validator checks for keys that are present in some files but not in others. It helps to identify mismatches in translation keys across different translation files. | XLIFF, Yaml | ERROR   |
+| `DuplicateKeysValidator`   | This validator checks for duplicate keys in translation files.                                                                                                           | XLIFF       | ERROR   |
+| `DuplicateValuesValidator` | This validator checks for duplicate values in translation files.                                                                                                         | XLIFF, Yaml     | WARNING |
+| `SchemaValidator`          | Validates the XML schema of translation files against the XLIFF standard. See available [schemas](https://github.com/symfony/translation/tree/6.4/Resources/schemas).    | XLIFF       | ERROR   |
 
 
 ## 🧑‍💻 Contributing
