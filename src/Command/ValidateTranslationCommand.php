@@ -75,10 +75,16 @@ class ValidateTranslationCommand extends BaseCommand
                 'The file detector to use (FQCN)'
             )
             ->addOption(
-                'validator',
-                'vd',
+                'only',
+                'o',
                 InputOption::VALUE_OPTIONAL,
-                'The specific validator to use (FQCN)'
+                'The specific validators to use (FQCN), comma-separated'
+            )
+            ->addOption(
+                'skip',
+                's',
+                InputOption::VALUE_OPTIONAL,
+                'Skip specific validators (FQCN), comma-separated'
             );
     }
 
@@ -99,8 +105,9 @@ class ValidateTranslationCommand extends BaseCommand
         $this->strict = $input->getOption('strict');
         $excludePatterns = $input->getOption('exclude');
 
-        $fileDetector = $this->validateAndInstantiate(
+        $fileDetector = ClassUtility::instantiate(
             DetectorInterface::class,
+            $this->logger,
             'file detector',
             $input->getOption('file-detector')
         );
@@ -118,28 +125,7 @@ class ValidateTranslationCommand extends BaseCommand
             return Command::SUCCESS;
         }
 
-        if (!ClassUtility::validateClass(
-            ValidatorInterface::class,
-            $this->logger,
-            $input->getOption('validator'))
-        ) {
-            $this->io->error(
-                sprintf('The validator class "%s" must implement %s.',
-                    $input->getOption('validator'),
-                    ValidatorInterface::class
-                )
-            );
-
-            return Command::FAILURE;
-        }
-
-        $this->validateAndInstantiate(
-            ValidatorInterface::class,
-            'validator',
-            $input->getOption('validator')
-        );
-
-        $validators = $input->getOption('validator') ? [$input->getOption('validator')] : ValidatorRegistry::getAvailableValidators();
+        $validators = $this->resolveValidators($input);
         $issues = [];
 
         // ToDo: Simplify this nested loop structure
@@ -178,20 +164,54 @@ class ValidateTranslationCommand extends BaseCommand
         ))->summarize();
     }
 
-    private function validateAndInstantiate(string $interface, string $type, ?string $className = null): ?object
+    /**
+     * @return array<int, class-string<ValidatorInterface>>
+     */
+    private function resolveValidators(InputInterface $input): array
+    {
+        $only = $this->validateClassInput(
+            ValidatorInterface::class,
+            'validator',
+            $input->getOption('only')
+        );
+        $skip = $this->validateClassInput(
+            ValidatorInterface::class,
+            'validator',
+            $input->getOption('skip')
+        );
+
+        if (!empty($only)) {
+            $validators = $only;
+        } elseif (!empty($skip)) {
+            $validators = array_diff(ValidatorRegistry::getAvailableValidators(), $skip);
+        } else {
+            $validators = ValidatorRegistry::getAvailableValidators();
+        }
+
+        return $validators;
+    }
+
+    /**
+     * @return array<int, class-string>
+     */
+    private function validateClassInput(string $interface, string $type, ?string $className = null): array
     {
         if (null === $className) {
-            return null;
+            return [];
+        }
+        $classes = [];
+
+        if (str_contains($className, ',')) {
+            $classNames = explode(',', $className);
+            foreach ($classNames as $name) {
+                ClassUtility::instantiate($interface, $this->logger, $type, $name);
+                $classes[] = $name;
+            }
+        } else {
+            ClassUtility::instantiate($interface, $this->logger, $type, $className);
+            $classes[] = $className;
         }
 
-        if (!ClassUtility::validateClass($interface, $this->logger, $className)) {
-            $this->io->error(
-                sprintf('The %s class "%s" must implement %s.', $type, $className, $interface)
-            );
-
-            return null;
-        }
-
-        return new $className();
+        return $classes;
     }
 }
