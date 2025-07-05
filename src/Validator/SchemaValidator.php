@@ -19,7 +19,17 @@ class SchemaValidator extends AbstractValidator implements ValidatorInterface
     public function processFile(ParserInterface $file): array
     {
         try {
-            $dom = XmlUtils::loadFile($file->getFilePath());
+            /*
+             * With XmlUtils::loadFile() we always get a strange symfony error related to global composer autoloading issue.
+             *      Call to undefined method Symfony\Component\Filesystem\Filesystem::readFile()
+             */
+            $fileContent = file_get_contents($file->getFilePath());
+            if (false === $fileContent) {
+                $this->logger?->error('Failed to read file: '.$file->getFileName());
+
+                return [];
+            }
+            $dom = XmlUtils::parse($fileContent);
             $errors = XliffUtils::validateSchema($dom);
         } catch (\Exception $e) {
             $this->logger?->error('Failed to validate XML schema: '.$e->getMessage());
