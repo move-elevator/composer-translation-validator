@@ -23,6 +23,12 @@ class SchemaValidator extends AbstractValidator implements ValidatorInterface
              * With XmlUtils::loadFile() we always get a strange symfony error related to global composer autoloading issue.
              *      Call to undefined method Symfony\Component\Filesystem\Filesystem::readFile()
              */
+            if (!file_exists($file->getFilePath())) {
+                $this->logger?->error('File does not exist: '.$file->getFileName());
+
+                return [];
+            }
+
             $fileContent = file_get_contents($file->getFilePath());
             if (false === $fileContent) {
                 $this->logger?->error('Failed to read file: '.$file->getFileName());
