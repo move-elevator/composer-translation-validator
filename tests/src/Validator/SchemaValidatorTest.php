@@ -109,7 +109,7 @@ EOT
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
             ->method('error')
-            ->with($this->stringContains('Failed to validate XML schema: '));
+            ->with($this->stringContains('File does not exist'));
 
         $validator = new SchemaValidator($logger);
         $result = $validator->processFile($parser);
