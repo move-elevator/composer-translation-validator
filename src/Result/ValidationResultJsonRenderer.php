@@ -9,9 +9,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ValidationResultJsonRenderer
 {
     public function __construct(
-        private OutputInterface $output,
-        private bool $dryRun = false,
-        private bool $strict = false,
+        private readonly OutputInterface $output,
+        private readonly bool $dryRun = false,
+        private readonly bool $strict = false,
     ) {
     }
 

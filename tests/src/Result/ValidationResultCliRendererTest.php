@@ -38,7 +38,7 @@ class ValidationResultCliRendererTest extends TestCase
 
         $exitCode = $this->renderer->render($validationResult);
 
-        $this->assertEquals(0, $exitCode);
+        $this->assertSame(0, $exitCode);
         $this->assertStringContainsString('Language validation succeeded', $this->output->fetch());
     }
 
@@ -58,7 +58,7 @@ class ValidationResultCliRendererTest extends TestCase
 
         $exitCode = $this->renderer->render($validationResult);
 
-        $this->assertEquals(1, $exitCode);
+        $this->assertSame(1, $exitCode);
         $output = $this->output->fetch();
         $this->assertStringContainsString('Validator:', $output);
         $this->assertStringContainsString('Folder Path:', $output);
@@ -86,7 +86,7 @@ class ValidationResultCliRendererTest extends TestCase
 
         $exitCode = $renderer->render($validationResult);
 
-        $this->assertEquals(0, $exitCode);
+        $this->assertSame(0, $exitCode);
         $this->assertStringContainsString('dry-run mode', $this->output->fetch());
     }
 
@@ -112,7 +112,7 @@ class ValidationResultCliRendererTest extends TestCase
 
         $exitCode = $renderer->render($validationResult);
 
-        $this->assertEquals(1, $exitCode);
+        $this->assertSame(1, $exitCode);
     }
 
     public function testRenderWithVerboseOutput(): void
@@ -153,7 +153,7 @@ class ValidationResultCliRendererTest extends TestCase
 
         $exitCode = $this->renderer->render($validationResult);
 
-        $this->assertEquals(0, $exitCode);
+        $this->assertSame(0, $exitCode);
         $this->assertStringContainsString('Language validation failed', $this->output->fetch());
     }
 
@@ -165,7 +165,7 @@ class ValidationResultCliRendererTest extends TestCase
 
         $exitCode = $this->renderer->render($validationResult);
 
-        $this->assertEquals(0, $exitCode);
+        $this->assertSame(0, $exitCode);
         $this->assertStringContainsString('Language validation succeeded', $this->output->fetch());
     }
 

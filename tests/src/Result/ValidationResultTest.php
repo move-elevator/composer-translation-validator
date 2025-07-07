@@ -133,7 +133,7 @@ class ValidationResultTest extends TestCase
         $result = new ValidationResult([$validator], ResultType::ERROR);
         $legacyArray = $result->toLegacyArray();
 
-        $expectedClass = get_class($validator);
+        $expectedClass = $validator::class;
         $this->assertArrayHasKey($expectedClass, $legacyArray);
         $this->assertArrayHasKey('', $legacyArray[$expectedClass]);
         $this->assertArrayHasKey('', $legacyArray[$expectedClass]['']);
@@ -157,7 +157,7 @@ class ValidationResultTest extends TestCase
         $result = new ValidationResult([$validator], ResultType::ERROR, $pairs);
         $legacyArray = $result->toLegacyArray();
 
-        $expectedClass = get_class($validator);
+        $expectedClass = $validator::class;
         $this->assertArrayHasKey($expectedClass, $legacyArray);
         $this->assertArrayHasKey('/test/path', $legacyArray[$expectedClass]);
         $this->assertArrayHasKey('testSet', $legacyArray[$expectedClass]['/test/path']);
@@ -273,8 +273,8 @@ class ValidationResultTest extends TestCase
 
         // Check that both validator classes are present
         $validatorClasses = array_keys($legacyArray);
-        $this->assertContains(get_class($validator1), $validatorClasses);
-        $this->assertContains(get_class($validator2), $validatorClasses);
+        $this->assertContains($validator1::class, $validatorClasses);
+        $this->assertContains($validator2::class, $validatorClasses);
     }
 
     public function testToLegacyArrayWithValidatorsWithoutIssues(): void
@@ -391,10 +391,10 @@ class ValidationResultTest extends TestCase
         $legacyArray = $result->toLegacyArray();
 
         $this->assertCount(1, $legacyArray);
-        $this->assertArrayHasKey(get_class($validatorWithIssues), $legacyArray);
+        $this->assertArrayHasKey($validatorWithIssues::class, $legacyArray);
 
         // The validator without issues should NOT be in the legacy array
         $validatorClasses = array_keys($legacyArray);
-        $this->assertNotContains(get_class($validatorWithoutIssues), $validatorClasses);
+        $this->assertNotContains($validatorWithoutIssues::class, $validatorClasses);
     }
 }

@@ -64,7 +64,7 @@ class FileSetTest extends TestCase
 
     public function testWithRealWorldData(): void
     {
-        $parser = 'MoveElevator\\ComposerTranslationValidator\\Parser\\XliffParser';
+        $parser = \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class;
         $path = 'tests/src/Fixtures/translations/xliff/success';
         $setKey = 'locallang';
         $files = [

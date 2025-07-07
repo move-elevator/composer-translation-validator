@@ -33,7 +33,7 @@ class ValidationResultJsonRendererTest extends TestCase
 
         $exitCode = $this->renderer->render($validationResult);
 
-        $this->assertEquals(0, $exitCode);
+        $this->assertSame(0, $exitCode);
 
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
@@ -60,7 +60,7 @@ class ValidationResultJsonRendererTest extends TestCase
 
         $exitCode = $this->renderer->render($validationResult);
 
-        $this->assertEquals(1, $exitCode);
+        $this->assertSame(1, $exitCode);
 
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
@@ -71,7 +71,7 @@ class ValidationResultJsonRendererTest extends TestCase
         $this->assertNotEmpty($output['issues']);
 
         // Verify the issues structure matches legacy format
-        $validatorClass = get_class($validator);
+        $validatorClass = $validator::class;
         $this->assertArrayHasKey($validatorClass, $output['issues']);
         $this->assertArrayHasKey('/test/path', $output['issues'][$validatorClass]);
         $this->assertArrayHasKey('setKey', $output['issues'][$validatorClass]['/test/path']);
@@ -99,7 +99,7 @@ class ValidationResultJsonRendererTest extends TestCase
 
         $exitCode = $renderer->render($validationResult);
 
-        $this->assertEquals(0, $exitCode);
+        $this->assertSame(0, $exitCode);
 
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
@@ -131,7 +131,7 @@ class ValidationResultJsonRendererTest extends TestCase
 
         $exitCode = $renderer->render($validationResult);
 
-        $this->assertEquals(1, $exitCode);
+        $this->assertSame(1, $exitCode);
 
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
@@ -163,7 +163,7 @@ class ValidationResultJsonRendererTest extends TestCase
 
         $exitCode = $renderer->render($validationResult);
 
-        $this->assertEquals(0, $exitCode);
+        $this->assertSame(0, $exitCode);
 
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
