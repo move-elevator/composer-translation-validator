@@ -32,7 +32,7 @@ final class OutputTest extends TestCase
     public function testSummarizeCliFormat(): void
     {
         $validationResult = new ValidationResult([], ResultType::SUCCESS);
-        
+
         $output = new Output(
             $this->loggerMock,
             $this->output,
@@ -50,7 +50,7 @@ final class OutputTest extends TestCase
     public function testSummarizeJsonFormat(): void
     {
         $validationResult = new ValidationResult([], ResultType::SUCCESS);
-        
+
         $output = new Output(
             $this->loggerMock,
             $this->output,
@@ -73,7 +73,7 @@ final class OutputTest extends TestCase
     public function testSummarizeCliFormatFailure(): void
     {
         $validationResult = new ValidationResult([], ResultType::ERROR);
-        
+
         $output = new Output(
             $this->loggerMock,
             $this->output,

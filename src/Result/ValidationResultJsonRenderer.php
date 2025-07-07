@@ -18,7 +18,7 @@ class ValidationResultJsonRenderer
     public function render(ValidationResult $validationResult): int
     {
         $exitCode = $validationResult->getOverallResult()->resolveErrorToCommandExitCode($this->dryRun, $this->strict);
-        
+
         $result = [
             'status' => $exitCode,
             'message' => $this->generateMessage($validationResult),

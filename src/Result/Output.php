@@ -41,7 +41,7 @@ class Output
                 $this->dryRun,
                 $this->strict
             ))->render($this->validationResult),
-            
+
             FormatType::JSON => (new ValidationResultJsonRenderer(
                 $this->output,
                 $this->dryRun,

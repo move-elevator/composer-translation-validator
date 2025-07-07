@@ -7,7 +7,6 @@ namespace MoveElevator\ComposerTranslationValidator\Result;
 use MoveElevator\ComposerTranslationValidator\Utility\PathUtility;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -55,7 +54,7 @@ class ValidationResultCliRenderer
             if (!isset($groupedByValidator[$validatorClass])) {
                 $groupedByValidator[$validatorClass] = [
                     'validator' => $validator,
-                    'paths' => []
+                    'paths' => [],
                 ];
             }
 
@@ -103,9 +102,9 @@ class ValidationResultCliRenderer
         }
     }
 
-
     /**
      * @param array<Issue> $issues
+     *
      * @return array<string, array<int, array<mixed>>>
      */
     private function convertToLegacyFormat(array $issues): array

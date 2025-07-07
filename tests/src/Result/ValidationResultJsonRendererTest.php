@@ -30,15 +30,15 @@ class ValidationResultJsonRendererTest extends TestCase
     public function testRenderWithNoIssues(): void
     {
         $validationResult = new ValidationResult([], ResultType::SUCCESS);
-        
+
         $exitCode = $this->renderer->render($validationResult);
-        
+
         $this->assertEquals(0, $exitCode);
-        
+
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
-        
-        $this->assertNotNull($output, 'Failed to decode JSON output: ' . $jsonOutput);
+
+        $this->assertNotNull($output, 'Failed to decode JSON output: '.$jsonOutput);
         $this->assertEquals(0, $output['status']);
         $this->assertEquals('Language validation succeeded.', $output['message']);
         $this->assertEquals([], $output['issues']);
@@ -50,26 +50,26 @@ class ValidationResultJsonRendererTest extends TestCase
         $issue = new Issue('test.xlf', ['key' => 'value'], 'TestParser', 'TestValidator');
         $validator->method('hasIssues')->willReturn(true);
         $validator->method('getIssues')->willReturn([$issue]);
-        
+
         $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
         $validationResult = new ValidationResult(
             [$validator],
             ResultType::ERROR,
             [['validator' => $validator, 'fileSet' => $fileSet]]
         );
-        
+
         $exitCode = $this->renderer->render($validationResult);
-        
+
         $this->assertEquals(1, $exitCode);
-        
+
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
-        
+
         $this->assertNotNull($output);
         $this->assertEquals(1, $output['status']);
         $this->assertEquals('Language validation failed.', $output['message']);
         $this->assertNotEmpty($output['issues']);
-        
+
         // Verify the issues structure matches legacy format
         $validatorClass = get_class($validator);
         $this->assertArrayHasKey($validatorClass, $output['issues']);
@@ -83,27 +83,27 @@ class ValidationResultJsonRendererTest extends TestCase
             $this->output,
             true  // dry run
         );
-        
+
         $validator = $this->createMockValidator();
         $validator->method('hasIssues')->willReturn(true);
         $validator->method('getIssues')->willReturn([
-            new Issue('test.xlf', ['error'], 'TestParser', 'TestValidator')
+            new Issue('test.xlf', ['error'], 'TestParser', 'TestValidator'),
         ]);
-        
+
         $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
         $validationResult = new ValidationResult(
             [$validator],
             ResultType::ERROR,
             [['validator' => $validator, 'fileSet' => $fileSet]]
         );
-        
+
         $exitCode = $renderer->render($validationResult);
-        
+
         $this->assertEquals(0, $exitCode);
-        
+
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
-        
+
         $this->assertEquals(0, $output['status']);
         $this->assertEquals('Language validation failed and completed in dry-run mode.', $output['message']);
     }
@@ -115,27 +115,27 @@ class ValidationResultJsonRendererTest extends TestCase
             false, // dry run
             true   // strict
         );
-        
+
         $validator = $this->createMockValidator();
         $validator->method('hasIssues')->willReturn(true);
         $validator->method('getIssues')->willReturn([
-            new Issue('test.xlf', ['warning'], 'TestParser', 'TestValidator')
+            new Issue('test.xlf', ['warning'], 'TestParser', 'TestValidator'),
         ]);
-        
+
         $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
         $validationResult = new ValidationResult(
             [$validator],
             ResultType::WARNING,
             [['validator' => $validator, 'fileSet' => $fileSet]]
         );
-        
+
         $exitCode = $renderer->render($validationResult);
-        
+
         $this->assertEquals(1, $exitCode);
-        
+
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
-        
+
         $this->assertEquals(1, $output['status']);
         $this->assertEquals('Language validation failed.', $output['message']);
     }
@@ -147,27 +147,27 @@ class ValidationResultJsonRendererTest extends TestCase
             false, // dry run
             false  // strict
         );
-        
+
         $validator = $this->createMockValidator();
         $validator->method('hasIssues')->willReturn(true);
         $validator->method('getIssues')->willReturn([
-            new Issue('test.xlf', ['warning'], 'TestParser', 'TestValidator')
+            new Issue('test.xlf', ['warning'], 'TestParser', 'TestValidator'),
         ]);
-        
+
         $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
         $validationResult = new ValidationResult(
             [$validator],
             ResultType::WARNING,
             [['validator' => $validator, 'fileSet' => $fileSet]]
         );
-        
+
         $exitCode = $renderer->render($validationResult);
-        
+
         $this->assertEquals(0, $exitCode);
-        
+
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
-        
+
         $this->assertEquals(0, $output['status']);
         $this->assertEquals('Language validation failed.', $output['message']);
     }
@@ -178,30 +178,30 @@ class ValidationResultJsonRendererTest extends TestCase
         $issue = new Issue('test.xlf', ['error' => 'test error'], 'TestParser', 'TestValidator');
         $validator->method('hasIssues')->willReturn(true);
         $validator->method('getIssues')->willReturn([$issue]);
-        
+
         $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
         $validationResult = new ValidationResult(
             [$validator],
             ResultType::ERROR,
             [['validator' => $validator, 'fileSet' => $fileSet]]
         );
-        
+
         $this->renderer->render($validationResult);
-        
+
         $jsonOutput = $this->output->fetch();
-        
+
         // Verify it's valid JSON
         $this->assertJson($jsonOutput);
-        
+
         // Verify JSON formatting flags are applied
         $this->assertStringContainsString("\n", $jsonOutput); // Pretty print
-        $this->assertStringContainsString("    ", $jsonOutput); // Indentation
+        $this->assertStringContainsString('    ', $jsonOutput); // Indentation
     }
 
     private function createMockValidator(): ValidatorInterface|MockObject
     {
         $validator = $this->createMock(ValidatorInterface::class);
-        
+
         return $validator;
     }
 }

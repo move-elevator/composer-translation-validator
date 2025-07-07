@@ -132,7 +132,6 @@ class ValidateTranslationCommand extends BaseCommand
         $validationRun = new ValidationRun($this->logger);
         $validationResult = $validationRun->executeFor($fileSets, $validators);
 
-
         $format = FormatType::tryFrom($input->getOption('format'));
 
         if (null === $format) {

@@ -112,7 +112,7 @@ class ValidationResultTest extends TestCase
     {
         $validator = $this->createMock(ValidatorInterface::class);
         $fileSet = new FileSet('TestParser', '/test/path', 'testSet', ['test.xlf']);
-        
+
         $pairs = [
             ['validator' => $validator, 'fileSet' => $fileSet],
         ];
