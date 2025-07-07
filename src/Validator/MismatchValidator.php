@@ -132,4 +132,9 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
         parent::resetState();
         $this->keyArray = [];
     }
+
+    public function resultTypeOnValidationFailure(): ResultType
+    {
+        return ResultType::WARNING;
+    }
 }

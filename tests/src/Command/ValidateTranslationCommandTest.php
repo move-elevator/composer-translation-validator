@@ -171,7 +171,8 @@ class ValidateTranslationCommandTest extends TestCase
         ], ['verbosity' => \Symfony\Component\Console\Output\OutputInterface::VERBOSITY_VERBOSE]);
 
         $this->assertStringContainsString('Language validation failed', $commandTester->getDisplay());
-        $this->assertStringContainsString('Explanation:', $commandTester->getDisplay());
+        // In verbose mode, validator names should be shown grouped by file
+        $this->assertStringContainsString('MismatchValidator', $commandTester->getDisplay());
         $this->assertSame(1, $commandTester->getStatusCode());
     }
 
