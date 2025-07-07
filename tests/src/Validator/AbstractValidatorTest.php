@@ -26,6 +26,11 @@ class ConcreteValidator extends AbstractValidator implements ValidatorInterface
             return ['issue1', 'issue2'];
         }
 
+        // Return an issue for some_file.xlf to test resetState functionality
+        if ('some_file.xlf' === $file->getFileName()) {
+            return ['validationIssue'];
+        }
+
         return [];
     }
 
@@ -55,12 +60,12 @@ class ConcreteValidator extends AbstractValidator implements ValidatorInterface
     public function postProcess(): void
     {
         if ($this->addPostProcessIssue) {
-            $reflection = new \ReflectionClass($this);
-            $issuesProperty = $reflection->getProperty('issues');
-            $issuesProperty->setAccessible(true);
-            $currentIssues = $issuesProperty->getValue($this);
-            $currentIssues[] = ['postProcessIssue'];
-            $issuesProperty->setValue($this, $currentIssues);
+            $this->addIssue(new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+                'test_file.xlf',
+                ['postProcessIssue'],
+                'TestParser',
+                'ConcreteValidator'
+            ));
         }
     }
 }
@@ -131,7 +136,7 @@ final class AbstractValidatorTest extends TestCase
     {
         $validator = new ConcreteValidator($this->loggerMock);
         $validator->addPostProcessIssue = false;
-        $files = ['/path/to/some_file.xlf'];
+        $files = ['/path/to/clean_file.xlf'];
         $parserClass = TestParser::class;
 
         $result = $validator->validate($files, $parserClass);
@@ -183,6 +188,132 @@ final class AbstractValidatorTest extends TestCase
 
         $result = $validator->validate($files, $parserClass);
 
-        $this->assertContains(['postProcessIssue'], $result);
+        $this->assertContains([
+            'file' => 'test_file.xlf',
+            'issues' => ['postProcessIssue'],
+            'parser' => 'TestParser',
+            'type' => 'ConcreteValidator',
+        ], $result);
+    }
+
+    public function testHasIssuesReturnsFalseWhenNoIssues(): void
+    {
+        $validator = new ConcreteValidator($this->loggerMock);
+
+        $this->assertFalse($validator->hasIssues());
+    }
+
+    public function testHasIssuesReturnsTrueWhenIssuesExist(): void
+    {
+        $validator = new ConcreteValidator($this->loggerMock);
+        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            'test.xlf',
+            ['error' => 'test'],
+            'TestParser',
+            'TestValidator'
+        );
+        $validator->addIssue($issue);
+
+        $this->assertTrue($validator->hasIssues());
+    }
+
+    public function testGetIssuesReturnsEmptyArrayInitially(): void
+    {
+        $validator = new ConcreteValidator($this->loggerMock);
+
+        $this->assertSame([], $validator->getIssues());
+    }
+
+    public function testGetIssuesReturnsAddedIssues(): void
+    {
+        $validator = new ConcreteValidator($this->loggerMock);
+        $issue1 = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            'file1.xlf',
+            ['error1'],
+            'Parser1',
+            'Validator1'
+        );
+        $issue2 = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            'file2.xlf',
+            ['error2'],
+            'Parser2',
+            'Validator2'
+        );
+
+        $validator->addIssue($issue1);
+        $validator->addIssue($issue2);
+
+        $issues = $validator->getIssues();
+        $this->assertCount(2, $issues);
+        $this->assertContains($issue1, $issues);
+        $this->assertContains($issue2, $issues);
+    }
+
+    public function testAddIssueAddsIssueToCollection(): void
+    {
+        $validator = new ConcreteValidator($this->loggerMock);
+        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            'test.xlf',
+            ['test_error'],
+            'TestParser',
+            'TestValidator'
+        );
+
+        $this->assertCount(0, $validator->getIssues());
+
+        $validator->addIssue($issue);
+
+        $this->assertCount(1, $validator->getIssues());
+        $this->assertSame($issue, $validator->getIssues()[0]);
+    }
+
+    public function testResetStateResetsIssues(): void
+    {
+        $validator = new ConcreteValidator($this->loggerMock);
+        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            'test.xlf',
+            ['error'],
+            'TestParser',
+            'TestValidator'
+        );
+        $validator->addIssue($issue);
+
+        $this->assertTrue($validator->hasIssues());
+
+        // Access resetState via reflection since it's protected
+        $reflection = new \ReflectionClass($validator);
+        $resetStateMethod = $reflection->getMethod('resetState');
+        $resetStateMethod->setAccessible(true);
+        $resetStateMethod->invoke($validator);
+
+        $this->assertFalse($validator->hasIssues());
+        $this->assertSame([], $validator->getIssues());
+    }
+
+    public function testValidateCallsResetStateBeforeProcessing(): void
+    {
+        $validator = new ConcreteValidator($this->loggerMock);
+
+        // Add an issue first
+        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            'old.xlf',
+            ['old_error'],
+            'OldParser',
+            'OldValidator'
+        );
+        $validator->addIssue($issue);
+
+        $this->assertTrue($validator->hasIssues());
+
+        // Call validate - this should reset state
+        $files = ['/path/to/some_file.xlf'];
+        $parserClass = TestParser::class;
+        $result = $validator->validate($files, $parserClass);
+
+        // The old issue should be gone, and only validation results should remain
+        $issues = $validator->getIssues();
+        $this->assertCount(1, $issues);
+        $this->assertSame('some_file.xlf', $issues[0]->getFile());
+        $this->assertSame(['validationIssue'], $issues[0]->getDetails());
     }
 }

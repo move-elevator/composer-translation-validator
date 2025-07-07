@@ -7,6 +7,7 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
+use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableStyle;
 use Symfony\Component\Console\Input\InputInterface;
@@ -61,19 +62,18 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
                         'value' => $keys[$key] ?? null,
                     ];
                 }
-                $this->issues[] = $result;
+                $this->addIssue(new Issue(
+                    '',
+                    $result,
+                    '',
+                    'MismatchValidator'
+                ));
             }
         }
     }
 
     /**
-     * @param array<string, array<int, array{
-     *     key: string,
-     *     files: array<int, array{
-     *         file: string,
-     *         value: string|null
-     *     }>
-     * }>> $issueSets
+     * @param array<string, array<int, array<mixed>>> $issueSets
      */
     public function renderIssueSets(InputInterface $input, OutputInterface $output, array $issueSets): void
     {
@@ -83,8 +83,14 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
 
         foreach ($issueSets as $issuesPerFile) {
             foreach ($issuesPerFile as $issues) {
-                $key = $issues['key'];
-                $files = $issues['files'];
+                // Handle both new format (with 'issues' key) and old format (direct data)
+                if (isset($issues['issues']) && is_array($issues['issues'])) {
+                    $issueData = $issues['issues'];
+                } else {
+                    $issueData = $issues;
+                }
+                $key = $issueData['key'];
+                $files = $issueData['files'];
                 if (empty($allFiles)) {
                     $allFiles = array_column($files, 'file');
                     $header = array_merge(['Key'], array_map(static fn ($f) => "<fg=red>$f</>", $allFiles));
@@ -119,5 +125,11 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
     public function supportsParser(): array
     {
         return [XliffParser::class, YamlParser::class];
+    }
+
+    protected function resetState(): void
+    {
+        parent::resetState();
+        $this->keyArray = [];
     }
 }

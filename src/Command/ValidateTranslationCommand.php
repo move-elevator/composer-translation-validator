@@ -9,6 +9,7 @@ use MoveElevator\ComposerTranslationValidator\FileDetector\Collector;
 use MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface;
 use MoveElevator\ComposerTranslationValidator\Result\FormatType;
 use MoveElevator\ComposerTranslationValidator\Result\Output;
+use MoveElevator\ComposerTranslationValidator\Result\ValidationRun;
 use MoveElevator\ComposerTranslationValidator\Utility\ClassUtility;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
@@ -126,23 +127,10 @@ class ValidateTranslationCommand extends BaseCommand
         }
 
         $validators = $this->resolveValidators($input);
-        $issues = [];
+        $fileSets = ValidationRun::createFileSetsFromArray($allFiles);
 
-        // ToDo: Simplify this nested loop structure
-        foreach ($allFiles as $parser => $paths) {
-            foreach ($paths as $path => $translationSets) {
-                foreach ($translationSets as $setKey => $files) {
-                    foreach ($validators as $validator) {
-                        $validatorInstance = new $validator($this->logger);
-                        $result = $validatorInstance->validate($files, $parser);
-                        if ($result) {
-                            $this->resultType = $this->resultType->max($validatorInstance->resultTypeOnValidationFailure());
-                            $issues[$validator][$path][$setKey] = $result;
-                        }
-                    }
-                }
-            }
-        }
+        $validationRun = new ValidationRun($this->logger);
+        $validationResult = $validationRun->executeFor($fileSets, $validators);
 
         $format = FormatType::tryFrom($input->getOption('format'));
 
@@ -157,8 +145,7 @@ class ValidateTranslationCommand extends BaseCommand
             $this->output,
             $this->input,
             $format,
-            $this->resultType,
-            $issues,
+            $validationResult,
             $this->dryRun,
             $this->strict
         ))->summarize();
