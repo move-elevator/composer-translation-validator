@@ -86,34 +86,44 @@ final class MismatchValidatorTest extends TestCase
 
         $expectedIssues = [
             [
-                'key' => 'key1',
-                'files' => [
-                    [
-                        'file' => 'file1.xlf',
-                        'value' => null,
-                    ],
-                    [
-                        'file' => 'file2.xlf',
-                        'value' => null,
+                'file' => '',
+                'issues' => [
+                    'key' => 'key1',
+                    'files' => [
+                        [
+                            'file' => 'file1.xlf',
+                            'value' => null,
+                        ],
+                        [
+                            'file' => 'file2.xlf',
+                            'value' => null,
+                        ],
                     ],
                 ],
+                'parser' => '',
+                'type' => 'MismatchValidator',
             ],
             [
-                'key' => 'key3',
-                'files' => [
-                    [
-                        'file' => 'file1.xlf',
-                        'value' => null,
-                    ],
-                    [
-                        'file' => 'file2.xlf',
-                        'value' => null,
+                'file' => '',
+                'issues' => [
+                    'key' => 'key3',
+                    'files' => [
+                        [
+                            'file' => 'file1.xlf',
+                            'value' => null,
+                        ],
+                        [
+                            'file' => 'file2.xlf',
+                            'value' => null,
+                        ],
                     ],
                 ],
+                'parser' => '',
+                'type' => 'MismatchValidator',
             ],
         ];
 
-        $this->assertEquals($expectedIssues, $issues);
+        $this->assertEquals($expectedIssues, array_map(fn ($issue) => $issue->toArray(), $issues));
     }
 
     public function testPostProcessWithoutMismatches(): void
@@ -141,6 +151,35 @@ final class MismatchValidatorTest extends TestCase
         $issues = $issuesProperty->getValue($validator);
 
         $this->assertEmpty($issues);
+    }
+
+    public function testResetStateResetsKeyArray(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        // Manually set keyArray to simulate previous validation
+        $reflection = new \ReflectionClass($validator);
+        $keyArrayProperty = $reflection->getProperty('keyArray');
+        $keyArrayProperty->setAccessible(true);
+        $keyArrayProperty->setValue($validator, [
+            'file1.xlf' => ['key1' => 'value1', 'key2' => 'value2'],
+            'file2.xlf' => ['key1' => 'value1'],
+        ]);
+
+        // Verify keyArray is set
+        $this->assertNotEmpty($keyArrayProperty->getValue($validator));
+
+        // Call resetState
+        $resetStateMethod = $reflection->getMethod('resetState');
+        $resetStateMethod->setAccessible(true);
+        $resetStateMethod->invoke($validator);
+
+        // Verify keyArray is reset
+        $this->assertSame([], $keyArrayProperty->getValue($validator));
+
+        // Verify issues are also reset (from parent)
+        $this->assertFalse($validator->hasIssues());
     }
 
     public function testRenderIssueSets(): void

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
+use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -36,4 +37,13 @@ interface ValidatorInterface
     public function supportsParser(): array;
 
     public function resultTypeOnValidationFailure(): ResultType;
+
+    public function hasIssues(): bool;
+
+    /**
+     * @return array<Issue>
+     */
+    public function getIssues(): array;
+
+    public function addIssue(Issue $issue): void;
 }

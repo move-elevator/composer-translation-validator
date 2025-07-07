@@ -6,11 +6,12 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserRegistry;
+use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use Psr\Log\LoggerInterface;
 
-abstract class AbstractValidator
+abstract class AbstractValidator implements ValidatorInterface
 {
-    /** @var array<string, array<mixed>> */
+    /** @var array<Issue> */
     protected array $issues = [];
 
     public function __construct(protected ?LoggerInterface $logger = null)
@@ -27,6 +28,9 @@ abstract class AbstractValidator
      */
     public function validate(array $files, ?string $parserClass): array
     {
+        // Reset state for fresh validation run
+        $this->resetState();
+
         $classPart = strrchr(static::class, '\\');
         $name = false !== $classPart ? substr($classPart, 1) : static::class;
         $this->logger->debug(
@@ -55,24 +59,24 @@ abstract class AbstractValidator
 
             $validationResult = $this->processFile($file);
             if (!empty($validationResult)) {
-                $this->issues[] = [
-                    'file' => $file->getFileName(),
-                    'issues' => $validationResult,
-                    'parser' => $file::class,
-                    'type' => $name,
-                ];
+                $this->addIssue(new Issue(
+                    $file->getFileName(),
+                    $validationResult,
+                    $file::class,
+                    $name
+                ));
             }
         }
 
         $this->postProcess();
 
-        return $this->issues;
+        return array_map(fn ($issue) => $issue->toArray(), $this->issues);
     }
 
     /**
      * @return array<mixed>
      */
-    abstract protected function processFile(ParserInterface $file): array;
+    abstract public function processFile(ParserInterface $file): array;
 
     /**
      * @return class-string<ParserInterface>[]
@@ -87,5 +91,32 @@ abstract class AbstractValidator
     public function resultTypeOnValidationFailure(): ResultType
     {
         return ResultType::ERROR;
+    }
+
+    public function hasIssues(): bool
+    {
+        return !empty($this->issues);
+    }
+
+    /**
+     * @return array<Issue>
+     */
+    public function getIssues(): array
+    {
+        return $this->issues;
+    }
+
+    public function addIssue(Issue $issue): void
+    {
+        $this->issues[] = $issue;
+    }
+
+    /**
+     * Reset validator state for fresh validation run.
+     * Override in subclasses if they have additional state to reset.
+     */
+    protected function resetState(): void
+    {
+        $this->issues = [];
     }
 }

@@ -7,6 +7,7 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
+use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Helper\TableStyle;
@@ -52,10 +53,12 @@ class DuplicateValuesValidator extends AbstractValidator implements ValidatorInt
                 }
             }
             if (!empty($duplicates)) {
-                $this->issues[] = [
-                    'file' => $file,
-                    'issues' => $duplicates,
-                ];
+                $this->addIssue(new Issue(
+                    $file,
+                    $duplicates,
+                    '',
+                    'DuplicateValuesValidator'
+                ));
             }
         }
     }
@@ -108,6 +111,12 @@ class DuplicateValuesValidator extends AbstractValidator implements ValidatorInt
     public function supportsParser(): array
     {
         return [XliffParser::class, YamlParser::class];
+    }
+
+    protected function resetState(): void
+    {
+        parent::resetState();
+        $this->valuesArray = [];
     }
 
     public function resultTypeOnValidationFailure(): ResultType

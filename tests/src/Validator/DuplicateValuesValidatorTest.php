@@ -131,16 +131,20 @@ final class DuplicateValuesValidatorTest extends TestCase
                 'issues' => [
                     'valueA' => ['key1', 'key3'],
                 ],
+                'parser' => '',
+                'type' => 'DuplicateValuesValidator',
             ],
             [
                 'file' => 'file2.xlf',
                 'issues' => [
                     'valueX' => ['keyA', 'keyB'],
                 ],
+                'parser' => '',
+                'type' => 'DuplicateValuesValidator',
             ],
         ];
 
-        $this->assertEquals($expectedIssues, $issues);
+        $this->assertSame($expectedIssues, array_map(fn ($issue) => $issue->toArray(), $issues));
     }
 
     public function testPostProcessWithoutDuplicateValues(): void
@@ -165,6 +169,40 @@ final class DuplicateValuesValidatorTest extends TestCase
         $issues = $issuesProperty->getValue($validator);
 
         $this->assertEmpty($issues);
+    }
+
+    public function testResetStateResetsValuesArray(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new DuplicateValuesValidator($logger);
+
+        // Manually set valuesArray to simulate previous validation
+        $reflection = new \ReflectionClass($validator);
+        $valuesArrayProperty = $reflection->getProperty('valuesArray');
+        $valuesArrayProperty->setAccessible(true);
+        $valuesArrayProperty->setValue($validator, [
+            'file1.xlf' => [
+                'value1' => ['key1', 'key2'],
+                'value2' => ['key3'],
+            ],
+            'file2.xlf' => [
+                'value1' => ['keyA'],
+            ],
+        ]);
+
+        // Verify valuesArray is set
+        $this->assertNotEmpty($valuesArrayProperty->getValue($validator));
+
+        // Call resetState
+        $resetStateMethod = $reflection->getMethod('resetState');
+        $resetStateMethod->setAccessible(true);
+        $resetStateMethod->invoke($validator);
+
+        // Verify valuesArray is reset
+        $this->assertSame([], $valuesArrayProperty->getValue($validator));
+
+        // Verify issues are also reset (from parent)
+        $this->assertFalse($validator->hasIssues());
     }
 
     public function testRenderIssueSets(): void
