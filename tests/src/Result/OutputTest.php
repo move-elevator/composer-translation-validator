@@ -6,6 +6,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 
 use MoveElevator\ComposerTranslationValidator\Result\FormatType;
 use MoveElevator\ComposerTranslationValidator\Result\Output;
+use MoveElevator\ComposerTranslationValidator\Result\ValidationResult;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -30,13 +31,14 @@ final class OutputTest extends TestCase
 
     public function testSummarizeCliFormat(): void
     {
+        $validationResult = new ValidationResult([], ResultType::SUCCESS);
+        
         $output = new Output(
             $this->loggerMock,
             $this->output,
             $this->inputMock,
             FormatType::CLI,
-            ResultType::SUCCESS,
-            []
+            $validationResult
         );
 
         $exitCode = $output->summarize();
@@ -47,13 +49,14 @@ final class OutputTest extends TestCase
 
     public function testSummarizeJsonFormat(): void
     {
+        $validationResult = new ValidationResult([], ResultType::SUCCESS);
+        
         $output = new Output(
             $this->loggerMock,
             $this->output,
             $this->inputMock,
             FormatType::JSON,
-            ResultType::SUCCESS,
-            []
+            $validationResult
         );
 
         $exitCode = $output->summarize();
@@ -69,13 +72,14 @@ final class OutputTest extends TestCase
 
     public function testSummarizeCliFormatFailure(): void
     {
+        $validationResult = new ValidationResult([], ResultType::ERROR);
+        
         $output = new Output(
             $this->loggerMock,
             $this->output,
             $this->inputMock,
             FormatType::CLI,
-            ResultType::ERROR,
-            []
+            $validationResult
         );
 
         $exitCode = $output->summarize();

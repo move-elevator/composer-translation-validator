@@ -132,8 +132,6 @@ class ValidateTranslationCommand extends BaseCommand
         $validationRun = new ValidationRun($this->logger);
         $validationResult = $validationRun->executeFor($fileSets, $validators);
 
-        $this->resultType = $validationResult->getOverallResult();
-        $issues = $validationResult->toLegacyArray();
 
         $format = FormatType::tryFrom($input->getOption('format'));
 
@@ -148,8 +146,7 @@ class ValidateTranslationCommand extends BaseCommand
             $this->output,
             $this->input,
             $format,
-            $this->resultType,
-            $issues,
+            $validationResult,
             $this->dryRun,
             $this->strict
         ))->summarize();

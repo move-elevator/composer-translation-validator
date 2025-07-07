@@ -108,6 +108,20 @@ class ValidationResultTest extends TestCase
         $this->assertSame($resultType, $result->getOverallResult());
     }
 
+    public function testGetValidatorFileSetPairs(): void
+    {
+        $validator = $this->createMock(ValidatorInterface::class);
+        $fileSet = new FileSet('TestParser', '/test/path', 'testSet', ['test.xlf']);
+        
+        $pairs = [
+            ['validator' => $validator, 'fileSet' => $fileSet],
+        ];
+
+        $result = new ValidationResult([$validator], ResultType::SUCCESS, $pairs);
+
+        $this->assertSame($pairs, $result->getValidatorFileSetPairs());
+    }
+
     public function testToLegacyArrayWithoutValidatorFileSetPairs(): void
     {
         $validator = $this->createMock(ValidatorInterface::class);

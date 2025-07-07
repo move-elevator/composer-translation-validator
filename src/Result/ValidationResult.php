@@ -53,6 +53,14 @@ class ValidationResult
     }
 
     /**
+     * @return array<array{validator: ValidatorInterface, fileSet: \MoveElevator\ComposerTranslationValidator\FileDetector\FileSet}>
+     */
+    public function getValidatorFileSetPairs(): array
+    {
+        return $this->validatorFileSetPairs;
+    }
+
+    /**
      * @return array<class-string<ValidatorInterface>, array<string, array<string, array<mixed>>>>
      */
     public function toLegacyArray(): array
