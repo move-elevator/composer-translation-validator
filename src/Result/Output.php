@@ -26,7 +26,6 @@ class Output
      *
      * @return int Command exit code
      *
-     * @throws \JsonException
      */
     public function summarize(): int
     {
