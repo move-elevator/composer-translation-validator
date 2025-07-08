@@ -40,20 +40,20 @@ final class PathUtilityTest extends TestCase
 
     public function testNormalizeFolderPathWithTrailingSlash(): void
     {
-        $path = '/path/to/folder/';
-        $this->assertSame('/path/to/folder/', PathUtility::normalizeFolderPath($path));
+        $path = '/path/to/folder';
+        $this->assertSame('/path/to/folder', PathUtility::normalizeFolderPath($path));
     }
 
     public function testNormalizeFolderPathWithoutTrailingSlash(): void
     {
         $path = '/path/to/folder';
-        $this->assertSame('/path/to/folder/', PathUtility::normalizeFolderPath($path));
+        $this->assertSame('/path/to/folder', PathUtility::normalizeFolderPath($path));
     }
 
     public function testNormalizeFolderPathWithDotSlashPrefix(): void
     {
         $path = './path/to/folder';
-        $this->assertSame('path/to/folder/', PathUtility::normalizeFolderPath($path));
+        $this->assertSame('path/to/folder', PathUtility::normalizeFolderPath($path));
     }
 
     public function testNormalizeFolderPathWithEmptyPath(): void
@@ -74,13 +74,13 @@ final class PathUtilityTest extends TestCase
         mkdir($subDir);
         chdir($this->tempDir);
 
-        $this->assertSame('sub/', PathUtility::normalizeFolderPath($subDir));
+        $this->assertSame('sub', PathUtility::normalizeFolderPath($subDir));
     }
 
     public function testNormalizeFolderPathWhenPathIsNotRelatedToCwd(): void
     {
         chdir($this->tempDir);
         $unrelatedPath = '/another/path/to/folder';
-        $this->assertSame('/another/path/to/folder/', PathUtility::normalizeFolderPath($unrelatedPath));
+        $this->assertSame('/another/path/to/folder', PathUtility::normalizeFolderPath($unrelatedPath));
     }
 }
