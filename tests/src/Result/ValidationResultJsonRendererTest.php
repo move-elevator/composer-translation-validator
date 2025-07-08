@@ -70,11 +70,11 @@ class ValidationResultJsonRendererTest extends TestCase
         $this->assertEquals('Language validation failed.', $output['message']);
         $this->assertNotEmpty($output['issues']);
 
-        // Verify the issues structure matches legacy format
-        $validatorClass = $validator::class;
-        $this->assertArrayHasKey($validatorClass, $output['issues']);
-        $this->assertArrayHasKey('/test/path', $output['issues'][$validatorClass]);
-        $this->assertArrayHasKey('setKey', $output['issues'][$validatorClass]['/test/path']);
+        // Verify the new file-based structure
+        $this->assertArrayHasKey('/test/path/test.xlf', $output['issues']);
+        $this->assertArrayHasKey('MockValidator', $output['issues']['/test/path/test.xlf']);
+        $this->assertArrayHasKey('type', $output['issues']['/test/path/test.xlf']['MockValidator']);
+        $this->assertArrayHasKey('issues', $output['issues']['/test/path/test.xlf']['MockValidator']);
     }
 
     public function testRenderWithDryRun(): void
@@ -201,6 +201,28 @@ class ValidationResultJsonRendererTest extends TestCase
     private function createMockValidator(): ValidatorInterface|MockObject
     {
         $validator = $this->createMock(ValidatorInterface::class);
+        $validator->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
+        $validator->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error");
+        $validator->method('distributeIssuesForDisplay')->willReturnCallback(function (FileSet $fileSet) use ($validator): array {
+            $distribution = [];
+            foreach ($validator->getIssues() as $issue) {
+                $fileName = $issue->getFile();
+                if (!empty($fileName)) {
+                    $basePath = rtrim($fileSet->getPath(), '/');
+                    $filePath = $basePath.'/'.$fileName;
+                    $distribution[$filePath][] = $issue;
+                }
+            }
+
+            return $distribution;
+        });
+        $validator->method('shouldShowDetailedOutput')->willReturn(false);
+        $validator->method('renderDetailedOutput');
+        $validator->method('getShortName')->willReturn('MockValidator');
+        $validator->method('supportsParser')->willReturn(['TestParser']);
+        $validator->method('processFile')->willReturn([]);
+        $validator->method('validate')->willReturn([]);
+        $validator->method('addIssue');
 
         return $validator;
     }
