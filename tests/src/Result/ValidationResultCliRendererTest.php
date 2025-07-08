@@ -363,10 +363,8 @@ class ValidationResultCliRendererTest extends TestCase
     {
         $validator = $this->createMock(ValidatorInterface::class);
         $validator->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
-        $validator->method('formatIssueMessage')->willReturnCallback(function ($issue, $prefix = '', $isVerbose = false) {
-            return "- <fg=red>ERROR</> {$prefix}Validation error";
-        });
-        $validator->method('distributeIssuesForDisplay')->willReturnCallback(function ($fileSet) use ($validator) {
+        $validator->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = '', bool $isVerbose = false): string => "- <fg=red>ERROR</> {$prefix}Validation error");
+        $validator->method('distributeIssuesForDisplay')->willReturnCallback(function (FileSet $fileSet) use ($validator): array {
             $distribution = [];
             foreach ($validator->getIssues() as $issue) {
                 $fileName = $issue->getFile();

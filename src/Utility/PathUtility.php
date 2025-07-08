@@ -14,13 +14,14 @@ class PathUtility
             if (str_starts_with($normalizedPath, './')) {
                 $normalizedPath = substr($normalizedPath, 2);
             }
+
             return $normalizedPath;
         }
 
-        $cwd = realpath(getcwd()) . DIRECTORY_SEPARATOR;
+        $cwd = realpath(getcwd()).DIRECTORY_SEPARATOR;
         $normalizedPath = rtrim($realPath, DIRECTORY_SEPARATOR);
 
-        if (str_starts_with($normalizedPath . DIRECTORY_SEPARATOR, $cwd)) {
+        if (str_starts_with($normalizedPath.DIRECTORY_SEPARATOR, $cwd)) {
             return substr($normalizedPath, strlen($cwd));
         }
 

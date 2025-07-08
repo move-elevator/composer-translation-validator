@@ -222,7 +222,7 @@ readonly class ValidationResultCliRenderer implements ValidationResultRendererIn
                     return ResultType::ERROR === $resultType ? 1 : 2;
                 }
             }
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
 
         return 1;
