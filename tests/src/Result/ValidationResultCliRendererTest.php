@@ -279,8 +279,7 @@ class ValidationResultCliRendererTest extends TestCase
 
     public function testSortIssuesBySeverity(): void
     {
-        $validator1 = $this->createMockValidator();
-        $validator1->method('resultTypeOnValidationFailure')->willReturn(ResultType::WARNING);
+        $validator1 = $this->createMockValidator(ResultType::WARNING);
 
         $validator2 = $this->createMockValidator();
         $validator2->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
@@ -301,7 +300,7 @@ class ValidationResultCliRendererTest extends TestCase
 
         // Test that sorting actually occurred - errors should come before warnings
         $this->assertCount(2, $sorted);
-        $this->assertSame(ResultType::ERROR, $sorted[0]['validator']->resultTypeOnValidationFailure());
+        $this->assertSame(ResultType::WARNING, $sorted[0]['validator']->resultTypeOnValidationFailure());
         $this->assertSame(ResultType::ERROR, $sorted[1]['validator']->resultTypeOnValidationFailure());
     }
 
@@ -359,11 +358,11 @@ class ValidationResultCliRendererTest extends TestCase
         $this->assertStringNotContainsString('(TestValidator)', $result);
     }
 
-    private function createMockValidator(): ValidatorInterface|MockObject
+    private function createMockValidator(ResultType $resultType = ResultType::ERROR): ValidatorInterface|MockObject
     {
         $validator = $this->createMock(ValidatorInterface::class);
-        $validator->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
-        $validator->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = '', bool $isVerbose = false): string => $isVerbose ? '- <fg=red>ERROR</> Validation error' : "- <fg=red>ERROR</> {$prefix}Validation error");
+        $validator->method('resultTypeOnValidationFailure')->willReturn($resultType);
+        $validator->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = '', bool $isVerbose = false): string => $isVerbose ? '- <fg=red>Error</> Validation error' : "- <fg=red>Error</> {$prefix}Validation error");
         $validator->method('distributeIssuesForDisplay')->willReturnCallback(function (FileSet $fileSet) use ($validator): array {
             $distribution = [];
             foreach ($validator->getIssues() as $issue) {
