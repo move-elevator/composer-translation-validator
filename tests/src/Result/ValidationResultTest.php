@@ -120,4 +120,49 @@ class ValidationResultTest extends TestCase
 
         $this->assertSame($pairs, $result->getValidatorFileSetPairs());
     }
+
+    public function testConstructWithStatistics(): void
+    {
+        $validators = [];
+        $resultType = ResultType::SUCCESS;
+        $pairs = [];
+        $statistics = new \MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics(
+            1.23,
+            5,
+            10,
+            3
+        );
+
+        $result = new ValidationResult($validators, $resultType, $pairs, $statistics);
+
+        $this->assertSame($validators, $result->getAllValidators());
+        $this->assertSame($resultType, $result->getOverallResult());
+        $this->assertSame($pairs, $result->getValidatorFileSetPairs());
+        $this->assertSame($statistics, $result->getStatistics());
+    }
+
+    public function testGetStatisticsWithNullStatistics(): void
+    {
+        $result = new ValidationResult([], ResultType::SUCCESS);
+
+        $this->assertNotInstanceOf(\MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics::class, $result->getStatistics());
+    }
+
+    public function testGetStatisticsWithProvidedStatistics(): void
+    {
+        $statistics = new \MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics(
+            0.456,
+            3,
+            7,
+            2
+        );
+
+        $result = new ValidationResult([], ResultType::SUCCESS, [], $statistics);
+
+        $this->assertSame($statistics, $result->getStatistics());
+        $this->assertEqualsWithDelta(0.456, $result->getStatistics()->getExecutionTime(), PHP_FLOAT_EPSILON);
+        $this->assertSame(3, $result->getStatistics()->getFilesChecked());
+        $this->assertSame(7, $result->getStatistics()->getKeysChecked());
+        $this->assertSame(2, $result->getStatistics()->getValidatorsRun());
+    }
 }

@@ -34,6 +34,10 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
 
         $this->renderSummary($validationResult->getOverallResult());
 
+        if ($this->output->isVerbose()) {
+            $this->renderStatistics($validationResult);
+        }
+
         return $validationResult->getOverallResult()->resolveErrorToCommandExitCode($this->dryRun, $this->strict);
     }
 
@@ -254,5 +258,20 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
                 ? $this->io->success($message)
                 : $this->output->writeln('<fg=green>'.$message.'</>');
         }
+    }
+
+    private function renderStatistics(ValidationResult $validationResult): void
+    {
+        $statistics = $validationResult->getStatistics();
+
+        if (null === $statistics) {
+            return;
+        }
+
+        $this->io->newLine();
+        $this->output->writeln('<fg=gray>Execution time: '.$statistics->getExecutionTimeFormatted().'</>');
+        $this->output->writeln('<fg=gray>Files checked: '.$statistics->getFilesChecked().'</>');
+        $this->output->writeln('<fg=gray>Keys checked: '.$statistics->getKeysChecked().'</>');
+        $this->output->writeln('<fg=gray>Validators run: '.$statistics->getValidatorsRun().'</>');
     }
 }

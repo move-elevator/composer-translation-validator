@@ -22,11 +22,14 @@ class ValidationRun
      */
     public function executeFor(array $fileSets, array $validatorClasses): ValidationResult
     {
+        $startTime = microtime(true);
         $validatorInstances = [];
         $validatorFileSetPairs = [];
         $overallResult = ResultType::SUCCESS;
+        $filesChecked = 0;
 
         foreach ($fileSets as $fileSet) {
+            $filesChecked += count($fileSet->getFiles());
             foreach ($validatorClasses as $validatorClass) {
                 $validatorInstance = new $validatorClass($this->logger);
                 $result = $validatorInstance->validate($fileSet->getFiles(), $fileSet->getParser());
@@ -41,7 +44,19 @@ class ValidationRun
             }
         }
 
-        return new ValidationResult($validatorInstances, $overallResult, $validatorFileSetPairs);
+        $keysChecked = $this->countKeysChecked($fileSets);
+
+        $validatorsRun = count($validatorClasses);
+
+        $executionTime = microtime(true) - $startTime;
+        $statistics = new ValidationStatistics(
+            $executionTime,
+            $filesChecked,
+            $keysChecked,
+            $validatorsRun
+        );
+
+        return new ValidationResult($validatorInstances, $overallResult, $validatorFileSetPairs, $statistics);
     }
 
     /**
@@ -62,5 +77,31 @@ class ValidationRun
         }
 
         return $fileSets;
+    }
+
+    /**
+     * @param array<FileSet> $fileSets
+     */
+    private function countKeysChecked(array $fileSets): int
+    {
+        $keysChecked = 0;
+
+        foreach ($fileSets as $fileSet) {
+            $parserClass = $fileSet->getParser();
+
+            foreach ($fileSet->getFiles() as $file) {
+                try {
+                    $parser = new $parserClass($file);
+                    $keys = $parser->extractKeys();
+                    if (is_array($keys)) {
+                        $keysChecked += count($keys);
+                    }
+                } catch (\Throwable) {
+                    // Skip files that can't be parsed
+                }
+            }
+        }
+
+        return $keysChecked;
     }
 }
