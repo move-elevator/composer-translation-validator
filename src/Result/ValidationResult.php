@@ -15,9 +15,9 @@ class ValidationResult
      * @param array<array{validator: ValidatorInterface, fileSet: FileSet}> $validatorFileSetPairs
      */
     public function __construct(
-        private array $validatorInstances,
-        private ResultType $overallResult,
-        private array $validatorFileSetPairs = [],
+        private readonly array $validatorInstances,
+        private readonly ResultType $overallResult,
+        private readonly array $validatorFileSetPairs = [],
     ) {
     }
 

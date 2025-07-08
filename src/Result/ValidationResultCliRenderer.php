@@ -13,13 +13,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ValidationResultCliRenderer implements ValidationResultRendererInterface
 {
-    private SymfonyStyle $io;
+    private readonly SymfonyStyle $io;
 
     public function __construct(
-        private OutputInterface $output,
-        private InputInterface $input,
-        private bool $dryRun = false,
-        private bool $strict = false,
+        private readonly OutputInterface $output,
+        private readonly InputInterface $input,
+        private readonly bool $dryRun = false,
+        private readonly bool $strict = false,
     ) {
         $this->io = new SymfonyStyle($this->input, $this->output);
     }
