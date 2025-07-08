@@ -8,7 +8,7 @@ use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 
-readonly class ValidationResult
+class ValidationResult
 {
     /**
      * @param array<ValidatorInterface>                                     $validatorInstances

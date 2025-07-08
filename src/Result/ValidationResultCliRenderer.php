@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-readonly class ValidationResultCliRenderer implements ValidationResultRendererInterface
+class ValidationResultCliRenderer implements ValidationResultRendererInterface
 {
     private SymfonyStyle $io;
 

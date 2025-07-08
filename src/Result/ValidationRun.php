@@ -9,7 +9,7 @@ use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use Psr\Log\LoggerInterface;
 
-readonly class ValidationRun
+class ValidationRun
 {
     public function __construct(
         private LoggerInterface $logger,

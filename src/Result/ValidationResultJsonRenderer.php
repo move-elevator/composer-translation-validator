@@ -6,7 +6,7 @@ namespace MoveElevator\ComposerTranslationValidator\Result;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
-readonly class ValidationResultJsonRenderer implements ValidationResultRendererInterface
+class ValidationResultJsonRenderer implements ValidationResultRendererInterface
 {
     public function __construct(
         private OutputInterface $output,
