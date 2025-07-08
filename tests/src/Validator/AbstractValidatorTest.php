@@ -139,6 +139,9 @@ final class AbstractValidatorTest extends TestCase
         $this->assertEmpty($result);
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function testValidateWithIssues(): void
     {
         $validator = new ConcreteValidator($this->loggerMock);
@@ -155,7 +158,7 @@ final class AbstractValidatorTest extends TestCase
                     'file' => 'file_with_issues.xlf',
                     'issues' => ['issue1', 'issue2'],
                     'parser' => TestParser::class,
-                    'type' => 'ConcreteValidator',
+                    'type' => ConcreteValidator::class,
                 ],
             ],
             $result

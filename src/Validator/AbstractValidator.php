@@ -11,7 +11,7 @@ use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-abstract class AbstractValidator implements ValidatorInterface
+abstract class AbstractValidator
 {
     /** @var array<Issue> */
     protected array $issues = [];
@@ -33,8 +33,7 @@ abstract class AbstractValidator implements ValidatorInterface
         // Reset state for fresh validation run
         $this->resetState();
 
-        $classPart = strrchr(static::class, '\\');
-        $name = false !== $classPart ? substr($classPart, 1) : static::class;
+        $name = $this->getShortName();
         $this->logger->debug(
             sprintf(
                 '> Checking for <options=bold,underscore>%s</> ...',
@@ -135,6 +134,9 @@ abstract class AbstractValidator implements ValidatorInterface
         return "- <fg=$color>$level</> {$prefix}$message";
     }
 
+    /**
+     * @return array<string, array<Issue>>
+     */
     public function distributeIssuesForDisplay(FileSet $fileSet): array
     {
         $distribution = [];
@@ -163,6 +165,9 @@ abstract class AbstractValidator implements ValidatorInterface
         return false;
     }
 
+    /**
+     * @param array<Issue> $issues
+     */
     public function renderDetailedOutput(OutputInterface $output, array $issues): void
     {
         // Default implementation: no detailed output

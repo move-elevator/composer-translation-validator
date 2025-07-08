@@ -66,7 +66,7 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
                     '',
                     $result,
                     '',
-                    'MismatchValidator'
+                    $this->getShortName()
                 ));
             }
         }
@@ -103,7 +103,7 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
 
         $otherFilesList = !empty($otherFiles) ? implode('`, `', $otherFiles) : 'other files';
 
-        return "- <fg=$color>$level</> {$prefix}translation key `$key` is $action other translation files (`$otherFilesList`)";
+        return "- <fg=$color>$level</> {$prefix} the translation key `$key` is $action other translation files (`$otherFilesList`)";
     }
 
     public function distributeIssuesForDisplay(FileSet $fileSet): array

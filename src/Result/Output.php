@@ -25,7 +25,6 @@ class Output
      * Summarizes validation results in the specified format.
      *
      * @return int Command exit code
-     *
      */
     public function summarize(): int
     {

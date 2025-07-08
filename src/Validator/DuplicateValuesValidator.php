@@ -52,7 +52,7 @@ class DuplicateValuesValidator extends AbstractValidator implements ValidatorInt
                     $file,
                     $duplicates,
                     '',
-                    'DuplicateValuesValidator'
+                    $this->getShortName()
                 ));
             }
         }
