@@ -199,4 +199,116 @@ final class MismatchValidatorTest extends TestCase
             \MoveElevator\ComposerTranslationValidator\Parser\YamlParser::class,
         ], $validator->supportsParser());
     }
+
+    public function testDistributeIssuesForDisplay(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        // Create a mismatch issue
+        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            '',
+            [
+                'key' => 'test_key',
+                'files' => [
+                    ['file' => 'file1.xlf', 'value' => 'value1'],
+                    ['file' => 'file2.xlf', 'value' => null],
+                ],
+            ],
+            '',
+            'MismatchValidator'
+        );
+        $validator->addIssue($issue);
+
+        $fileSet = new \MoveElevator\ComposerTranslationValidator\FileDetector\FileSet(
+            'TestParser',
+            '/test/path',
+            'setKey',
+            ['file1.xlf', 'file2.xlf']
+        );
+
+        $distribution = $validator->distributeIssuesForDisplay($fileSet);
+
+        // MismatchValidator should create file-specific issues for each affected file
+        $this->assertArrayHasKey('/test/path/file1.xlf', $distribution);
+        $this->assertArrayHasKey('/test/path/file2.xlf', $distribution);
+        $this->assertCount(1, $distribution['/test/path/file1.xlf']);
+        $this->assertCount(1, $distribution['/test/path/file2.xlf']);
+    }
+
+    public function testShouldShowDetailedOutput(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        $this->assertTrue($validator->shouldShowDetailedOutput());
+    }
+
+    public function testRenderDetailedOutput(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        $output = new \Symfony\Component\Console\Output\BufferedOutput();
+
+        // Create a test issue for detailed output
+        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            '',
+            [
+                'key' => 'test_key',
+                'files' => [
+                    ['file' => 'file1.xlf', 'value' => 'value1'],
+                    ['file' => 'file2.xlf', 'value' => null],
+                ],
+            ],
+            '',
+            'MismatchValidator'
+        );
+
+        $validator->renderDetailedOutput($output, [$issue]);
+
+        $outputContent = $output->fetch();
+
+        // Should contain table output
+        $this->assertStringContainsString('Key', $outputContent);
+        $this->assertStringContainsString('file1.xlf', $outputContent);
+        $this->assertStringContainsString('file2.xlf', $outputContent);
+        $this->assertStringContainsString('test_key', $outputContent);
+        // The table output shows empty cells for missing values, not "<missing>"
+        $this->assertStringContainsString('value1', $outputContent);
+    }
+
+    public function testFormatIssueMessage(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            'test.xlf',
+            [
+                'key' => 'test_key',
+                'files' => [
+                    ['file' => 'file1.xlf', 'value' => 'value1'],
+                    ['file' => 'file2.xlf', 'value' => null],
+                ],
+            ],
+            'TestParser',
+            'MismatchValidator'
+        );
+
+        $result = $validator->formatIssueMessage($issue);
+
+        $this->assertStringContainsString('Warning', $result);
+        $this->assertStringContainsString('test_key', $result);
+        $this->assertStringContainsString('files', $result);
+        $this->assertStringContainsString('<fg=yellow>', $result);
+    }
+
+    public function testGetShortName(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        $this->assertSame('MismatchValidator', $validator->getShortName());
+    }
 }

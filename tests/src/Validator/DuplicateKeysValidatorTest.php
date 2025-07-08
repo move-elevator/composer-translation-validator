@@ -73,4 +73,43 @@ final class DuplicateKeysValidatorTest extends TestCase
 
         $this->assertSame([\MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class], $validator->supportsParser());
     }
+
+    public function testGetShortName(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new DuplicateKeysValidator($logger);
+
+        $this->assertSame('DuplicateKeysValidator', $validator->getShortName());
+    }
+
+    public function testResultTypeOnValidationFailure(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new DuplicateKeysValidator($logger);
+
+        $this->assertSame(\MoveElevator\ComposerTranslationValidator\Validator\ResultType::ERROR, $validator->resultTypeOnValidationFailure());
+    }
+
+    public function testFormatIssueMessage(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new DuplicateKeysValidator($logger);
+
+        // DuplicateKeysValidator expects details to be key => count pairs
+        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            'test.xlf',
+            ['duplicate_key' => 3, 'another_key' => 2],
+            'XliffParser',
+            'DuplicateKeysValidator'
+        );
+
+        $result = $validator->formatIssueMessage($issue);
+
+        $this->assertStringContainsString('Error', $result);
+        $this->assertStringContainsString('<fg=red>', $result);
+        $this->assertStringContainsString('duplicate_key', $result);
+        $this->assertStringContainsString('3x', $result);
+        $this->assertStringContainsString('another_key', $result);
+        $this->assertStringContainsString('2x', $result);
+    }
 }

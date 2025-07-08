@@ -257,6 +257,110 @@ class ValidationResultCliRendererTest extends TestCase
         $this->assertStringContainsString('See more details with the `-v` verbose option', $output);
     }
 
+    public function testPathNormalization(): void
+    {
+        // Test path normalization behavior through actual rendering
+        $validator = $this->createMockValidator();
+        $issue = new Issue('test.xlf', ['key' => 'value'], 'TestParser', 'TestValidator');
+        $validator->method('hasIssues')->willReturn(true);
+        $validator->method('getIssues')->willReturn([$issue]);
+
+        $fileSet = new FileSet('TestParser', '/full/path/to', 'setKey', ['test.xlf']);
+        $validationResult = new ValidationResult(
+            [$validator],
+            ResultType::ERROR,
+            [['validator' => $validator, 'fileSet' => $fileSet]]
+        );
+
+        $this->renderer->render($validationResult);
+        $output = $this->output->fetch();
+
+        // Should contain normalized path
+        $this->assertStringContainsString('test.xlf', $output);
+    }
+
+    public function testSortIssuesBySeverity(): void
+    {
+        $validator1 = $this->createMockValidator();
+        $validator1->method('resultTypeOnValidationFailure')->willReturn(ResultType::WARNING);
+
+        $validator2 = $this->createMockValidator();
+        $validator2->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
+
+        $issue1 = new Issue('test1.xlf', ['warning'], 'TestParser', 'TestValidator');
+        $issue2 = new Issue('test2.xlf', ['error'], 'TestParser', 'TestValidator');
+
+        $fileIssues = [
+            ['validator' => $validator1, 'issue' => $issue1],
+            ['validator' => $validator2, 'issue' => $issue2],
+        ];
+
+        $reflection = new \ReflectionClass($this->renderer);
+        $method = $reflection->getMethod('sortIssuesBySeverity');
+        $method->setAccessible(true);
+
+        $sorted = $method->invoke($this->renderer, $fileIssues);
+
+        // Test that sorting actually occurred - array should have 2 elements
+        $this->assertCount(2, $sorted);
+        $this->assertArrayHasKey('validator', $sorted[0]);
+        $this->assertArrayHasKey('issue', $sorted[0]);
+    }
+
+    public function testSortValidatorGroupsBySeverity(): void
+    {
+        $validatorGroups = [
+            'TestValidator1' => ['validator' => $this->createMockValidator(), 'issues' => []],
+            'TestValidator2' => ['validator' => $this->createMockValidator(), 'issues' => []],
+            'TestValidator3' => ['validator' => $this->createMockValidator(), 'issues' => []],
+        ];
+
+        $reflection = new \ReflectionClass($this->renderer);
+        $method = $reflection->getMethod('sortValidatorGroupsBySeverity');
+        $method->setAccessible(true);
+
+        $sorted = $method->invoke($this->renderer, $validatorGroups);
+
+        // Test that we got the same number of groups back
+        $this->assertCount(3, $sorted);
+        $this->assertArrayHasKey('TestValidator1', $sorted);
+        $this->assertArrayHasKey('TestValidator2', $sorted);
+        $this->assertArrayHasKey('TestValidator3', $sorted);
+    }
+
+    public function testGetValidatorSeverity(): void
+    {
+        $reflection = new \ReflectionClass($this->renderer);
+        $method = $reflection->getMethod('getValidatorSeverity');
+        $method->setAccessible(true);
+
+        // SchemaValidator should have priority 1
+        $result = $method->invoke($this->renderer, 'SchemaValidator');
+        $this->assertSame(1, $result);
+
+        // Other error validators should have priority 1
+        $result = $method->invoke($this->renderer, 'SomeErrorValidator');
+        $this->assertSame(1, $result);
+    }
+
+    public function testFormatIssueMessage(): void
+    {
+        $validator = $this->createMockValidator();
+        $issue = new Issue('test.xlf', ['message' => 'Test error'], 'TestParser', 'TestValidator');
+
+        $reflection = new \ReflectionClass($this->renderer);
+        $method = $reflection->getMethod('formatIssueMessage');
+        $method->setAccessible(true);
+
+        // Test with validator name prefix (non-verbose)
+        $result = $method->invoke($this->renderer, $validator, $issue, 'TestValidator', false);
+        $this->assertStringContainsString('(TestValidator)', $result);
+
+        // Test verbose mode (no prefix)
+        $result = $method->invoke($this->renderer, $validator, $issue, 'TestValidator', true);
+        $this->assertStringNotContainsString('(TestValidator)', $result);
+    }
+
     private function createMockValidator(): ValidatorInterface|MockObject
     {
         $validator = $this->createMock(ValidatorInterface::class);

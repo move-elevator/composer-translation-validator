@@ -223,4 +223,32 @@ final class DuplicateValuesValidatorTest extends TestCase
         $validator = new DuplicateValuesValidator($this->loggerMock);
         $this->assertSame(ResultType::WARNING, $validator->resultTypeOnValidationFailure());
     }
+
+    public function testGetShortName(): void
+    {
+        $validator = new DuplicateValuesValidator($this->loggerMock);
+        $this->assertSame('DuplicateValuesValidator', $validator->getShortName());
+    }
+
+    public function testFormatIssueMessage(): void
+    {
+        $validator = new DuplicateValuesValidator($this->loggerMock);
+
+        // DuplicateValuesValidator expects details to be value => keys array pairs
+        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            'test.xlf',
+            ['duplicate_value' => ['key1', 'key2'], 'another_value' => ['key3', 'key4']],
+            'XliffParser',
+            'DuplicateValuesValidator'
+        );
+
+        $result = $validator->formatIssueMessage($issue);
+
+        $this->assertStringContainsString('Warning', $result);
+        $this->assertStringContainsString('<fg=yellow>', $result);
+        $this->assertStringContainsString('duplicate_value', $result);
+        $this->assertStringContainsString('key1`, `key2', $result);
+        $this->assertStringContainsString('another_value', $result);
+        $this->assertStringContainsString('key3`, `key4', $result);
+    }
 }
