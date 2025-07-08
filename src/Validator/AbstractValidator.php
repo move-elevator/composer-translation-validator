@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
+use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserRegistry;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
-abstract class AbstractValidator implements ValidatorInterface
+abstract class AbstractValidator
 {
     /** @var array<Issue> */
     protected array $issues = [];
@@ -31,8 +33,7 @@ abstract class AbstractValidator implements ValidatorInterface
         // Reset state for fresh validation run
         $this->resetState();
 
-        $classPart = strrchr(static::class, '\\');
-        $name = false !== $classPart ? substr($classPart, 1) : static::class;
+        $name = $this->getShortName();
         $this->logger->debug(
             sprintf(
                 '> Checking for <options=bold,underscore>%s</> ...',
@@ -118,5 +119,64 @@ abstract class AbstractValidator implements ValidatorInterface
     protected function resetState(): void
     {
         $this->issues = [];
+    }
+
+    public function formatIssueMessage(Issue $issue, string $prefix = ''): string
+    {
+        $details = $issue->getDetails();
+        $resultType = $this->resultTypeOnValidationFailure();
+
+        $level = $resultType->toString();
+        $color = $resultType->toColorString();
+
+        $message = $details['message'] ?? 'Validation error';
+
+        return "- <fg=$color>$level</> {$prefix}$message";
+    }
+
+    /**
+     * @return array<string, array<Issue>>
+     */
+    public function distributeIssuesForDisplay(FileSet $fileSet): array
+    {
+        $distribution = [];
+
+        foreach ($this->issues as $issue) {
+            $fileName = $issue->getFile();
+            if (empty($fileName)) {
+                continue;
+            }
+
+            // Build full path from fileSet and filename for consistency
+            $basePath = rtrim($fileSet->getPath(), '/');
+            $filePath = $basePath.'/'.$fileName;
+
+            if (!isset($distribution[$filePath])) {
+                $distribution[$filePath] = [];
+            }
+            $distribution[$filePath][] = $issue;
+        }
+
+        return $distribution;
+    }
+
+    public function shouldShowDetailedOutput(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @param array<Issue> $issues
+     */
+    public function renderDetailedOutput(OutputInterface $output, array $issues): void
+    {
+        // Default implementation: no detailed output
+    }
+
+    public function getShortName(): string
+    {
+        $classPart = strrchr(static::class, '\\');
+
+        return false !== $classPart ? substr($classPart, 1) : static::class;
     }
 }

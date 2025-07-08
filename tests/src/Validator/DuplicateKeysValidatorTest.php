@@ -8,7 +8,6 @@ use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Input\InputInterface;
 
 final class DuplicateKeysValidatorTest extends TestCase
 {
@@ -59,66 +58,50 @@ final class DuplicateKeysValidatorTest extends TestCase
         $this->assertEmpty($result);
     }
 
-    public function testRenderIssueSets(): void
-    {
-        $input = $this->createMock(InputInterface::class);
-        $output = new \Symfony\Component\Console\Output\BufferedOutput();
-
-        $issueSets = [
-            'file1.xlf' => [
-                [
-                    'file' => 'file1.xlf',
-                    'issues' => [
-                        'keyA' => 2,
-                        'keyB' => 3,
-                    ],
-                    'parser' => 'Parser\Class',
-                    'type' => 'Duplicates',
-                ],
-            ],
-            'file2.xlf' => [
-                [
-                    'file' => 'file2.xlf',
-                    'issues' => [
-                        'keyC' => 2,
-                    ],
-                    'parser' => 'Parser\Class',
-                    'type' => 'Duplicates',
-                ],
-            ],
-        ];
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $validator = new DuplicateKeysValidator($logger);
-        $validator->renderIssueSets($input, $output, $issueSets);
-
-        $expectedOutput = <<<'EOT'
-+-----------+------+------------------+
-| File      | Key  | Count duplicates |
-+-----------+------+------------------+
-| file1.xlf | keyA | 2                |
-|           | keyB | 3                |
-+-----------+------+------------------+
-| file2.xlf | keyC | 2                |
-+-----------+------+------------------+
-EOT;
-
-        $this->assertSame(trim($expectedOutput), trim($output->fetch()));
-    }
-
-    public function testExplain(): void
-    {
-        $logger = $this->createMock(LoggerInterface::class);
-        $validator = new DuplicateKeysValidator($logger);
-
-        $this->assertStringContainsString('duplicate keys', $validator->explain());
-    }
-
     public function testSupportsParser(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
         $validator = new DuplicateKeysValidator($logger);
 
         $this->assertSame([\MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class], $validator->supportsParser());
+    }
+
+    public function testGetShortName(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new DuplicateKeysValidator($logger);
+
+        $this->assertSame('DuplicateKeysValidator', $validator->getShortName());
+    }
+
+    public function testResultTypeOnValidationFailure(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new DuplicateKeysValidator($logger);
+
+        $this->assertSame(\MoveElevator\ComposerTranslationValidator\Validator\ResultType::ERROR, $validator->resultTypeOnValidationFailure());
+    }
+
+    public function testFormatIssueMessage(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new DuplicateKeysValidator($logger);
+
+        // DuplicateKeysValidator expects details to be key => count pairs
+        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            'test.xlf',
+            ['duplicate_key' => 3, 'another_key' => 2],
+            'XliffParser',
+            'DuplicateKeysValidator'
+        );
+
+        $result = $validator->formatIssueMessage($issue);
+
+        $this->assertStringContainsString('Error', $result);
+        $this->assertStringContainsString('<fg=red>', $result);
+        $this->assertStringContainsString('duplicate_key', $result);
+        $this->assertStringContainsString('3x', $result);
+        $this->assertStringContainsString('another_key', $result);
+        $this->assertStringContainsString('2x', $result);
     }
 }

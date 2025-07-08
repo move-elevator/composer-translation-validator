@@ -6,11 +6,7 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
-use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Helper\TableSeparator;
-use Symfony\Component\Console\Helper\TableStyle;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use MoveElevator\ComposerTranslationValidator\Result\Issue;
 
 class DuplicateKeysValidator extends AbstractValidator implements ValidatorInterface
 {
@@ -35,46 +31,22 @@ class DuplicateKeysValidator extends AbstractValidator implements ValidatorInter
         return [];
     }
 
-    /**
-     * @param array<string, array<int, array{
-     *      file: string,
-     *      issues: array<string, int>,
-     *      parser: string,
-     *      type: string
-     *  }>> $issueSets
-     */
-    public function renderIssueSets(InputInterface $input, OutputInterface $output, array $issueSets): void
+    public function formatIssueMessage(Issue $issue, string $prefix = ''): string
     {
-        $rows = [];
-        $currentFile = null;
+        $details = $issue->getDetails();
+        $resultType = $this->resultTypeOnValidationFailure();
 
-        foreach ($issueSets as $issues) {
-            foreach ($issues as $duplicates) {
-                if ($currentFile !== $duplicates['file'] && null !== $currentFile) {
-                    $rows[] = new TableSeparator();
-                }
-                $currentFile = $duplicates['file'];
-                foreach ($duplicates['issues'] as $key => $count) {
-                    $rows[] = ['<fg=red>'.$duplicates['file'].'</>', $key, $count];
-                    $duplicates['file'] = ''; // Reset file for subsequent rows
-                }
+        $level = $resultType->toString();
+        $color = $resultType->toColorString();
+
+        $messages = [];
+        foreach ($details as $key => $count) {
+            if (is_string($key) && is_int($count)) {
+                $messages[] = "- <fg=$color>$level</> {$prefix}the translation key `$key` occurs multiple times ({$count}x)";
             }
         }
 
-        (new Table($output))
-            ->setHeaders(['File', 'Key', 'Count duplicates'])
-            ->setRows($rows)
-            ->setStyle(
-                (new TableStyle())
-                    ->setCellHeaderFormat('%s')
-            )
-            ->render();
-    }
-
-    public function explain(): string
-    {
-        return 'This validator checks for duplicate keys in translation files. '
-            .'If a key appears more than once in a file, it will be reported as an issue.';
+        return implode("\n", $messages);
     }
 
     /**

@@ -10,8 +10,7 @@ class PathUtility
     {
         $realPath = realpath($path);
         if (false === $realPath) {
-            // If realpath fails, it might be a non-existent path, return as is but normalized
-            $normalizedPath = rtrim($path, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+            $normalizedPath = rtrim($path, DIRECTORY_SEPARATOR);
             if (str_starts_with($normalizedPath, './')) {
                 $normalizedPath = substr($normalizedPath, 2);
             }
@@ -20,12 +19,10 @@ class PathUtility
         }
 
         $cwd = realpath(getcwd()).DIRECTORY_SEPARATOR;
-        $normalizedPath = rtrim($realPath, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+        $normalizedPath = rtrim($realPath, DIRECTORY_SEPARATOR);
 
-        if (str_starts_with($normalizedPath, $cwd)) {
-            $relativePath = substr($normalizedPath, strlen($cwd));
-
-            return $relativePath;
+        if (str_starts_with($normalizedPath.DIRECTORY_SEPARATOR, $cwd)) {
+            return substr($normalizedPath, strlen($cwd));
         }
 
         return $normalizedPath;

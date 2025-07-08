@@ -8,7 +8,6 @@ use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Input\InputInterface;
 
 final class MismatchValidatorTest extends TestCase
 {
@@ -182,56 +181,6 @@ final class MismatchValidatorTest extends TestCase
         $this->assertFalse($validator->hasIssues());
     }
 
-    public function testRenderIssueSets(): void
-    {
-        $input = $this->createMock(InputInterface::class);
-        $output = new \Symfony\Component\Console\Output\BufferedOutput();
-
-        $issueSets = [
-            'dummy_file.xlf' => [
-                [
-                    'key' => 'key1',
-                    'files' => [
-                        ['file' => 'file1.xlf', 'value' => 'key1'],
-                        ['file' => 'file2.xlf', 'value' => null],
-                    ],
-                ],
-            ],
-            'dummy_file_2.xlf' => [
-                [
-                    'key' => 'key3',
-                    'files' => [
-                        ['file' => 'file1.xlf', 'value' => null],
-                        ['file' => 'file2.xlf', 'value' => 'key3'],
-                    ],
-                ],
-            ],
-        ];
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $validator = new MismatchValidator($logger);
-        $validator->renderIssueSets($input, $output, $issueSets);
-
-        $expectedOutput = <<<'EOT'
-+------+-----------+-----------+
-| Key  | file1.xlf | file2.xlf |
-+------+-----------+-----------+
-| key1 | key1      | <missing> |
-| key3 | <missing> | key3      |
-+------+-----------+-----------+
-EOT;
-
-        $this->assertStringContainsString(trim($expectedOutput), trim($output->fetch()));
-    }
-
-    public function testExplain(): void
-    {
-        $logger = $this->createMock(LoggerInterface::class);
-        $validator = new MismatchValidator($logger);
-
-        $this->assertStringContainsString('mismatches in translation keys', $validator->explain());
-    }
-
     public function testSupportsParser(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
@@ -241,5 +190,117 @@ EOT;
             \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class,
             \MoveElevator\ComposerTranslationValidator\Parser\YamlParser::class,
         ], $validator->supportsParser());
+    }
+
+    public function testDistributeIssuesForDisplay(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        // Create a mismatch issue
+        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            '',
+            [
+                'key' => 'test_key',
+                'files' => [
+                    ['file' => 'file1.xlf', 'value' => 'value1'],
+                    ['file' => 'file2.xlf', 'value' => null],
+                ],
+            ],
+            '',
+            'MismatchValidator'
+        );
+        $validator->addIssue($issue);
+
+        $fileSet = new \MoveElevator\ComposerTranslationValidator\FileDetector\FileSet(
+            'TestParser',
+            '/test/path',
+            'setKey',
+            ['file1.xlf', 'file2.xlf']
+        );
+
+        $distribution = $validator->distributeIssuesForDisplay($fileSet);
+
+        // MismatchValidator should create file-specific issues for each affected file
+        $this->assertArrayHasKey('/test/path/file1.xlf', $distribution);
+        $this->assertArrayHasKey('/test/path/file2.xlf', $distribution);
+        $this->assertCount(1, $distribution['/test/path/file1.xlf']);
+        $this->assertCount(1, $distribution['/test/path/file2.xlf']);
+    }
+
+    public function testShouldShowDetailedOutput(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        $this->assertTrue($validator->shouldShowDetailedOutput());
+    }
+
+    public function testRenderDetailedOutput(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        $output = new \Symfony\Component\Console\Output\BufferedOutput();
+
+        // Create a test issue for detailed output
+        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            '',
+            [
+                'key' => 'test_key',
+                'files' => [
+                    ['file' => 'file1.xlf', 'value' => 'value1'],
+                    ['file' => 'file2.xlf', 'value' => null],
+                ],
+            ],
+            '',
+            'MismatchValidator'
+        );
+
+        $validator->renderDetailedOutput($output, [$issue]);
+
+        $outputContent = $output->fetch();
+
+        // Should contain table output
+        $this->assertStringContainsString('Key', $outputContent);
+        $this->assertStringContainsString('file1.xlf', $outputContent);
+        $this->assertStringContainsString('file2.xlf', $outputContent);
+        $this->assertStringContainsString('test_key', $outputContent);
+        // The table output shows empty cells for missing values, not "<missing>"
+        $this->assertStringContainsString('value1', $outputContent);
+    }
+
+    public function testFormatIssueMessage(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            'test.xlf',
+            [
+                'key' => 'test_key',
+                'files' => [
+                    ['file' => 'file1.xlf', 'value' => 'value1'],
+                    ['file' => 'file2.xlf', 'value' => null],
+                ],
+            ],
+            'TestParser',
+            'MismatchValidator'
+        );
+
+        $result = $validator->formatIssueMessage($issue);
+
+        $this->assertStringContainsString('Warning', $result);
+        $this->assertStringContainsString('test_key', $result);
+        $this->assertStringContainsString('files', $result);
+        $this->assertStringContainsString('<fg=yellow>', $result);
+    }
+
+    public function testGetShortName(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        $this->assertSame('MismatchValidator', $validator->getShortName());
     }
 }

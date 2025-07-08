@@ -42,19 +42,9 @@ class ConcreteValidator extends AbstractValidator implements ValidatorInterface
         return [TestParser::class];
     }
 
-    public function explain(): string
-    {
-        return 'This is a concrete validator for testing.';
-    }
-
     public function validate(array $files, ?string $parserClass): array
     {
         return parent::validate($files, $parserClass);
-    }
-
-    public function renderIssueSets(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface $output, array $issueSets): void
-    {
-        // Dummy implementation for testing AbstractValidator
     }
 
     public function postProcess(): void
@@ -67,6 +57,11 @@ class ConcreteValidator extends AbstractValidator implements ValidatorInterface
                 'ConcreteValidator'
             ));
         }
+    }
+
+    public function getShortName(): string
+    {
+        return static::class;
     }
 }
 
@@ -144,6 +139,9 @@ final class AbstractValidatorTest extends TestCase
         $this->assertEmpty($result);
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function testValidateWithIssues(): void
     {
         $validator = new ConcreteValidator($this->loggerMock);
@@ -160,7 +158,7 @@ final class AbstractValidatorTest extends TestCase
                     'file' => 'file_with_issues.xlf',
                     'issues' => ['issue1', 'issue2'],
                     'parser' => TestParser::class,
-                    'type' => 'ConcreteValidator',
+                    'type' => ConcreteValidator::class,
                 ],
             ],
             $result

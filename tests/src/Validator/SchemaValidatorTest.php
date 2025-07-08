@@ -8,8 +8,6 @@ use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Validator\SchemaValidator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\BufferedOutput;
 
 final class SchemaValidatorTest extends TestCase
 {
@@ -117,78 +115,128 @@ EOT
         $this->assertEmpty($result);
     }
 
-    public function testRenderIssueSets(): void
-    {
-        $input = $this->createMock(InputInterface::class);
-        $output = new BufferedOutput();
-
-        $issueSets = [
-            'file1.xlf' => [
-                [
-                    'file' => 'file1.xlf',
-                    'issues' => [
-                        [
-                            'level' => (string) LIBXML_ERR_ERROR,
-                            'code' => 76,
-                            'message' => 'Element \'trans-unit\' was not closed.',
-                            'file' => 'file1.xlf',
-                            'line' => 10,
-                            'column' => 0,
-                        ],
-                    ],
-                    'parser' => 'Parser\Class',
-                    'type' => 'Schema',
-                ],
-            ],
-            'file2.xlf' => [
-                [
-                    'file' => 'file2.xlf',
-                    'issues' => [
-                        [
-                            'level' => (string) LIBXML_ERR_WARNING,
-                            'code' => 77,
-                            'message' => 'Some warning.',
-                            'file' => 'file2.xlf',
-                            'line' => 5,
-                            'column' => 0,
-                        ],
-                    ],
-                    'parser' => 'Parser\Class',
-                    'type' => 'Schema',
-                ],
-            ],
-        ];
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $validator = new SchemaValidator($logger);
-        $validator->renderIssueSets($input, $output, $issueSets);
-
-        $expectedOutput = <<<'EOT'
-+-----------+---------+------+-----------------+------+
-| File      | Level   | Code | Message         | Line |
-+-----------+---------+------+-----------------+------+
-| file1.xlf | ERROR   | 76   | was not closed. | 10   |
-+-----------+---------+------+-----------------+------+
-| file2.xlf | WARNING | 77   | Some warning.   | 5    |
-+-----------+---------+------+-----------------+------+
-EOT;
-
-        $this->assertSame(trim($expectedOutput), trim($output->fetch()));
-    }
-
-    public function testExplain(): void
-    {
-        $logger = $this->createMock(LoggerInterface::class);
-        $validator = new SchemaValidator($logger);
-
-        $this->assertStringContainsString('XML schema', $validator->explain());
-    }
-
     public function testSupportsParser(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
         $validator = new SchemaValidator($logger);
 
         $this->assertSame([\MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class], $validator->supportsParser());
+    }
+
+    public function testFormatIssueMessage(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new SchemaValidator($logger);
+
+        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            'test.xlf',
+            [
+                [
+                    'message' => 'Element was not closed',
+                    'line' => 10,
+                    'code' => 76,
+                    'level' => 'ERROR',
+                ],
+            ],
+            'XliffParser',
+            'SchemaValidator'
+        );
+
+        $result = $validator->formatIssueMessage($issue);
+
+        $this->assertStringContainsString('Error', $result);
+        $this->assertStringContainsString('Element was not closed', $result);
+        $this->assertStringContainsString('Line: 10', $result);
+        $this->assertStringContainsString('Code: 76', $result);
+        $this->assertStringContainsString('<fg=red>', $result);
+    }
+
+    public function testFormatIssueMessageWithWarning(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new SchemaValidator($logger);
+
+        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            'test.xlf',
+            [
+                [
+                    'message' => 'Some warning',
+                    'line' => 5,
+                    'code' => 77,
+                    'level' => 'WARNING',
+                ],
+            ],
+            'XliffParser',
+            'SchemaValidator'
+        );
+
+        $result = $validator->formatIssueMessage($issue);
+
+        $this->assertStringContainsString('Warning', $result);
+        $this->assertStringContainsString('Some warning', $result);
+        $this->assertStringContainsString('Line: 5', $result);
+        $this->assertStringContainsString('<fg=yellow>', $result);
+    }
+
+    public function testFormatIssueMessageMultipleErrors(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new SchemaValidator($logger);
+
+        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            'test.xlf',
+            [
+                [
+                    'message' => 'First error',
+                    'line' => 10,
+                    'code' => 76,
+                    'level' => 'ERROR',
+                ],
+                [
+                    'message' => 'Second error',
+                    'line' => 15,
+                    'code' => 77,
+                    'level' => 'ERROR',
+                ],
+            ],
+            'XliffParser',
+            'SchemaValidator'
+        );
+
+        $result = $validator->formatIssueMessage($issue);
+
+        $this->assertStringContainsString('First error', $result);
+        $this->assertStringContainsString('Second error', $result);
+        $this->assertStringContainsString('Line: 10', $result);
+        $this->assertStringContainsString('Line: 15', $result);
+        // Should contain newline for multiple errors
+        $this->assertStringContainsString("\n", $result);
+    }
+
+    public function testFormatIssueMessageEmptyDetails(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new SchemaValidator($logger);
+
+        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            'test.xlf',
+            [],
+            'XliffParser',
+            'SchemaValidator'
+        );
+
+        $result = $validator->formatIssueMessage($issue);
+
+        $this->assertStringContainsString('Error', $result);
+        $this->assertStringContainsString('Schema validation error', $result);
+        $this->assertStringContainsString('<fg=red>', $result);
+    }
+
+    public function testGetShortName(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new SchemaValidator($logger);
+
+        $this->assertSame('SchemaValidator', $validator->getShortName());
     }
 }

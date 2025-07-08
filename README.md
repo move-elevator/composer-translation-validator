@@ -59,7 +59,7 @@ The following validators are available:
 
 | Validator                  | Function                                                                                                                                                                 | Supports    | Throws  |
 |----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|---------|
-| `MismatchValidator`        | This validator checks for keys that are present in some files but not in others. It helps to identify mismatches in translation keys across different translation files. | XLIFF, Yaml | ERROR   |
+| `MismatchValidator`        | This validator checks for keys that are present in some files but not in others. It helps to identify mismatches in translation keys across different translation files. | XLIFF, Yaml | WARNING   |
 | `DuplicateKeysValidator`   | This validator checks for duplicate keys in translation files.                                                                                                           | XLIFF       | ERROR   |
 | `DuplicateValuesValidator` | This validator checks for duplicate values in translation files.                                                                                                         | XLIFF, Yaml     | WARNING |
 | `SchemaValidator`          | Validates the XML schema of translation files against the XLIFF standard. See available [schemas](https://github.com/symfony/translation/tree/6.4/Resources/schemas).    | XLIFF       | ERROR   |

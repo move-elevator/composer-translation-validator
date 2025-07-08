@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class ValidationResultCliRenderer
+class ValidationResultCliRenderer implements ValidationResultRendererInterface
 {
     private readonly SymfonyStyle $io;
 
@@ -26,13 +26,18 @@ class ValidationResultCliRenderer
 
     public function render(ValidationResult $validationResult): int
     {
-        $this->renderValidatorResults($validationResult);
+        if ($this->output->isVerbose()) {
+            $this->renderVerboseOutput($validationResult);
+        } else {
+            $this->renderCompactOutput($validationResult);
+        }
+
         $this->renderSummary($validationResult->getOverallResult());
 
         return $validationResult->getOverallResult()->resolveErrorToCommandExitCode($this->dryRun, $this->strict);
     }
 
-    private function renderValidatorResults(ValidationResult $validationResult): void
+    private function renderCompactOutput(ValidationResult $validationResult): void
     {
         $validatorPairs = $validationResult->getValidatorFileSetPairs();
 
@@ -40,8 +45,7 @@ class ValidationResultCliRenderer
             return;
         }
 
-        // Group by validator class for rendering
-        $groupedByValidator = [];
+        $groupedByFile = [];
         foreach ($validatorPairs as $pair) {
             $validator = $pair['validator'];
             $fileSet = $pair['fileSet'];
@@ -50,83 +54,200 @@ class ValidationResultCliRenderer
                 continue;
             }
 
+            $distributedIssues = $validator->distributeIssuesForDisplay($fileSet);
+
+            foreach ($distributedIssues as $filePath => $issues) {
+                if (!isset($groupedByFile[$filePath])) {
+                    $groupedByFile[$filePath] = [];
+                }
+
+                foreach ($issues as $issue) {
+                    $groupedByFile[$filePath][] = [
+                        'validator' => $validator,
+                        'issue' => $issue,
+                    ];
+                }
+            }
+        }
+
+        foreach ($groupedByFile as $filePath => $fileIssues) {
+            $relativePath = PathUtility::normalizeFolderPath($filePath);
+            $this->io->writeln("<fg=cyan>$relativePath</>");
+            $this->io->newLine();
+
+            $sortedIssues = $this->sortIssuesBySeverity($fileIssues);
+
+            foreach ($sortedIssues as $fileIssue) {
+                $validator = $fileIssue['validator'];
+                $issue = $fileIssue['issue'];
+                $validatorName = $validator->getShortName();
+
+                $message = $this->formatIssueMessage($validator, $issue, $validatorName);
+                $lines = explode("\n", $message);
+                foreach ($lines as $line) {
+                    if (!empty(trim($line))) {
+                        $this->io->writeln($line);
+                    }
+                }
+            }
+
+            $this->io->newLine();
+        }
+    }
+
+    private function renderVerboseOutput(ValidationResult $validationResult): void
+    {
+        $validatorPairs = $validationResult->getValidatorFileSetPairs();
+
+        if (empty($validatorPairs)) {
+            return;
+        }
+
+        // Group by file path, then by validator
+        $groupedByFile = [];
+        foreach ($validatorPairs as $pair) {
+            $validator = $pair['validator'];
+            $fileSet = $pair['fileSet'];
+
+            if (!$validator->hasIssues()) {
+                continue;
+            }
+
+            $distributedIssues = $validator->distributeIssuesForDisplay($fileSet);
             $validatorClass = $validator::class;
-            if (!isset($groupedByValidator[$validatorClass])) {
-                $groupedByValidator[$validatorClass] = [
-                    'validator' => $validator,
-                    'paths' => [],
-                ];
-            }
 
-            $path = $fileSet->getPath();
-            if (!isset($groupedByValidator[$validatorClass]['paths'][$path])) {
-                $groupedByValidator[$validatorClass]['paths'][$path] = [];
-            }
+            foreach ($distributedIssues as $filePath => $issues) {
+                if (!isset($groupedByFile[$filePath])) {
+                    $groupedByFile[$filePath] = [];
+                }
+                if (!isset($groupedByFile[$filePath][$validatorClass])) {
+                    $groupedByFile[$filePath][$validatorClass] = [
+                        'validator' => $validator,
+                        'issues' => [],
+                    ];
+                }
 
-            $groupedByValidator[$validatorClass]['paths'][$path][] = $validator->getIssues();
+                foreach ($issues as $issue) {
+                    $groupedByFile[$filePath][$validatorClass]['issues'][] = $issue;
+                }
+            }
         }
 
-        foreach ($groupedByValidator as $data) {
-            $this->renderValidatorSectionWithPaths($data['validator'], $data['paths']);
+        foreach ($groupedByFile as $filePath => $validatorGroups) {
+            $relativePath = PathUtility::normalizeFolderPath($filePath);
+            $this->io->writeln("<fg=cyan>$relativePath</>");
+            $this->io->newLine();
+
+            $sortedValidatorGroups = $this->sortValidatorGroupsBySeverity($validatorGroups);
+
+            foreach ($sortedValidatorGroups as $validatorClass => $data) {
+                $validator = $data['validator'];
+                $issues = $data['issues'];
+                $validatorName = $validator->getShortName();
+
+                $this->io->writeln("  <options=bold>$validatorName</>");
+
+                foreach ($issues as $issue) {
+                    $message = $this->formatIssueMessage($validator, $issue, '', true);
+                    $lines = explode("\n", $message);
+                    foreach ($lines as $line) {
+                        if (!empty(trim($line))) {
+                            $this->io->writeln("    $line");
+                        }
+                    }
+                }
+
+                if ($validator->shouldShowDetailedOutput()) {
+                    $this->io->newLine();
+                    $validator->renderDetailedOutput($this->output, $issues);
+                }
+
+                $this->io->newLine();
+            }
         }
     }
 
     /**
-     * @param array<string, array<array<Issue>>> $pathsWithIssues
-     */
-    private function renderValidatorSectionWithPaths(ValidatorInterface $validator, array $pathsWithIssues): void
-    {
-        $validatorClass = $validator::class;
-        $this->io->section(sprintf('Validator: <fg=cyan>%s</>', $validatorClass));
-
-        if ($this->output->isVerbose()) {
-            $this->io->writeln(sprintf('Explanation: %s', $validator->explain()));
-        }
-
-        foreach ($pathsWithIssues as $path => $issueArrays) {
-            $this->io->writeln(sprintf('<fg=gray>Folder Path: %s</>', PathUtility::normalizeFolderPath($path)));
-            $this->io->newLine();
-
-            // Flatten all issues for this path
-            $allIssues = [];
-            foreach ($issueArrays as $issueArray) {
-                $allIssues = [...$allIssues, ...$issueArray];
-            }
-
-            // Convert issues back to legacy format for existing renderIssueSets method
-            $legacyFormat = $this->convertToLegacyFormat($allIssues);
-            $validator->renderIssueSets($this->input, $this->output, $legacyFormat);
-
-            $this->io->newLine();
-            $this->io->newLine();
-        }
-    }
-
-    /**
-     * @param array<Issue> $issues
+     * @param array<array{validator: ValidatorInterface, issue: Issue}> $fileIssues
      *
-     * @return array<string, array<int, array<mixed>>>
+     * @return array<array{validator: ValidatorInterface, issue: Issue}>
      */
-    private function convertToLegacyFormat(array $issues): array
+    private function sortIssuesBySeverity(array $fileIssues): array
     {
-        $legacy = [];
+        usort($fileIssues, function ($a, $b) {
+            $severityA = $this->getIssueSeverity($a['validator']);
+            $severityB = $this->getIssueSeverity($b['validator']);
 
-        foreach ($issues as $issue) {
-            $legacy[''][] = $issue->toArray();
+            return $severityA <=> $severityB;
+        });
+
+        return $fileIssues;
+    }
+
+    /**
+     * @param array<string, array{validator: ValidatorInterface, issues: array<Issue>}> $validatorGroups
+     *
+     * @return array<string, array{validator: ValidatorInterface, issues: array<Issue>}>
+     */
+    private function sortValidatorGroupsBySeverity(array $validatorGroups): array
+    {
+        uksort($validatorGroups, function ($validatorClassA, $validatorClassB) {
+            $severityA = $this->getValidatorSeverity($validatorClassA);
+            $severityB = $this->getValidatorSeverity($validatorClassB);
+
+            return $severityA <=> $severityB;
+        });
+
+        return $validatorGroups;
+    }
+
+    private function getIssueSeverity(ValidatorInterface $validator): int
+    {
+        return $this->getValidatorSeverity($validator::class);
+    }
+
+    private function getValidatorSeverity(string $validatorClass): int
+    {
+        if (str_contains($validatorClass, 'SchemaValidator')) {
+            return 1;
         }
 
-        return $legacy;
+        try {
+            $reflection = new \ReflectionClass($validatorClass);
+            if ($reflection->isInstantiable()) {
+                $validator = $reflection->newInstance();
+                if ($validator instanceof ValidatorInterface) {
+                    $resultType = $validator->resultTypeOnValidationFailure();
+
+                    return ResultType::ERROR === $resultType ? 1 : 2;
+                }
+            }
+        } catch (\Throwable) {
+        }
+
+        return 1;
+    }
+
+    private function formatIssueMessage(ValidatorInterface $validator, Issue $issue, string $validatorName = '', bool $isVerbose = false): string
+    {
+        $prefix = $isVerbose ? '' : "($validatorName) ";
+
+        return $validator->formatIssueMessage($issue, $prefix);
     }
 
     private function renderSummary(ResultType $resultType): void
     {
         if ($resultType->notFullySuccessful()) {
             $this->io->newLine();
-            $this->io->{$this->dryRun || ResultType::WARNING === $resultType ? 'warning' : 'error'}(
-                $this->dryRun
-                    ? 'Language validation failed and completed in dry-run mode.'
-                    : 'Language validation failed.'
-            );
+            $message = $this->dryRun
+                ? 'Language validation failed and completed in dry-run mode.'
+                : 'Language validation failed.';
+
+            if (!$this->output->isVerbose()) {
+                $message .= ' See more details with the `-v` verbose option.';
+            }
+
+            $this->io->{$this->dryRun || ResultType::WARNING === $resultType ? 'warning' : 'error'}($message);
         } else {
             $message = 'Language validation succeeded.';
             $this->output->isVerbose()

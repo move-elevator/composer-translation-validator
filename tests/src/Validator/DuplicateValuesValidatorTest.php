@@ -12,8 +12,6 @@ use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\BufferedOutput;
 
 final class DuplicateValuesValidatorTest extends TestCase
 {
@@ -205,54 +203,6 @@ final class DuplicateValuesValidatorTest extends TestCase
         $this->assertFalse($validator->hasIssues());
     }
 
-    public function testRenderIssueSets(): void
-    {
-        $input = $this->createMock(InputInterface::class);
-        $output = new BufferedOutput();
-
-        $issueSets = [
-            'file1.xlf' => [
-                [
-                    'file' => 'file1.xlf',
-                    'issues' => [
-                        'valueA' => ['key1', 'key3'],
-                    ],
-                ],
-            ],
-            'file2.xlf' => [
-                [
-                    'file' => 'file2.xlf',
-                    'issues' => [
-                        'valueX' => ['keyA', 'keyB'],
-                    ],
-                ],
-            ],
-        ];
-
-        $validator = new DuplicateValuesValidator($this->loggerMock);
-        $validator->renderIssueSets($input, $output, $issueSets);
-
-        $expectedOutput = <<<'EOT'
-+-----------+------+--------+
-| File      | Key  | Value  |
-+-----------+------+--------+
-| file1.xlf | key1 | valueA |
-|           | key3 |        |
-+-----------+------+--------+
-| file2.xlf | keyA | valueX |
-|           | keyB |        |
-+-----------+------+--------+
-EOT;
-
-        $this->assertSame(trim($expectedOutput), trim($output->fetch()));
-    }
-
-    public function testExplain(): void
-    {
-        $validator = new DuplicateValuesValidator($this->loggerMock);
-        $this->assertStringContainsString('duplicate values', $validator->explain());
-    }
-
     public function testSupportsParser(): void
     {
         $validator = new DuplicateValuesValidator($this->loggerMock);
@@ -266,5 +216,33 @@ EOT;
     {
         $validator = new DuplicateValuesValidator($this->loggerMock);
         $this->assertSame(ResultType::WARNING, $validator->resultTypeOnValidationFailure());
+    }
+
+    public function testGetShortName(): void
+    {
+        $validator = new DuplicateValuesValidator($this->loggerMock);
+        $this->assertSame('DuplicateValuesValidator', $validator->getShortName());
+    }
+
+    public function testFormatIssueMessage(): void
+    {
+        $validator = new DuplicateValuesValidator($this->loggerMock);
+
+        // DuplicateValuesValidator expects details to be value => keys array pairs
+        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            'test.xlf',
+            ['duplicate_value' => ['key1', 'key2'], 'another_value' => ['key3', 'key4']],
+            'XliffParser',
+            'DuplicateValuesValidator'
+        );
+
+        $result = $validator->formatIssueMessage($issue);
+
+        $this->assertStringContainsString('Warning', $result);
+        $this->assertStringContainsString('<fg=yellow>', $result);
+        $this->assertStringContainsString('duplicate_value', $result);
+        $this->assertStringContainsString('key1`, `key2', $result);
+        $this->assertStringContainsString('another_value', $result);
+        $this->assertStringContainsString('key3`, `key4', $result);
     }
 }
