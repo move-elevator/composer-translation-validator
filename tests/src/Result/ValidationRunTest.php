@@ -236,6 +236,25 @@ class MockValidatorWithoutIssues implements ValidatorInterface
     public function addIssue(\MoveElevator\ComposerTranslationValidator\Result\Issue $issue): void
     {
     }
+
+    public function formatIssueMessage(\MoveElevator\ComposerTranslationValidator\Result\Issue $issue, string $prefix = '', bool $isVerbose = false): string
+    {
+        return "- <fg=red>ERROR</> {$prefix}Mock validation error";
+    }
+
+    public function distributeIssuesForDisplay(\MoveElevator\ComposerTranslationValidator\FileDetector\FileSet $fileSet): array
+    {
+        return [];
+    }
+
+    public function shouldShowDetailedOutput(): bool
+    {
+        return false;
+    }
+
+    public function renderDetailedOutput(\Symfony\Component\Console\Output\OutputInterface $output, array $issues): void
+    {
+    }
 }
 
 class MockValidatorWithIssues implements ValidatorInterface
@@ -292,6 +311,34 @@ class MockValidatorWithIssues implements ValidatorInterface
     }
 
     public function addIssue(\MoveElevator\ComposerTranslationValidator\Result\Issue $issue): void
+    {
+    }
+
+    public function formatIssueMessage(\MoveElevator\ComposerTranslationValidator\Result\Issue $issue, string $prefix = '', bool $isVerbose = false): string
+    {
+        return "- <fg=red>ERROR</> {$prefix}Mock validation error with issues";
+    }
+
+    public function distributeIssuesForDisplay(\MoveElevator\ComposerTranslationValidator\FileDetector\FileSet $fileSet): array
+    {
+        $distribution = [];
+        foreach ($this->getIssues() as $issue) {
+            $fileName = $issue->getFile();
+            if (!empty($fileName)) {
+                $basePath = rtrim($fileSet->getPath(), '/');
+                $filePath = $basePath.'/'.$fileName;
+                $distribution[$filePath][] = $issue;
+            }
+        }
+        return $distribution;
+    }
+
+    public function shouldShowDetailedOutput(): bool
+    {
+        return false;
+    }
+
+    public function renderDetailedOutput(\Symfony\Component\Console\Output\OutputInterface $output, array $issues): void
     {
     }
 }

@@ -6,6 +6,7 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
+use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Helper\TableStyle;
@@ -83,5 +84,24 @@ class DuplicateKeysValidator extends AbstractValidator implements ValidatorInter
     public function supportsParser(): array
     {
         return [XliffParser::class];
+    }
+
+    public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
+    {
+        $details = $issue->getDetails();
+        $resultType = $this->resultTypeOnValidationFailure();
+
+        $level = $resultType->toString();
+        $color = $resultType->toColorString();
+
+        // Details contains duplicate keys with their counts
+        $messages = [];
+        foreach ($details as $key => $count) {
+            if (is_string($key) && is_int($count)) {
+                $messages[] = "- <fg=$color>$level</> {$prefix}the translation key `$key` occurs multiple times ({$count}x)";
+            }
+        }
+
+        return implode("\n", $messages);
     }
 }

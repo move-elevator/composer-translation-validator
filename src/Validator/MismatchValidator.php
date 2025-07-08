@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
+use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
@@ -136,5 +137,155 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
     public function resultTypeOnValidationFailure(): ResultType
     {
         return ResultType::WARNING;
+    }
+
+    public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
+    {
+        $details = $issue->getDetails();
+        $resultType = $this->resultTypeOnValidationFailure();
+
+        $level = $resultType->toString();
+        $color = $resultType->toColorString();
+
+        // Details contains key mismatch information
+        $key = $details['key'] ?? 'unknown';
+        $files = $details['files'] ?? [];
+        $currentFile = basename($issue->getFile());
+        $otherFiles = [];
+        $currentFileHasValue = false;
+
+        foreach ($files as $fileInfo) {
+            $fileName = $fileInfo['file'] ?? 'unknown';
+            if ($fileName === $currentFile) {
+                $currentFileHasValue = null !== $fileInfo['value'];
+            } else {
+                $otherFiles[] = $fileName;
+            }
+        }
+
+        if ($currentFileHasValue) {
+            $action = 'missing from';
+        } else {
+            $action = 'present in';
+        }
+
+        $otherFilesList = !empty($otherFiles) ? implode('`, `', $otherFiles) : 'other files';
+
+        return "- <fg=$color>$level</> {$prefix}translation key `$key` is $action other translation files (`$otherFilesList`)";
+    }
+
+    public function distributeIssuesForDisplay(FileSet $fileSet): array
+    {
+        $distribution = [];
+
+        foreach ($this->issues as $issue) {
+            $details = $issue->getDetails();
+            $files = $details['files'] ?? [];
+
+            // Add the issue to each affected file
+            foreach ($files as $fileInfo) {
+                $fileName = $fileInfo['file'] ?? '';
+                if (!empty($fileName)) {
+                    // Construct full file path from fileSet
+                    $basePath = rtrim($fileSet->getPath(), '/');
+                    $filePath = $basePath.'/'.$fileName;
+
+                    // Create a new issue specific to this file
+                    $fileSpecificIssue = new Issue(
+                        $filePath,
+                        $details,
+                        $issue->getParser(),
+                        $issue->getValidatorType()
+                    );
+
+                    if (!isset($distribution[$filePath])) {
+                        $distribution[$filePath] = [];
+                    }
+
+                    $distribution[$filePath][] = $fileSpecificIssue;
+                }
+            }
+        }
+
+        return $distribution;
+    }
+
+    public function shouldShowDetailedOutput(): bool
+    {
+        return true;
+    }
+
+    public function renderDetailedOutput(OutputInterface $output, array $issues): void
+    {
+        if (empty($issues)) {
+            return;
+        }
+
+        $rows = [];
+        $allKeys = [];
+        $allFilesData = [];
+
+        // Collect all data
+        foreach ($issues as $issue) {
+            $details = $issue->getDetails();
+            $key = $details['key'] ?? 'unknown';
+            $files = $details['files'] ?? [];
+            $currentFile = basename($issue->getFile());
+
+            if (!in_array($key, $allKeys)) {
+                $allKeys[] = $key;
+            }
+
+            foreach ($files as $fileInfo) {
+                $fileName = $fileInfo['file'] ?? '';
+                $value = $fileInfo['value'];
+
+                if (!isset($allFilesData[$key])) {
+                    $allFilesData[$key] = [];
+                }
+                $allFilesData[$key][$fileName] = $value;
+            }
+        }
+
+        // Get first issue to determine current file and file order
+        $firstIssue = $issues[0];
+        $currentFile = basename($firstIssue->getFile());
+        $firstDetails = $firstIssue->getDetails();
+        $firstFiles = $firstDetails['files'] ?? [];
+
+        // Order files: current file first, then others
+        $fileOrder = [$currentFile];
+        foreach ($firstFiles as $fileInfo) {
+            $fileName = $fileInfo['file'] ?? '';
+            if ($fileName !== $currentFile && !in_array($fileName, $fileOrder)) {
+                $fileOrder[] = $fileName;
+            }
+        }
+
+        $header = ['Translation Key', $currentFile];
+        foreach ($fileOrder as $fileName) {
+            if ($fileName !== $currentFile) {
+                $header[] = $fileName;
+            }
+        }
+
+        // Build rows
+        foreach ($allKeys as $key) {
+            $row = [$key];
+            foreach ($fileOrder as $fileName) {
+                $value = $allFilesData[$key][$fileName] ?? null;
+                $row[] = $value ?? '';  // Empty string instead of <missing>
+            }
+            $rows[] = $row;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders($header)
+              ->setRows($rows)
+              ->setStyle(
+                  (new TableStyle())
+                      ->setCellHeaderFormat('%s')
+              )
+              ->render();
     }
 }

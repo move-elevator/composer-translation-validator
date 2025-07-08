@@ -6,6 +6,7 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
+use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
@@ -92,7 +93,7 @@ class SchemaValidator extends AbstractValidator implements ValidatorInterface
 
                     $table->addRow([
                         '<fg=red>'.$errors['file'].'</>',
-                        LIBXML_ERR_WARNING === (int) $error['level'] ? 'WARNING' : 'ERROR',
+                        LIBXML_ERR_WARNING === (int) $error['level'] ? 'Warning' : 'Error',
                         $error['code'],
                         trim((string) $message),
                         $error['line'],
@@ -116,5 +117,31 @@ class SchemaValidator extends AbstractValidator implements ValidatorInterface
     public function supportsParser(): array
     {
         return [XliffParser::class];
+    }
+
+    public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
+    {
+        $details = $issue->getDetails();
+        $messages = [];
+
+        foreach ($details as $error) {
+            if (is_array($error)) {
+                $message = $error['message'] ?? 'Schema validation error';
+                $line = isset($error['line']) ? " (Line: {$error['line']})" : '';
+                $code = isset($error['code']) ? " (Code: {$error['code']})" : '';
+                $level = $error['level'] ?? 'ERROR';
+
+                $color = 'ERROR' === strtoupper($level) ? 'red' : 'yellow';
+                $levelText = ucfirst(strtolower($level));
+
+                $messages[] = "- <fg=$color>$levelText</> {$prefix}$message$line$code";
+            }
+        }
+
+        if (empty($messages)) {
+            $messages[] = "- <fg=red>Error</> {$prefix}Schema validation error";
+        }
+
+        return implode("\n", $messages);
     }
 }

@@ -210,6 +210,34 @@ class ValidationResultTest extends TestCase
             {
                 return ResultType::ERROR;
             }
+
+            public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
+            {
+                return "- <fg=red>ERROR</> {$prefix}Mock validation error";
+            }
+
+            public function distributeIssuesForDisplay(FileSet $fileSet): array
+            {
+                $distribution = [];
+                foreach ($this->getIssues() as $issue) {
+                    $fileName = $issue->getFile();
+                    if (!empty($fileName)) {
+                        $basePath = rtrim($fileSet->getPath(), '/');
+                        $filePath = $basePath.'/'.$fileName;
+                        $distribution[$filePath][] = $issue;
+                    }
+                }
+                return $distribution;
+            }
+
+            public function shouldShowDetailedOutput(): bool
+            {
+                return false;
+            }
+
+            public function renderDetailedOutput(\Symfony\Component\Console\Output\OutputInterface $output, array $issues): void
+            {
+            }
         };
 
         $validator2 = new class implements ValidatorInterface {
@@ -254,6 +282,34 @@ class ValidationResultTest extends TestCase
             public function resultTypeOnValidationFailure(): ResultType
             {
                 return ResultType::ERROR;
+            }
+
+            public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
+            {
+                return "- <fg=red>ERROR</> {$prefix}Mock validation error 2";
+            }
+
+            public function distributeIssuesForDisplay(FileSet $fileSet): array
+            {
+                $distribution = [];
+                foreach ($this->getIssues() as $issue) {
+                    $fileName = $issue->getFile();
+                    if (!empty($fileName)) {
+                        $basePath = rtrim($fileSet->getPath(), '/');
+                        $filePath = $basePath.'/'.$fileName;
+                        $distribution[$filePath][] = $issue;
+                    }
+                }
+                return $distribution;
+            }
+
+            public function shouldShowDetailedOutput(): bool
+            {
+                return false;
+            }
+
+            public function renderDetailedOutput(\Symfony\Component\Console\Output\OutputInterface $output, array $issues): void
+            {
             }
         };
 
@@ -333,6 +389,34 @@ class ValidationResultTest extends TestCase
             {
                 return ResultType::ERROR;
             }
+
+            public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
+            {
+                return "- <fg=red>ERROR</> {$prefix}Mock validation error with issues";
+            }
+
+            public function distributeIssuesForDisplay(FileSet $fileSet): array
+            {
+                $distribution = [];
+                foreach ($this->getIssues() as $issue) {
+                    $fileName = $issue->getFile();
+                    if (!empty($fileName)) {
+                        $basePath = rtrim($fileSet->getPath(), '/');
+                        $filePath = $basePath.'/'.$fileName;
+                        $distribution[$filePath][] = $issue;
+                    }
+                }
+                return $distribution;
+            }
+
+            public function shouldShowDetailedOutput(): bool
+            {
+                return false;
+            }
+
+            public function renderDetailedOutput(\Symfony\Component\Console\Output\OutputInterface $output, array $issues): void
+            {
+            }
         };
 
         $validatorWithoutIssues = new class implements ValidatorInterface {
@@ -377,6 +461,25 @@ class ValidationResultTest extends TestCase
             public function resultTypeOnValidationFailure(): ResultType
             {
                 return ResultType::ERROR;
+            }
+
+            public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
+            {
+                return "- <fg=red>ERROR</> {$prefix}Mock validation error without issues";
+            }
+
+            public function distributeIssuesForDisplay(FileSet $fileSet): array
+            {
+                return [];
+            }
+
+            public function shouldShowDetailedOutput(): bool
+            {
+                return false;
+            }
+
+            public function renderDetailedOutput(\Symfony\Component\Console\Output\OutputInterface $output, array $issues): void
+            {
             }
         };
 

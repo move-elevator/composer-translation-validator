@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
+use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserRegistry;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class AbstractValidator implements ValidatorInterface
 {
@@ -118,5 +120,51 @@ abstract class AbstractValidator implements ValidatorInterface
     protected function resetState(): void
     {
         $this->issues = [];
+    }
+
+    public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
+    {
+        $details = $issue->getDetails();
+        $resultType = $this->resultTypeOnValidationFailure();
+
+        $level = $resultType->toString();
+        $color = $resultType->toColorString();
+
+        $message = $details['message'] ?? 'Validation error';
+
+        return "- <fg=$color>$level</> {$prefix}$message";
+    }
+
+    public function distributeIssuesForDisplay(FileSet $fileSet): array
+    {
+        $distribution = [];
+
+        foreach ($this->issues as $issue) {
+            $fileName = $issue->getFile();
+            if (empty($fileName)) {
+                continue;
+            }
+            
+            // Build full path from fileSet and filename for consistency
+            $basePath = rtrim($fileSet->getPath(), '/');
+            $filePath = $basePath.'/'.$fileName;
+
+            if (!isset($distribution[$filePath])) {
+                $distribution[$filePath] = [];
+            }
+            $distribution[$filePath][] = $issue;
+        }
+
+        return $distribution;
+    }
+
+    public function shouldShowDetailedOutput(): bool
+    {
+        return false;
+    }
+
+    public function renderDetailedOutput(OutputInterface $output, array $issues): void
+    {
+        // Default implementation: no detailed output
     }
 }

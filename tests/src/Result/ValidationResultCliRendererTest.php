@@ -262,6 +262,24 @@ class ValidationResultCliRendererTest extends TestCase
         $validator = $this->createMock(ValidatorInterface::class);
         $validator->method('renderIssueSets');
         $validator->method('explain')->willReturn('Mock validator explanation');
+        $validator->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
+        $validator->method('formatIssueMessage')->willReturnCallback(function($issue, $prefix = '', $isVerbose = false) {
+            return "- <fg=red>ERROR</> {$prefix}Validation error";
+        });
+        $validator->method('distributeIssuesForDisplay')->willReturnCallback(function($fileSet) use ($validator) {
+            $distribution = [];
+            foreach ($validator->getIssues() as $issue) {
+                $fileName = $issue->getFile();
+                if (!empty($fileName)) {
+                    $basePath = rtrim($fileSet->getPath(), '/');
+                    $filePath = $basePath.'/'.$fileName;
+                    $distribution[$filePath][] = $issue;
+                }
+            }
+            return $distribution;
+        });
+        $validator->method('shouldShowDetailedOutput')->willReturn(false);
+        $validator->method('renderDetailedOutput');
 
         return $validator;
     }

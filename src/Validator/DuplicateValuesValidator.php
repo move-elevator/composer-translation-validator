@@ -123,4 +123,23 @@ class DuplicateValuesValidator extends AbstractValidator implements ValidatorInt
     {
         return ResultType::WARNING;
     }
+
+    public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
+    {
+        $details = $issue->getDetails();
+        $resultType = $this->resultTypeOnValidationFailure();
+
+        $level = $resultType->toString();
+        $color = $resultType->toColorString();
+
+        $messages = [];
+        foreach ($details as $value => $keys) {
+            if (is_string($value) && is_array($keys)) {
+                $keyList = implode('`, `', $keys);
+                $messages[] = "- <fg=$color>$level</> {$prefix}the translation value `$value` occurs in multiple keys (`$keyList`)";
+            }
+        }
+
+        return implode("\n", $messages);
+    }
 }

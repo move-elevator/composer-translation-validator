@@ -34,4 +34,22 @@ enum ResultType: int
 
         return Command::SUCCESS;
     }
+
+    public function toString(): string
+    {
+        return match ($this) {
+            self::SUCCESS => 'Success',
+            self::WARNING => 'Warning',
+            self::ERROR => 'Error',
+        };
+    }
+
+    public function toColorString(): string
+    {
+        return match ($this) {
+            self::SUCCESS => 'green',
+            self::WARNING => 'yellow',
+            self::ERROR => 'red',
+        };
+    }
 }

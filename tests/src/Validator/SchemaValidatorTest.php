@@ -167,9 +167,9 @@ EOT
 +-----------+---------+------+-----------------+------+
 | File      | Level   | Code | Message         | Line |
 +-----------+---------+------+-----------------+------+
-| file1.xlf | ERROR   | 76   | was not closed. | 10   |
+| file1.xlf | Error   | 76   | was not closed. | 10   |
 +-----------+---------+------+-----------------+------+
-| file2.xlf | WARNING | 77   | Some warning.   | 5    |
+| file2.xlf | Warning | 77   | Some warning.   | 5    |
 +-----------+---------+------+-----------------+------+
 EOT;
 
