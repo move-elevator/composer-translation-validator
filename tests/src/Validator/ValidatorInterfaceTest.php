@@ -100,15 +100,6 @@ final class ValidatorInterfaceTest extends TestCase
 
         $this->assertSame('TestValidatorImplementation', $result);
     }
-
-    public function testGetShortNameWithNamespace(): void
-    {
-        $validator = new TestValidatorImplementation();
-
-        $result = $validator->getShortName();
-
-        $this->assertSame('TestValidatorImplementation', $result);
-    }
 }
 
 // Test implementation classes

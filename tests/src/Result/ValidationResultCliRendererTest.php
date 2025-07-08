@@ -259,11 +259,11 @@ class ValidationResultCliRendererTest extends TestCase
     {
         // Test path normalization behavior through actual rendering
         $validator = $this->createMockValidator();
-        $issue = new Issue('test.xlf', ['key' => 'value'], 'TestParser', 'TestValidator');
+        $issue = new Issue('sub/dir/test.xlf', ['key' => 'value'], 'TestParser', 'TestValidator');
         $validator->method('hasIssues')->willReturn(true);
         $validator->method('getIssues')->willReturn([$issue]);
 
-        $fileSet = new FileSet('TestParser', '/full/path/to', 'setKey', ['test.xlf']);
+        $fileSet = new FileSet('TestParser', '/full/path/to', 'setKey', ['sub/dir/test.xlf']);
         $validationResult = new ValidationResult(
             [$validator],
             ResultType::ERROR,
@@ -273,8 +273,8 @@ class ValidationResultCliRendererTest extends TestCase
         $this->renderer->render($validationResult);
         $output = $this->output->fetch();
 
-        // Should contain normalized path
-        $this->assertStringContainsString('test.xlf', $output);
+        // Should contain normalized path (relative to working directory)
+        $this->assertStringContainsString('sub/dir/test.xlf', $output);
     }
 
     public function testSortIssuesBySeverity(): void
@@ -299,10 +299,10 @@ class ValidationResultCliRendererTest extends TestCase
 
         $sorted = $method->invoke($this->renderer, $fileIssues);
 
-        // Test that sorting actually occurred - array should have 2 elements
+        // Test that sorting actually occurred - errors should come before warnings
         $this->assertCount(2, $sorted);
-        $this->assertArrayHasKey('validator', $sorted[0]);
-        $this->assertArrayHasKey('issue', $sorted[0]);
+        $this->assertSame(ResultType::ERROR, $sorted[0]['validator']->resultTypeOnValidationFailure());
+        $this->assertSame(ResultType::ERROR, $sorted[1]['validator']->resultTypeOnValidationFailure());
     }
 
     public function testSortValidatorGroupsBySeverity(): void
@@ -363,7 +363,7 @@ class ValidationResultCliRendererTest extends TestCase
     {
         $validator = $this->createMock(ValidatorInterface::class);
         $validator->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
-        $validator->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = '', bool $isVerbose = false): string => "- <fg=red>ERROR</> {$prefix}Validation error");
+        $validator->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = '', bool $isVerbose = false): string => $isVerbose ? '- <fg=red>ERROR</> Validation error' : "- <fg=red>ERROR</> {$prefix}Validation error");
         $validator->method('distributeIssuesForDisplay')->willReturnCallback(function (FileSet $fileSet) use ($validator): array {
             $distribution = [];
             foreach ($validator->getIssues() as $issue) {

@@ -232,7 +232,7 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
     {
         $prefix = $isVerbose ? '' : "($validatorName) ";
 
-        return $validator->formatIssueMessage($issue, $prefix, $isVerbose);
+        return $validator->formatIssueMessage($issue, $prefix);
     }
 
     private function renderSummary(ResultType $resultType): void

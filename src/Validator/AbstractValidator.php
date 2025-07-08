@@ -122,7 +122,7 @@ abstract class AbstractValidator implements ValidatorInterface
         $this->issues = [];
     }
 
-    public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
+    public function formatIssueMessage(Issue $issue, string $prefix = ''): string
     {
         $details = $issue->getDetails();
         $resultType = $this->resultTypeOnValidationFailure();

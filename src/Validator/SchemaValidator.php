@@ -46,7 +46,7 @@ class SchemaValidator extends AbstractValidator implements ValidatorInterface
         return [];
     }
 
-    public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
+    public function formatIssueMessage(Issue $issue, string $prefix = ''): string
     {
         $details = $issue->getDetails();
         $messages = [];

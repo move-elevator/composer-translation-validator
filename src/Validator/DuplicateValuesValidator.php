@@ -58,7 +58,7 @@ class DuplicateValuesValidator extends AbstractValidator implements ValidatorInt
         }
     }
 
-    public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
+    public function formatIssueMessage(Issue $issue, string $prefix = ''): string
     {
         $details = $issue->getDetails();
         $resultType = $this->resultTypeOnValidationFailure();
