@@ -192,10 +192,6 @@ class ValidationResultTest extends TestCase
                 return [];
             }
 
-            public function renderIssueSets(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface $output, array $issueSets): void
-            {
-            }
-
             public function explain(): string
             {
                 return '';
@@ -227,6 +223,7 @@ class ValidationResultTest extends TestCase
                         $distribution[$filePath][] = $issue;
                     }
                 }
+
                 return $distribution;
             }
 
@@ -237,6 +234,11 @@ class ValidationResultTest extends TestCase
 
             public function renderDetailedOutput(\Symfony\Component\Console\Output\OutputInterface $output, array $issues): void
             {
+            }
+
+            public function getShortName(): string
+            {
+                return static::class;
             }
         };
 
@@ -263,10 +265,6 @@ class ValidationResultTest extends TestCase
             public function processFile(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface $file): array
             {
                 return [];
-            }
-
-            public function renderIssueSets(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface $output, array $issueSets): void
-            {
             }
 
             public function explain(): string
@@ -300,6 +298,7 @@ class ValidationResultTest extends TestCase
                         $distribution[$filePath][] = $issue;
                     }
                 }
+
                 return $distribution;
             }
 
@@ -310,6 +309,11 @@ class ValidationResultTest extends TestCase
 
             public function renderDetailedOutput(\Symfony\Component\Console\Output\OutputInterface $output, array $issues): void
             {
+            }
+
+            public function getShortName(): string
+            {
+                return static::class;
             }
         };
 
@@ -371,10 +375,6 @@ class ValidationResultTest extends TestCase
                 return [];
             }
 
-            public function renderIssueSets(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface $output, array $issueSets): void
-            {
-            }
-
             public function explain(): string
             {
                 return '';
@@ -406,6 +406,7 @@ class ValidationResultTest extends TestCase
                         $distribution[$filePath][] = $issue;
                     }
                 }
+
                 return $distribution;
             }
 
@@ -416,6 +417,11 @@ class ValidationResultTest extends TestCase
 
             public function renderDetailedOutput(\Symfony\Component\Console\Output\OutputInterface $output, array $issues): void
             {
+            }
+
+            public function getShortName(): string
+            {
+                return static::class;
             }
         };
 
@@ -442,10 +448,6 @@ class ValidationResultTest extends TestCase
             public function processFile(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface $file): array
             {
                 return [];
-            }
-
-            public function renderIssueSets(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface $output, array $issueSets): void
-            {
             }
 
             public function explain(): string
@@ -480,6 +482,11 @@ class ValidationResultTest extends TestCase
 
             public function renderDetailedOutput(\Symfony\Component\Console\Output\OutputInterface $output, array $issues): void
             {
+            }
+
+            public function getShortName(): string
+            {
+                return static::class;
             }
         };
 

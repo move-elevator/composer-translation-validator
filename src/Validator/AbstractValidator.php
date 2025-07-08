@@ -144,7 +144,7 @@ abstract class AbstractValidator implements ValidatorInterface
             if (empty($fileName)) {
                 continue;
             }
-            
+
             // Build full path from fileSet and filename for consistency
             $basePath = rtrim($fileSet->getPath(), '/');
             $filePath = $basePath.'/'.$fileName;
@@ -166,5 +166,12 @@ abstract class AbstractValidator implements ValidatorInterface
     public function renderDetailedOutput(OutputInterface $output, array $issues): void
     {
         // Default implementation: no detailed output
+    }
+
+    public function getShortName(): string
+    {
+        $classPart = strrchr(static::class, '\\');
+
+        return false !== $classPart ? substr($classPart, 1) : static::class;
     }
 }

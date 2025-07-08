@@ -8,8 +8,6 @@ use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Validator\SchemaValidator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\BufferedOutput;
 
 final class SchemaValidatorTest extends TestCase
 {
@@ -115,65 +113,6 @@ EOT
         $result = $validator->processFile($parser);
 
         $this->assertEmpty($result);
-    }
-
-    public function testRenderIssueSets(): void
-    {
-        $input = $this->createMock(InputInterface::class);
-        $output = new BufferedOutput();
-
-        $issueSets = [
-            'file1.xlf' => [
-                [
-                    'file' => 'file1.xlf',
-                    'issues' => [
-                        [
-                            'level' => (string) LIBXML_ERR_ERROR,
-                            'code' => 76,
-                            'message' => 'Element \'trans-unit\' was not closed.',
-                            'file' => 'file1.xlf',
-                            'line' => 10,
-                            'column' => 0,
-                        ],
-                    ],
-                    'parser' => 'Parser\Class',
-                    'type' => 'Schema',
-                ],
-            ],
-            'file2.xlf' => [
-                [
-                    'file' => 'file2.xlf',
-                    'issues' => [
-                        [
-                            'level' => (string) LIBXML_ERR_WARNING,
-                            'code' => 77,
-                            'message' => 'Some warning.',
-                            'file' => 'file2.xlf',
-                            'line' => 5,
-                            'column' => 0,
-                        ],
-                    ],
-                    'parser' => 'Parser\Class',
-                    'type' => 'Schema',
-                ],
-            ],
-        ];
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $validator = new SchemaValidator($logger);
-        $validator->renderIssueSets($input, $output, $issueSets);
-
-        $expectedOutput = <<<'EOT'
-+-----------+---------+------+-----------------+------+
-| File      | Level   | Code | Message         | Line |
-+-----------+---------+------+-----------------+------+
-| file1.xlf | Error   | 76   | was not closed. | 10   |
-+-----------+---------+------+-----------------+------+
-| file2.xlf | Warning | 77   | Some warning.   | 5    |
-+-----------+---------+------+-----------------+------+
-EOT;
-
-        $this->assertSame(trim($expectedOutput), trim($output->fetch()));
     }
 
     public function testExplain(): void

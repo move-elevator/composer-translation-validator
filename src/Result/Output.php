@@ -7,12 +7,9 @@ namespace MoveElevator\ComposerTranslationValidator\Result;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class Output
 {
-    protected SymfonyStyle $io;
-
     public function __construct(
         protected LoggerInterface $logger,
         protected OutputInterface $output,
@@ -22,7 +19,6 @@ class Output
         protected bool $dryRun = false,
         protected bool $strict = false,
     ) {
-        $this->io = new SymfonyStyle($this->input, $this->output);
     }
 
     /**
@@ -34,19 +30,14 @@ class Output
      */
     public function summarize(): int
     {
-        return match ($this->format) {
-            FormatType::CLI => (new ValidationResultCliRenderer(
-                $this->output,
-                $this->input,
-                $this->dryRun,
-                $this->strict
-            ))->render($this->validationResult),
+        $renderer = ValidationResultRendererFactory::create(
+            $this->format,
+            $this->output,
+            $this->input,
+            $this->dryRun,
+            $this->strict
+        );
 
-            FormatType::JSON => (new ValidationResultJsonRenderer(
-                $this->output,
-                $this->dryRun,
-                $this->strict
-            ))->render($this->validationResult),
-        };
+        return $renderer->render($this->validationResult);
     }
 }

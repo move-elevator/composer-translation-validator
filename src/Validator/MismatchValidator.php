@@ -11,7 +11,6 @@ use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableStyle;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class MismatchValidator extends AbstractValidator implements ValidatorInterface
@@ -71,47 +70,6 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
                 ));
             }
         }
-    }
-
-    /**
-     * @param array<string, array<int, array<mixed>>> $issueSets
-     */
-    public function renderIssueSets(InputInterface $input, OutputInterface $output, array $issueSets): void
-    {
-        $rows = [];
-        $header = ['Key'];
-        $allFiles = [];
-
-        foreach ($issueSets as $issuesPerFile) {
-            foreach ($issuesPerFile as $issues) {
-                // Handle both new format (with 'issues' key) and old format (direct data)
-                if (isset($issues['issues']) && is_array($issues['issues'])) {
-                    $issueData = $issues['issues'];
-                } else {
-                    $issueData = $issues;
-                }
-                $key = $issueData['key'];
-                $files = $issueData['files'];
-                if (empty($allFiles)) {
-                    $allFiles = array_column($files, 'file');
-                    $header = array_merge(['Key'], array_map(static fn ($f) => "<fg=red>$f</>", $allFiles));
-                }
-                $row = [$key];
-                foreach ($files as $fileInfo) {
-                    $row[] = $fileInfo['value'] ?? '<fg=yellow><missing></>';
-                }
-                $rows[] = $row;
-            }
-        }
-
-        (new Table($output))
-            ->setHeaders($header)
-            ->setRows($rows)
-            ->setStyle(
-                (new TableStyle())
-                    ->setCellHeaderFormat('%s')
-            )
-            ->render();
     }
 
     public function explain(): string

@@ -52,11 +52,6 @@ class ConcreteValidator extends AbstractValidator implements ValidatorInterface
         return parent::validate($files, $parserClass);
     }
 
-    public function renderIssueSets(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface $output, array $issueSets): void
-    {
-        // Dummy implementation for testing AbstractValidator
-    }
-
     public function postProcess(): void
     {
         if ($this->addPostProcessIssue) {
@@ -67,6 +62,11 @@ class ConcreteValidator extends AbstractValidator implements ValidatorInterface
                 'ConcreteValidator'
             ));
         }
+    }
+
+    public function getShortName(): string
+    {
+        return static::class;
     }
 }
 

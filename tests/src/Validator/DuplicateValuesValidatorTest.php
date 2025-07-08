@@ -12,8 +12,6 @@ use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\BufferedOutput;
 
 final class DuplicateValuesValidatorTest extends TestCase
 {
@@ -203,48 +201,6 @@ final class DuplicateValuesValidatorTest extends TestCase
 
         // Verify issues are also reset (from parent)
         $this->assertFalse($validator->hasIssues());
-    }
-
-    public function testRenderIssueSets(): void
-    {
-        $input = $this->createMock(InputInterface::class);
-        $output = new BufferedOutput();
-
-        $issueSets = [
-            'file1.xlf' => [
-                [
-                    'file' => 'file1.xlf',
-                    'issues' => [
-                        'valueA' => ['key1', 'key3'],
-                    ],
-                ],
-            ],
-            'file2.xlf' => [
-                [
-                    'file' => 'file2.xlf',
-                    'issues' => [
-                        'valueX' => ['keyA', 'keyB'],
-                    ],
-                ],
-            ],
-        ];
-
-        $validator = new DuplicateValuesValidator($this->loggerMock);
-        $validator->renderIssueSets($input, $output, $issueSets);
-
-        $expectedOutput = <<<'EOT'
-+-----------+------+--------+
-| File      | Key  | Value  |
-+-----------+------+--------+
-| file1.xlf | key1 | valueA |
-|           | key3 |        |
-+-----------+------+--------+
-| file2.xlf | keyA | valueX |
-|           | keyB |        |
-+-----------+------+--------+
-EOT;
-
-        $this->assertSame(trim($expectedOutput), trim($output->fetch()));
     }
 
     public function testExplain(): void

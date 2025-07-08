@@ -7,7 +7,6 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 interface ValidatorInterface
@@ -16,11 +15,6 @@ interface ValidatorInterface
      * @return array<string, mixed>
      */
     public function processFile(ParserInterface $file): array;
-
-    /**
-     * @param array<string, mixed> $issueSets
-     */
-    public function renderIssueSets(InputInterface $input, OutputInterface $output, array $issueSets): void;
 
     public function explain(): string;
 
@@ -49,25 +43,31 @@ interface ValidatorInterface
     public function addIssue(Issue $issue): void;
 
     /**
-     * Format an issue for CLI display
+     * Format an issue for CLI display.
      */
     public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string;
 
     /**
-     * Distribute issues across files for grouped display
-     * @param FileSet $fileSet
+     * Distribute issues across files for grouped display.
+     *
      * @return array<string, array<Issue>> Array with file paths as keys and issues as values
      */
     public function distributeIssuesForDisplay(FileSet $fileSet): array;
 
     /**
-     * Check if this validator should show detailed output in verbose mode
+     * Check if this validator should show detailed output in verbose mode.
      */
     public function shouldShowDetailedOutput(): bool;
 
     /**
-     * Render detailed output for this validator in verbose mode
+     * Render detailed output for this validator in verbose mode.
+     *
      * @param array<Issue> $issues
      */
     public function renderDetailedOutput(OutputInterface $output, array $issues): void;
+
+    /**
+     * Get short name of the validator (class name without namespace).
+     */
+    public function getShortName(): string;
 }

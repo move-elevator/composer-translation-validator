@@ -8,7 +8,6 @@ use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Input\InputInterface;
 
 final class MismatchValidatorTest extends TestCase
 {
@@ -180,48 +179,6 @@ final class MismatchValidatorTest extends TestCase
 
         // Verify issues are also reset (from parent)
         $this->assertFalse($validator->hasIssues());
-    }
-
-    public function testRenderIssueSets(): void
-    {
-        $input = $this->createMock(InputInterface::class);
-        $output = new \Symfony\Component\Console\Output\BufferedOutput();
-
-        $issueSets = [
-            'dummy_file.xlf' => [
-                [
-                    'key' => 'key1',
-                    'files' => [
-                        ['file' => 'file1.xlf', 'value' => 'key1'],
-                        ['file' => 'file2.xlf', 'value' => null],
-                    ],
-                ],
-            ],
-            'dummy_file_2.xlf' => [
-                [
-                    'key' => 'key3',
-                    'files' => [
-                        ['file' => 'file1.xlf', 'value' => null],
-                        ['file' => 'file2.xlf', 'value' => 'key3'],
-                    ],
-                ],
-            ],
-        ];
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $validator = new MismatchValidator($logger);
-        $validator->renderIssueSets($input, $output, $issueSets);
-
-        $expectedOutput = <<<'EOT'
-+------+-----------+-----------+
-| Key  | file1.xlf | file2.xlf |
-+------+-----------+-----------+
-| key1 | key1      | <missing> |
-| key3 | <missing> | key3      |
-+------+-----------+-----------+
-EOT;
-
-        $this->assertStringContainsString(trim($expectedOutput), trim($output->fetch()));
     }
 
     public function testExplain(): void

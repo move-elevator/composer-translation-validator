@@ -7,11 +7,6 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
-use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Helper\TableSeparator;
-use Symfony\Component\Console\Helper\TableStyle;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class DuplicateKeysValidator extends AbstractValidator implements ValidatorInterface
 {
@@ -34,42 +29,6 @@ class DuplicateKeysValidator extends AbstractValidator implements ValidatorInter
         }
 
         return [];
-    }
-
-    /**
-     * @param array<string, array<int, array{
-     *      file: string,
-     *      issues: array<string, int>,
-     *      parser: string,
-     *      type: string
-     *  }>> $issueSets
-     */
-    public function renderIssueSets(InputInterface $input, OutputInterface $output, array $issueSets): void
-    {
-        $rows = [];
-        $currentFile = null;
-
-        foreach ($issueSets as $issues) {
-            foreach ($issues as $duplicates) {
-                if ($currentFile !== $duplicates['file'] && null !== $currentFile) {
-                    $rows[] = new TableSeparator();
-                }
-                $currentFile = $duplicates['file'];
-                foreach ($duplicates['issues'] as $key => $count) {
-                    $rows[] = ['<fg=red>'.$duplicates['file'].'</>', $key, $count];
-                    $duplicates['file'] = ''; // Reset file for subsequent rows
-                }
-            }
-        }
-
-        (new Table($output))
-            ->setHeaders(['File', 'Key', 'Count duplicates'])
-            ->setRows($rows)
-            ->setStyle(
-                (new TableStyle())
-                    ->setCellHeaderFormat('%s')
-            )
-            ->render();
     }
 
     public function explain(): string

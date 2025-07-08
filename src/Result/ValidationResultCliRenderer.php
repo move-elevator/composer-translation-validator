@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Result;
 
+use MoveElevator\ComposerTranslationValidator\Utility\PathUtility;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class ValidationResultCliRenderer
+class ValidationResultCliRenderer implements ValidationResultRendererInterface
 {
     private readonly SymfonyStyle $io;
 
@@ -72,20 +73,18 @@ class ValidationResultCliRenderer
         }
 
         foreach ($groupedByFile as $filePath => $fileIssues) {
-            $relativePath = $this->getRelativePath($filePath);
+            $relativePath = PathUtility::normalizeFolderPath($filePath);
             $this->io->writeln("<fg=cyan>$relativePath</>");
             $this->io->newLine();
 
-            // Sort issues by severity (errors first, warnings second)
             $sortedIssues = $this->sortIssuesBySeverity($fileIssues);
 
             foreach ($sortedIssues as $fileIssue) {
                 $validator = $fileIssue['validator'];
                 $issue = $fileIssue['issue'];
-                $validatorName = $this->getValidatorShortName($validator::class);
+                $validatorName = $validator->getShortName();
 
                 $message = $this->formatIssueMessage($validator, $issue, $validatorName);
-                // Handle multiple lines from formatIssueMessage
                 $lines = explode("\n", $message);
                 foreach ($lines as $line) {
                     if (!empty(trim($line))) {
@@ -116,7 +115,6 @@ class ValidationResultCliRenderer
                 continue;
             }
 
-            // Use validator's distribution method to handle file-specific issues
             $distributedIssues = $validator->distributeIssuesForDisplay($fileSet);
             $validatorClass = $validator::class;
 
@@ -138,23 +136,21 @@ class ValidationResultCliRenderer
         }
 
         foreach ($groupedByFile as $filePath => $validatorGroups) {
-            $relativePath = $this->getRelativePath($filePath);
+            $relativePath = PathUtility::normalizeFolderPath($filePath);
             $this->io->writeln("<fg=cyan>$relativePath</>");
             $this->io->newLine();
 
-            // Sort validator groups by severity (errors first, warnings second)
             $sortedValidatorGroups = $this->sortValidatorGroupsBySeverity($validatorGroups);
 
             foreach ($sortedValidatorGroups as $validatorClass => $data) {
                 $validator = $data['validator'];
                 $issues = $data['issues'];
-                $validatorName = $this->getValidatorShortName($validatorClass);
+                $validatorName = $validator->getShortName();
 
                 $this->io->writeln("  <options=bold>$validatorName</>");
 
                 foreach ($issues as $issue) {
                     $message = $this->formatIssueMessage($validator, $issue, '', true);
-                    // Handle multiple lines from formatIssueMessage
                     $lines = explode("\n", $message);
                     foreach ($lines as $line) {
                         if (!empty(trim($line))) {
@@ -163,7 +159,6 @@ class ValidationResultCliRenderer
                     }
                 }
 
-                // Show detailed tables for certain validators in verbose mode
                 if ($validator->shouldShowDetailedOutput()) {
                     $this->io->newLine();
                     $validator->renderDetailedOutput($this->output, $issues);
@@ -172,28 +167,6 @@ class ValidationResultCliRenderer
                 $this->io->newLine();
             }
         }
-    }
-
-    private function getValidatorShortName(string $validatorClass): string
-    {
-        $parts = explode('\\', $validatorClass);
-
-        return end($parts);
-    }
-
-    private function getRelativePath(string $filePath): string
-    {
-        // If already relative (starts with ./), return as-is
-        if (str_starts_with($filePath, './')) {
-            return $filePath;
-        }
-
-        $cwd = getcwd();
-        if ($cwd && str_starts_with($filePath, $cwd)) {
-            return '.'.substr($filePath, strlen($cwd));
-        }
-
-        return $filePath;
     }
 
     /**
@@ -207,7 +180,6 @@ class ValidationResultCliRenderer
             $severityA = $this->getIssueSeverity($a['validator']);
             $severityB = $this->getIssueSeverity($b['validator']);
 
-            // Errors (1) come before warnings (2)
             return $severityA <=> $severityB;
         });
 
@@ -225,7 +197,6 @@ class ValidationResultCliRenderer
             $severityA = $this->getValidatorSeverity($validatorClassA);
             $severityB = $this->getValidatorSeverity($validatorClassB);
 
-            // Errors (1) come before warnings (2)
             return $severityA <=> $severityB;
         });
 
@@ -239,29 +210,25 @@ class ValidationResultCliRenderer
 
     private function getValidatorSeverity(string $validatorClass): int
     {
-        // For SchemaValidator, maintain current behavior (always ERROR)
         if (str_contains($validatorClass, 'SchemaValidator')) {
             return 1; // Error
         }
 
-        // For other validators, use their ResultType to determine severity
         try {
             $reflection = new \ReflectionClass($validatorClass);
             if ($reflection->isInstantiable()) {
                 $validator = $reflection->newInstance();
                 if ($validator instanceof ValidatorInterface) {
                     $resultType = $validator->resultTypeOnValidationFailure();
-                    return $resultType === ResultType::ERROR ? 1 : 2;
+
+                    return ResultType::ERROR === $resultType ? 1 : 2;
                 }
             }
-        } catch (\ReflectionException | \Throwable $e) {
-            // Fallback to error if we can't instantiate the validator
+        } catch (\Throwable $e) {
         }
 
-        // Fallback to error
         return 1; // Error
     }
-
 
     private function formatIssueMessage(ValidatorInterface $validator, Issue $issue, string $validatorName = '', bool $isVerbose = false): string
     {
@@ -269,7 +236,6 @@ class ValidationResultCliRenderer
 
         return $validator->formatIssueMessage($issue, $prefix, $isVerbose);
     }
-
 
     private function renderSummary(ResultType $resultType): void
     {

@@ -8,7 +8,6 @@ use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Input\InputInterface;
 
 final class DuplicateKeysValidatorTest extends TestCase
 {
@@ -57,53 +56,6 @@ final class DuplicateKeysValidatorTest extends TestCase
         $result = $validator->processFile($parser);
 
         $this->assertEmpty($result);
-    }
-
-    public function testRenderIssueSets(): void
-    {
-        $input = $this->createMock(InputInterface::class);
-        $output = new \Symfony\Component\Console\Output\BufferedOutput();
-
-        $issueSets = [
-            'file1.xlf' => [
-                [
-                    'file' => 'file1.xlf',
-                    'issues' => [
-                        'keyA' => 2,
-                        'keyB' => 3,
-                    ],
-                    'parser' => 'Parser\Class',
-                    'type' => 'Duplicates',
-                ],
-            ],
-            'file2.xlf' => [
-                [
-                    'file' => 'file2.xlf',
-                    'issues' => [
-                        'keyC' => 2,
-                    ],
-                    'parser' => 'Parser\Class',
-                    'type' => 'Duplicates',
-                ],
-            ],
-        ];
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $validator = new DuplicateKeysValidator($logger);
-        $validator->renderIssueSets($input, $output, $issueSets);
-
-        $expectedOutput = <<<'EOT'
-+-----------+------+------------------+
-| File      | Key  | Count duplicates |
-+-----------+------+------------------+
-| file1.xlf | keyA | 2                |
-|           | keyB | 3                |
-+-----------+------+------------------+
-| file2.xlf | keyC | 2                |
-+-----------+------+------------------+
-EOT;
-
-        $this->assertSame(trim($expectedOutput), trim($output->fetch()));
     }
 
     public function testExplain(): void

@@ -260,13 +260,12 @@ class ValidationResultCliRendererTest extends TestCase
     private function createMockValidator(): ValidatorInterface|MockObject
     {
         $validator = $this->createMock(ValidatorInterface::class);
-        $validator->method('renderIssueSets');
         $validator->method('explain')->willReturn('Mock validator explanation');
         $validator->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
-        $validator->method('formatIssueMessage')->willReturnCallback(function($issue, $prefix = '', $isVerbose = false) {
+        $validator->method('formatIssueMessage')->willReturnCallback(function ($issue, $prefix = '', $isVerbose = false) {
             return "- <fg=red>ERROR</> {$prefix}Validation error";
         });
-        $validator->method('distributeIssuesForDisplay')->willReturnCallback(function($fileSet) use ($validator) {
+        $validator->method('distributeIssuesForDisplay')->willReturnCallback(function ($fileSet) use ($validator) {
             $distribution = [];
             foreach ($validator->getIssues() as $issue) {
                 $fileName = $issue->getFile();
@@ -276,10 +275,12 @@ class ValidationResultCliRendererTest extends TestCase
                     $distribution[$filePath][] = $issue;
                 }
             }
+
             return $distribution;
         });
         $validator->method('shouldShowDetailedOutput')->willReturn(false);
         $validator->method('renderDetailedOutput');
+        $validator->method('getShortName')->willReturn('MockObject_ValidatorInterface');
 
         return $validator;
     }

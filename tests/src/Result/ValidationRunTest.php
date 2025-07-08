@@ -204,10 +204,6 @@ class MockValidatorWithoutIssues implements ValidatorInterface
         return [];
     }
 
-    public function renderIssueSets(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface $output, array $issueSets): void
-    {
-    }
-
     public function explain(): string
     {
         return 'Mock validator without issues';
@@ -242,7 +238,7 @@ class MockValidatorWithoutIssues implements ValidatorInterface
         return "- <fg=red>ERROR</> {$prefix}Mock validation error";
     }
 
-    public function distributeIssuesForDisplay(\MoveElevator\ComposerTranslationValidator\FileDetector\FileSet $fileSet): array
+    public function distributeIssuesForDisplay(FileSet $fileSet): array
     {
         return [];
     }
@@ -254,6 +250,11 @@ class MockValidatorWithoutIssues implements ValidatorInterface
 
     public function renderDetailedOutput(\Symfony\Component\Console\Output\OutputInterface $output, array $issues): void
     {
+    }
+
+    public function getShortName(): string
+    {
+        return static::class;
     }
 }
 
@@ -279,10 +280,6 @@ class MockValidatorWithIssues implements ValidatorInterface
     public function processFile(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface $file): array
     {
         return ['mock_issue' => 'test'];
-    }
-
-    public function renderIssueSets(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface $output, array $issueSets): void
-    {
     }
 
     public function explain(): string
@@ -319,7 +316,7 @@ class MockValidatorWithIssues implements ValidatorInterface
         return "- <fg=red>ERROR</> {$prefix}Mock validation error with issues";
     }
 
-    public function distributeIssuesForDisplay(\MoveElevator\ComposerTranslationValidator\FileDetector\FileSet $fileSet): array
+    public function distributeIssuesForDisplay(FileSet $fileSet): array
     {
         $distribution = [];
         foreach ($this->getIssues() as $issue) {
@@ -330,6 +327,7 @@ class MockValidatorWithIssues implements ValidatorInterface
                 $distribution[$filePath][] = $issue;
             }
         }
+
         return $distribution;
     }
 
@@ -340,5 +338,10 @@ class MockValidatorWithIssues implements ValidatorInterface
 
     public function renderDetailedOutput(\Symfony\Component\Console\Output\OutputInterface $output, array $issues): void
     {
+    }
+
+    public function getShortName(): string
+    {
+        return static::class;
     }
 }
