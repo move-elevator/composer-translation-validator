@@ -18,6 +18,7 @@ class ValidationResult
         private readonly array $validatorInstances,
         private readonly ResultType $overallResult,
         private readonly array $validatorFileSetPairs = [],
+        private readonly ?ValidationStatistics $statistics = null,
     ) {
     }
 
@@ -59,5 +60,10 @@ class ValidationResult
     public function getValidatorFileSetPairs(): array
     {
         return $this->validatorFileSetPairs;
+    }
+
+    public function getStatistics(): ?ValidationStatistics
+    {
+        return $this->statistics;
     }
 }

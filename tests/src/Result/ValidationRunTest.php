@@ -177,9 +177,94 @@ class ValidationRunTest extends TestCase
         $this->assertSame('', $fileSets[0]->getSetKey());
         $this->assertSame([], $fileSets[0]->getFiles());
     }
+
+    public function testExecuteForCreatesStatistics(): void
+    {
+        $validatorClass = MockValidatorWithIssues::class;
+        $fileSet = new FileSet(MockParserForTesting::class, '/test', 'set', ['test.xlf']);
+
+        $validationRun = new ValidationRun($this->logger);
+        $result = $validationRun->executeFor([$fileSet], [$validatorClass]);
+
+        $statistics = $result->getStatistics();
+        $this->assertInstanceOf(\MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics::class, $statistics);
+        $this->assertGreaterThan(0, $statistics->getExecutionTime());
+        $this->assertSame(1, $statistics->getFilesChecked());
+        $this->assertSame(1, $statistics->getValidatorsRun());
+        $this->assertGreaterThanOrEqual(0, $statistics->getKeysChecked());
+    }
+
+    public function testExecuteForWithMultipleFilesSetsStatistics(): void
+    {
+        $validatorClass1 = MockValidatorWithIssues::class;
+        $validatorClass2 = MockValidatorWithoutIssues::class;
+
+        $fileSet1 = new FileSet(MockParserForTesting::class, '/path1', 'set1', ['file1.xlf', 'file2.xlf']);
+        $fileSet2 = new FileSet(MockParserForTesting::class, '/path2', 'set2', ['file3.xlf']);
+
+        $validationRun = new ValidationRun($this->logger);
+        $result = $validationRun->executeFor(
+            [$fileSet1, $fileSet2],
+            [$validatorClass1, $validatorClass2]
+        );
+
+        $statistics = $result->getStatistics();
+        $this->assertInstanceOf(\MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics::class, $statistics);
+        $this->assertGreaterThan(0, $statistics->getExecutionTime());
+        $this->assertSame(3, $statistics->getFilesChecked()); // 2 + 1 files
+        $this->assertSame(2, $statistics->getValidatorsRun()); // 2 validator classes
+        $this->assertGreaterThanOrEqual(0, $statistics->getKeysChecked());
+    }
+
+    public function testExecuteForWithEmptyFileSetGeneratesZeroKeys(): void
+    {
+        $validationRun = new ValidationRun($this->logger);
+        $result = $validationRun->executeFor([], []);
+
+        $statistics = $result->getStatistics();
+        $this->assertInstanceOf(\MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics::class, $statistics);
+        $this->assertGreaterThanOrEqual(0, $statistics->getExecutionTime());
+        $this->assertSame(0, $statistics->getFilesChecked());
+        $this->assertSame(0, $statistics->getValidatorsRun());
+        $this->assertSame(0, $statistics->getKeysChecked());
+    }
 }
 
 // Mock classes for testing
+class MockParserForTesting implements \MoveElevator\ComposerTranslationValidator\Parser\ParserInterface
+{
+    public function __construct(string $file)
+    {
+        // Mock parser doesn't actually read files
+        unset($file);
+    }
+
+    public function extractKeys(): ?array
+    {
+        return ['key1', 'key2', 'key3']; // Return 3 mock keys for testing
+    }
+
+    public function getContentByKey(string $key, string $attribute = 'source'): ?string
+    {
+        return "Mock content for {$key}";
+    }
+
+    public function getFileName(): string
+    {
+        return 'mock.xlf';
+    }
+
+    public static function getSupportedFileExtensions(): array
+    {
+        return ['xlf'];
+    }
+
+    public function getFilePath(): string
+    {
+        return '/mock/path/mock.xlf';
+    }
+}
+
 class MockValidatorWithoutIssues implements ValidatorInterface
 {
     public function __construct(?LoggerInterface $logger = null)

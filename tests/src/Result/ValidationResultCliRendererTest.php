@@ -358,6 +358,118 @@ class ValidationResultCliRendererTest extends TestCase
         $this->assertStringNotContainsString('(TestValidator)', $result);
     }
 
+    public function testRenderStatisticsInVerboseMode(): void
+    {
+        $statistics = new \MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics(
+            0.123,  // 123ms
+            5,      // files
+            15,     // keys
+            3       // validators
+        );
+
+        $validationResult = new ValidationResult([], ResultType::SUCCESS, [], $statistics);
+
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
+        $this->renderer->render($validationResult);
+        $output = $this->output->fetch();
+
+        $this->assertStringContainsString('Execution time: 123ms', $output);
+        $this->assertStringContainsString('Files checked: 5', $output);
+        $this->assertStringContainsString('Keys checked: 15', $output);
+        $this->assertStringContainsString('Validators run: 3', $output);
+    }
+
+    public function testRenderStatisticsWithSecondsInVerboseMode(): void
+    {
+        $statistics = new \MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics(
+            2.456,  // 2.46s
+            10,     // files
+            50,     // keys
+            4       // validators
+        );
+
+        $validationResult = new ValidationResult([], ResultType::SUCCESS, [], $statistics);
+
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
+        $this->renderer->render($validationResult);
+        $output = $this->output->fetch();
+
+        $this->assertStringContainsString('Execution time: 2.46s', $output);
+        $this->assertStringContainsString('Files checked: 10', $output);
+        $this->assertStringContainsString('Keys checked: 50', $output);
+        $this->assertStringContainsString('Validators run: 4', $output);
+    }
+
+    public function testRenderStatisticsNotShownInCompactMode(): void
+    {
+        $statistics = new \MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics(
+            0.123,
+            5,
+            15,
+            3
+        );
+
+        $validationResult = new ValidationResult([], ResultType::SUCCESS, [], $statistics);
+
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
+        $this->renderer->render($validationResult);
+        $output = $this->output->fetch();
+
+        $this->assertStringNotContainsString('Execution time:', $output);
+        $this->assertStringNotContainsString('Files checked:', $output);
+        $this->assertStringNotContainsString('Keys checked:', $output);
+        $this->assertStringNotContainsString('Validators run:', $output);
+    }
+
+    public function testRenderWithNullStatistics(): void
+    {
+        $validationResult = new ValidationResult([], ResultType::SUCCESS, [], null);
+
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
+        $this->renderer->render($validationResult);
+        $output = $this->output->fetch();
+
+        // Statistics should not be shown when null
+        $this->assertStringNotContainsString('Execution time:', $output);
+        $this->assertStringNotContainsString('Files checked:', $output);
+        $this->assertStringNotContainsString('Keys checked:', $output);
+        $this->assertStringNotContainsString('Validators run:', $output);
+    }
+
+    public function testStatisticsWithFailureInVerboseMode(): void
+    {
+        $validator = $this->createMockValidator();
+        $issue = new Issue('test.xlf', ['key' => 'value'], 'TestParser', 'TestValidator');
+        $validator->method('hasIssues')->willReturn(true);
+        $validator->method('getIssues')->willReturn([$issue]);
+
+        $statistics = new \MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics(
+            0.089,  // 89ms
+            2,      // files
+            8,      // keys
+            2       // validators
+        );
+
+        $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
+        $validationResult = new ValidationResult(
+            [$validator],
+            ResultType::ERROR,
+            [['validator' => $validator, 'fileSet' => $fileSet]],
+            $statistics
+        );
+
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
+        $this->renderer->render($validationResult);
+        $output = $this->output->fetch();
+
+        // Both failure message and statistics should be shown
+        $this->assertStringContainsString('Language validation failed', $output);
+        $this->assertStringContainsString('Execution time: 89ms', $output);
+        $this->assertStringContainsString('Files checked: 2', $output);
+        $this->assertStringContainsString('Keys checked: 8', $output);
+        $this->assertStringContainsString('Validators run: 2', $output);
+    }
+
     private function createMockValidator(ResultType $resultType = ResultType::ERROR): ValidatorInterface|MockObject
     {
         $validator = $this->createMock(ValidatorInterface::class);
