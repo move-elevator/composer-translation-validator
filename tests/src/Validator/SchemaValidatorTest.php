@@ -115,14 +115,6 @@ EOT
         $this->assertEmpty($result);
     }
 
-    public function testExplain(): void
-    {
-        $logger = $this->createMock(LoggerInterface::class);
-        $validator = new SchemaValidator($logger);
-
-        $this->assertStringContainsString('XML schema', $validator->explain());
-    }
-
     public function testSupportsParser(): void
     {
         $logger = $this->createMock(LoggerInterface::class);

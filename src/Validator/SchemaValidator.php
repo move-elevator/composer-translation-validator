@@ -46,20 +46,6 @@ class SchemaValidator extends AbstractValidator implements ValidatorInterface
         return [];
     }
 
-    public function explain(): string
-    {
-        return 'Validates the XML schema of translation files against the XLIFF standard. '.
-            'This ensures that the files are well-formed and adhere to the expected structure.';
-    }
-
-    /**
-     * @return class-string<ParserInterface>[]
-     */
-    public function supportsParser(): array
-    {
-        return [XliffParser::class];
-    }
-
     public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
     {
         $details = $issue->getDetails();
@@ -84,5 +70,13 @@ class SchemaValidator extends AbstractValidator implements ValidatorInterface
         }
 
         return implode("\n", $messages);
+    }
+
+    /**
+     * @return class-string<ParserInterface>[]
+     */
+    public function supportsParser(): array
+    {
+        return [XliffParser::class];
     }
 }

@@ -6,15 +6,18 @@ namespace MoveElevator\ComposerTranslationValidator\Result;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ValidationResultJsonRenderer implements ValidationResultRendererInterface
+readonly class ValidationResultJsonRenderer implements ValidationResultRendererInterface
 {
     public function __construct(
-        private readonly OutputInterface $output,
-        private readonly bool $dryRun = false,
-        private readonly bool $strict = false,
+        private OutputInterface $output,
+        private bool $dryRun = false,
+        private bool $strict = false,
     ) {
     }
 
+    /**
+     * @throws \JsonException
+     */
     public function render(ValidationResult $validationResult): int
     {
         $exitCode = $validationResult->getOverallResult()->resolveErrorToCommandExitCode($this->dryRun, $this->strict);
@@ -50,7 +53,6 @@ class ValidationResultJsonRenderer implements ValidationResultRendererInterface
      */
     private function formatIssuesForJson(ValidationResult $validationResult): array
     {
-        // Use the existing toLegacyArray method to maintain JSON format compatibility
         return $validationResult->toLegacyArray();
     }
 }

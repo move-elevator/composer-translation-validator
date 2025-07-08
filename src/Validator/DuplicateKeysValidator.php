@@ -31,20 +31,6 @@ class DuplicateKeysValidator extends AbstractValidator implements ValidatorInter
         return [];
     }
 
-    public function explain(): string
-    {
-        return 'This validator checks for duplicate keys in translation files. '
-            .'If a key appears more than once in a file, it will be reported as an issue.';
-    }
-
-    /**
-     * @return class-string<ParserInterface>[]
-     */
-    public function supportsParser(): array
-    {
-        return [XliffParser::class];
-    }
-
     public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
     {
         $details = $issue->getDetails();
@@ -53,7 +39,6 @@ class DuplicateKeysValidator extends AbstractValidator implements ValidatorInter
         $level = $resultType->toString();
         $color = $resultType->toColorString();
 
-        // Details contains duplicate keys with their counts
         $messages = [];
         foreach ($details as $key => $count) {
             if (is_string($key) && is_int($count)) {
@@ -62,5 +47,13 @@ class DuplicateKeysValidator extends AbstractValidator implements ValidatorInter
         }
 
         return implode("\n", $messages);
+    }
+
+    /**
+     * @return class-string<ParserInterface>[]
+     */
+    public function supportsParser(): array
+    {
+        return [XliffParser::class];
     }
 }

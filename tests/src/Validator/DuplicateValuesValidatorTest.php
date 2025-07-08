@@ -203,12 +203,6 @@ final class DuplicateValuesValidatorTest extends TestCase
         $this->assertFalse($validator->hasIssues());
     }
 
-    public function testExplain(): void
-    {
-        $validator = new DuplicateValuesValidator($this->loggerMock);
-        $this->assertStringContainsString('duplicate values', $validator->explain());
-    }
-
     public function testSupportsParser(): void
     {
         $validator = new DuplicateValuesValidator($this->loggerMock);

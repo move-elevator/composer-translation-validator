@@ -123,7 +123,6 @@ class ValidationResultCliRendererTest extends TestCase
         $issue = new Issue('test.xlf', ['key' => 'value'], 'TestParser', 'TestValidator');
         $validator->method('hasIssues')->willReturn(true);
         $validator->method('getIssues')->willReturn([$issue]);
-        $validator->method('explain')->willReturn('Test validator explanation');
 
         $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
         $validationResult = new ValidationResult(
@@ -178,7 +177,6 @@ class ValidationResultCliRendererTest extends TestCase
         $issue2 = new Issue('test2.xlf', ['key' => 'value2'], 'TestParser', 'TestValidator');
         $validator1->method('hasIssues')->willReturn(true);
         $validator1->method('getIssues')->willReturn([$issue1, $issue2]);
-        $validator1->method('explain')->willReturn('First validator');
 
         $fileSet1 = new FileSet('TestParser', '/test/path1', 'setKey1', ['test1.xlf']);
         $fileSet2 = new FileSet('TestParser', '/test/path2', 'setKey2', ['test2.xlf']);
@@ -364,7 +362,6 @@ class ValidationResultCliRendererTest extends TestCase
     private function createMockValidator(): ValidatorInterface|MockObject
     {
         $validator = $this->createMock(ValidatorInterface::class);
-        $validator->method('explain')->willReturn('Mock validator explanation');
         $validator->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
         $validator->method('formatIssueMessage')->willReturnCallback(function ($issue, $prefix = '', $isVerbose = false) {
             return "- <fg=red>ERROR</> {$prefix}Validation error";

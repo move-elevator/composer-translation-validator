@@ -192,11 +192,6 @@ class ValidationResultTest extends TestCase
                 return [];
             }
 
-            public function explain(): string
-            {
-                return '';
-            }
-
             public function supportsParser(): array
             {
                 return [];
@@ -265,11 +260,6 @@ class ValidationResultTest extends TestCase
             public function processFile(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface $file): array
             {
                 return [];
-            }
-
-            public function explain(): string
-            {
-                return '';
             }
 
             public function supportsParser(): array
@@ -375,11 +365,6 @@ class ValidationResultTest extends TestCase
                 return [];
             }
 
-            public function explain(): string
-            {
-                return '';
-            }
-
             public function supportsParser(): array
             {
                 return [];
@@ -448,11 +433,6 @@ class ValidationResultTest extends TestCase
             public function processFile(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface $file): array
             {
                 return [];
-            }
-
-            public function explain(): string
-            {
-                return '';
             }
 
             public function supportsParser(): array

@@ -124,11 +124,6 @@ class TestValidatorImplementation extends AbstractValidator
         return [];
     }
 
-    public function explain(): string
-    {
-        return 'Test validator';
-    }
-
     public function resultTypeOnValidationFailure(): ResultType
     {
         return ResultType::ERROR;
@@ -145,11 +140,6 @@ class TestValidatorWithWarning extends AbstractValidator
     public function supportsParser(): array
     {
         return [];
-    }
-
-    public function explain(): string
-    {
-        return 'Test validator with warning';
     }
 
     public function resultTypeOnValidationFailure(): ResultType

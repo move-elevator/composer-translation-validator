@@ -72,31 +72,6 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
         }
     }
 
-    public function explain(): string
-    {
-        return 'This validator checks for keys that are present in some files but not in others. '
-            .'It helps to identify mismatches in translation keys across different translation files.';
-    }
-
-    /**
-     * @return class-string<ParserInterface>[]
-     */
-    public function supportsParser(): array
-    {
-        return [XliffParser::class, YamlParser::class];
-    }
-
-    protected function resetState(): void
-    {
-        parent::resetState();
-        $this->keyArray = [];
-    }
-
-    public function resultTypeOnValidationFailure(): ResultType
-    {
-        return ResultType::WARNING;
-    }
-
     public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
     {
         $details = $issue->getDetails();
@@ -105,7 +80,6 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
         $level = $resultType->toString();
         $color = $resultType->toColorString();
 
-        // Details contains key mismatch information
         $key = $details['key'] ?? 'unknown';
         $files = $details['files'] ?? [];
         $currentFile = basename($issue->getFile());
@@ -124,7 +98,7 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
         if ($currentFileHasValue) {
             $action = 'missing from';
         } else {
-            $action = 'present in';
+            $action = 'missing but present in';
         }
 
         $otherFilesList = !empty($otherFiles) ? implode('`, `', $otherFiles) : 'other files';
@@ -140,15 +114,12 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
             $details = $issue->getDetails();
             $files = $details['files'] ?? [];
 
-            // Add the issue to each affected file
             foreach ($files as $fileInfo) {
                 $fileName = $fileInfo['file'] ?? '';
                 if (!empty($fileName)) {
-                    // Construct full file path from fileSet
                     $basePath = rtrim($fileSet->getPath(), '/');
                     $filePath = $basePath.'/'.$fileName;
 
-                    // Create a new issue specific to this file
                     $fileSpecificIssue = new Issue(
                         $filePath,
                         $details,
@@ -168,11 +139,6 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
         return $distribution;
     }
 
-    public function shouldShowDetailedOutput(): bool
-    {
-        return true;
-    }
-
     public function renderDetailedOutput(OutputInterface $output, array $issues): void
     {
         if (empty($issues)) {
@@ -183,7 +149,6 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
         $allKeys = [];
         $allFilesData = [];
 
-        // Collect all data
         foreach ($issues as $issue) {
             $details = $issue->getDetails();
             $key = $details['key'] ?? 'unknown';
@@ -205,17 +170,15 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
             }
         }
 
-        // Get first issue to determine current file and file order
         $firstIssue = $issues[0];
         $currentFile = basename($firstIssue->getFile());
         $firstDetails = $firstIssue->getDetails();
         $firstFiles = $firstDetails['files'] ?? [];
 
-        // Order files: current file first, then others
         $fileOrder = [$currentFile];
         foreach ($firstFiles as $fileInfo) {
             $fileName = $fileInfo['file'] ?? '';
-            if ($fileName !== $currentFile && !in_array($fileName, $fileOrder)) {
+            if ($fileName !== $currentFile && !in_array($fileName, $fileOrder, true)) {
                 $fileOrder[] = $fileName;
             }
         }
@@ -227,23 +190,46 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
             }
         }
 
-        // Build rows
         foreach ($allKeys as $key) {
             $row = [$key];
             foreach ($fileOrder as $fileName) {
                 $value = $allFilesData[$key][$fileName] ?? null;
-                $row[] = $value ?? '';  // Empty string instead of <missing>
+                $row[] = $value ?? '';
             }
             $rows[] = $row;
         }
 
         $table = new Table($output);
         $table->setHeaders($header)
-              ->setRows($rows)
-              ->setStyle(
-                  (new TableStyle())
-                      ->setCellHeaderFormat('%s')
-              )
-              ->render();
+            ->setRows($rows)
+            ->setStyle(
+                (new TableStyle())
+                    ->setCellHeaderFormat('%s')
+            )
+            ->render();
+    }
+
+    /**
+     * @return class-string<ParserInterface>[]
+     */
+    public function supportsParser(): array
+    {
+        return [XliffParser::class, YamlParser::class];
+    }
+
+    protected function resetState(): void
+    {
+        parent::resetState();
+        $this->keyArray = [];
+    }
+
+    public function resultTypeOnValidationFailure(): ResultType
+    {
+        return ResultType::WARNING;
+    }
+
+    public function shouldShowDetailedOutput(): bool
+    {
+        return true;
     }
 }

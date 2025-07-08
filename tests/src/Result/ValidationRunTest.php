@@ -204,11 +204,6 @@ class MockValidatorWithoutIssues implements ValidatorInterface
         return [];
     }
 
-    public function explain(): string
-    {
-        return 'Mock validator without issues';
-    }
-
     public function supportsParser(): array
     {
         return [];
@@ -280,11 +275,6 @@ class MockValidatorWithIssues implements ValidatorInterface
     public function processFile(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface $file): array
     {
         return ['mock_issue' => 'test'];
-    }
-
-    public function explain(): string
-    {
-        return 'Mock validator with issues';
     }
 
     public function supportsParser(): array

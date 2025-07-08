@@ -181,14 +181,6 @@ final class MismatchValidatorTest extends TestCase
         $this->assertFalse($validator->hasIssues());
     }
 
-    public function testExplain(): void
-    {
-        $logger = $this->createMock(LoggerInterface::class);
-        $validator = new MismatchValidator($logger);
-
-        $this->assertStringContainsString('mismatches in translation keys', $validator->explain());
-    }
-
     public function testSupportsParser(): void
     {
         $logger = $this->createMock(LoggerInterface::class);

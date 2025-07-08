@@ -11,15 +11,15 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class ValidationResultCliRenderer implements ValidationResultRendererInterface
+readonly class ValidationResultCliRenderer implements ValidationResultRendererInterface
 {
-    private readonly SymfonyStyle $io;
+    private SymfonyStyle $io;
 
     public function __construct(
-        private readonly OutputInterface $output,
-        private readonly InputInterface $input,
-        private readonly bool $dryRun = false,
-        private readonly bool $strict = false,
+        private OutputInterface $output,
+        private InputInterface $input,
+        private bool $dryRun = false,
+        private bool $strict = false,
     ) {
         $this->io = new SymfonyStyle($this->input, $this->output);
     }
@@ -45,7 +45,6 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
             return;
         }
 
-        // Group by file path
         $groupedByFile = [];
         foreach ($validatorPairs as $pair) {
             $validator = $pair['validator'];
@@ -55,7 +54,6 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
                 continue;
             }
 
-            // Use validator's distribution method to handle file-specific issues
             $distributedIssues = $validator->distributeIssuesForDisplay($fileSet);
 
             foreach ($distributedIssues as $filePath => $issues) {
@@ -211,7 +209,7 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
     private function getValidatorSeverity(string $validatorClass): int
     {
         if (str_contains($validatorClass, 'SchemaValidator')) {
-            return 1; // Error
+            return 1;
         }
 
         try {
@@ -227,7 +225,7 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
         } catch (\Throwable $e) {
         }
 
-        return 1; // Error
+        return 1;
     }
 
     private function formatIssueMessage(ValidatorInterface $validator, Issue $issue, string $validatorName = '', bool $isVerbose = false): string

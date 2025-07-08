@@ -16,8 +16,6 @@ interface ValidatorInterface
      */
     public function processFile(ParserInterface $file): array;
 
-    public function explain(): string;
-
     /**
      * @param array<string>                 $files
      * @param class-string<ParserInterface> $parserClass

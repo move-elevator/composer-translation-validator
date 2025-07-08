@@ -9,10 +9,10 @@ use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use Psr\Log\LoggerInterface;
 
-class ValidationRun
+readonly class ValidationRun
 {
     public function __construct(
-        private readonly LoggerInterface $logger,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -26,7 +26,6 @@ class ValidationRun
         $validatorFileSetPairs = [];
         $overallResult = ResultType::SUCCESS;
 
-        // Create fresh validator instances for each file set (original behavior)
         foreach ($fileSets as $fileSet) {
             foreach ($validatorClasses as $validatorClass) {
                 $validatorInstance = new $validatorClass($this->logger);

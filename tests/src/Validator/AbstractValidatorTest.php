@@ -42,11 +42,6 @@ class ConcreteValidator extends AbstractValidator implements ValidatorInterface
         return [TestParser::class];
     }
 
-    public function explain(): string
-    {
-        return 'This is a concrete validator for testing.';
-    }
-
     public function validate(array $files, ?string $parserClass): array
     {
         return parent::validate($files, $parserClass);

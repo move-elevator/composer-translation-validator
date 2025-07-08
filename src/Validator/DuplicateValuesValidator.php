@@ -58,10 +58,23 @@ class DuplicateValuesValidator extends AbstractValidator implements ValidatorInt
         }
     }
 
-    public function explain(): string
+    public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
     {
-        return 'This validator checks for duplicate values in translation files. '
-            .'If a value is assigned to multiple keys in a file, it will be reported as an issue.';
+        $details = $issue->getDetails();
+        $resultType = $this->resultTypeOnValidationFailure();
+
+        $level = $resultType->toString();
+        $color = $resultType->toColorString();
+
+        $messages = [];
+        foreach ($details as $value => $keys) {
+            if (is_string($value) && is_array($keys)) {
+                $keyList = implode('`, `', $keys);
+                $messages[] = "- <fg=$color>$level</> {$prefix}the translation value `$value` occurs in multiple keys (`$keyList`)";
+            }
+        }
+
+        return implode("\n", $messages);
     }
 
     /**
@@ -81,24 +94,5 @@ class DuplicateValuesValidator extends AbstractValidator implements ValidatorInt
     public function resultTypeOnValidationFailure(): ResultType
     {
         return ResultType::WARNING;
-    }
-
-    public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
-    {
-        $details = $issue->getDetails();
-        $resultType = $this->resultTypeOnValidationFailure();
-
-        $level = $resultType->toString();
-        $color = $resultType->toColorString();
-
-        $messages = [];
-        foreach ($details as $value => $keys) {
-            if (is_string($value) && is_array($keys)) {
-                $keyList = implode('`, `', $keys);
-                $messages[] = "- <fg=$color>$level</> {$prefix}the translation value `$value` occurs in multiple keys (`$keyList`)";
-            }
-        }
-
-        return implode("\n", $messages);
     }
 }

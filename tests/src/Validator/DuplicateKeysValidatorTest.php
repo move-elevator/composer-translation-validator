@@ -58,14 +58,6 @@ final class DuplicateKeysValidatorTest extends TestCase
         $this->assertEmpty($result);
     }
 
-    public function testExplain(): void
-    {
-        $logger = $this->createMock(LoggerInterface::class);
-        $validator = new DuplicateKeysValidator($logger);
-
-        $this->assertStringContainsString('duplicate keys', $validator->explain());
-    }
-
     public function testSupportsParser(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
