@@ -49,7 +49,7 @@ class ValidateTranslationCommand extends BaseCommand
             )
             ->addOption(
                 'dry-run',
-                'dr',
+                null,
                 InputOption::VALUE_NONE,
                 'Run the command in dry-run mode without throwing errors'
             )

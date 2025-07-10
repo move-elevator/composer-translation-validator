@@ -42,16 +42,16 @@ The command `validate-translations` can be used to validate translation files in
 composer validate-translations [<path>] [-dr|--dry-run] [-f|--format cli|json] [-s|--skip VALIDATOR] [-o|--only VALIDATOR] [-v|--verbose]
 ```
 
-| Argument / Option         | Shortcut   | Description                                                                                       |
-|--------------------------|------------|---------------------------------------------------------------------------------------------------|
-| `<path>`                 |            | (Optional) Path to the translation files or directories to validate (can be used multiple times). |
-| `--dry-run`              | `-dr`      | Runs the validation in test mode without saving changes.                                          |
-| `--format`               | `-f`       | Sets the output format (`cli`, `json`).                                                           |
-| `--skip`                 | `-s`       | Skips specific validators (can be used multiple times).                                           |
-| `--only`                 | `-o`       | Runs only the specified validators (can be used multiple times).                                  |
-| `--strict`               |            | Enables strict mode, treating warnings as errors.                                                 |
-| `--verbose`              | `-v`       | Shows additional output for detailed information.                                                 |
-| `--config`               | `-c`       | Path to a configuration file (e.g. `translation-validator.yaml`).                                 |
+| Argument / Option         | Shortcut | Description                                                                                       |
+|--------------------------|----------|---------------------------------------------------------------------------------------------------|
+| `<path>`                 |          | (Optional) Path to the translation files or directories to validate (can be used multiple times). |
+| `--dry-run`              |          | Runs the validation in test mode without saving changes.                                          |
+| `--format`               | `-f`     | Sets the output format (`cli`, `json`).                                                           |
+| `--skip`                 | `-s`     | Skips specific validators (can be used multiple times).                                           |
+| `--only`                 | `-o`     | Runs only the specified validators (can be used multiple times).                                  |
+| `--strict`               |          | Enables strict mode, treating warnings as errors.                                                 |
+| `--verbose`              | `-v`     | Shows additional output for detailed information.                                                 |
+| `--config`               | `-c`     | Path to a configuration file (e.g. `translation-validator.yaml`).                                 |
 
 
 ## 📝 Documentation

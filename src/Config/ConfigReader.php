@@ -15,6 +15,9 @@ class ConfigReader
         'translation-validator.yml',
     ];
 
+    /**
+     * @throws \JsonException
+     */
     public function read(string $configPath): TranslationValidatorConfig
     {
         if (!file_exists($configPath)) {
@@ -53,13 +56,16 @@ class ConfigReader
         return null;
     }
 
+    /**
+     * @throws \JsonException
+     */
     public function readFromComposerJson(string $composerJsonPath): ?TranslationValidatorConfig
     {
         if (!file_exists($composerJsonPath)) {
             return null;
         }
 
-        $composerData = json_decode(file_get_contents($composerJsonPath), true);
+        $composerData = json_decode(file_get_contents($composerJsonPath), true, 512, JSON_THROW_ON_ERROR);
         if (!is_array($composerData)) {
             return null;
         }
@@ -86,6 +92,9 @@ class ConfigReader
         return $config;
     }
 
+    /**
+     * @throws \JsonException
+     */
     private function readJsonConfig(string $configPath): TranslationValidatorConfig
     {
         $content = file_get_contents($configPath);
@@ -93,7 +102,7 @@ class ConfigReader
             throw new \RuntimeException("Failed to read configuration file: {$configPath}");
         }
 
-        $data = json_decode($content, true);
+        $data = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
         if (!is_array($data)) {
             throw new \RuntimeException("Invalid JSON configuration file: {$configPath}");
         }
@@ -101,6 +110,9 @@ class ConfigReader
         return $this->createConfigFromArray($data);
     }
 
+    /**
+     * @throws \JsonException
+     */
     private function readYamlConfig(string $configPath): TranslationValidatorConfig
     {
         $data = Yaml::parseFile($configPath);
@@ -113,6 +125,8 @@ class ConfigReader
 
     /**
      * @param array<string, mixed> $data
+     *
+     * @throws \JsonException
      */
     private function createConfigFromArray(array $data): TranslationValidatorConfig
     {
@@ -215,7 +229,7 @@ class ConfigReader
 
     private function resolveConfigPath(string $configPath, string $basePath): string
     {
-        if (str_starts_with($configPath, '/')) {
+        if (str_starts_with($configPath, '/') || preg_match('/^[a-zA-Z]:[\\/]/', $configPath)) {
             return $configPath;
         }
 

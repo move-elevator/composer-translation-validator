@@ -78,8 +78,8 @@ class ConfigReaderTest extends TestCase
     {
         $configFile = $this->fixturesDir.'/invalid.json';
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Invalid JSON configuration file:');
+        $this->expectException(\JsonException::class);
+        $this->expectExceptionMessage('Syntax error');
 
         $this->configReader->read($configFile);
     }
@@ -267,23 +267,27 @@ class ConfigReaderTest extends TestCase
 
     public function testReadFromComposerJsonWithInvalidJson(): void
     {
-        $tempDir = sys_get_temp_dir().'/translation-validator-invalid-json-'.uniqid();
+        $tempDir = sys_get_temp_dir().'/translation-validator-invalid-json-'.uniqid('', true);
         mkdir($tempDir, 0777, true);
 
         $composerJson = $tempDir.'/composer.json';
         file_put_contents($composerJson, 'invalid json');
 
-        $config = $this->configReader->readFromComposerJson($composerJson);
+        $this->expectException(\JsonException::class);
+        $this->expectExceptionMessage('Syntax error');
 
-        $this->assertNotInstanceOf(TranslationValidatorConfig::class, $config);
-
-        unlink($composerJson);
-        rmdir($tempDir);
+        try {
+            $config = $this->configReader->readFromComposerJson($composerJson);
+            $this->assertNotInstanceOf(TranslationValidatorConfig::class, $config);
+        } finally {
+            unlink($composerJson);
+            rmdir($tempDir);
+        }
     }
 
     public function testReadFromComposerJsonWithRelativeConfigPath(): void
     {
-        $tempDir = sys_get_temp_dir().'/translation-validator-relative-'.uniqid();
+        $tempDir = sys_get_temp_dir().'/translation-validator-relative-'.uniqid('', true);
         mkdir($tempDir, 0777, true);
 
         $configFile = $tempDir.'/relative-config.json';
