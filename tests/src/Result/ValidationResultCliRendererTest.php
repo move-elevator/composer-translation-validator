@@ -377,6 +377,7 @@ class ValidationResultCliRendererTest extends TestCase
         $this->assertStringContainsString('Files checked: 5', $output);
         $this->assertStringContainsString('Keys checked: 15', $output);
         $this->assertStringContainsString('Validators run: 3', $output);
+        $this->assertStringContainsString('Parsers cached: 0', $output); // Default value
     }
 
     public function testRenderStatisticsWithSecondsInVerboseMode(): void
@@ -385,7 +386,8 @@ class ValidationResultCliRendererTest extends TestCase
             2.456,  // 2.46s
             10,     // files
             50,     // keys
-            4       // validators
+            4,      // validators
+            7       // parsers cached
         );
 
         $validationResult = new ValidationResult([], ResultType::SUCCESS, [], $statistics);
@@ -398,6 +400,7 @@ class ValidationResultCliRendererTest extends TestCase
         $this->assertStringContainsString('Files checked: 10', $output);
         $this->assertStringContainsString('Keys checked: 50', $output);
         $this->assertStringContainsString('Validators run: 4', $output);
+        $this->assertStringContainsString('Parsers cached: 7', $output);
     }
 
     public function testRenderStatisticsNotShownInCompactMode(): void
@@ -419,6 +422,7 @@ class ValidationResultCliRendererTest extends TestCase
         $this->assertStringNotContainsString('Files checked:', $output);
         $this->assertStringNotContainsString('Keys checked:', $output);
         $this->assertStringNotContainsString('Validators run:', $output);
+        $this->assertStringNotContainsString('Parsers cached:', $output);
     }
 
     public function testRenderWithNullStatistics(): void

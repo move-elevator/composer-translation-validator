@@ -26,6 +26,7 @@ class ValidationResultJsonRenderer implements ValidationResultRendererInterface
             'status' => $exitCode,
             'message' => $this->generateMessage($validationResult),
             'issues' => $this->formatIssuesForJson($validationResult),
+            'statistics' => $this->formatStatisticsForJson($validationResult),
         ];
 
         $this->output->writeln(
@@ -118,5 +119,25 @@ class ValidationResultJsonRenderer implements ValidationResultRendererInterface
         }
 
         return $normalizedPath;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function formatStatisticsForJson(ValidationResult $validationResult): array
+    {
+        $statistics = $validationResult->getStatistics();
+        if (null === $statistics) {
+            return [];
+        }
+
+        return [
+            'execution_time' => $statistics->getExecutionTime(),
+            'execution_time_formatted' => $statistics->getExecutionTimeFormatted(),
+            'files_checked' => $statistics->getFilesChecked(),
+            'keys_checked' => $statistics->getKeysChecked(),
+            'validators_run' => $statistics->getValidatorsRun(),
+            'parsers_cached' => $statistics->getParsersCached(),
+        ];
     }
 }

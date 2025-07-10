@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Result;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
+use MoveElevator\ComposerTranslationValidator\Parser\ParserCache;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use Psr\Log\LoggerInterface;
@@ -48,15 +49,23 @@ class ValidationRun
 
         $validatorsRun = count($validatorClasses);
 
+        // Get cache statistics before clearing cache
+        $cacheStats = ParserCache::getCacheStats();
+        $parsersCached = $cacheStats['cached_parsers'];
+
         $executionTime = microtime(true) - $startTime;
         $statistics = new ValidationStatistics(
             $executionTime,
             $filesChecked,
             $keysChecked,
-            $validatorsRun
+            $validatorsRun,
+            $parsersCached
         );
 
-        return new ValidationResult($validatorInstances, $overallResult, $validatorFileSetPairs, $statistics);
+        $validationResult = new ValidationResult($validatorInstances, $overallResult, $validatorFileSetPairs, $statistics);
+        ParserCache::clear();
+
+        return $validationResult;
     }
 
     /**
@@ -91,7 +100,7 @@ class ValidationRun
 
             foreach ($fileSet->getFiles() as $file) {
                 try {
-                    $parser = new $parserClass($file);
+                    $parser = ParserCache::get($file, $parserClass);
                     $keys = $parser->extractKeys();
                     if (is_array($keys)) {
                         $keysChecked += count($keys);

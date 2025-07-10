@@ -8,6 +8,7 @@ use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use MoveElevator\ComposerTranslationValidator\Result\ValidationResult;
 use MoveElevator\ComposerTranslationValidator\Result\ValidationResultJsonRenderer;
+use MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -225,5 +226,64 @@ class ValidationResultJsonRendererTest extends TestCase
         $validator->method('addIssue');
 
         return $validator;
+    }
+
+    public function testRenderWithStatistics(): void
+    {
+        $statistics = new ValidationStatistics(1.234, 5, 10, 4, 3);
+        $validationResult = new ValidationResult([], ResultType::SUCCESS, [], $statistics);
+
+        $exitCode = $this->renderer->render($validationResult);
+
+        $this->assertSame(0, $exitCode);
+
+        $jsonOutput = $this->output->fetch();
+        $output = json_decode($jsonOutput, true);
+
+        $this->assertNotNull($output);
+        $this->assertArrayHasKey('statistics', $output);
+
+        $stats = $output['statistics'];
+        $this->assertEqualsWithDelta(1.234, $stats['execution_time'], PHP_FLOAT_EPSILON);
+        $this->assertSame('1.23s', $stats['execution_time_formatted']);
+        $this->assertSame(5, $stats['files_checked']);
+        $this->assertSame(10, $stats['keys_checked']);
+        $this->assertSame(4, $stats['validators_run']);
+        $this->assertSame(3, $stats['parsers_cached']);
+    }
+
+    public function testRenderWithoutStatistics(): void
+    {
+        $validationResult = new ValidationResult([], ResultType::SUCCESS);
+
+        $exitCode = $this->renderer->render($validationResult);
+
+        $this->assertSame(0, $exitCode);
+
+        $jsonOutput = $this->output->fetch();
+        $output = json_decode($jsonOutput, true);
+
+        $this->assertNotNull($output);
+        $this->assertArrayHasKey('statistics', $output);
+        $this->assertEmpty($output['statistics']);
+    }
+
+    public function testRenderStatisticsDefaultParsersCached(): void
+    {
+        $statistics = new ValidationStatistics(0.5, 2, 5, 3); // No parsers_cached parameter
+        $validationResult = new ValidationResult([], ResultType::SUCCESS, [], $statistics);
+
+        $exitCode = $this->renderer->render($validationResult);
+
+        $this->assertSame(0, $exitCode);
+
+        $jsonOutput = $this->output->fetch();
+        $output = json_decode($jsonOutput, true);
+
+        $this->assertNotNull($output);
+        $this->assertArrayHasKey('statistics', $output);
+
+        $stats = $output['statistics'];
+        $this->assertSame(0, $stats['parsers_cached']); // Default value
     }
 }

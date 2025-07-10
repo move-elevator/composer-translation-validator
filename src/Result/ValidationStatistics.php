@@ -11,6 +11,7 @@ class ValidationStatistics
         private readonly int $filesChecked,
         private readonly int $keysChecked,
         private readonly int $validatorsRun,
+        private readonly int $parsersCached = 0,
     ) {
     }
 
@@ -41,5 +42,10 @@ class ValidationStatistics
     public function getValidatorsRun(): int
     {
         return $this->validatorsRun;
+    }
+
+    public function getParsersCached(): int
+    {
+        return $this->parsersCached;
     }
 }

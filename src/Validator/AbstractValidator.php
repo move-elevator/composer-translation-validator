@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
+use MoveElevator\ComposerTranslationValidator\Parser\ParserCache;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserRegistry;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
@@ -42,7 +43,7 @@ abstract class AbstractValidator
         );
 
         foreach ($files as $filePath) {
-            $file = new ($parserClass ?: ParserRegistry::resolveParserClass($filePath))($filePath);
+            $file = ParserCache::get($filePath, $parserClass ?: ParserRegistry::resolveParserClass($filePath));
             /* @var ParserInterface $file */
 
             if (!in_array($file::class, $this->supportsParser(), true)) {
