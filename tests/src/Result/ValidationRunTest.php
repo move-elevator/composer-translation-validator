@@ -228,6 +228,33 @@ class ValidationRunTest extends TestCase
         $this->assertSame(0, $statistics->getValidatorsRun());
         $this->assertSame(0, $statistics->getKeysChecked());
     }
+
+    public function testExecuteForWithParserThrowsException(): void
+    {
+        $validatorClass = MockValidatorWithIssues::class;
+        $fileSet = new FileSet(MockParserThatThrows::class, '/test', 'set', ['invalid.xlf']);
+
+        $validationRun = new ValidationRun($this->logger);
+        $result = $validationRun->executeFor([$fileSet], [$validatorClass]);
+
+        $statistics = $result->getStatistics();
+        // Should handle parser exceptions gracefully and continue execution
+        $this->assertSame(1, $statistics->getFilesChecked());
+        $this->assertSame(0, $statistics->getKeysChecked()); // No keys counted due to exception
+    }
+
+    public function testExecuteForWithParserReturningNullKeys(): void
+    {
+        $validatorClass = MockValidatorWithIssues::class;
+        $fileSet = new FileSet(MockParserReturningNull::class, '/test', 'set', ['null.xlf']);
+
+        $validationRun = new ValidationRun($this->logger);
+        $result = $validationRun->executeFor([$fileSet], [$validatorClass]);
+
+        $statistics = $result->getStatistics();
+        $this->assertSame(1, $statistics->getFilesChecked());
+        $this->assertSame(0, $statistics->getKeysChecked()); // null keys should result in 0
+    }
 }
 
 // Mock classes for testing
@@ -423,5 +450,81 @@ class MockValidatorWithIssues implements ValidatorInterface
     public function getShortName(): string
     {
         return static::class;
+    }
+}
+
+class MockParserThatThrows implements \MoveElevator\ComposerTranslationValidator\Parser\ParserInterface
+{
+    public function __construct(string $file)
+    {
+        unset($file);
+    }
+
+    public function extractKeys(): ?array
+    {
+        throw new \RuntimeException('Parser failed');
+    }
+
+    public function getContentByKey(string $key, string $attribute = 'source'): ?string
+    {
+        return null;
+    }
+
+    public function getFileName(): string
+    {
+        return 'error.xlf';
+    }
+
+    public function getFileDirectory(): string
+    {
+        return '/error/path/';
+    }
+
+    public static function getSupportedFileExtensions(): array
+    {
+        return ['xlf'];
+    }
+
+    public function getFilePath(): string
+    {
+        return '/error/path/error.xlf';
+    }
+}
+
+class MockParserReturningNull implements \MoveElevator\ComposerTranslationValidator\Parser\ParserInterface
+{
+    public function __construct(string $file)
+    {
+        unset($file);
+    }
+
+    public function extractKeys(): ?array
+    {
+        return null;
+    }
+
+    public function getContentByKey(string $key, string $attribute = 'source'): ?string
+    {
+        return null;
+    }
+
+    public function getFileName(): string
+    {
+        return 'null.xlf';
+    }
+
+    public function getFileDirectory(): string
+    {
+        return '/null/path/';
+    }
+
+    public static function getSupportedFileExtensions(): array
+    {
+        return ['xlf'];
+    }
+
+    public function getFilePath(): string
+    {
+        return '/null/path/null.xlf';
     }
 }

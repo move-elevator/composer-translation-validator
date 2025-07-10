@@ -29,7 +29,6 @@ class PathUtilityExtendedTest extends TestCase
         $this->assertSame('/some/path', $result);
     }
 
-    #[\PHPUnit\Framework\Attributes\DoesNotPerformAssertions]
     public function testNormalizeFolderPathWithCurrentDirectory(): void
     {
         $currentDir = getcwd();
@@ -75,7 +74,6 @@ class PathUtilityExtendedTest extends TestCase
         $this->assertSame('', $result);
     }
 
-    #[\PHPUnit\Framework\Attributes\DoesNotPerformAssertions]
     public function testNormalizeFolderPathWithDotOnly(): void
     {
         $result = PathUtility::normalizeFolderPath('.');

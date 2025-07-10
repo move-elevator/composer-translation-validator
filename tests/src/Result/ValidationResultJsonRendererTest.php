@@ -68,7 +68,7 @@ class ValidationResultJsonRendererTest extends TestCase
 
         $this->assertNotNull($output);
         $this->assertEquals(1, $output['status']);
-        $this->assertEquals('Language validation failed.', $output['message']);
+        $this->assertEquals('Language validation failed with errors.', $output['message']);
         $this->assertNotEmpty($output['issues']);
 
         // Verify the new file-based structure
@@ -106,7 +106,7 @@ class ValidationResultJsonRendererTest extends TestCase
         $output = json_decode($jsonOutput, true);
 
         $this->assertEquals(0, $output['status']);
-        $this->assertEquals('Language validation failed and completed in dry-run mode.', $output['message']);
+        $this->assertEquals('Language validation failed with errors in dry-run mode.', $output['message']);
     }
 
     public function testRenderWithStrictMode(): void
@@ -138,7 +138,7 @@ class ValidationResultJsonRendererTest extends TestCase
         $output = json_decode($jsonOutput, true);
 
         $this->assertEquals(1, $output['status']);
-        $this->assertEquals('Language validation failed.', $output['message']);
+        $this->assertEquals('Language validation completed with warnings.', $output['message']);
     }
 
     public function testRenderWithWarningNotStrict(): void
@@ -170,7 +170,7 @@ class ValidationResultJsonRendererTest extends TestCase
         $output = json_decode($jsonOutput, true);
 
         $this->assertEquals(0, $output['status']);
-        $this->assertEquals('Language validation failed.', $output['message']);
+        $this->assertEquals('Language validation completed with warnings.', $output['message']);
     }
 
     public function testJsonOutputFormat(): void

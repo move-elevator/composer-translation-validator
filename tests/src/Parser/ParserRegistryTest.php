@@ -26,4 +26,50 @@ final class ParserRegistryTest extends TestCase
         $this->assertSame(YamlParser::class, ParserRegistry::resolveParserClass('test.yaml'));
         $this->assertNull(ParserRegistry::resolveParserClass('unknown.txt'));
     }
+
+    public function testResolveParserClassWithVariousExtensions(): void
+    {
+        // Test XLIFF extensions
+        $this->assertSame(XliffParser::class, ParserRegistry::resolveParserClass('messages.xlf'));
+        $this->assertSame(XliffParser::class, ParserRegistry::resolveParserClass('locallang.xliff'));
+
+        // Test YAML extensions
+        $this->assertSame(YamlParser::class, ParserRegistry::resolveParserClass('config.yml'));
+        $this->assertSame(YamlParser::class, ParserRegistry::resolveParserClass('translations.yaml'));
+
+        // Test unsupported extensions
+        $this->assertNull(ParserRegistry::resolveParserClass('test.json'));
+        $this->assertNull(ParserRegistry::resolveParserClass('data.xml'));
+        $this->assertNull(ParserRegistry::resolveParserClass('config.ini'));
+    }
+
+    public function testResolveParserClassWithEmptyAndSpecialFilenames(): void
+    {
+        $this->assertNull(ParserRegistry::resolveParserClass(''));
+        $this->assertSame(XliffParser::class, ParserRegistry::resolveParserClass('.xlf')); // This actually has the xlf extension
+        $this->assertNull(ParserRegistry::resolveParserClass('file'));
+        $this->assertNull(ParserRegistry::resolveParserClass('file.'));
+    }
+
+    public function testGetAvailableParsersReturnsValidClasses(): void
+    {
+        $parsers = ParserRegistry::getAvailableParsers();
+
+        foreach ($parsers as $parser) {
+            $this->assertTrue(class_exists($parser), "Class {$parser} should exist");
+            $this->assertContains(
+                \MoveElevator\ComposerTranslationValidator\Parser\ParserInterface::class,
+                class_implements($parser) ?: [],
+                "Class {$parser} should implement ParserInterface"
+            );
+        }
+    }
+
+    public function testGetAvailableParsersConsistency(): void
+    {
+        $parsers1 = ParserRegistry::getAvailableParsers();
+        $parsers2 = ParserRegistry::getAvailableParsers();
+
+        $this->assertSame($parsers1, $parsers2);
+    }
 }

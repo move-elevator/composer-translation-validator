@@ -101,4 +101,25 @@ class ValidationStatisticsTest extends TestCase
 
         $this->assertSame(5, $statistics->getParsersCached());
     }
+
+    public function testGetExecutionTimeFormattedForLargeValue(): void
+    {
+        $statistics = new ValidationStatistics(1000.123456, 1, 1, 1);
+
+        $this->assertSame('1,000.12s', $statistics->getExecutionTimeFormatted());
+    }
+
+    public function testGetExecutionTimeFormattedForBoundaryValue(): void
+    {
+        $statistics = new ValidationStatistics(0.999, 1, 1, 1);
+
+        $this->assertSame('999ms', $statistics->getExecutionTimeFormatted());
+    }
+
+    public function testGetExecutionTimeFormattedForExactOneMicrosecond(): void
+    {
+        $statistics = new ValidationStatistics(0.000001, 1, 1, 1);
+
+        $this->assertSame('0ms', $statistics->getExecutionTimeFormatted());
+    }
 }

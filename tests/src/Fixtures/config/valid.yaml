@@ -1,0 +1,20 @@
+paths:
+  - path1
+  - path2
+strict: true
+format: yaml
+exclude:
+  - vendor/*
+  - node_modules/*
+validators:
+  - ValidatorClass
+file-detectors:
+  - DetectorClass
+parsers:
+  - ParserClass
+only:
+  - OnlyValidator
+skip:
+  - SkipValidator
+dry-run: false
+verbose: true

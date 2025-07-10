@@ -39,8 +39,20 @@ composer validate-translations [<path>]
 The command `validate-translations` can be used to validate translation files in your project. It will automatically detect the translation files based on the supported formats and run the configured validators.
 
 ```bash
-composer validate-translations [<path>] [-dr|--dry-run] [-f|--format cli|json] [-e|--exclude PATTERN] [-s|--skip VALIDATOR] [-o|--only VALIDATOR] [-v|--verbose]
+composer validate-translations [<path>] [-dr|--dry-run] [-f|--format cli|json] [-s|--skip VALIDATOR] [-o|--only VALIDATOR] [-v|--verbose]
 ```
+
+| Argument / Option         | Shortcut   | Description                                                                                       |
+|--------------------------|------------|---------------------------------------------------------------------------------------------------|
+| `<path>`                 |            | (Optional) Path to the translation files or directories to validate (can be used multiple times). |
+| `--dry-run`              | `-dr`      | Runs the validation in test mode without saving changes.                                          |
+| `--format`               | `-f`       | Sets the output format (`cli`, `json`).                                                           |
+| `--skip`                 | `-s`       | Skips specific validators (can be used multiple times).                                           |
+| `--only`                 | `-o`       | Runs only the specified validators (can be used multiple times).                                  |
+| `--strict`               |            | Enables strict mode, treating warnings as errors.                                                 |
+| `--verbose`              | `-v`       | Shows additional output for detailed information.                                                 |
+| `--config`               | `-c`       | Path to a configuration file (e.g. `translation-validator.yaml`).                                 |
+
 
 ## 📝 Documentation
 
@@ -48,10 +60,10 @@ composer validate-translations [<path>] [-dr|--dry-run] [-f|--format cli|json] [
 
 The plugin supports the following translation file formats (and targets the following frameworks):
 
-| Format | Description                                                                                                  | Framework | Example files                          |
-|--------|--------------------------------------------------------------------------------------------------------------|-----------|----------------------------------------|
-| XLIFF  | Supports source/target translations in xliff language files. | [TYPO3 CMS](https://typo3.org/)          | `locallang.xlf`, `de.locallang.xlf`    |
-| Yaml   | Supports yaml language files.                     | [Symfony Framework](https://symfony.com/)          | `messages.en.yaml`, `messages.de.yaml` |
+| Format                                       | Description                                                                                                  | Framework | Example files                          |
+|----------------------------------------------|--------------------------------------------------------------------------------------------------------------|-----------|----------------------------------------|
+| [XLIFF](https://en.wikipedia.org/wiki/XLIFF) | Supports source/target translations in xliff language files. | [TYPO3 CMS](https://typo3.org/)          | `locallang.xlf`, `de.locallang.xlf`    |
+| [Yaml](https://en.wikipedia.org/wiki/YAML)   | Supports yaml language files.                     | [Symfony Framework](https://symfony.com/)          | `messages.en.yaml`, `messages.de.yaml` |
 
 ### Validators
 

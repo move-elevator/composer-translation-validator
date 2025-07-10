@@ -19,4 +19,33 @@ final class FileDetectorRegistryTest extends TestCase
         $this->assertContains(SuffixFileDetector::class, $detectors);
         $this->assertCount(2, $detectors);
     }
+
+    public function testGetAvailableFileDetectorsReturnsArray(): void
+    {
+        $detectors = FileDetectorRegistry::getAvailableFileDetectors();
+
+        $this->assertNotEmpty($detectors);
+    }
+
+    public function testGetAvailableFileDetectorsContainsValidClasses(): void
+    {
+        $detectors = FileDetectorRegistry::getAvailableFileDetectors();
+
+        foreach ($detectors as $detector) {
+            $this->assertTrue(class_exists($detector), "Class {$detector} should exist");
+            $this->assertContains(
+                \MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface::class,
+                class_implements($detector) ?: [],
+                "Class {$detector} should implement DetectorInterface"
+            );
+        }
+    }
+
+    public function testGetAvailableFileDetectorsAlwaysReturnsSameOrder(): void
+    {
+        $detectors1 = FileDetectorRegistry::getAvailableFileDetectors();
+        $detectors2 = FileDetectorRegistry::getAvailableFileDetectors();
+
+        $this->assertSame($detectors1, $detectors2);
+    }
 }
