@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
-use MoveElevator\ComposerTranslationValidator\Validator\SchemaValidator;
+use MoveElevator\ComposerTranslationValidator\Validator\XliffSchemaValidator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -79,7 +79,7 @@ EOT
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->never())->method('error');
 
-        $validator = new SchemaValidator($logger);
+        $validator = new XliffSchemaValidator($logger);
         $result = $validator->processFile($parser);
 
         $this->assertEmpty($result);
@@ -91,7 +91,7 @@ EOT
         $parser->method('getFilePath')->willReturn($this->invalidXliffFile);
 
         $logger = $this->createMock(LoggerInterface::class);
-        $validator = new SchemaValidator($logger);
+        $validator = new XliffSchemaValidator($logger);
         $result = $validator->processFile($parser);
 
         $this->assertNotEmpty($result);
@@ -109,7 +109,7 @@ EOT
             ->method('error')
             ->with($this->stringContains('File does not exist'));
 
-        $validator = new SchemaValidator($logger);
+        $validator = new XliffSchemaValidator($logger);
         $result = $validator->processFile($parser);
 
         $this->assertEmpty($result);
@@ -118,7 +118,7 @@ EOT
     public function testSupportsParser(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $validator = new SchemaValidator($logger);
+        $validator = new XliffSchemaValidator($logger);
 
         $this->assertSame([\MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class], $validator->supportsParser());
     }
@@ -126,7 +126,7 @@ EOT
     public function testFormatIssueMessage(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $validator = new SchemaValidator($logger);
+        $validator = new XliffSchemaValidator($logger);
 
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
             'test.xlf',
@@ -154,7 +154,7 @@ EOT
     public function testFormatIssueMessageWithWarning(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $validator = new SchemaValidator($logger);
+        $validator = new XliffSchemaValidator($logger);
 
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
             'test.xlf',
@@ -181,7 +181,7 @@ EOT
     public function testFormatIssueMessageMultipleErrors(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $validator = new SchemaValidator($logger);
+        $validator = new XliffSchemaValidator($logger);
 
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
             'test.xlf',
@@ -216,7 +216,7 @@ EOT
     public function testFormatIssueMessageEmptyDetails(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $validator = new SchemaValidator($logger);
+        $validator = new XliffSchemaValidator($logger);
 
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
             'test.xlf',
@@ -235,8 +235,8 @@ EOT
     public function testGetShortName(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $validator = new SchemaValidator($logger);
+        $validator = new XliffSchemaValidator($logger);
 
-        $this->assertSame('SchemaValidator', $validator->getShortName());
+        $this->assertSame('XliffSchemaValidator', $validator->getShortName());
     }
 }
