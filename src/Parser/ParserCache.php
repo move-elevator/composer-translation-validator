@@ -9,8 +9,12 @@ class ParserCache
     /** @var array<string, ParserInterface> */
     private static array $cache = [];
 
-    public static function get(string $filePath, string $parserClass): ParserInterface
+    public static function get(string $filePath, ?string $parserClass): ParserInterface|bool
     {
+        if (null === $parserClass) {
+            return false;
+        }
+
         $cacheKey = $filePath.'::'.$parserClass;
 
         if (!isset(self::$cache[$cacheKey])) {

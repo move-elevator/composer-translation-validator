@@ -26,8 +26,6 @@ abstract class AbstractValidator
      * @param class-string<ParserInterface>|null $parserClass
      *
      * @return array<string, array<mixed>>
-     *
-     * @throws \ReflectionException
      */
     public function validate(array $files, ?string $parserClass): array
     {
@@ -43,8 +41,19 @@ abstract class AbstractValidator
         );
 
         foreach ($files as $filePath) {
-            $file = ParserCache::get($filePath, $parserClass ?: ParserRegistry::resolveParserClass($filePath));
+            $file = ParserCache::get($filePath, $parserClass ?: ParserRegistry::resolveParserClass($filePath, $this->logger));
             /* @var ParserInterface $file */
+
+            if (!$file instanceof ParserInterface) {
+                $this->logger?->debug(
+                    sprintf(
+                        'The file <fg=cyan>%s</> could not be parsed by the validator <fg=red>%s</>.',
+                        $filePath,
+                        static::class
+                    )
+                );
+                continue;
+            }
 
             if (!in_array($file::class, $this->supportsParser(), true)) {
                 $this->logger?->debug(
