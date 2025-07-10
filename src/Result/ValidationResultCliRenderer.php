@@ -260,6 +260,7 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
             $message = match (true) {
                 $this->dryRun && ResultType::ERROR === $resultType => 'Language validation failed with errors in dry-run mode.',
                 $this->dryRun && ResultType::WARNING === $resultType => 'Language validation completed with warnings in dry-run mode.',
+                $this->strict && ResultType::WARNING === $resultType => 'Language validation failed with warnings in strict mode.',
                 ResultType::ERROR === $resultType => 'Language validation failed with errors.',
                 ResultType::WARNING === $resultType => 'Language validation completed with warnings.',
                 default => 'Language validation failed.',
@@ -268,18 +269,16 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
             if (!$this->output->isVerbose()) {
                 $message .= ' See more details with the `-v` verbose option.';
 
-                // Add strict mode hint for warnings
                 if (ResultType::WARNING === $resultType && !$this->strict) {
                     $message .= ' Use `--strict` to treat warnings as errors.';
                 }
             }
 
-            // Use simple text output for warnings in normal mode, styled boxes in verbose mode and for errors
-            if (ResultType::WARNING === $resultType && !$this->dryRun && !$this->output->isVerbose()) {
+            if (ResultType::WARNING === $resultType && !$this->dryRun && !$this->strict && !$this->output->isVerbose()) {
                 $this->output->writeln('<fg=yellow>'.$message.'</>');
             } else {
                 $this->io->newLine();
-                $this->io->{$this->dryRun || ResultType::WARNING === $resultType ? 'warning' : 'error'}($message);
+                $this->io->{$this->dryRun || (ResultType::WARNING === $resultType && !$this->strict) ? 'warning' : 'error'}($message);
             }
         } else {
             $message = 'Language validation succeeded.';
