@@ -22,5 +22,7 @@ interface ParserInterface
 
     public function getFileName(): string;
 
+    public function getFileDirectory(): string;
+
     public function getFilePath(): string;
 }

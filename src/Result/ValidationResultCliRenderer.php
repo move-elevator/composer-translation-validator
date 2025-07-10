@@ -302,5 +302,6 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
         $this->output->writeln('<fg=gray>Files checked: '.$statistics->getFilesChecked().'</>');
         $this->output->writeln('<fg=gray>Keys checked: '.$statistics->getKeysChecked().'</>');
         $this->output->writeln('<fg=gray>Validators run: '.$statistics->getValidatorsRun().'</>');
+        $this->output->writeln('<fg=gray>Parsers cached: '.$statistics->getParsersCached().'</>');
     }
 }

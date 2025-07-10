@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Parser;
 
+use Psr\Log\LoggerInterface;
+
 class ParserRegistry
 {
     /**
@@ -20,7 +22,7 @@ class ParserRegistry
     /**
      * @return class-string<ParserInterface>|null
      */
-    public static function resolveParserClass(string $filePath): ?string
+    public static function resolveParserClass(string $filePath, ?LoggerInterface $logger = null): ?string
     {
         $fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);
         $parserClasses = self::getAvailableParsers();
@@ -31,6 +33,8 @@ class ParserRegistry
                 return $parserClass;
             }
         }
+
+        $logger?->warning(sprintf('No parser found for file: %s', $filePath));
 
         return null;
     }

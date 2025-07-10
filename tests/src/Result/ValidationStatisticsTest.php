@@ -27,6 +27,30 @@ class ValidationStatisticsTest extends TestCase
         $this->assertSame($filesChecked, $statistics->getFilesChecked());
         $this->assertSame($keysChecked, $statistics->getKeysChecked());
         $this->assertSame($validatorsRun, $statistics->getValidatorsRun());
+        $this->assertSame(0, $statistics->getParsersCached()); // Default value
+    }
+
+    public function testConstructorWithParsersCached(): void
+    {
+        $executionTime = 1.23456;
+        $filesChecked = 5;
+        $keysChecked = 10;
+        $validatorsRun = 4;
+        $parsersCached = 3;
+
+        $statistics = new ValidationStatistics(
+            $executionTime,
+            $filesChecked,
+            $keysChecked,
+            $validatorsRun,
+            $parsersCached
+        );
+
+        $this->assertSame($executionTime, $statistics->getExecutionTime());
+        $this->assertSame($filesChecked, $statistics->getFilesChecked());
+        $this->assertSame($keysChecked, $statistics->getKeysChecked());
+        $this->assertSame($validatorsRun, $statistics->getValidatorsRun());
+        $this->assertSame($parsersCached, $statistics->getParsersCached());
     }
 
     public function testGetExecutionTimeFormattedForMilliseconds(): void
@@ -62,5 +86,19 @@ class ValidationStatisticsTest extends TestCase
         $statistics = new ValidationStatistics(0.0, 1, 1, 1);
 
         $this->assertSame('0ms', $statistics->getExecutionTimeFormatted());
+    }
+
+    public function testGetParsersCachedDefault(): void
+    {
+        $statistics = new ValidationStatistics(1.0, 2, 3, 4);
+
+        $this->assertSame(0, $statistics->getParsersCached());
+    }
+
+    public function testGetParsersCachedWithValue(): void
+    {
+        $statistics = new ValidationStatistics(1.0, 2, 3, 4, 5);
+
+        $this->assertSame(5, $statistics->getParsersCached());
     }
 }

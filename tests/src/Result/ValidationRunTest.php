@@ -254,6 +254,11 @@ class MockParserForTesting implements \MoveElevator\ComposerTranslationValidator
         return 'mock.xlf';
     }
 
+    public function getFileDirectory(): string
+    {
+        return '/mock/path/';
+    }
+
     public static function getSupportedFileExtensions(): array
     {
         return ['xlf'];
