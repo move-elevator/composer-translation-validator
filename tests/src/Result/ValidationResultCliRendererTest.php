@@ -155,7 +155,7 @@ class ValidationResultCliRendererTest extends TestCase
         $exitCode = $this->renderer->render($validationResult);
 
         $this->assertSame(0, $exitCode);
-        $this->assertStringContainsString('Language validation failed', $this->output->fetch());
+        $this->assertStringContainsString('Language validation completed with warnings', $this->output->fetch());
     }
 
     public function testRenderWithSuccessVerbose(): void
