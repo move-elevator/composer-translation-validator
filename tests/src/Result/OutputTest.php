@@ -85,6 +85,6 @@ final class OutputTest extends TestCase
         $exitCode = $output->summarize();
 
         $this->assertSame(Command::FAILURE, $exitCode);
-        $this->assertStringContainsString('Language validation failed.', $this->output->fetch());
+        $this->assertStringContainsString('Language validation failed with errors.', $this->output->fetch());
     }
 }

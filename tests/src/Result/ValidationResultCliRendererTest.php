@@ -155,7 +155,7 @@ class ValidationResultCliRendererTest extends TestCase
         $exitCode = $this->renderer->render($validationResult);
 
         $this->assertSame(0, $exitCode);
-        $this->assertStringContainsString('Language validation failed', $this->output->fetch());
+        $this->assertStringContainsString('Language validation completed with warnings', $this->output->fetch());
     }
 
     public function testRenderWithSuccessVerbose(): void
@@ -497,5 +497,147 @@ class ValidationResultCliRendererTest extends TestCase
         $validator->method('getShortName')->willReturn('MockObject_ValidatorInterface');
 
         return $validator;
+    }
+
+    public function testRenderWarningInCompactModeWithoutErrors(): void
+    {
+        // Test that warnings don't show detailed output in compact mode
+        $validator = $this->createMockValidator(ResultType::WARNING);
+        $issue = new Issue('test.xlf', ['warning'], 'TestParser', 'TestValidator');
+        $validator->method('hasIssues')->willReturn(true);
+        $validator->method('getIssues')->willReturn([$issue]);
+
+        $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
+        $validationResult = new ValidationResult(
+            [$validator],
+            ResultType::WARNING,
+            [['validator' => $validator, 'fileSet' => $fileSet]]
+        );
+
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
+        $exitCode = $this->renderer->render($validationResult);
+        $output = $this->output->fetch();
+
+        $this->assertSame(0, $exitCode);
+        // Should not contain file path or detailed issues in compact mode for warnings
+        $this->assertStringNotContainsString('/test/path/test.xlf', $output);
+        $this->assertStringContainsString('Language validation completed with warnings', $output);
+    }
+
+    public function testRenderErrorInCompactModeShowsDetails(): void
+    {
+        // Test that errors DO show detailed output in compact mode
+        $validator = $this->createMockValidator(ResultType::ERROR);
+        $issue = new Issue('test.xlf', ['error'], 'TestParser', 'TestValidator');
+        $validator->method('hasIssues')->willReturn(true);
+        $validator->method('getIssues')->willReturn([$issue]);
+
+        $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
+        $validationResult = new ValidationResult(
+            [$validator],
+            ResultType::ERROR,
+            [['validator' => $validator, 'fileSet' => $fileSet]]
+        );
+
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
+        $exitCode = $this->renderer->render($validationResult);
+        $output = $this->output->fetch();
+
+        $this->assertSame(1, $exitCode);
+        // Should contain file path and detailed issues in compact mode for errors
+        $this->assertStringContainsString('test/path/test.xlf', $output);
+        $this->assertStringContainsString('Language validation failed with errors', $output);
+    }
+
+    public function testRenderSummaryMessagesWithDryRun(): void
+    {
+        // Test dry-run message variations
+        $renderer = new ValidationResultCliRenderer(
+            $this->output,
+            $this->input,
+            true, // dry run
+            false
+        );
+
+        $validationResult = new ValidationResult([], ResultType::ERROR);
+        $renderer->render($validationResult);
+        $output = $this->output->fetch();
+
+        $this->assertStringContainsString('Language validation failed with errors in dry-run mode.', $output);
+    }
+
+    public function testRenderWarningWithStrictModeHint(): void
+    {
+        $validationResult = new ValidationResult([], ResultType::WARNING);
+
+        $renderer = new ValidationResultCliRenderer(
+            $this->output,
+            $this->input,
+            false, // not dry run
+            false  // not strict
+        );
+
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
+        $renderer->render($validationResult);
+        $output = $this->output->fetch();
+
+        $this->assertStringContainsString('Use `--strict` to treat warnings as errors', $output);
+    }
+
+    public function testRenderWarningWithStrictModeNoHint(): void
+    {
+        $validationResult = new ValidationResult([], ResultType::WARNING);
+
+        $renderer = new ValidationResultCliRenderer(
+            $this->output,
+            $this->input,
+            false, // not dry run
+            true   // strict mode
+        );
+
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
+        $renderer->render($validationResult);
+        $output = $this->output->fetch();
+
+        $this->assertStringNotContainsString('Use `--strict` to treat warnings as errors', $output);
+    }
+
+    public function testRenderWarningCompactOutput(): void
+    {
+        $validationResult = new ValidationResult([], ResultType::WARNING);
+
+        $renderer = new ValidationResultCliRenderer(
+            $this->output,
+            $this->input,
+            false, // not dry run
+            false  // not strict
+        );
+
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
+        $renderer->render($validationResult);
+        $output = $this->output->fetch();
+
+        // Should be simple text output (yellow), not a warning box
+        $this->assertStringContainsString('Language validation completed with warnings', $output);
+        $this->assertStringNotContainsString('[WARNING]', $output); // No warning box formatting
+    }
+
+    public function testRenderWarningVerboseOutput(): void
+    {
+        $validationResult = new ValidationResult([], ResultType::WARNING);
+
+        $renderer = new ValidationResultCliRenderer(
+            $this->output,
+            $this->input,
+            false, // not dry run
+            false  // not strict
+        );
+
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
+        $renderer->render($validationResult);
+        $output = $this->output->fetch();
+
+        // Should be warning box format in verbose mode
+        $this->assertStringContainsString('[WARNING]', $output);
     }
 }

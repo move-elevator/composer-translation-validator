@@ -49,6 +49,21 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
             return;
         }
 
+        // Check if we have any errors (not just warnings)
+        $hasErrors = false;
+        foreach ($validatorPairs as $pair) {
+            $validator = $pair['validator'];
+            if ($validator->hasIssues() && ResultType::ERROR === $validator->resultTypeOnValidationFailure()) {
+                $hasErrors = true;
+                break;
+            }
+        }
+
+        // Only show detailed output for errors, not warnings
+        if (!$hasErrors) {
+            return;
+        }
+
         $groupedByFile = [];
         foreach ($validatorPairs as $pair) {
             $validator = $pair['validator'];
@@ -242,16 +257,30 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
     private function renderSummary(ResultType $resultType): void
     {
         if ($resultType->notFullySuccessful()) {
-            $this->io->newLine();
-            $message = $this->dryRun
-                ? 'Language validation failed and completed in dry-run mode.'
-                : 'Language validation failed.';
+            $message = match (true) {
+                $this->dryRun && ResultType::ERROR === $resultType => 'Language validation failed with errors in dry-run mode.',
+                $this->dryRun && ResultType::WARNING === $resultType => 'Language validation completed with warnings in dry-run mode.',
+                ResultType::ERROR === $resultType => 'Language validation failed with errors.',
+                ResultType::WARNING === $resultType => 'Language validation completed with warnings.',
+                default => 'Language validation failed.',
+            };
 
             if (!$this->output->isVerbose()) {
                 $message .= ' See more details with the `-v` verbose option.';
+
+                // Add strict mode hint for warnings
+                if (ResultType::WARNING === $resultType && !$this->strict) {
+                    $message .= ' Use `--strict` to treat warnings as errors.';
+                }
             }
 
-            $this->io->{$this->dryRun || ResultType::WARNING === $resultType ? 'warning' : 'error'}($message);
+            // Use simple text output for warnings in normal mode, styled boxes in verbose mode and for errors
+            if (ResultType::WARNING === $resultType && !$this->dryRun && !$this->output->isVerbose()) {
+                $this->output->writeln('<fg=yellow>'.$message.'</>');
+            } else {
+                $this->io->newLine();
+                $this->io->{$this->dryRun || ResultType::WARNING === $resultType ? 'warning' : 'error'}($message);
+            }
         } else {
             $message = 'Language validation succeeded.';
             $this->output->isVerbose()
