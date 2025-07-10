@@ -30,8 +30,10 @@ composer require --dev move-elevator/composer-translation-validator
 
 ## 📊 Usage
 
+Validate your translation files by running the command:
+
 ```bash
-composer validate-translations [<path>]
+composer validate-translations ./translations
 ```
 
 ![console.png](docs/console.png)
@@ -39,20 +41,21 @@ composer validate-translations [<path>]
 The command `validate-translations` can be used to validate translation files in your project. It will automatically detect the translation files based on the supported formats and run the configured validators.
 
 ```bash
-composer validate-translations [<path>] [-dr|--dry-run] [-f|--format cli|json] [-s|--skip VALIDATOR] [-o|--only VALIDATOR] [-v|--verbose]
+composer validate-translations [<path>] [--dry-run] [--strict] [-f|--format cli|json] [-s|--skip VALIDATOR] [-o|--only VALIDATOR] [-v|--verbose]
 ```
 
 | Argument / Option         | Shortcut | Description                                                                                       |
 |--------------------------|----------|---------------------------------------------------------------------------------------------------|
 | `<path>`                 |          | (Optional) Path to the translation files or directories to validate (can be used multiple times). |
-| `--dry-run`              |          | Runs the validation in test mode without saving changes.                                          |
 | `--format`               | `-f`     | Sets the output format (`cli`, `json`).                                                           |
 | `--skip`                 | `-s`     | Skips specific validators (can be used multiple times).                                           |
 | `--only`                 | `-o`     | Runs only the specified validators (can be used multiple times).                                  |
-| `--strict`               |          | Enables strict mode, treating warnings as errors.                                                 |
 | `--verbose`              | `-v`     | Shows additional output for detailed information.                                                 |
+| `--strict`               |          | Enables strict mode, treating warnings as errors.                                                 |
+| `--dry-run`              |          | Runs the validation in test mode without saving changes.                                          |
 | `--config`               | `-c`     | Path to a configuration file (e.g. `translation-validator.yaml`).                                 |
 
+Find more information about store a [config file](docs/config-file.md).
 
 ## 📝 Documentation
 
@@ -64,6 +67,9 @@ The plugin supports the following translation file formats (and targets the foll
 |----------------------------------------------|--------------------------------------------------------------------------------------------------------------|-----------|----------------------------------------|
 | [XLIFF](https://en.wikipedia.org/wiki/XLIFF) | Supports source/target translations in xliff language files. | [TYPO3 CMS](https://typo3.org/)          | `locallang.xlf`, `de.locallang.xlf`    |
 | [Yaml](https://en.wikipedia.org/wiki/YAML)   | Supports yaml language files.                     | [Symfony Framework](https://symfony.com/)          | `messages.en.yaml`, `messages.de.yaml` |
+
+> !NOTE
+> The translation files will be grouped to file sets based on the file name prefix or suffix. For example, `locallang.xlf` and `de.locallang.xlf` will be grouped together as they share the same prefix (`locallang`), while `messages.en.yaml` and `messages.de.yaml` will be grouped by their suffix (`.en`, `.de`). See the [File Detectors](docs/file-detector.md) for more details.
 
 ### Validators
 
