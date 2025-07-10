@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Command;
 
 use Composer\Command\BaseCommand;
+use MoveElevator\ComposerTranslationValidator\Config\ConfigReader;
+use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
 use MoveElevator\ComposerTranslationValidator\FileDetector\Collector;
 use MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface;
 use MoveElevator\ComposerTranslationValidator\Result\FormatType;
@@ -38,6 +40,7 @@ class ValidateTranslationCommand extends BaseCommand
     protected function configure(): void
     {
         $this->setName('validate-translations')
+            ->setAliases(['vt'])
             ->setDescription('Validates translation files with several validators.')
             ->addArgument(
                 'path',
@@ -46,7 +49,7 @@ class ValidateTranslationCommand extends BaseCommand
             )
             ->addOption(
                 'dry-run',
-                'dr',
+                null,
                 InputOption::VALUE_NONE,
                 'Run the command in dry-run mode without throwing errors'
             )
@@ -64,18 +67,6 @@ class ValidateTranslationCommand extends BaseCommand
                 FormatType::CLI->value
             )
             ->addOption(
-                'exclude',
-                'e',
-                InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED,
-                'Patterns to exclude specific files'
-            )
-            ->addOption(
-                'file-detector',
-                'fd',
-                InputOption::VALUE_OPTIONAL,
-                'The file detector to use (FQCN)'
-            )
-            ->addOption(
                 'only',
                 'o',
                 InputOption::VALUE_OPTIONAL,
@@ -86,7 +77,58 @@ class ValidateTranslationCommand extends BaseCommand
                 's',
                 InputOption::VALUE_OPTIONAL,
                 'Skip specific validators (FQCN), comma-separated'
+            )
+            ->addOption(
+                'config',
+                'c',
+                InputOption::VALUE_OPTIONAL,
+                'Path to the configuration file'
+            )
+            ->setHelp(
+                <<<HELP
+The <info>validate-translations</info> command validates translation files (XLIFF and YAML)
+using multiple validators to ensure consistency, correctness and schema compliance.
+
+<comment>Usage:</comment>
+  <info>composer validate-translations <path> [options]</info>
+
+<comment>Examples:</comment>
+  <info>composer validate-translations translations/</info>
+  <info>composer validate-translations translations/ --format json</info>
+  <info>composer validate-translations translations/ --dry-run</info>
+  <info>composer validate-translations translations/ --strict</info>
+  <info>composer validate-translations translations/ --only "MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator"</info>
+
+<comment>Available Validators:</comment>
+  • <info>MismatchValidator</info>        - Detects mismatches between source and target
+  • <info>DuplicateKeysValidator</info>   - Finds duplicate translation keys
+  • <info>DuplicateValuesValidator</info> - Finds duplicate translation values
+  • <info>SchemaValidator</info>          - Validates XLIFF schema compliance
+
+<comment>Configuration:</comment>
+You can configure the validator using:
+  1. Command line options
+  2. A configuration file (--config option)
+  3. Settings in composer.json under "extra.translation-validator"
+  4. Auto-detection from project structure
+
+<comment>Output Formats:</comment>
+  • <info>cli</info>  - Human-readable console output (default)
+  • <info>json</info> - Machine-readable JSON output
+
+<comment>Modes:</comment>
+  • <info>--dry-run</info> - Run validation without failing on errors
+  • <info>--strict</info>  - Treat warnings as errors
+HELP
             );
+    }
+
+    protected function initialize(InputInterface $input, OutputInterface $output): void
+    {
+        $this->input = $input;
+        $this->output = $output;
+        $this->io = new SymfonyStyle($input, $output);
+        $this->logger = new ConsoleLogger($output);
     }
 
     /**
@@ -94,24 +136,15 @@ class ValidateTranslationCommand extends BaseCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->logger = new ConsoleLogger($output);
+        $config = $this->loadConfiguration($input);
 
-        $this->input = $input;
-        $this->output = $output;
-        $this->io = new SymfonyStyle($input, $output);
+        $paths = $this->resolvePaths($input, $config);
 
-        $paths = array_map(static fn ($path) => str_starts_with((string) $path, '/') ? $path : getcwd().'/'.$path, $input->getArgument('path'));
+        $this->dryRun = $config->getDryRun() || $input->getOption('dry-run');
+        $this->strict = $config->getStrict() || $input->getOption('strict');
+        $excludePatterns = $config->getExclude();
 
-        $this->dryRun = $input->getOption('dry-run');
-        $this->strict = $input->getOption('strict');
-        $excludePatterns = $input->getOption('exclude');
-
-        $fileDetector = ClassUtility::instantiate(
-            DetectorInterface::class,
-            $this->logger,
-            'file detector',
-            $input->getOption('file-detector')
-        );
+        $fileDetector = $this->resolveFileDetector($config);
 
         if (empty($paths)) {
             $this->io->error('No paths provided.');
@@ -126,13 +159,13 @@ class ValidateTranslationCommand extends BaseCommand
             return Command::SUCCESS;
         }
 
-        $validators = $this->resolveValidators($input);
+        $validators = $this->resolveValidators($input, $config);
         $fileSets = ValidationRun::createFileSetsFromArray($allFiles);
 
         $validationRun = new ValidationRun($this->logger);
         $validationResult = $validationRun->executeFor($fileSets, $validators);
 
-        $format = FormatType::tryFrom($input->getOption('format'));
+        $format = FormatType::tryFrom($input->getOption('format') ?: $config->getFormat());
 
         if (null === $format) {
             $this->io->error('Invalid output format specified. Use "cli" or "json".');
@@ -151,21 +184,81 @@ class ValidateTranslationCommand extends BaseCommand
         ))->summarize();
     }
 
+    private function loadConfiguration(InputInterface $input): TranslationValidatorConfig
+    {
+        $configReader = new ConfigReader();
+        $configPath = $input->getOption('config');
+
+        if ($configPath) {
+            return $configReader->read($configPath);
+        }
+
+        // Try to load from composer.json
+        $composerJsonPath = getcwd().'/composer.json';
+        $config = $configReader->readFromComposerJson($composerJsonPath);
+        if ($config) {
+            return $config;
+        }
+
+        // Try auto-detection
+        $config = $configReader->autoDetect();
+        if ($config) {
+            return $config;
+        }
+
+        // Return default configuration
+        return new TranslationValidatorConfig();
+    }
+
+    /**
+     * @return string[]
+     */
+    private function resolvePaths(InputInterface $input, TranslationValidatorConfig $config): array
+    {
+        $inputPaths = $input->getArgument('path');
+        $configPaths = $config->getPaths();
+
+        $paths = !empty($inputPaths) ? $inputPaths : $configPaths;
+
+        return array_map(static fn ($path) => str_starts_with((string) $path, '/') ? $path : getcwd().'/'.$path, $paths);
+    }
+
+    private function resolveFileDetector(TranslationValidatorConfig $config): ?DetectorInterface
+    {
+        $configFileDetectors = $config->getFileDetectors();
+        $fileDetectorClass = !empty($configFileDetectors) ? $configFileDetectors[0] : null;
+
+        $detector = ClassUtility::instantiate(
+            DetectorInterface::class,
+            $this->logger,
+            'file detector',
+            $fileDetectorClass
+        );
+
+        return $detector instanceof DetectorInterface ? $detector : null;
+    }
+
     /**
      * @return array<int, class-string<ValidatorInterface>>
      */
-    private function resolveValidators(InputInterface $input): array
+    private function resolveValidators(InputInterface $input, TranslationValidatorConfig $config): array
     {
-        $only = $this->validateClassInput(
+        $inputOnly = $this->validateClassInput(
             ValidatorInterface::class,
             'validator',
             $input->getOption('only')
         );
-        $skip = $this->validateClassInput(
+        $inputSkip = $this->validateClassInput(
             ValidatorInterface::class,
             'validator',
             $input->getOption('skip')
         );
+
+        $configOnly = $config->getOnly();
+        $configSkip = $config->getSkip();
+
+        $only = !empty($inputOnly) ? $inputOnly : $configOnly;
+        $skip = !empty($inputSkip) ? $inputSkip : $configSkip;
 
         if (!empty($only)) {
             $validators = $only;

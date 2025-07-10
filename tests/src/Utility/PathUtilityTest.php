@@ -83,4 +83,52 @@ final class PathUtilityTest extends TestCase
         $unrelatedPath = '/another/path/to/folder';
         $this->assertSame('/another/path/to/folder', PathUtility::normalizeFolderPath($unrelatedPath));
     }
+
+    public function testNormalizeFolderPathWithDotSlashPrefixAndTrailingSlash(): void
+    {
+        $path = './path/to/folder/';
+        $this->assertSame('path/to/folder', PathUtility::normalizeFolderPath($path));
+    }
+
+    public function testNormalizeFolderPathWithOnlyDotSlash(): void
+    {
+        $path = './';
+        $this->assertSame('', PathUtility::normalizeFolderPath($path));
+    }
+
+    public function testNormalizeFolderPathWithOnlyDot(): void
+    {
+        $path = '.';
+        $this->assertSame('', PathUtility::normalizeFolderPath($path));
+    }
+
+    public function testNormalizeFolderPathWithMultipleTrailingSlashes(): void
+    {
+        $path = '/path/to/folder///';
+        $this->assertSame('/path/to/folder', PathUtility::normalizeFolderPath($path));
+    }
+
+    public function testNormalizeFolderPathWithSingleSlash(): void
+    {
+        $path = '/';
+        $this->assertSame('', PathUtility::normalizeFolderPath($path));
+    }
+
+    public function testNormalizeFolderPathWithNonExistentPath(): void
+    {
+        $path = '/non/existent/path';
+        $this->assertSame('/non/existent/path', PathUtility::normalizeFolderPath($path));
+    }
+
+    public function testNormalizeFolderPathWithRelativeNonExistentPath(): void
+    {
+        $path = 'relative/non/existent/path';
+        $this->assertSame('relative/non/existent/path', PathUtility::normalizeFolderPath($path));
+    }
+
+    public function testNormalizeFolderPathWithDotsInPath(): void
+    {
+        $path = '/path/../other/path';
+        $this->assertSame('/path/../other/path', PathUtility::normalizeFolderPath($path));
+    }
 }

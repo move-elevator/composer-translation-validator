@@ -140,4 +140,10 @@ class ParserCacheTest extends TestCase
 
         $this->assertContains($expectedKey, $stats['cache_keys']);
     }
+
+    public function testGetWithNullParserClassReturnsFalse(): void
+    {
+        $result = ParserCache::get($this->testFile, null);
+        $this->assertFalse($result);
+    }
 }

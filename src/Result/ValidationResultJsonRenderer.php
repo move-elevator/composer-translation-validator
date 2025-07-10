@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Result;
 
+use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ValidationResultJsonRenderer implements ValidationResultRendererInterface
@@ -38,15 +39,19 @@ class ValidationResultJsonRenderer implements ValidationResultRendererInterface
 
     private function generateMessage(ValidationResult $validationResult): string
     {
-        if (!$validationResult->hasIssues()) {
+        $resultType = $validationResult->getOverallResult();
+
+        if (!$resultType->notFullySuccessful()) {
             return 'Language validation succeeded.';
         }
 
-        if ($this->dryRun) {
-            return 'Language validation failed and completed in dry-run mode.';
-        }
-
-        return 'Language validation failed.';
+        return match (true) {
+            $this->dryRun && ResultType::ERROR === $resultType => 'Language validation failed with errors in dry-run mode.',
+            $this->dryRun && ResultType::WARNING === $resultType => 'Language validation completed with warnings in dry-run mode.',
+            ResultType::ERROR === $resultType => 'Language validation failed with errors.',
+            ResultType::WARNING === $resultType => 'Language validation completed with warnings.',
+            default => 'Language validation failed.',
+        };
     }
 
     /**

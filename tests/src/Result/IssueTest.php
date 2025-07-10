@@ -109,4 +109,29 @@ class IssueTest extends TestCase
 
         $this->assertSame($expected, $issue->toArray());
     }
+
+    public function testWithNullAndSpecialCharactersInDetails(): void
+    {
+        $details = [
+            'null_value' => null,
+            'special_chars' => 'äöü ß €',
+            'unicode' => '🚀 🎉',
+            'empty_string' => '',
+            'zero' => 0,
+            'false' => false,
+        ];
+
+        $issue = new Issue('special.xlf', $details, 'TestParser', 'TestValidator');
+
+        $this->assertSame($details, $issue->getDetails());
+        $this->assertSame($details, $issue->toArray()['issues']);
+    }
+
+    public function testWithLongFilePath(): void
+    {
+        $longPath = str_repeat('very/long/path/', 10).'test.xlf';
+        $issue = new Issue($longPath, [], 'TestParser', 'TestValidator');
+
+        $this->assertSame($longPath, $issue->getFile());
+    }
 }

@@ -104,4 +104,85 @@ final class CollectorTest extends TestCase
 
         $this->assertEmpty($result);
     }
+
+    public function testCollectFilesWithEmptyGlobResult(): void
+    {
+        // Create a directory but no files matching the parser extensions
+        mkdir($this->tempDir.'/subdir');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->exactly(2))
+            ->method('debug')
+            ->with($this->stringContains('No files found for parser class'));
+
+        $detector = $this->createMock(DetectorInterface::class);
+        $collector = new Collector($logger);
+
+        $result = $collector->collectFiles([$this->tempDir], $detector, null);
+
+        $this->assertEmpty($result);
+    }
+
+    public function testCollectFilesWithYamlFiles(): void
+    {
+        file_put_contents($this->tempDir.'/test.yaml', 'content');
+        file_put_contents($this->tempDir.'/test.yml', 'content');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $detector = $this->createMock(DetectorInterface::class);
+        $detector->method('mapTranslationSet')->willReturn(['mapped_yaml_data']);
+
+        $collector = new Collector($logger);
+
+        $result = $collector->collectFiles([$this->tempDir], $detector, null);
+
+        $this->assertArrayHasKey(\MoveElevator\ComposerTranslationValidator\Parser\YamlParser::class, $result);
+        $this->assertArrayHasKey($this->tempDir, $result[\MoveElevator\ComposerTranslationValidator\Parser\YamlParser::class]);
+        $this->assertEquals(['mapped_yaml_data'], $result[\MoveElevator\ComposerTranslationValidator\Parser\YamlParser::class][$this->tempDir]);
+    }
+
+    public function testCollectFilesWithComplexExcludePattern(): void
+    {
+        file_put_contents($this->tempDir.'/keep.xlf', 'content');
+        file_put_contents($this->tempDir.'/vendor_file.xlf', 'content');
+        mkdir($this->tempDir.'/vendor');
+        file_put_contents($this->tempDir.'/vendor/test.xlf', 'content');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $detector = $this->createMock(DetectorInterface::class);
+        $detector->method('mapTranslationSet')->willReturn(['mapped_data']);
+
+        $collector = new Collector($logger);
+
+        $result = $collector->collectFiles([$this->tempDir], $detector, ['vendor*']);
+
+        $this->assertArrayHasKey(XliffParser::class, $result);
+        $this->assertArrayHasKey($this->tempDir, $result[XliffParser::class]);
+        $this->assertEquals(['mapped_data'], $result[XliffParser::class][$this->tempDir]);
+    }
+
+    public function testCollectFilesWithMultiplePaths(): void
+    {
+        $tempDir2 = sys_get_temp_dir().'/collector_test2_'.uniqid();
+        mkdir($tempDir2);
+
+        file_put_contents($this->tempDir.'/test1.xlf', 'content1');
+        file_put_contents($tempDir2.'/test2.xlf', 'content2');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $detector = $this->createMock(DetectorInterface::class);
+        $detector->method('mapTranslationSet')->willReturn(['mapped_data']);
+
+        $collector = new Collector($logger);
+
+        $result = $collector->collectFiles([$this->tempDir, $tempDir2], $detector, null);
+
+        $this->assertArrayHasKey(XliffParser::class, $result);
+        $this->assertArrayHasKey($this->tempDir, $result[XliffParser::class]);
+        $this->assertArrayHasKey($tempDir2, $result[XliffParser::class]);
+
+        // Clean up
+        unlink($tempDir2.'/test2.xlf');
+        rmdir($tempDir2);
+    }
 }

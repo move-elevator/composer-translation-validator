@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.move-elevator.com/translation-validator.json",
+  "title": "Translation Validator Configuration",
+  "description": "Configuration schema for the Translation Validator Composer plugin",
+  "type": "object",
+  "properties": {
+	"paths": {
+	  "type": "array",
+	  "description": "List of directories to check for translation files",
+	  "items": {
+		"type": "string",
+		"minLength": 1
+	  },
+	  "minItems": 1,
+	  "examples": [
+		["translations", "resources/lang"]
+	  ]
+	},
+	"validators": {
+	  "type": "array",
+	  "description": "List of validator class names to use",
+	  "items": {
+		"type": "string",
+	  	"pattern": "^[A-Za-z_][A-Za-z0-9_]*(?:\\\\\\\\[A-Za-z_][A-Za-z0-9_]*)*$"
+	  },
+	  "examples": [
+		["MoveElevator\\ComposerTranslationValidator\\Validator\\SchemaValidator"]
+	  ]
+	},
+	"file-detectors": {
+	  "type": "array",
+	  "description": "List of file detector class names to use",
+	  "items": {
+		"type": "string",
+		"pattern": "^[A-Za-z_][A-Za-z0-9_\\\\]*$"
+	  },
+	  "examples": [
+		["MoveElevator\\ComposerTranslationValidator\\FileDetector\\PrefixFileDetector"]
+	  ]
+	},
+	"parsers": {
+	  "type": "array",
+	  "description": "List of parser class names to use",
+	  "items": {
+		"type": "string",
+		"pattern": "^[A-Za-z_][A-Za-z0-9_\\\\]*$"
+	  },
+	  "examples": [
+		["MoveElevator\\ComposerTranslationValidator\\Parser\\XliffParser"]
+	  ]
+	},
+	"only": {
+	  "type": "array",
+	  "description": "Only run these specific validators (excludes all others)",
+	  "items": {
+		"type": "string",
+		"pattern": "^[A-Za-z_][A-Za-z0-9_\\\\]*$"
+	  },
+	  "examples": [
+		["MoveElevator\\ComposerTranslationValidator\\Validator\\MismatchValidator"]
+	  ]
+	},
+	"skip": {
+	  "type": "array",
+	  "description": "Skip these specific validators",
+	  "items": {
+		"type": "string",
+		"pattern": "^[A-Za-z_][A-Za-z0-9_\\\\]*$"
+	  },
+	  "examples": [
+		["MoveElevator\\ComposerTranslationValidator\\Validator\\SchemaValidator"]
+	  ]
+	},
+	"exclude": {
+	  "type": "array",
+	  "description": "File patterns to exclude from validation",
+	  "items": {
+		"type": "string",
+		"minLength": 1
+	  },
+	  "examples": [
+		["vendor/*", "node_modules/*", "*.backup.*"]
+	  ]
+	},
+	"strict": {
+	  "type": "boolean",
+	  "description": "Treat warnings as errors",
+	  "default": false
+	},
+	"dry-run": {
+	  "type": "boolean",
+	  "description": "Run validation without throwing errors",
+	  "default": false
+	},
+	"format": {
+	  "type": "string",
+	  "description": "Output format for validation results",
+	  "enum": ["cli", "json", "yaml", "php"],
+	  "default": "cli"
+	},
+	"verbose": {
+	  "type": "boolean",
+	  "description": "Enable verbose output",
+	  "default": false
+	}
+  },
+  "required": ["paths"],
+  "additionalProperties": false,
+  "allOf": [
+	{
+	  "if": {
+		"properties": {
+		  "only": {
+			"type": "array",
+			"minItems": 1
+		  }
+		}
+	  },
+	  "then": {
+		"properties": {
+		  "skip": {
+			"description": "Note: 'skip' is ignored when 'only' is specified"
+		  }
+		}
+	  }
+	}
+  ],
+  "examples": [
+	{
+	  "paths": ["translations"],
+	  "strict": true,
+	  "format": "json"
+	},
+	{
+	  "paths": ["resources/lang", "translations"],
+	  "validators": [
+		"MoveElevator\\ComposerTranslationValidator\\Validator\\MismatchValidator",
+		"MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator"
+	  ],
+	  "exclude": ["vendor/*", "*.backup.*"],
+	  "strict": false,
+	  "dry-run": false,
+	  "format": "cli",
+	  "verbose": true
+	}
+  ]
+}

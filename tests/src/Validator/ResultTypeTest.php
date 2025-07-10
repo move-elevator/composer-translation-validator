@@ -64,4 +64,24 @@ final class ResultTypeTest extends TestCase
         // SUCCESS, dryRun, strict
         $this->assertSame(Command::SUCCESS, ResultType::SUCCESS->resolveErrorToCommandExitCode(true, true));
     }
+
+    public function testToString(): void
+    {
+        $this->assertSame('Success', ResultType::SUCCESS->toString());
+        $this->assertSame('Warning', ResultType::WARNING->toString());
+        $this->assertSame('Error', ResultType::ERROR->toString());
+    }
+
+    public function testToColorString(): void
+    {
+        $this->assertSame('green', ResultType::SUCCESS->toColorString());
+        $this->assertSame('yellow', ResultType::WARNING->toColorString());
+        $this->assertSame('red', ResultType::ERROR->toColorString());
+    }
+
+    public function testMaxWithSameValues(): void
+    {
+        $this->assertSame(ResultType::ERROR, ResultType::ERROR->max(ResultType::ERROR));
+        $this->assertSame(ResultType::WARNING, ResultType::WARNING->max(ResultType::WARNING));
+    }
 }
