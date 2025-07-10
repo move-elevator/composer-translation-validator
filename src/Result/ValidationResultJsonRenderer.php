@@ -48,6 +48,7 @@ class ValidationResultJsonRenderer implements ValidationResultRendererInterface
         return match (true) {
             $this->dryRun && ResultType::ERROR === $resultType => 'Language validation failed with errors in dry-run mode.',
             $this->dryRun && ResultType::WARNING === $resultType => 'Language validation completed with warnings in dry-run mode.',
+            $this->strict && ResultType::WARNING === $resultType => 'Language validation failed with warnings in strict mode.',
             ResultType::ERROR === $resultType => 'Language validation failed with errors.',
             ResultType::WARNING === $resultType => 'Language validation completed with warnings.',
             default => 'Language validation failed.',
