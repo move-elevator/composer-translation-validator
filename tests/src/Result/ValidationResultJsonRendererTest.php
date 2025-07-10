@@ -138,7 +138,7 @@ class ValidationResultJsonRendererTest extends TestCase
         $output = json_decode($jsonOutput, true);
 
         $this->assertEquals(1, $output['status']);
-        $this->assertEquals('Language validation completed with warnings.', $output['message']);
+        $this->assertEquals('Language validation failed with warnings in strict mode.', $output['message']);
     }
 
     public function testRenderWithWarningNotStrict(): void
