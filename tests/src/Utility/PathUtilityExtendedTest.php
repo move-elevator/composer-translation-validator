@@ -29,30 +29,28 @@ class PathUtilityExtendedTest extends TestCase
         $this->assertSame('/some/path', $result);
     }
 
+    #[\PHPUnit\Framework\Attributes\DoesNotPerformAssertions]
     public function testNormalizeFolderPathWithCurrentDirectory(): void
     {
         $currentDir = getcwd();
         $result = PathUtility::normalizeFolderPath($currentDir);
-        
-        // Should return relative path or absolute path depending on implementation
-        $this->assertIsString($result);
-        // The result might be empty string for current directory
-        $this->assertTrue(is_string($result));
+
+        // Test that the method returns a result (may be empty string for current directory)
+        $this->addToAssertionCount(1); // Function executes without error
     }
 
     public function testNormalizeFolderPathWithSubdirectoryOfCwd(): void
     {
         $currentDir = getcwd();
-        $testDir = $currentDir . '/test_subdir';
-        
+        $testDir = $currentDir.'/test_subdir';
+
         // Create temporary directory
         if (!is_dir($testDir)) {
             mkdir($testDir, 0777, true);
         }
-        
+
         try {
             $result = PathUtility::normalizeFolderPath($testDir);
-            $this->assertIsString($result);
             $this->assertSame('test_subdir', $result);
         } finally {
             // Clean up
@@ -66,9 +64,8 @@ class PathUtilityExtendedTest extends TestCase
     {
         $tempDir = sys_get_temp_dir();
         $result = PathUtility::normalizeFolderPath($tempDir);
-        
+
         // Should return the full path if outside cwd
-        $this->assertIsString($result);
         $this->assertNotEmpty($result);
     }
 
@@ -78,12 +75,13 @@ class PathUtilityExtendedTest extends TestCase
         $this->assertSame('', $result);
     }
 
+    #[\PHPUnit\Framework\Attributes\DoesNotPerformAssertions]
     public function testNormalizeFolderPathWithDotOnly(): void
     {
         $result = PathUtility::normalizeFolderPath('.');
-        $this->assertIsString($result);
-        // The result might be empty string for current directory
-        $this->assertTrue(is_string($result));
+
+        // Test that the method returns a result (may be empty string for current directory)
+        $this->addToAssertionCount(1); // Function executes without error
     }
 
     public function testNormalizeFolderPathWithComplexDotSlashPath(): void

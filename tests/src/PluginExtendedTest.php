@@ -25,9 +25,9 @@ class PluginExtendedTest extends TestCase
         $composer = $this->createMock(Composer::class);
         $io = $this->createMock(IOInterface::class);
 
-        // Should not throw any exception
+        // Should not throw any exception - test passes if no exception is thrown
         $this->plugin->activate($composer, $io);
-        $this->assertTrue(true); // Method executes without error
+        $this->addToAssertionCount(1);
     }
 
     public function testDeactivate(): void
@@ -35,9 +35,9 @@ class PluginExtendedTest extends TestCase
         $composer = $this->createMock(Composer::class);
         $io = $this->createMock(IOInterface::class);
 
-        // Should not throw any exception
+        // Should not throw any exception - test passes if no exception is thrown
         $this->plugin->deactivate($composer, $io);
-        $this->assertTrue(true); // Method executes without error
+        $this->addToAssertionCount(1);
     }
 
     public function testUninstall(): void
@@ -45,8 +45,8 @@ class PluginExtendedTest extends TestCase
         $composer = $this->createMock(Composer::class);
         $io = $this->createMock(IOInterface::class);
 
-        // Should not throw any exception
+        // Should not throw any exception - test passes if no exception is thrown
         $this->plugin->uninstall($composer, $io);
-        $this->assertTrue(true); // Method executes without error
+        $this->addToAssertionCount(1);
     }
 }
