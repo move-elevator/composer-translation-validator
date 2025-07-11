@@ -10,7 +10,7 @@ use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Translation\Util\XliffUtils;
 
-class SchemaValidator extends AbstractValidator implements ValidatorInterface
+class XliffSchemaValidator extends AbstractValidator implements ValidatorInterface
 {
     public function processFile(ParserInterface $file): array
     {
@@ -34,7 +34,11 @@ class SchemaValidator extends AbstractValidator implements ValidatorInterface
             $dom = XmlUtils::parse($fileContent);
             $errors = XliffUtils::validateSchema($dom);
         } catch (\Exception $e) {
-            $this->logger?->error('Failed to validate XML schema: '.$e->getMessage());
+            if (str_contains($e->getMessage(), 'No support implemented for loading XLIFF version')) {
+                $this->logger?->notice(sprintf('Skipping %s: %s', $this->getShortName(), $e->getMessage()));
+            } else {
+                $this->logger?->error('Failed to validate XML schema: '.$e->getMessage());
+            }
 
             return [];
         }
