@@ -15,7 +15,7 @@ jobs:
         include:
           # Lowest PHP, Lowest Compatible Symfony, Lowest Composer
           - php: '8.1'
-            symfony_constraint: '^50'
+            symfony_constraint: '^5.0'
             composer_version: '2.2'
             name_suffix: ' (PHP 8.1, Symfony 5.x, Composer 2.2)'
 
