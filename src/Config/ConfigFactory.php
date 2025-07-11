@@ -27,50 +27,34 @@ class ConfigFactory
 
         $config = new TranslationValidatorConfig();
 
-        if (isset($data['paths'])) {
-            $config->setPaths($data['paths']);
-        }
-
-        if (isset($data['validators'])) {
-            $config->setValidators($data['validators']);
-        }
-
-        if (isset($data['file-detectors'])) {
-            $config->setFileDetectors($data['file-detectors']);
-        }
-
-        if (isset($data['parsers'])) {
-            $config->setParsers($data['parsers']);
-        }
-
-        if (isset($data['only'])) {
-            $config->setOnly($data['only']);
-        }
-
-        if (isset($data['skip'])) {
-            $config->setSkip($data['skip']);
-        }
-
-        if (isset($data['exclude'])) {
-            $config->setExclude($data['exclude']);
-        }
-
-        if (isset($data['strict'])) {
-            $config->setStrict($data['strict']);
-        }
-
-        if (isset($data['dry-run'])) {
-            $config->setDryRun($data['dry-run']);
-        }
-
-        if (isset($data['format'])) {
-            $config->setFormat($data['format']);
-        }
-
-        if (isset($data['verbose'])) {
-            $config->setVerbose($data['verbose']);
-        }
+        $this->applyConfigurationSettings($config, $data);
 
         return $config;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function applyConfigurationSettings(TranslationValidatorConfig $config, array $data): void
+    {
+        $setters = [
+            'paths' => 'setPaths',
+            'validators' => 'setValidators',
+            'file-detectors' => 'setFileDetectors',
+            'parsers' => 'setParsers',
+            'only' => 'setOnly',
+            'skip' => 'setSkip',
+            'exclude' => 'setExclude',
+            'strict' => 'setStrict',
+            'dry-run' => 'setDryRun',
+            'format' => 'setFormat',
+            'verbose' => 'setVerbose',
+        ];
+
+        foreach ($setters as $key => $method) {
+            if (isset($data[$key])) {
+                $config->$method($data[$key]);
+            }
+        }
     }
 }

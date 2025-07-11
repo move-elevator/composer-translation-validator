@@ -54,7 +54,9 @@ class ValidationResultCliRenderer extends AbstractValidationResultRenderer
         $hasErrors = false;
         foreach ($groupedByFile as $validatorGroups) {
             foreach ($validatorGroups as $validatorData) {
-                if ($validatorData['validator']->hasIssues() && ResultType::ERROR === $validatorData['validator']->resultTypeOnValidationFailure()) {
+                if ($validatorData['validator']->hasIssues()
+                    && ResultType::ERROR === $validatorData['validator']
+                        ->resultTypeOnValidationFailure()) {
                     $hasErrors = true;
                     break 2;
                 }
@@ -206,8 +208,12 @@ class ValidationResultCliRenderer extends AbstractValidationResultRenderer
         return 1;
     }
 
-    private function formatIssueMessage(ValidatorInterface $validator, Issue $issue, string $validatorName = '', bool $isVerbose = false): string
-    {
+    private function formatIssueMessage(
+        ValidatorInterface $validator,
+        Issue $issue,
+        string $validatorName = '',
+        bool $isVerbose = false,
+    ): string {
         $prefix = $isVerbose ? '' : "($validatorName) ";
 
         return $validator->formatIssueMessage($issue, $prefix);
@@ -226,7 +232,10 @@ class ValidationResultCliRenderer extends AbstractValidationResultRenderer
                 }
             }
 
-            if (ResultType::WARNING === $resultType && !$this->dryRun && !$this->strict && !$this->output->isVerbose()) {
+            if (ResultType::WARNING === $resultType
+                && !$this->dryRun
+                && !$this->strict
+                && !$this->output->isVerbose()) {
                 $this->output->writeln('<fg=yellow>'.$message.'</>');
             } else {
                 $this->io->newLine();

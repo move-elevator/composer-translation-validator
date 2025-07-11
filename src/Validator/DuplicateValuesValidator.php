@@ -70,7 +70,8 @@ class DuplicateValuesValidator extends AbstractValidator implements ValidatorInt
         foreach ($details as $value => $keys) {
             if (is_string($value) && is_array($keys)) {
                 $keyList = implode('`, `', $keys);
-                $messages[] = "- <fg=$color>$level</> {$prefix}the translation value `$value` occurs in multiple keys (`$keyList`)";
+                $messages[] = "- <fg=$color>$level</> {$prefix}the translation value "
+                    ."`$value` occurs in multiple keys (`$keyList`)";
             }
         }
 

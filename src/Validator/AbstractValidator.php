@@ -41,13 +41,20 @@ abstract class AbstractValidator
         );
 
         foreach ($files as $filePath) {
-            $file = ParserCache::get($filePath, $parserClass ?: ParserRegistry::resolveParserClass($filePath, $this->logger));
+            $file = ParserCache::get(
+                $filePath,
+                $parserClass ?: ParserRegistry::resolveParserClass(
+                    $filePath,
+                    $this->logger
+                )
+            );
             /* @var ParserInterface $file */
 
             if (!$file instanceof ParserInterface) {
                 $this->logger?->debug(
                     sprintf(
-                        'The file <fg=cyan>%s</> could not be parsed by the validator <fg=red>%s</>.',
+                        'The file <fg=cyan>%s</> could not be parsed by the '
+                        .'validator <fg=red>%s</>.',
                         $filePath,
                         static::class
                     )
@@ -66,17 +73,25 @@ abstract class AbstractValidator
                 continue;
             }
 
-            $this->logger->debug('> Checking language file: <fg=gray>'.$file->getFileDirectory().'</><fg=cyan>'.$file->getFileName().'</> ...');
+            $this->logger->debug(
+                '> Checking language file: <fg=gray>'
+                .$file->getFileDirectory()
+                .'</><fg=cyan>'
+                .$file->getFileName()
+                .'</> ...'
+            );
 
             $validationResult = $this->processFile($file);
-            if (!empty($validationResult)) {
-                $this->addIssue(new Issue(
-                    $file->getFileName(),
-                    $validationResult,
-                    $file::class,
-                    $name
-                ));
+            if (empty($validationResult)) {
+                continue;
             }
+
+            $this->addIssue(new Issue(
+                $file->getFileName(),
+                $validationResult,
+                $file::class,
+                $name
+            ));
         }
 
         $this->postProcess();
@@ -96,7 +111,8 @@ abstract class AbstractValidator
 
     public function postProcess(): void
     {
-        // This method can be overridden by subclasses to perform additional processing after validation.
+        // This method can be overridden by subclasses to perform
+        // additional processing after validation.
     }
 
     public function resultTypeOnValidationFailure(): ResultType
@@ -161,9 +177,7 @@ abstract class AbstractValidator
             $basePath = rtrim($fileSet->getPath(), '/');
             $filePath = $basePath.'/'.$fileName;
 
-            if (!isset($distribution[$filePath])) {
-                $distribution[$filePath] = [];
-            }
+            $distribution[$filePath] ??= [];
             $distribution[$filePath][] = $issue;
         }
 

@@ -22,8 +22,11 @@ class Collector
      *
      * @throws \ReflectionException
      */
-    public function collectFiles(array $paths, ?DetectorInterface $detector = null, ?array $excludePatterns = null): array
-    {
+    public function collectFiles(
+        array $paths,
+        ?DetectorInterface $detector = null,
+        ?array $excludePatterns = null,
+    ): array {
         $allFiles = [];
         foreach ($paths as $path) {
             if (!(new Filesystem())->exists($path)) {
@@ -34,11 +37,21 @@ class Collector
             foreach (ParserRegistry::getAvailableParsers() as $parserClass) {
                 $files = array_filter(
                     glob($path.'/*'),
-                    static fn ($file) => in_array(pathinfo($file, PATHINFO_EXTENSION), $parserClass::getSupportedFileExtensions(), true)
+                    static fn ($file) => in_array(
+                        pathinfo($file, PATHINFO_EXTENSION),
+                        $parserClass::getSupportedFileExtensions(),
+                        true
+                    )
                 );
 
                 if ($excludePatterns) {
-                    $files = array_filter($files, static fn ($file) => !array_filter($excludePatterns, static fn ($pattern) => fnmatch($pattern, basename($file))));
+                    $files = array_filter(
+                        $files,
+                        static fn ($file) => !array_filter(
+                            $excludePatterns,
+                            static fn ($pattern) => fnmatch($pattern, basename($file))
+                        )
+                    );
                 }
 
                 if (empty($files)) {

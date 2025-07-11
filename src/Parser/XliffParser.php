@@ -11,7 +11,8 @@ class XliffParser extends AbstractParser implements ParserInterface
     /**
      * @param string $filePath Path to the XLIFF file
      *
-     * @throws \InvalidArgumentException If file cannot be parsed as valid XML
+     * @throws \InvalidArgumentException If file cannot be parsed as
+     *                                   valid XML
      */
     public function __construct(protected string $filePath)
     {
@@ -65,7 +66,11 @@ class XliffParser extends AbstractParser implements ParserInterface
 
     public function getLanguage(): string
     {
-        if (preg_match('/^([a-z]{2})\./i', $this->getFileName(), $matches)) {
+        if (preg_match(
+            '/^([a-z]{2})\./i',
+            $this->getFileName(),
+            $matches
+        )) {
             $language = $matches[1];
         } else {
             $language = (string) ($this->xml->file['source-language'] ?? '');

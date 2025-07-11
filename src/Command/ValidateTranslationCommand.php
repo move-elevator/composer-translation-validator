@@ -97,7 +97,8 @@ using multiple validators to ensure consistency, correctness and schema complian
   <info>composer validate-translations translations/ --format json</info>
   <info>composer validate-translations translations/ --dry-run</info>
   <info>composer validate-translations translations/ --strict</info>
-  <info>composer validate-translations translations/ --only "MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator"</info>
+  <info>composer validate-translations translations/ --only \</info>
+    <info>"MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator"</info>
 
 <comment>Available Validators:</comment>
   • <info>MismatchValidator</info>        - Detects mismatches between source and target
@@ -152,7 +153,11 @@ HELP
             return Command::FAILURE;
         }
 
-        $allFiles = (new Collector($this->logger))->collectFiles($paths, $fileDetector, $excludePatterns);
+        $allFiles = (new Collector($this->logger))->collectFiles(
+            $paths,
+            $fileDetector,
+            $excludePatterns
+        );
         if (empty($allFiles)) {
             $this->io->warning('No files found in the specified directories.');
 
@@ -220,7 +225,12 @@ HELP
 
         $paths = !empty($inputPaths) ? $inputPaths : $configPaths;
 
-        return array_map(static fn ($path) => str_starts_with((string) $path, '/') ? $path : getcwd().'/'.$path, $paths);
+        return array_map(
+            static fn ($path) => str_starts_with((string) $path, '/')
+                ? $path
+                : getcwd().'/'.$path,
+            $paths
+        );
     }
 
     private function resolveFileDetector(TranslationValidatorConfig $config): ?DetectorInterface
@@ -241,8 +251,10 @@ HELP
     /**
      * @return array<int, class-string<ValidatorInterface>>
      */
-    private function resolveValidators(InputInterface $input, TranslationValidatorConfig $config): array
-    {
+    private function resolveValidators(
+        InputInterface $input,
+        TranslationValidatorConfig $config,
+    ): array {
         $inputOnly = $this->validateClassInput(
             ValidatorInterface::class,
             'validator',
@@ -254,42 +266,39 @@ HELP
             $input->getOption('skip')
         );
 
-        $configOnly = $config->getOnly();
-        $configSkip = $config->getSkip();
+        $only = !empty($inputOnly) ? $inputOnly : $config->getOnly();
+        $skip = !empty($inputSkip) ? $inputSkip : $config->getSkip();
 
-        $only = !empty($inputOnly) ? $inputOnly : $configOnly;
-        $skip = !empty($inputSkip) ? $inputSkip : $configSkip;
-
-        if (!empty($only)) {
-            $validators = $only;
-        } elseif (!empty($skip)) {
-            $validators = array_diff(ValidatorRegistry::getAvailableValidators(), $skip);
-        } else {
-            $validators = ValidatorRegistry::getAvailableValidators();
-        }
-
-        return $validators;
+        return match (true) {
+            !empty($only) => $only,
+            !empty($skip) => array_diff(ValidatorRegistry::getAvailableValidators(), $skip),
+            default => ValidatorRegistry::getAvailableValidators(),
+        };
     }
 
     /**
      * @return array<int, class-string>
      */
-    private function validateClassInput(string $interface, string $type, ?string $className = null): array
-    {
+    private function validateClassInput(
+        string $interface,
+        string $type,
+        ?string $className = null,
+    ): array {
         if (null === $className) {
             return [];
         }
+
+        $classNames = str_contains($className, ',') ? explode(',', $className) : [$className];
         $classes = [];
 
-        if (str_contains($className, ',')) {
-            $classNames = explode(',', $className);
-            foreach ($classNames as $name) {
-                ClassUtility::instantiate($interface, $this->logger, $type, $name);
-                $classes[] = $name;
-            }
-        } else {
-            ClassUtility::instantiate($interface, $this->logger, $type, $className);
-            $classes[] = $className;
+        foreach ($classNames as $name) {
+            ClassUtility::instantiate(
+                $interface,
+                $this->logger,
+                $type,
+                $name
+            );
+            $classes[] = $name;
         }
 
         return $classes;

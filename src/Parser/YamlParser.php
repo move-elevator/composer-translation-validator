@@ -27,10 +27,15 @@ class YamlParser extends AbstractParser implements ParserInterface
      */
     public function extractKeys(): ?array
     {
-        $extract = static function (array $data, string $prefix = '') use (&$extract): array {
+        $extract = static function (
+            array $data,
+            string $prefix = '',
+        ) use (&$extract): array {
             $keys = [];
             foreach ($data as $key => $value) {
-                $fullKey = '' === $prefix ? $key : $prefix.'.'.$key;
+                $fullKey = '' === $prefix
+                    ? $key
+                    : $prefix.'.'.$key;
                 if (is_array($value)) {
                     $extracted = $extract($value, $fullKey);
                     foreach ($extracted as $k) {
@@ -73,7 +78,11 @@ class YamlParser extends AbstractParser implements ParserInterface
 
     public function getLanguage(): string
     {
-        if (preg_match('/\.(\w{2})\./', $this->getFileName(), $matches)) {
+        if (preg_match(
+            '/\.(\w{2})\./',
+            $this->getFileName(),
+            $matches
+        )) {
             return $matches[1];
         }
 
