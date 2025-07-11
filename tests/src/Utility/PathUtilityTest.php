@@ -16,7 +16,7 @@ final class PathUtilityTest extends TestCase
     {
         parent::setUp();
         $this->originalCwd = getcwd();
-        $this->tempDir = sys_get_temp_dir().'/path_utility_test_'.uniqid();
+        $this->tempDir = sys_get_temp_dir().'/path_utility_test_'.uniqid('', true);
         mkdir($this->tempDir);
     }
 

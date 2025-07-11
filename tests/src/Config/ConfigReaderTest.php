@@ -127,7 +127,7 @@ class ConfigReaderTest extends TestCase
     public function testAutoDetectWithJsonFile(): void
     {
         // Create a temporary directory with only JSON file
-        $tempDir = sys_get_temp_dir().'/translation-validator-json-'.uniqid();
+        $tempDir = sys_get_temp_dir().'/translation-validator-json-'.uniqid('', true);
         mkdir($tempDir, 0777, true);
         copy($this->fixturesDir.'/auto-detect/translation-validator.json', $tempDir.'/translation-validator.json');
 
@@ -159,7 +159,7 @@ class ConfigReaderTest extends TestCase
 
     public function testReadFromComposerJsonWithoutConfig(): void
     {
-        $tempDir = sys_get_temp_dir().'/translation-validator-composer-empty-'.uniqid();
+        $tempDir = sys_get_temp_dir().'/translation-validator-composer-empty-'.uniqid('', true);
         mkdir($tempDir, 0777, true);
 
         $composerJson = $tempDir.'/composer.json';
@@ -176,7 +176,7 @@ class ConfigReaderTest extends TestCase
 
     public function testReadFromComposerJsonWithConfig(): void
     {
-        $tempDir = sys_get_temp_dir().'/translation-validator-composer-'.uniqid();
+        $tempDir = sys_get_temp_dir().'/translation-validator-composer-'.uniqid('', true);
         mkdir($tempDir, 0777, true);
 
         $configFile = $tempDir.'/custom-config.json';
@@ -315,7 +315,7 @@ class ConfigReaderTest extends TestCase
 
     public function testReadFromComposerJsonWithAbsoluteConfigPath(): void
     {
-        $tempDir = sys_get_temp_dir().'/translation-validator-absolute-'.uniqid();
+        $tempDir = sys_get_temp_dir().'/translation-validator-absolute-'.uniqid('', true);
         mkdir($tempDir, 0777, true);
 
         $configFile = $tempDir.'/absolute-config.json';

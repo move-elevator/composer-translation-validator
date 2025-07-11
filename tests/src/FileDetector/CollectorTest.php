@@ -7,6 +7,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\FileDetector;
 use MoveElevator\ComposerTranslationValidator\FileDetector\Collector;
 use MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
+use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -17,7 +18,7 @@ final class CollectorTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->tempDir = sys_get_temp_dir().'/collector_test_'.uniqid();
+        $this->tempDir = sys_get_temp_dir().'/collector_test_'.uniqid('', true);
         mkdir($this->tempDir);
     }
 
@@ -136,9 +137,9 @@ final class CollectorTest extends TestCase
 
         $result = $collector->collectFiles([$this->tempDir], $detector, null);
 
-        $this->assertArrayHasKey(\MoveElevator\ComposerTranslationValidator\Parser\YamlParser::class, $result);
-        $this->assertArrayHasKey($this->tempDir, $result[\MoveElevator\ComposerTranslationValidator\Parser\YamlParser::class]);
-        $this->assertEquals(['mapped_yaml_data'], $result[\MoveElevator\ComposerTranslationValidator\Parser\YamlParser::class][$this->tempDir]);
+        $this->assertArrayHasKey(YamlParser::class, $result);
+        $this->assertArrayHasKey($this->tempDir, $result[YamlParser::class]);
+        $this->assertEquals(['mapped_yaml_data'], $result[YamlParser::class][$this->tempDir]);
     }
 
     public function testCollectFilesWithComplexExcludePattern(): void
@@ -163,7 +164,7 @@ final class CollectorTest extends TestCase
 
     public function testCollectFilesWithMultiplePaths(): void
     {
-        $tempDir2 = sys_get_temp_dir().'/collector_test2_'.uniqid();
+        $tempDir2 = sys_get_temp_dir().'/collector_test2_'.uniqid('', true);
         mkdir($tempDir2);
 
         file_put_contents($this->tempDir.'/test1.xlf', 'content1');

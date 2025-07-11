@@ -286,4 +286,147 @@ class ValidationResultJsonRendererTest extends TestCase
         $stats = $output['statistics'];
         $this->assertSame(0, $stats['parsers_cached']); // Default value
     }
+
+    public function testGroupIssuesByFileWithMultipleValidators(): void
+    {
+        // Create first validator with issues
+        $validator1 = $this->createMock(ValidatorInterface::class);
+        $validator1->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
+        $validator1->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error 1");
+        $validator1->method('getShortName')->willReturn('Validator1');
+        $issue1 = new Issue('test.xlf', ['error1'], 'TestParser', 'TestValidator1');
+        $validator1->method('hasIssues')->willReturn(true);
+        $validator1->method('getIssues')->willReturn([$issue1]);
+        $validator1->method('distributeIssuesForDisplay')->willReturnCallback(fn (FileSet $fileSet): array => ['/test/path/test.xlf' => [$issue1]]);
+
+        // Create second validator with issues
+        $validator2 = $this->createMock(ValidatorInterface::class);
+        $validator2->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
+        $validator2->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error 2");
+        $validator2->method('getShortName')->willReturn('Validator2');
+        $issue2 = new Issue('test.xlf', ['error2'], 'TestParser', 'TestValidator2');
+        $validator2->method('hasIssues')->willReturn(true);
+        $validator2->method('getIssues')->willReturn([$issue2]);
+        $validator2->method('distributeIssuesForDisplay')->willReturnCallback(fn (FileSet $fileSet): array => ['/test/path/test.xlf' => [$issue2]]);
+
+        $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
+        $validationResult = new ValidationResult(
+            [$validator1, $validator2],
+            ResultType::ERROR,
+            [
+                ['validator' => $validator1, 'fileSet' => $fileSet],
+                ['validator' => $validator2, 'fileSet' => $fileSet],
+            ]
+        );
+
+        $exitCode = $this->renderer->render($validationResult);
+
+        $this->assertSame(1, $exitCode);
+
+        $jsonOutput = $this->output->fetch();
+        $output = json_decode($jsonOutput, true);
+
+        $this->assertNotNull($output);
+        $this->assertArrayHasKey('issues', $output);
+
+        // Should have issues grouped by file path
+        $issues = $output['issues'];
+        $this->assertArrayHasKey('/test/path/test.xlf', $issues);
+
+        $fileIssues = $issues['/test/path/test.xlf'];
+        $this->assertArrayHasKey('Validator1', $fileIssues);
+        $this->assertArrayHasKey('Validator2', $fileIssues);
+
+        // Check validator 1 issues
+        $validator1Issues = $fileIssues['Validator1'];
+        $this->assertArrayHasKey('type', $validator1Issues);
+        $this->assertArrayHasKey('issues', $validator1Issues);
+        $this->assertCount(1, $validator1Issues['issues']);
+
+        // Check validator 2 issues
+        $validator2Issues = $fileIssues['Validator2'];
+        $this->assertArrayHasKey('type', $validator2Issues);
+        $this->assertArrayHasKey('issues', $validator2Issues);
+        $this->assertCount(1, $validator2Issues['issues']);
+    }
+
+    public function testGroupIssuesByFileWithMultipleFiles(): void
+    {
+        $validator = $this->createMockValidator();
+        $issue1 = new Issue('file1.xlf', ['error1'], 'TestParser', 'TestValidator');
+        $issue2 = new Issue('file2.xlf', ['error2'], 'TestParser', 'TestValidator');
+
+        $validator->method('hasIssues')->willReturn(true);
+        $validator->method('getIssues')->willReturn([$issue1, $issue2]);
+        $validator->method('distributeIssuesForDisplay')->willReturnCallback(fn (FileSet $fileSet): array => [
+            '/test/path/file1.xlf' => [new Issue('file1.xlf', ['error1'], 'TestParser', 'TestValidator')],
+            '/test/path/file2.xlf' => [new Issue('file2.xlf', ['error2'], 'TestParser', 'TestValidator')],
+        ]);
+
+        $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['file1.xlf', 'file2.xlf']);
+        $validationResult = new ValidationResult(
+            [$validator],
+            ResultType::ERROR,
+            [['validator' => $validator, 'fileSet' => $fileSet]]
+        );
+
+        $exitCode = $this->renderer->render($validationResult);
+
+        $this->assertSame(1, $exitCode);
+
+        $jsonOutput = $this->output->fetch();
+        $output = json_decode($jsonOutput, true);
+
+        $this->assertNotNull($output);
+        $this->assertArrayHasKey('issues', $output);
+
+        $issues = $output['issues'];
+        $this->assertArrayHasKey('/test/path/file1.xlf', $issues);
+        $this->assertArrayHasKey('/test/path/file2.xlf', $issues);
+
+        // Each file should have the validator's issues
+        $this->assertArrayHasKey('MockValidator', $issues['/test/path/file1.xlf']);
+        $this->assertArrayHasKey('MockValidator', $issues['/test/path/file2.xlf']);
+    }
+
+    public function testGroupIssuesByFileWithEmptyValidators(): void
+    {
+        $validationResult = new ValidationResult([], ResultType::SUCCESS, []);
+
+        $exitCode = $this->renderer->render($validationResult);
+
+        $this->assertSame(0, $exitCode);
+
+        $jsonOutput = $this->output->fetch();
+        $output = json_decode($jsonOutput, true);
+
+        $this->assertNotNull($output);
+        $this->assertArrayHasKey('issues', $output);
+        $this->assertEmpty($output['issues']);
+    }
+
+    public function testGroupIssuesByFileWithValidatorsWithoutIssues(): void
+    {
+        $validator = $this->createMockValidator();
+        $validator->method('hasIssues')->willReturn(false);
+        $validator->method('getIssues')->willReturn([]);
+
+        $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
+        $validationResult = new ValidationResult(
+            [$validator],
+            ResultType::SUCCESS,
+            [['validator' => $validator, 'fileSet' => $fileSet]]
+        );
+
+        $exitCode = $this->renderer->render($validationResult);
+
+        $this->assertSame(0, $exitCode);
+
+        $jsonOutput = $this->output->fetch();
+        $output = json_decode($jsonOutput, true);
+
+        $this->assertNotNull($output);
+        $this->assertArrayHasKey('issues', $output);
+        $this->assertEmpty($output['issues']);
+    }
 }

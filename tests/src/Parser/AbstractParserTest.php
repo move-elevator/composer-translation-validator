@@ -24,7 +24,7 @@ final class AbstractParserTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->tempDir = sys_get_temp_dir().'/abstract_parser_test_'.uniqid();
+        $this->tempDir = sys_get_temp_dir().'/abstract_parser_test_'.uniqid('', true);
         mkdir($this->tempDir, 0777, true);
         $this->tempFile = $this->tempDir.'/test.txt';
         file_put_contents($this->tempFile, 'test content');

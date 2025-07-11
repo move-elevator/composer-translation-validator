@@ -51,7 +51,7 @@ EOT;
     protected function setUp(): void
     {
         parent::setUp();
-        $this->tempDir = sys_get_temp_dir().'/xliff_parser_test_'.uniqid();
+        $this->tempDir = sys_get_temp_dir().'/xliff_parser_test_'.uniqid('', true);
         mkdir($this->tempDir);
 
         $this->validXliffFile = $this->tempDir.'/messages.xlf';

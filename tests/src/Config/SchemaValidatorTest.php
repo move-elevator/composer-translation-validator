@@ -22,7 +22,6 @@ class SchemaValidatorTest extends TestCase
     {
         $isAvailable = $this->schemaValidator->isAvailable();
 
-        // The justinrainbow/json-schema package is installed
         $this->assertTrue($isAvailable);
     }
 

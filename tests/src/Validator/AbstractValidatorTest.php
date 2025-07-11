@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
+use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use MoveElevator\ComposerTranslationValidator\Validator\AbstractValidator;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -50,7 +51,7 @@ class ConcreteValidator extends AbstractValidator implements ValidatorInterface
     public function postProcess(): void
     {
         if ($this->addPostProcessIssue) {
-            $this->addIssue(new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+            $this->addIssue(new Issue(
                 'test_file.xlf',
                 ['postProcessIssue'],
                 'TestParser',
@@ -204,7 +205,7 @@ final class AbstractValidatorTest extends TestCase
     public function testHasIssuesReturnsTrueWhenIssuesExist(): void
     {
         $validator = new ConcreteValidator($this->loggerMock);
-        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+        $issue = new Issue(
             'test.xlf',
             ['error' => 'test'],
             'TestParser',
@@ -225,13 +226,13 @@ final class AbstractValidatorTest extends TestCase
     public function testGetIssuesReturnsAddedIssues(): void
     {
         $validator = new ConcreteValidator($this->loggerMock);
-        $issue1 = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+        $issue1 = new Issue(
             'file1.xlf',
             ['error1'],
             'Parser1',
             'Validator1'
         );
-        $issue2 = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+        $issue2 = new Issue(
             'file2.xlf',
             ['error2'],
             'Parser2',
@@ -250,7 +251,7 @@ final class AbstractValidatorTest extends TestCase
     public function testAddIssueAddsIssueToCollection(): void
     {
         $validator = new ConcreteValidator($this->loggerMock);
-        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+        $issue = new Issue(
             'test.xlf',
             ['test_error'],
             'TestParser',
@@ -268,7 +269,7 @@ final class AbstractValidatorTest extends TestCase
     public function testResetStateResetsIssues(): void
     {
         $validator = new ConcreteValidator($this->loggerMock);
-        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+        $issue = new Issue(
             'test.xlf',
             ['error'],
             'TestParser',
@@ -293,7 +294,7 @@ final class AbstractValidatorTest extends TestCase
         $validator = new ConcreteValidator($this->loggerMock);
 
         // Add an issue first
-        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+        $issue = new Issue(
             'old.xlf',
             ['old_error'],
             'OldParser',

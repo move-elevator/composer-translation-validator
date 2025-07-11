@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\FileDetector;
 
+use MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface;
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileDetectorRegistry;
 use MoveElevator\ComposerTranslationValidator\FileDetector\PrefixFileDetector;
 use MoveElevator\ComposerTranslationValidator\FileDetector\SuffixFileDetector;
@@ -34,7 +35,7 @@ final class FileDetectorRegistryTest extends TestCase
         foreach ($detectors as $detector) {
             $this->assertTrue(class_exists($detector), "Class {$detector} should exist");
             $this->assertContains(
-                \MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface::class,
+                DetectorInterface::class,
                 class_implements($detector) ?: [],
                 "Class {$detector} should implement DetectorInterface"
             );

@@ -18,7 +18,7 @@ final class YamlParserTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->tempDir = sys_get_temp_dir().'/yaml_parser_test_'.uniqid();
+        $this->tempDir = sys_get_temp_dir().'/yaml_parser_test_'.uniqid('', true);
         mkdir($this->tempDir);
 
         $this->validYamlFile = $this->tempDir.'/messages.yaml';

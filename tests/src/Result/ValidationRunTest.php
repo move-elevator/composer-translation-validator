@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
+use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
+use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use MoveElevator\ComposerTranslationValidator\Result\ValidationRun;
+use MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class ValidationRunTest extends TestCase
 {
@@ -187,7 +191,7 @@ class ValidationRunTest extends TestCase
         $result = $validationRun->executeFor([$fileSet], [$validatorClass]);
 
         $statistics = $result->getStatistics();
-        $this->assertInstanceOf(\MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics::class, $statistics);
+        $this->assertInstanceOf(ValidationStatistics::class, $statistics);
         $this->assertGreaterThan(0, $statistics->getExecutionTime());
         $this->assertSame(1, $statistics->getFilesChecked());
         $this->assertSame(1, $statistics->getValidatorsRun());
@@ -209,7 +213,7 @@ class ValidationRunTest extends TestCase
         );
 
         $statistics = $result->getStatistics();
-        $this->assertInstanceOf(\MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics::class, $statistics);
+        $this->assertInstanceOf(ValidationStatistics::class, $statistics);
         $this->assertGreaterThan(0, $statistics->getExecutionTime());
         $this->assertSame(3, $statistics->getFilesChecked()); // 2 + 1 files
         $this->assertSame(2, $statistics->getValidatorsRun()); // 2 validator classes
@@ -222,7 +226,7 @@ class ValidationRunTest extends TestCase
         $result = $validationRun->executeFor([], []);
 
         $statistics = $result->getStatistics();
-        $this->assertInstanceOf(\MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics::class, $statistics);
+        $this->assertInstanceOf(ValidationStatistics::class, $statistics);
         $this->assertGreaterThanOrEqual(0, $statistics->getExecutionTime());
         $this->assertSame(0, $statistics->getFilesChecked());
         $this->assertSame(0, $statistics->getValidatorsRun());
@@ -258,7 +262,7 @@ class ValidationRunTest extends TestCase
 }
 
 // Mock classes for testing
-class MockParserForTesting implements \MoveElevator\ComposerTranslationValidator\Parser\ParserInterface
+class MockParserForTesting implements ParserInterface
 {
     public function __construct(string $file)
     {
@@ -316,7 +320,7 @@ class MockValidatorWithoutIssues implements ValidatorInterface
     /**
      * @return array<string, mixed>
      */
-    public function processFile(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface $file): array
+    public function processFile(ParserInterface $file): array
     {
         return [];
     }
@@ -341,11 +345,11 @@ class MockValidatorWithoutIssues implements ValidatorInterface
         return [];
     }
 
-    public function addIssue(\MoveElevator\ComposerTranslationValidator\Result\Issue $issue): void
+    public function addIssue(Issue $issue): void
     {
     }
 
-    public function formatIssueMessage(\MoveElevator\ComposerTranslationValidator\Result\Issue $issue, string $prefix = '', bool $isVerbose = false): string
+    public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
     {
         return "- <fg=red>ERROR</> {$prefix}Mock validation error";
     }
@@ -360,7 +364,7 @@ class MockValidatorWithoutIssues implements ValidatorInterface
         return false;
     }
 
-    public function renderDetailedOutput(\Symfony\Component\Console\Output\OutputInterface $output, array $issues): void
+    public function renderDetailedOutput(OutputInterface $output, array $issues): void
     {
     }
 
@@ -389,7 +393,7 @@ class MockValidatorWithIssues implements ValidatorInterface
     /**
      * @return array<string, mixed>
      */
-    public function processFile(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface $file): array
+    public function processFile(ParserInterface $file): array
     {
         return ['mock_issue' => 'test'];
     }
@@ -411,14 +415,14 @@ class MockValidatorWithIssues implements ValidatorInterface
 
     public function getIssues(): array
     {
-        return [new \MoveElevator\ComposerTranslationValidator\Result\Issue('test.xlf', ['mock'], 'MockParser', 'MockValidator')];
+        return [new Issue('test.xlf', ['mock'], 'MockParser', 'MockValidator')];
     }
 
-    public function addIssue(\MoveElevator\ComposerTranslationValidator\Result\Issue $issue): void
+    public function addIssue(Issue $issue): void
     {
     }
 
-    public function formatIssueMessage(\MoveElevator\ComposerTranslationValidator\Result\Issue $issue, string $prefix = '', bool $isVerbose = false): string
+    public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
     {
         return "- <fg=red>ERROR</> {$prefix}Mock validation error with issues";
     }
@@ -443,7 +447,7 @@ class MockValidatorWithIssues implements ValidatorInterface
         return false;
     }
 
-    public function renderDetailedOutput(\Symfony\Component\Console\Output\OutputInterface $output, array $issues): void
+    public function renderDetailedOutput(OutputInterface $output, array $issues): void
     {
     }
 
@@ -453,7 +457,7 @@ class MockValidatorWithIssues implements ValidatorInterface
     }
 }
 
-class MockParserThatThrows implements \MoveElevator\ComposerTranslationValidator\Parser\ParserInterface
+class MockParserThatThrows implements ParserInterface
 {
     public function __construct(string $file)
     {
@@ -491,7 +495,7 @@ class MockParserThatThrows implements \MoveElevator\ComposerTranslationValidator
     }
 }
 
-class MockParserReturningNull implements \MoveElevator\ComposerTranslationValidator\Parser\ParserInterface
+class MockParserReturningNull implements ParserInterface
 {
     public function __construct(string $file)
     {
