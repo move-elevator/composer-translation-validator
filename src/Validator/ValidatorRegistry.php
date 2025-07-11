@@ -15,6 +15,7 @@ class ValidatorRegistry
             MismatchValidator::class,
             DuplicateKeysValidator::class,
             DuplicateValuesValidator::class,
+            PlaceholderConsistencyValidator::class,
             XliffSchemaValidator::class,
         ];
     }

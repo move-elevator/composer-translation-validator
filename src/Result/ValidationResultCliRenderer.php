@@ -42,6 +42,18 @@ class ValidationResultCliRenderer extends AbstractValidationResultRenderer
         return $this->calculateExitCode($validationResult);
     }
 
+    private function renderHeader(): void
+    {
+        $this->io->title('Composer Translation Validator');
+        $this->io->text([
+            'A comprehensive tool for validating translation files (XLIFF and YAML).',
+            'Checks for mismatches, duplicates, placeholder consistency and schema compliance.',
+            '',
+            'For more information and usage examples, run: <fg=cyan>composer validate-translations --help</>',
+        ]);
+        $this->io->newLine();
+    }
+
     private function renderCompactOutput(ValidationResult $validationResult): void
     {
         $groupedByFile = $this->groupIssuesByFile($validationResult);
@@ -105,6 +117,8 @@ class ValidationResultCliRenderer extends AbstractValidationResultRenderer
 
     private function renderVerboseOutput(ValidationResult $validationResult): void
     {
+        $this->renderHeader();
+
         $groupedByFile = $this->groupIssuesByFile($validationResult);
 
         if (empty($groupedByFile)) {
