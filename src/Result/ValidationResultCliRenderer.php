@@ -11,16 +11,17 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class ValidationResultCliRenderer implements ValidationResultRendererInterface
+class ValidationResultCliRenderer extends AbstractValidationResultRenderer
 {
     private readonly SymfonyStyle $io;
 
     public function __construct(
-        private readonly OutputInterface $output,
+        OutputInterface $output,
         private readonly InputInterface $input,
-        private readonly bool $dryRun = false,
-        private readonly bool $strict = false,
+        bool $dryRun = false,
+        bool $strict = false,
     ) {
+        parent::__construct($output, $dryRun, $strict);
         $this->io = new SymfonyStyle($this->input, $this->output);
     }
 
@@ -38,24 +39,25 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
             $this->renderStatistics($validationResult);
         }
 
-        return $validationResult->getOverallResult()->resolveErrorToCommandExitCode($this->dryRun, $this->strict);
+        return $this->calculateExitCode($validationResult);
     }
 
     private function renderCompactOutput(ValidationResult $validationResult): void
     {
-        $validatorPairs = $validationResult->getValidatorFileSetPairs();
+        $groupedByFile = $this->groupIssuesByFile($validationResult);
 
-        if (empty($validatorPairs)) {
+        if (empty($groupedByFile)) {
             return;
         }
 
         // Check if we have any errors (not just warnings)
         $hasErrors = false;
-        foreach ($validatorPairs as $pair) {
-            $validator = $pair['validator'];
-            if ($validator->hasIssues() && ResultType::ERROR === $validator->resultTypeOnValidationFailure()) {
-                $hasErrors = true;
-                break;
+        foreach ($groupedByFile as $validatorGroups) {
+            foreach ($validatorGroups as $validatorData) {
+                if ($validatorData['validator']->hasIssues() && ResultType::ERROR === $validatorData['validator']->resultTypeOnValidationFailure()) {
+                    $hasErrors = true;
+                    break 2;
+                }
             }
         }
 
@@ -64,35 +66,20 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
             return;
         }
 
-        $groupedByFile = [];
-        foreach ($validatorPairs as $pair) {
-            $validator = $pair['validator'];
-            $fileSet = $pair['fileSet'];
+        foreach ($groupedByFile as $filePath => $validatorGroups) {
+            $relativePath = PathUtility::normalizeFolderPath($filePath);
+            $this->io->writeln("<fg=cyan>$relativePath</>");
+            $this->io->newLine();
 
-            if (!$validator->hasIssues()) {
-                continue;
-            }
-
-            $distributedIssues = $validator->distributeIssuesForDisplay($fileSet);
-
-            foreach ($distributedIssues as $filePath => $issues) {
-                if (!isset($groupedByFile[$filePath])) {
-                    $groupedByFile[$filePath] = [];
-                }
-
-                foreach ($issues as $issue) {
-                    $groupedByFile[$filePath][] = [
-                        'validator' => $validator,
+            $fileIssues = [];
+            foreach ($validatorGroups as $validatorData) {
+                foreach ($validatorData['issues'] as $issue) {
+                    $fileIssues[] = [
+                        'validator' => $validatorData['validator'],
                         'issue' => $issue,
                     ];
                 }
             }
-        }
-
-        foreach ($groupedByFile as $filePath => $fileIssues) {
-            $relativePath = PathUtility::normalizeFolderPath($filePath);
-            $this->io->writeln("<fg=cyan>$relativePath</>");
-            $this->io->newLine();
 
             $sortedIssues = $this->sortIssuesBySeverity($fileIssues);
 
@@ -116,40 +103,10 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
 
     private function renderVerboseOutput(ValidationResult $validationResult): void
     {
-        $validatorPairs = $validationResult->getValidatorFileSetPairs();
+        $groupedByFile = $this->groupIssuesByFile($validationResult);
 
-        if (empty($validatorPairs)) {
+        if (empty($groupedByFile)) {
             return;
-        }
-
-        // Group by file path, then by validator
-        $groupedByFile = [];
-        foreach ($validatorPairs as $pair) {
-            $validator = $pair['validator'];
-            $fileSet = $pair['fileSet'];
-
-            if (!$validator->hasIssues()) {
-                continue;
-            }
-
-            $distributedIssues = $validator->distributeIssuesForDisplay($fileSet);
-            $validatorClass = $validator::class;
-
-            foreach ($distributedIssues as $filePath => $issues) {
-                if (!isset($groupedByFile[$filePath])) {
-                    $groupedByFile[$filePath] = [];
-                }
-                if (!isset($groupedByFile[$filePath][$validatorClass])) {
-                    $groupedByFile[$filePath][$validatorClass] = [
-                        'validator' => $validator,
-                        'issues' => [],
-                    ];
-                }
-
-                foreach ($issues as $issue) {
-                    $groupedByFile[$filePath][$validatorClass]['issues'][] = $issue;
-                }
-            }
         }
 
         foreach ($groupedByFile as $filePath => $validatorGroups) {
@@ -159,10 +116,9 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
 
             $sortedValidatorGroups = $this->sortValidatorGroupsBySeverity($validatorGroups);
 
-            foreach ($sortedValidatorGroups as $validatorClass => $data) {
-                $validator = $data['validator'];
-                $issues = $data['issues'];
-                $validatorName = $validator->getShortName();
+            foreach ($sortedValidatorGroups as $validatorName => $validatorData) {
+                $validator = $validatorData['validator'];
+                $issues = $validatorData['issues'];
 
                 $this->io->writeln("  <options=bold>$validatorName</>");
 
@@ -204,15 +160,18 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
     }
 
     /**
-     * @param array<string, array{validator: ValidatorInterface, issues: array<Issue>}> $validatorGroups
+     * @param array<string, array{validator: ValidatorInterface, type: string, issues: array<Issue>}> $validatorGroups
      *
-     * @return array<string, array{validator: ValidatorInterface, issues: array<Issue>}>
+     * @return array<string, array{validator: ValidatorInterface, type: string, issues: array<Issue>}>
      */
     private function sortValidatorGroupsBySeverity(array $validatorGroups): array
     {
-        uksort($validatorGroups, function ($validatorClassA, $validatorClassB) {
-            $severityA = $this->getValidatorSeverity($validatorClassA);
-            $severityB = $this->getValidatorSeverity($validatorClassB);
+        uksort($validatorGroups, function ($validatorNameA, $validatorNameB) use ($validatorGroups) {
+            $validatorA = $validatorGroups[$validatorNameA]['validator'];
+            $validatorB = $validatorGroups[$validatorNameB]['validator'];
+
+            $severityA = $this->getValidatorSeverity($validatorA::class);
+            $severityB = $this->getValidatorSeverity($validatorB::class);
 
             return $severityA <=> $severityB;
         });
@@ -257,14 +216,7 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
     private function renderSummary(ResultType $resultType): void
     {
         if ($resultType->notFullySuccessful()) {
-            $message = match (true) {
-                $this->dryRun && ResultType::ERROR === $resultType => 'Language validation failed with errors in dry-run mode.',
-                $this->dryRun && ResultType::WARNING === $resultType => 'Language validation completed with warnings in dry-run mode.',
-                $this->strict && ResultType::WARNING === $resultType => 'Language validation failed with warnings in strict mode.',
-                ResultType::ERROR === $resultType => 'Language validation failed with errors.',
-                ResultType::WARNING === $resultType => 'Language validation completed with warnings.',
-                default => 'Language validation failed.',
-            };
+            $message = $this->generateMessage(new ValidationResult([], $resultType));
 
             if (!$this->output->isVerbose()) {
                 $message .= ' See more details with the `-v` verbose option.';
@@ -281,7 +233,7 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
                 $this->io->{$this->dryRun || (ResultType::WARNING === $resultType && !$this->strict) ? 'warning' : 'error'}($message);
             }
         } else {
-            $message = 'Language validation succeeded.';
+            $message = $this->generateMessage(new ValidationResult([], $resultType));
             $this->output->isVerbose()
                 ? $this->io->success($message)
                 : $this->output->writeln('<fg=green>'.$message.'</>');
@@ -290,17 +242,17 @@ class ValidationResultCliRenderer implements ValidationResultRendererInterface
 
     private function renderStatistics(ValidationResult $validationResult): void
     {
-        $statistics = $validationResult->getStatistics();
+        $statisticsData = $this->formatStatisticsForOutput($validationResult);
 
-        if (null === $statistics) {
+        if (empty($statisticsData)) {
             return;
         }
 
         $this->io->newLine();
-        $this->output->writeln('<fg=gray>Execution time: '.$statistics->getExecutionTimeFormatted().'</>');
-        $this->output->writeln('<fg=gray>Files checked: '.$statistics->getFilesChecked().'</>');
-        $this->output->writeln('<fg=gray>Keys checked: '.$statistics->getKeysChecked().'</>');
-        $this->output->writeln('<fg=gray>Validators run: '.$statistics->getValidatorsRun().'</>');
-        $this->output->writeln('<fg=gray>Parsers cached: '.$statistics->getParsersCached().'</>');
+        $this->output->writeln('<fg=gray>Execution time: '.$statisticsData['execution_time_formatted'].'</>');
+        $this->output->writeln('<fg=gray>Files checked: '.$statisticsData['files_checked'].'</>');
+        $this->output->writeln('<fg=gray>Keys checked: '.$statisticsData['keys_checked'].'</>');
+        $this->output->writeln('<fg=gray>Validators run: '.$statisticsData['validators_run'].'</>');
+        $this->output->writeln('<fg=gray>Parsers cached: '.$statisticsData['parsers_cached'].'</>');
     }
 }
