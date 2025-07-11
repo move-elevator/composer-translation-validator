@@ -8,6 +8,7 @@ use Composer\Console\Application;
 use MoveElevator\ComposerTranslationValidator\Command\ValidateTranslationCommand;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 
 #[CoversClass(ValidateTranslationCommand::class)]
@@ -151,7 +152,7 @@ class ValidateTranslationCommandTest extends TestCase
 
         $commandTester->execute([
             'path' => [__DIR__.'/../Fixtures/translations/xliff/fail'],
-        ], ['verbosity' => \Symfony\Component\Console\Output\OutputInterface::VERBOSITY_VERBOSE]);
+        ], ['verbosity' => OutputInterface::VERBOSITY_VERBOSE]);
 
         $this->assertStringContainsString('Language validation failed', $commandTester->getDisplay());
         // In verbose mode, validator names should be shown grouped by file

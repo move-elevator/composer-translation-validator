@@ -15,7 +15,7 @@ final class ConfigFileReaderTest extends TestCase
     protected function setUp(): void
     {
         $this->reader = new ConfigFileReader();
-        $this->tempDir = sys_get_temp_dir().'/translation-validator-test-'.uniqid();
+        $this->tempDir = sys_get_temp_dir().'/translation-validator-test-'.uniqid('', true);
         mkdir($this->tempDir);
     }
 

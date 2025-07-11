@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\Parser;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserCache;
+use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -86,11 +87,11 @@ class ParserCacheTest extends TestCase
 
         try {
             $yamlParser = ParserCache::get($this->testFile, YamlParser::class);
-            $xliffParser = ParserCache::get($xliffFile, \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class);
+            $xliffParser = ParserCache::get($xliffFile, XliffParser::class);
 
             $this->assertNotSame($yamlParser, $xliffParser);
             $this->assertInstanceOf(YamlParser::class, $yamlParser);
-            $this->assertInstanceOf(\MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class, $xliffParser);
+            $this->assertInstanceOf(XliffParser::class, $xliffParser);
         } finally {
             if (file_exists($xliffFile)) {
                 unlink($xliffFile);

@@ -6,6 +6,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 
 use MoveElevator\ComposerTranslationValidator\Result\AbstractValidationResultRenderer;
 use MoveElevator\ComposerTranslationValidator\Result\ValidationResult;
+use MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -135,7 +136,7 @@ final class AbstractValidationResultRendererTest extends TestCase
 
     public function testFormatStatisticsForOutput(): void
     {
-        $statistics = new \MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics(1.234, 5, 10, 4, 3);
+        $statistics = new ValidationStatistics(1.234, 5, 10, 4, 3);
         $result = new ValidationResult([], ResultType::SUCCESS, [], $statistics);
 
         $formatted = $this->renderer->testFormatStatisticsForOutput($result);

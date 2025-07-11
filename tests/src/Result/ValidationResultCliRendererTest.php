@@ -640,4 +640,160 @@ class ValidationResultCliRendererTest extends TestCase
         // Should be warning box format in verbose mode
         $this->assertStringContainsString('[WARNING]', $output);
     }
+
+    public function testGroupIssuesByFileWithMultipleValidatorsVerbose(): void
+    {
+        // Create first validator with issues
+        $validator1 = $this->createMock(ValidatorInterface::class);
+        $validator1->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
+        $validator1->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error 1");
+        $validator1->method('getShortName')->willReturn('Validator1');
+        $validator1->method('shouldShowDetailedOutput')->willReturn(false);
+        $issue1 = new Issue('test.xlf', ['error1'], 'TestParser', 'TestValidator1');
+        $validator1->method('hasIssues')->willReturn(true);
+        $validator1->method('getIssues')->willReturn([$issue1]);
+        $validator1->method('distributeIssuesForDisplay')->willReturnCallback(fn (FileSet $fileSet): array => ['/test/path/test.xlf' => [$issue1]]);
+
+        // Create second validator with issues
+        $validator2 = $this->createMock(ValidatorInterface::class);
+        $validator2->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
+        $validator2->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error 2");
+        $validator2->method('getShortName')->willReturn('Validator2');
+        $validator2->method('shouldShowDetailedOutput')->willReturn(false);
+        $issue2 = new Issue('test.xlf', ['error2'], 'TestParser', 'TestValidator2');
+        $validator2->method('hasIssues')->willReturn(true);
+        $validator2->method('getIssues')->willReturn([$issue2]);
+        $validator2->method('distributeIssuesForDisplay')->willReturnCallback(fn (FileSet $fileSet): array => ['/test/path/test.xlf' => [$issue2]]);
+
+        $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
+        $validationResult = new ValidationResult(
+            [$validator1, $validator2],
+            ResultType::ERROR,
+            [
+                ['validator' => $validator1, 'fileSet' => $fileSet],
+                ['validator' => $validator2, 'fileSet' => $fileSet],
+            ]
+        );
+
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
+        $exitCode = $this->renderer->render($validationResult);
+
+        $this->assertSame(1, $exitCode);
+
+        $output = $this->output->fetch();
+
+        // Should contain file path
+        $this->assertStringContainsString('test.xlf', $output);
+
+        // Should contain both validators in verbose mode
+        $this->assertStringContainsString('Validator1', $output);
+        $this->assertStringContainsString('Validator2', $output);
+    }
+
+    public function testGroupIssuesByFileWithMultipleFilesVerbose(): void
+    {
+        $issue1 = new Issue('file1.xlf', ['error1'], 'TestParser', 'TestValidator');
+        $issue2 = new Issue('file2.xlf', ['error2'], 'TestParser', 'TestValidator');
+
+        $validator = $this->createMockValidator();
+        $validator->method('hasIssues')->willReturn(true);
+        $validator->method('getIssues')->willReturn([$issue1, $issue2]);
+        $validator->method('distributeIssuesForDisplay')->willReturnCallback(fn (FileSet $fileSet): array => [
+            '/test/path/file1.xlf' => [new Issue('file1.xlf', ['error1'], 'TestParser', 'TestValidator')],
+            '/test/path/file2.xlf' => [new Issue('file2.xlf', ['error2'], 'TestParser', 'TestValidator')],
+        ]);
+
+        $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['file1.xlf', 'file2.xlf']);
+        $validationResult = new ValidationResult(
+            [$validator],
+            ResultType::ERROR,
+            [['validator' => $validator, 'fileSet' => $fileSet]]
+        );
+
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
+        $exitCode = $this->renderer->render($validationResult);
+
+        $this->assertSame(1, $exitCode);
+
+        $output = $this->output->fetch();
+
+        // Should contain both file paths
+        $this->assertStringContainsString('file1.xlf', $output);
+        $this->assertStringContainsString('file2.xlf', $output);
+
+        // Should contain validator name for each file
+        $this->assertStringContainsString('MockObject_ValidatorInterface', $output);
+    }
+
+    public function testGroupIssuesByFileWarningsNotShownInCompactMode(): void
+    {
+        $validator = $this->createMockValidator();
+        $validator->method('resultTypeOnValidationFailure')->willReturn(ResultType::WARNING);
+        $issue = new Issue('test.xlf', ['warning'], 'TestParser', 'TestValidator');
+        $validator->method('hasIssues')->willReturn(true);
+        $validator->method('getIssues')->willReturn([$issue]);
+
+        $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
+        $validationResult = new ValidationResult(
+            [$validator],
+            ResultType::WARNING,
+            [['validator' => $validator, 'fileSet' => $fileSet]]
+        );
+
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
+        $exitCode = $this->renderer->render($validationResult);
+
+        $this->assertSame(0, $exitCode);
+
+        $output = $this->output->fetch();
+
+        // In compact mode, warnings should not show detailed file output in errors section
+        $this->assertStringContainsString('Language validation completed with warnings', $output);
+
+        // Note: CLI renderer may still show warnings in verbose mode, but this tests compact mode behavior
+    }
+
+    public function testGroupIssuesByFileWithEmptyValidators(): void
+    {
+        $validationResult = new ValidationResult([], ResultType::SUCCESS, []);
+
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
+        $exitCode = $this->renderer->render($validationResult);
+
+        $this->assertSame(0, $exitCode);
+
+        $output = $this->output->fetch();
+
+        // Should only contain success message
+        $this->assertStringContainsString('Language validation succeeded', $output);
+        // Should not contain any file paths
+        $this->assertStringNotContainsString('.xlf', $output);
+    }
+
+    public function testGroupIssuesByFileErrorsShownInCompactMode(): void
+    {
+        $validator = $this->createMockValidator();
+        $validator->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
+        $issue = new Issue('test.xlf', ['error'], 'TestParser', 'TestValidator');
+        $validator->method('hasIssues')->willReturn(true);
+        $validator->method('getIssues')->willReturn([$issue]);
+
+        $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
+        $validationResult = new ValidationResult(
+            [$validator],
+            ResultType::ERROR,
+            [['validator' => $validator, 'fileSet' => $fileSet]]
+        );
+
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
+        $exitCode = $this->renderer->render($validationResult);
+
+        $this->assertSame(1, $exitCode);
+
+        $output = $this->output->fetch();
+
+        // In compact mode, errors should show detailed output
+        $this->assertStringContainsString('test.xlf', $output);
+        $this->assertStringContainsString('Language validation failed with errors', $output);
+    }
 }

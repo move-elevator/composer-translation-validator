@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Parser;
 
+use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserRegistry;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
@@ -58,7 +59,7 @@ final class ParserRegistryTest extends TestCase
         foreach ($parsers as $parser) {
             $this->assertTrue(class_exists($parser), "Class {$parser} should exist");
             $this->assertContains(
-                \MoveElevator\ComposerTranslationValidator\Parser\ParserInterface::class,
+                ParserInterface::class,
                 class_implements($parser) ?: [],
                 "Class {$parser} should implement ParserInterface"
             );

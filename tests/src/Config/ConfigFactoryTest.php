@@ -89,4 +89,12 @@ final class ConfigFactoryTest extends TestCase
 
         $this->factory->createFromArray(['paths' => 'invalid']);
     }
+
+    public function testCreateFromArrayValidatesFormatValue(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Configuration validation failed');
+
+        $this->factory->createFromArray(['format' => 'invalid']);
+    }
 }

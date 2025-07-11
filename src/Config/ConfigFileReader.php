@@ -64,7 +64,11 @@ class ConfigFileReader
 
     private function readPhpConfig(string $configPath): TranslationValidatorConfig
     {
-        $config = require $configPath;
+        $realPath = realpath($configPath);
+        if (false === $realPath) {
+            throw new \RuntimeException("Invalid configuration file path: {$configPath}");
+        }
+        $config = require $realPath;
 
         if (!$config instanceof TranslationValidatorConfig) {
             throw new \RuntimeException('PHP configuration file must return an instance of TranslationValidatorConfig');

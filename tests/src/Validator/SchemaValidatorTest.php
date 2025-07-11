@@ -18,7 +18,7 @@ final class SchemaValidatorTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->tempDir = sys_get_temp_dir().'/schema_validator_test_'.uniqid();
+        $this->tempDir = sys_get_temp_dir().'/schema_validator_test_'.uniqid('', true);
         mkdir($this->tempDir);
 
         $this->validXliffFile = $this->tempDir.'/valid.xlf';
