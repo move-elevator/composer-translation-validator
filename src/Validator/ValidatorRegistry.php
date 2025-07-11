@@ -16,6 +16,7 @@ class ValidatorRegistry
             DuplicateKeysValidator::class,
             DuplicateValuesValidator::class,
             EmptyValuesValidator::class,
+            PlaceholderConsistencyValidator::class,
             XliffSchemaValidator::class,
         ];
     }
