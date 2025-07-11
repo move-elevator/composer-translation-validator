@@ -104,7 +104,8 @@ using multiple validators to ensure consistency, correctness and schema complian
   • <info>MismatchValidator</info>        - Detects mismatches between source and target
   • <info>DuplicateKeysValidator</info>   - Finds duplicate translation keys
   • <info>DuplicateValuesValidator</info> - Finds duplicate translation values
-  • <info>XliffSchemaValidator</info>          - Validates XLIFF schema compliance
+  • <info>EmptyValuesValidator</info>     - Finds empty or whitespace-only translation values
+  • <info>XliffSchemaValidator</info>     - Validates XLIFF schema compliance
 
 <comment>Configuration:</comment>
 You can configure the validator using:
