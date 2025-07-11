@@ -18,7 +18,11 @@ abstract class AbstractParser
             throw new \RuntimeException(sprintf('File "%s" is not readable.', $filePath));
         }
 
-        if (!in_array(pathinfo($filePath, PATHINFO_EXTENSION), static::getSupportedFileExtensions(), true)) {
+        if (!in_array(
+            pathinfo($filePath, PATHINFO_EXTENSION),
+            static::getSupportedFileExtensions(),
+            true
+        )) {
             throw new \InvalidArgumentException(sprintf('File "%s" is not a valid file.', $filePath));
         }
 

@@ -126,6 +126,7 @@ abstract class AbstractValidationResultRenderer implements ValidationResultRende
 
     protected function calculateExitCode(ValidationResult $validationResult): int
     {
-        return $validationResult->getOverallResult()->resolveErrorToCommandExitCode($this->dryRun, $this->strict);
+        return $validationResult->getOverallResult()
+            ->resolveErrorToCommandExitCode($this->dryRun, $this->strict);
     }
 }

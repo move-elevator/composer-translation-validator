@@ -18,12 +18,17 @@ class DuplicateKeysValidator extends AbstractValidator implements ValidatorInter
         $keys = $file->extractKeys();
 
         if (!$keys) {
-            $this->logger?->error('The source file '.$file->getFileName().' is not valid.');
+            $this->logger?->error(
+                'The source file '.$file->getFileName().' is not valid.'
+            );
 
             return [];
         }
 
-        $duplicateKeys = array_filter(array_count_values($keys), static fn ($count) => $count > 1);
+        $duplicateKeys = array_filter(
+            array_count_values($keys),
+            static fn ($count) => $count > 1
+        );
         if (!empty($duplicateKeys)) {
             return $duplicateKeys;
         }
@@ -42,7 +47,8 @@ class DuplicateKeysValidator extends AbstractValidator implements ValidatorInter
         $messages = [];
         foreach ($details as $key => $count) {
             if (is_string($key) && is_int($count)) {
-                $messages[] = "- <fg=$color>$level</> {$prefix}the translation key `$key` occurs multiple times ({$count}x)";
+                $messages[] = "- <fg=$color>$level</> {$prefix}the translation key "
+                    ."`$key` occurs multiple times ({$count}x)";
             }
         }
 
