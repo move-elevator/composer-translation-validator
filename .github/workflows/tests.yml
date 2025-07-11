@@ -15,29 +15,41 @@ jobs:
         include:
           # Lowest PHP, Lowest Compatible Symfony, Lowest Composer
           - php: '8.1'
-            symfony_constraint: '^6.0' # Symfony 5.x is not compatible with PHP 8.1+
+            symfony_constraint: '^5.0'
+            composer_version: '2.2'
+            name_suffix: ' (PHP 8.1, Symfony 5.x, Composer 2.2)'
+
+          # Lowest PHP, Lowest Compatible Symfony, Highest Composer
+          - php: '8.1'
+            symfony_constraint: '^5.0'
+            composer_version: '2.8'
+            name_suffix: ' (PHP 8.1, Symfony 5.x, Composer 2.8)'
+
+          # Lowest PHP, Symfony 6.x, Lowest Composer
+          - php: '8.1'
+            symfony_constraint: '^6.0' #
             composer_version: '2.2'
             name_suffix: ' (PHP 8.1, Symfony 6.x, Composer 2.2)'
 
-          # Lowest PHP, Lowest Compatible Symfony, Highest Composer
+          # Lowest PHP, Symfony 6.x, Highest Composer
           - php: '8.1'
             symfony_constraint: '^6.0'
             composer_version: '2.8'
             name_suffix: ' (PHP 8.1, Symfony 6.x, Composer 2.8)'
 
-          # PHP 8.2, Lowest Compatible Symfony, Lowest Composer
+          # PHP 8.2, Symfony 6.x, Lowest Composer
           - php: '8.2'
             symfony_constraint: '^6.0'
             composer_version: '2.2'
             name_suffix: ' (PHP 8.2, Symfony 6.x, Composer 2.2)'
 
-          # PHP 8.2, Lowest Compatible Symfony, Highest Composer
+          # PHP 8.2, Symfony 6.x, Highest Composer
           - php: '8.2'
             symfony_constraint: '^6.0'
             composer_version: '2.8'
             name_suffix: ' (PHP 8.2, Symfony 6.x, Composer 2.8)'
 
-          # PHP 8.3, Lowest Compatible Symfony, Lowest Composer
+          # PHP 8.3, Symfony 6.x, Lowest Composer
           - php: '8.3'
             symfony_constraint: '^6.0'
             composer_version: '2.2'
@@ -75,9 +87,7 @@ jobs:
           tools: composer:${{ matrix.composer_version }}
 
       - name: Install Composer dependencies
-        run: composer update --no-interaction --no-progress --no-suggest
-        env:
-          SYMFONY_REQUIRE: ${{ matrix.symfony_constraint }}
+        run: composer update --no-interaction --no-progress --no-suggest --with=symfony/config:${{ matrix.symfony_constraint }}
 
       - name: Run PHPUnit tests
         run: composer test
