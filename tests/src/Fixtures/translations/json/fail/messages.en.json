@@ -1,0 +1,16 @@
+{
+  "greeting": "Hello!",
+  "farewell": "Goodbye!",
+  "user": {
+	"created": "User has been created successfully.",
+	"deleted": "User has been deleted."
+  },
+  "form": {
+	"submit": "Submit",
+	"cancel": "Cancel"
+  },
+  "error": {
+	"not_found": "The requested resource was not found."
+  },
+  "extra_key": "This key exists only in English"
+}

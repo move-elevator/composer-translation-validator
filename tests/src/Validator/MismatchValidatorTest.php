@@ -189,6 +189,7 @@ final class MismatchValidatorTest extends TestCase
         $this->assertSame([
             \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class,
             \MoveElevator\ComposerTranslationValidator\Parser\YamlParser::class,
+            \MoveElevator\ComposerTranslationValidator\Parser\JsonParser::class,
         ], $validator->supportsParser());
     }
 

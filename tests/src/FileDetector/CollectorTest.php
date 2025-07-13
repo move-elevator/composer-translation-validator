@@ -94,7 +94,7 @@ final class CollectorTest extends TestCase
         file_put_contents($this->tempDir.'/test.txt', 'content'); // Not an .xlf file
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->exactly(2))
+        $logger->expects($this->exactly(3))
             ->method('debug')
             ->with($this->stringContains('No files found for parser class'));
 
@@ -112,7 +112,7 @@ final class CollectorTest extends TestCase
         mkdir($this->tempDir.'/subdir');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->exactly(2))
+        $logger->expects($this->exactly(3))
             ->method('debug')
             ->with($this->stringContains('No files found for parser class'));
 

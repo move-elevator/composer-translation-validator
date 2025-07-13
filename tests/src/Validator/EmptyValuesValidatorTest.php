@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
+use MoveElevator\ComposerTranslationValidator\Parser\JsonParser;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
@@ -122,7 +123,7 @@ final class EmptyValuesValidatorTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $validator = new EmptyValuesValidator($logger);
 
-        $expectedParsers = [XliffParser::class, YamlParser::class];
+        $expectedParsers = [XliffParser::class, YamlParser::class, JsonParser::class];
         $this->assertSame($expectedParsers, $validator->supportsParser());
     }
 

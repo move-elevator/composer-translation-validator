@@ -16,6 +16,7 @@ class ParserRegistry
         return [
             XliffParser::class,
             YamlParser::class,
+            JsonParser::class,
         ];
     }
 
