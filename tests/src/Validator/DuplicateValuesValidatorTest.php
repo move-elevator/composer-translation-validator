@@ -247,4 +247,33 @@ final class DuplicateValuesValidatorTest extends TestCase
         $this->assertStringContainsString('another_value', $result);
         $this->assertStringContainsString('key3`, `key4', $result);
     }
+
+    public function testProcessFileWithNullValues(): void
+    {
+        $parser = $this->createMock(ParserInterface::class);
+        $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
+        $parser->method('getContentByKey')
+            ->willReturnMap([
+                ['key1', 'source', 'valueA'],
+                ['key2', 'source', null], // This should be skipped
+                ['key3', 'source', 'valueB'],
+            ]);
+        $parser->method('getFileName')->willReturn('test.xlf');
+
+        $validator = new DuplicateValuesValidator($this->loggerMock);
+        $validator->processFile($parser);
+
+        // Access protected property to check internal state
+        $reflection = new \ReflectionClass($validator);
+        $valuesArrayProperty = $reflection->getProperty('valuesArray');
+        $valuesArrayProperty->setAccessible(true);
+        $valuesArray = $valuesArrayProperty->getValue($validator);
+
+        $this->assertArrayHasKey('test.xlf', $valuesArray);
+        $this->assertArrayHasKey('valueA', $valuesArray['test.xlf']);
+        $this->assertArrayHasKey('valueB', $valuesArray['test.xlf']);
+        $this->assertArrayNotHasKey('null', $valuesArray['test.xlf']); // null values should be skipped
+        $this->assertSame(['key1'], $valuesArray['test.xlf']['valueA']);
+        $this->assertSame(['key3'], $valuesArray['test.xlf']['valueB']);
+    }
 }

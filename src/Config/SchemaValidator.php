@@ -40,7 +40,7 @@ class SchemaValidator
      */
     private function loadSchema(): object
     {
-        if (!file_exists(self::SCHEMA_PATH)) {
+        if (!file_exists(self::SCHEMA_PATH) || !is_readable(self::SCHEMA_PATH) || !is_file(self::SCHEMA_PATH)) {
             throw new \RuntimeException('JSON Schema file not found: '.self::SCHEMA_PATH);
         }
 
