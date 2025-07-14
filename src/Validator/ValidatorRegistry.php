@@ -18,6 +18,7 @@ class ValidatorRegistry
             EmptyValuesValidator::class,
             PlaceholderConsistencyValidator::class,
             XliffSchemaValidator::class,
+            EncodingValidator::class,
         ];
     }
 }

@@ -37,19 +37,6 @@ Validate your translation files by running the command:
 composer validate-translations ./translations
 ```
 
-The plugin automatically detects and validates all supported file formats:
-
-```bash
-# Validate Laravel-style PHP files
-composer validate-translations ./resources/lang
-
-# Validate Symfony-style PHP files
-composer validate-translations ./translations
-
-# Validate multiple paths and formats
-composer validate-translations ./translations ./resources/lang
-```
-
 ![console.png](docs/console.png)
 
 The command `validate-translations` can be used to validate translation files in your project. It will automatically detect the translation files based on the supported formats and run the configured validators.
@@ -98,37 +85,8 @@ The following translation validators are available:
 | `DuplicateValuesValidator` | This validator checks for duplicate values in translation files.                                                                                                         | XLIFF, YAML, JSON, PHP     | WARNING |
 | `XliffSchemaValidator`     | Validates the XML schema of translation files against the XLIFF standard. See available [schemas](https://github.com/symfony/translation/tree/6.4/Resources/schemas).    | XLIFF       | ERROR   |
 | `EmptyValuesValidator`      | Finds empty or whitespace-only translation values.                                                                                                                       | XLIFF, YAML, JSON, PHP              | WARNING        |
+| `EncodingValidator`        | Validates file encoding, checks for BOM, invisible characters, Unicode normalization issues, and JSON syntax validation.                                               | XLIFF, YAML, JSON, PHP | WARNING |
 | `PlaceholderConsistencyValidator`                                | Validates placeholder consistency across files.                                                                                                                          | XLIFF, YAML, JSON, PHP     | WARNING |
-
-### PHP Translation Files
-
-The plugin supports PHP array-based translation files commonly used in Laravel and Symfony projects. Both directory-based and filename-based language organization patterns are supported:
-
-**Laravel Style** (directory-based):
-```php
-// resources/lang/en/messages.php
-<?php
-return [
-    'welcome' => 'Welcome to our application!',
-    'user' => [
-        'profile' => 'User Profile',
-        'name' => 'Hello :name',
-    ],
-];
-```
-
-**Symfony Style** (filename-based):
-```php
-// translations/messages.en.php
-<?php
-return [
-    'welcome' => 'Welcome to our application!',
-    'user.profile' => 'User Profile',
-    'user.name' => 'Hello %name%',
-];
-```
-
-The PHP parser automatically detects the language from either the directory name (Laravel style) or filename pattern (Symfony style) and supports deep nested arrays with dot notation for key extraction.
 
 ## 🧑‍💻 Contributing
 
