@@ -52,10 +52,7 @@
 		"allow-plugins": {
 			"ergebnis/composer-normalize": true
 		},
-		"sort-packages": true,
-		"symbol-whitelist": [
-			"Normalizer"
-		]
+		"sort-packages": true
 	},
 	"extra": {
 		"class": "MoveElevator\\ComposerTranslationValidator\\Plugin"
