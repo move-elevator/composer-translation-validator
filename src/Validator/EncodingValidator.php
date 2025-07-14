@@ -31,13 +31,22 @@ class EncodingValidator extends AbstractValidator implements ValidatorInterface
             return [];
         }
 
-        // Check UTF-8 encoding
-        if (!$this->isValidUtf8($content)) {
-            $issues['encoding'] = 'File is not valid UTF-8 encoded';
+        // Early exit for empty files
+        if ('' === $content) {
+            return [];
         }
 
-        // Check for BOM
-        if ($this->hasByteOrderMark($content)) {
+        // Check UTF-8 encoding first - if invalid, other checks may fail
+        if (!$this->isValidUtf8($content)) {
+            $issues['encoding'] = 'File is not valid UTF-8 encoded';
+
+            // Skip other checks for invalid UTF-8 content
+            return $issues;
+        }
+
+        // Check for BOM (fast byte check)
+        $hasBom = $this->hasByteOrderMark($content);
+        if ($hasBom) {
             $issues['bom'] = 'File contains UTF-8 Byte Order Mark (BOM)';
         }
 
@@ -50,15 +59,13 @@ class EncodingValidator extends AbstractValidator implements ValidatorInterface
             );
         }
 
-        // Check Unicode normalization
+        // Check Unicode normalization (expensive, only if intl available)
         if ($this->hasUnicodeNormalizationIssues($content)) {
             $issues['unicode_normalization'] = 'File contains non-NFC normalized Unicode characters';
         }
 
-        // JSON-specific validation for JSON files
-        if ($file instanceof JsonParser && !$this->isValidJsonStructure($content)) {
-            $issues['json_syntax'] = 'File contains invalid JSON syntax';
-        }
+        // Note: JSON syntax validation is handled by JsonParser constructor
+        // Invalid JSON files will throw exceptions before reaching this validator
 
         return $issues;
     }
@@ -112,19 +119,29 @@ class EncodingValidator extends AbstractValidator implements ValidatorInterface
     {
         $problematicChars = [];
 
-        // Check for various problematic characters
-        $checks = [
-            'Zero-width space' => "\u{200B}",
-            'Zero-width non-joiner' => "\u{200C}",
-            'Zero-width joiner' => "\u{200D}",
-            'Word joiner' => "\u{2060}",
-            'Zero-width no-break space' => "\u{FEFF}",
-            'Left-to-right mark' => "\u{200E}",
-            'Right-to-left mark' => "\u{200F}",
-            'Soft hyphen' => "\u{00AD}",
+        // Early exit for ASCII-only content (performance optimization)
+        if (mb_check_encoding($content, 'ASCII')) {
+            // Only check for control characters in ASCII content
+            if (preg_match('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', $content)) {
+                $problematicChars[] = 'Control characters';
+            }
+
+            return $problematicChars;
+        }
+
+        // Check for problematic Unicode characters individually for better performance
+        $charMap = [
+            "\u{200B}" => 'Zero-width space',
+            "\u{200C}" => 'Zero-width non-joiner',
+            "\u{200D}" => 'Zero-width joiner',
+            "\u{2060}" => 'Word joiner',
+            "\u{FEFF}" => 'Zero-width no-break space',
+            "\u{200E}" => 'Left-to-right mark',
+            "\u{200F}" => 'Right-to-left mark',
+            "\u{00AD}" => 'Soft hyphen',
         ];
 
-        foreach ($checks as $name => $char) {
+        foreach ($charMap as $char => $name) {
             if (str_contains($content, $char)) {
                 $problematicChars[] = $name;
             }
@@ -141,25 +158,11 @@ class EncodingValidator extends AbstractValidator implements ValidatorInterface
     private function hasUnicodeNormalizationIssues(string $content): bool
     {
         if (!class_exists('Normalizer')) {
-            // If intl extension is not available, skip this check
             return false;
         }
 
-        // Check if content is not in NFC (Canonical Decomposition followed by Canonical Composition)
         $normalized = \Normalizer::normalize($content, \Normalizer::FORM_C);
 
         return false !== $normalized && $content !== $normalized;
-    }
-
-    private function isValidJsonStructure(string $content): bool
-    {
-        // Remove BOM if present for JSON validation
-        $cleanContent = $this->hasByteOrderMark($content)
-            ? substr($content, 3)
-            : $content;
-
-        json_decode($cleanContent);
-
-        return JSON_ERROR_NONE === json_last_error();
     }
 }

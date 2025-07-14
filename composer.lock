@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4c1cc7fb42c7bf41807f804983ef35dd",
+    "content-hash": "d3cd6a1867513aa79e602920f64e3b57",
     "packages": [
         {
             "name": "justinrainbow/json-schema",
@@ -7262,7 +7262,6 @@
     "prefer-lowest": false,
     "platform": {
         "php": "^8.1",
-        "ext-intl": "*",
         "ext-mbstring": "*",
         "ext-simplexml": "*",
         "composer-plugin-api": "^1.0 || ^2.0"
