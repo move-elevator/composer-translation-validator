@@ -7,6 +7,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Parser\JsonParser;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
+use MoveElevator\ComposerTranslationValidator\Parser\PhpParser;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
@@ -229,7 +230,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
-        $expectedParsers = [XliffParser::class, YamlParser::class, JsonParser::class];
+        $expectedParsers = [XliffParser::class, YamlParser::class, JsonParser::class, PhpParser::class];
         $this->assertSame($expectedParsers, $validator->supportsParser());
     }
 

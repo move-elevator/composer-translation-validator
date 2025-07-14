@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\FileDetector;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface;
+use MoveElevator\ComposerTranslationValidator\FileDetector\DirectoryFileDetector;
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileDetectorRegistry;
 use MoveElevator\ComposerTranslationValidator\FileDetector\PrefixFileDetector;
 use MoveElevator\ComposerTranslationValidator\FileDetector\SuffixFileDetector;
@@ -18,7 +19,8 @@ final class FileDetectorRegistryTest extends TestCase
 
         $this->assertContains(PrefixFileDetector::class, $detectors);
         $this->assertContains(SuffixFileDetector::class, $detectors);
-        $this->assertCount(2, $detectors);
+        $this->assertContains(DirectoryFileDetector::class, $detectors);
+        $this->assertCount(3, $detectors);
     }
 
     public function testGetAvailableFileDetectorsReturnsArray(): void

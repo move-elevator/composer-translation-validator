@@ -6,6 +6,7 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\JsonParser;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
+use MoveElevator\ComposerTranslationValidator\Parser\PhpParser;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
@@ -65,7 +66,7 @@ class EmptyValuesValidator extends AbstractValidator implements ValidatorInterfa
      */
     public function supportsParser(): array
     {
-        return [XliffParser::class, YamlParser::class, JsonParser::class];
+        return [XliffParser::class, YamlParser::class, JsonParser::class, PhpParser::class];
     }
 
     public function resultTypeOnValidationFailure(): ResultType

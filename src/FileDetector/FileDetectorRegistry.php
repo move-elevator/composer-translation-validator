@@ -14,6 +14,7 @@ class FileDetectorRegistry
         return [
             PrefixFileDetector::class,
             SuffixFileDetector::class,
+            DirectoryFileDetector::class,
         ];
     }
 }

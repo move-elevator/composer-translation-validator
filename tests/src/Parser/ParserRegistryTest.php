@@ -7,6 +7,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Parser;
 use MoveElevator\ComposerTranslationValidator\Parser\JsonParser;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserRegistry;
+use MoveElevator\ComposerTranslationValidator\Parser\PhpParser;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use PHPUnit\Framework\TestCase;
@@ -20,7 +21,8 @@ final class ParserRegistryTest extends TestCase
         $this->assertContains(XliffParser::class, $parsers);
         $this->assertContains(YamlParser::class, $parsers);
         $this->assertContains(JsonParser::class, $parsers);
-        $this->assertCount(3, $parsers);
+        $this->assertContains(PhpParser::class, $parsers);
+        $this->assertCount(4, $parsers);
     }
 
     public function testResolveParserClass(): void
@@ -42,6 +44,9 @@ final class ParserRegistryTest extends TestCase
 
         // Test JSON extensions
         $this->assertSame(JsonParser::class, ParserRegistry::resolveParserClass('test.json'));
+
+        // Test PHP extensions
+        $this->assertSame(PhpParser::class, ParserRegistry::resolveParserClass('messages.php'));
 
         // Test unsupported extensions
         $this->assertNull(ParserRegistry::resolveParserClass('data.xml'));

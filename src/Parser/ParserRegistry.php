@@ -17,6 +17,7 @@ class ParserRegistry
             XliffParser::class,
             YamlParser::class,
             JsonParser::class,
+            PhpParser::class,
         ];
     }
 

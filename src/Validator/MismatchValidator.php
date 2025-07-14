@@ -7,6 +7,7 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Parser\JsonParser;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
+use MoveElevator\ComposerTranslationValidator\Parser\PhpParser;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
@@ -215,7 +216,7 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
      */
     public function supportsParser(): array
     {
-        return [XliffParser::class, YamlParser::class, JsonParser::class];
+        return [XliffParser::class, YamlParser::class, JsonParser::class, PhpParser::class];
     }
 
     protected function resetState(): void

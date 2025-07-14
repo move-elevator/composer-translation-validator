@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
+use MoveElevator\ComposerTranslationValidator\Parser\JsonParser;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
+use MoveElevator\ComposerTranslationValidator\Parser\PhpParser;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
+use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 
 class DuplicateKeysValidator extends AbstractValidator implements ValidatorInterface
@@ -60,6 +63,6 @@ class DuplicateKeysValidator extends AbstractValidator implements ValidatorInter
      */
     public function supportsParser(): array
     {
-        return [XliffParser::class];
+        return [XliffParser::class, YamlParser::class, JsonParser::class, PhpParser::class];
     }
 }
