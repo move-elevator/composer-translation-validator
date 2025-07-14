@@ -15,7 +15,7 @@ use Psr\Log\LoggerInterface;
 
 final class DuplicateValuesValidatorTest extends TestCase
 {
-    private MockObject|LoggerInterface $loggerMock;
+    private LoggerInterface $loggerMock;
 
     protected function setUp(): void
     {
@@ -84,7 +84,9 @@ final class DuplicateValuesValidatorTest extends TestCase
         $parser->method('extractKeys')->willReturn(null);
         $parser->method('getFileName')->willReturn('invalid.xlf');
 
-        $this->loggerMock->expects($this->once())
+        /** @var MockObject&LoggerInterface $loggerMock */
+        $loggerMock = $this->loggerMock;
+        $loggerMock->expects($this->once())
             ->method('error')
             ->with($this->stringContains('The source file invalid.xlf is not valid.'));
 

@@ -37,6 +37,7 @@ class ParserCacheTest extends TestCase
     public function testGetCreatesNewParserInstance(): void
     {
         $parser = ParserCache::get($this->testFile, YamlParser::class);
+        $this->assertNotFalse($parser);
 
         $this->assertInstanceOf(YamlParser::class, $parser);
         $this->assertSame($this->testFile, $parser->getFilePath());
@@ -58,6 +59,8 @@ class ParserCacheTest extends TestCase
         try {
             $parser1 = ParserCache::get($this->testFile, YamlParser::class);
             $parser2 = ParserCache::get($testFile2, YamlParser::class);
+            $this->assertNotFalse($parser1);
+            $this->assertNotFalse($parser2);
 
             $this->assertNotSame($parser1, $parser2);
             $this->assertSame($this->testFile, $parser1->getFilePath());

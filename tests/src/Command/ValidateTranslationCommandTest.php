@@ -133,6 +133,7 @@ class ValidateTranslationCommandTest extends TestCase
         ]);
 
         $output = json_decode($commandTester->getDisplay(), true);
+        $this->assertIsArray($output);
         $this->assertArrayHasKey('status', $output);
         $this->assertSame(0, $output['status']);
         $this->assertArrayHasKey('message', $output);
@@ -174,6 +175,7 @@ class ValidateTranslationCommandTest extends TestCase
         ]);
 
         $output = json_decode($commandTester->getDisplay(), true);
+        $this->assertIsArray($output);
         $this->assertArrayHasKey('status', $output);
         $this->assertSame(1, $output['status']);
         $this->assertArrayHasKey('message', $output);

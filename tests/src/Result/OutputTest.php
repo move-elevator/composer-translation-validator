@@ -8,7 +8,6 @@ use MoveElevator\ComposerTranslationValidator\Result\FormatType;
 use MoveElevator\ComposerTranslationValidator\Result\Output;
 use MoveElevator\ComposerTranslationValidator\Result\ValidationResult;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -17,8 +16,8 @@ use Symfony\Component\Console\Output\BufferedOutput;
 
 final class OutputTest extends TestCase
 {
-    private MockObject|LoggerInterface $loggerMock;
-    private MockObject|InputInterface $inputMock;
+    private LoggerInterface $loggerMock;
+    private InputInterface $inputMock;
     private BufferedOutput $output;
 
     protected function setUp(): void
@@ -31,7 +30,9 @@ final class OutputTest extends TestCase
 
     public function testSummarizeCliFormat(): void
     {
-        $validationResult = new ValidationResult([], ResultType::SUCCESS);
+        /** @var array<\MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface> $validators */
+        $validators = [];
+        $validationResult = new ValidationResult($validators, ResultType::SUCCESS);
 
         $output = new Output(
             $this->loggerMock,
@@ -49,7 +50,9 @@ final class OutputTest extends TestCase
 
     public function testSummarizeJsonFormat(): void
     {
-        $validationResult = new ValidationResult([], ResultType::SUCCESS);
+        /** @var array<\MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface> $validators */
+        $validators = [];
+        $validationResult = new ValidationResult($validators, ResultType::SUCCESS);
 
         $output = new Output(
             $this->loggerMock,
@@ -72,7 +75,9 @@ final class OutputTest extends TestCase
 
     public function testSummarizeCliFormatFailure(): void
     {
-        $validationResult = new ValidationResult([], ResultType::ERROR);
+        /** @var array<\MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface> $validators */
+        $validators = [];
+        $validationResult = new ValidationResult($validators, ResultType::ERROR);
 
         $output = new Output(
             $this->loggerMock,
@@ -90,7 +95,9 @@ final class OutputTest extends TestCase
 
     public function testSummarizeWithWarnings(): void
     {
-        $validationResult = new ValidationResult([], ResultType::WARNING);
+        /** @var array<\MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface> $validators */
+        $validators = [];
+        $validationResult = new ValidationResult($validators, ResultType::WARNING);
 
         $output = new Output(
             $this->loggerMock,
@@ -108,7 +115,9 @@ final class OutputTest extends TestCase
 
     public function testSummarizeJsonFormatWithFailure(): void
     {
-        $validationResult = new ValidationResult([], ResultType::ERROR);
+        /** @var array<\MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface> $validators */
+        $validators = [];
+        $validationResult = new ValidationResult($validators, ResultType::ERROR);
 
         $output = new Output(
             $this->loggerMock,
@@ -130,7 +139,9 @@ final class OutputTest extends TestCase
 
     public function testSummarizeJsonFormatWithWarnings(): void
     {
-        $validationResult = new ValidationResult([], ResultType::WARNING);
+        /** @var array<\MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface> $validators */
+        $validators = [];
+        $validationResult = new ValidationResult($validators, ResultType::WARNING);
 
         $output = new Output(
             $this->loggerMock,
@@ -152,7 +163,9 @@ final class OutputTest extends TestCase
 
     public function testOutputWithDryRunMode(): void
     {
-        $validationResult = new ValidationResult([], ResultType::ERROR);
+        /** @var array<\MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface> $validators */
+        $validators = [];
+        $validationResult = new ValidationResult($validators, ResultType::ERROR);
 
         $output = new Output(
             $this->loggerMock,
@@ -171,7 +184,9 @@ final class OutputTest extends TestCase
 
     public function testOutputWithStrictMode(): void
     {
-        $validationResult = new ValidationResult([], ResultType::WARNING);
+        /** @var array<\MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface> $validators */
+        $validators = [];
+        $validationResult = new ValidationResult($validators, ResultType::WARNING);
 
         $output = new Output(
             $this->loggerMock,

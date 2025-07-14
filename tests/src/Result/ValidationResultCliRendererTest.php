@@ -20,21 +20,25 @@ class ValidationResultCliRendererTest extends TestCase
 {
     private ValidationResultCliRenderer $renderer;
     private BufferedOutput $output;
-    private InputInterface|MockObject $input;
+    private MockObject $input;
 
     protected function setUp(): void
     {
         $this->output = new BufferedOutput();
-        $this->input = $this->createMock(InputInterface::class);
+        /** @var MockObject&InputInterface $input */
+        $input = $this->createMock(InputInterface::class);
+        $this->input = $input;
         $this->renderer = new ValidationResultCliRenderer(
             $this->output,
-            $this->input
+            $input
         );
     }
 
     public function testRenderWithNoIssues(): void
     {
-        $validationResult = new ValidationResult([], ResultType::SUCCESS);
+        /** @var array<ValidatorInterface> $validators */
+        $validators = [];
+        $validationResult = new ValidationResult($validators, ResultType::SUCCESS);
 
         $exitCode = $this->renderer->render($validationResult);
 
@@ -50,10 +54,14 @@ class ValidationResultCliRendererTest extends TestCase
         $validator->method('getIssues')->willReturn([$issue]);
 
         $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
+        /** @var array<ValidatorInterface> $validators */
+        $validators = [$validator];
+        /** @var array<array{validator: ValidatorInterface, fileSet: FileSet}> $pairs */
+        $pairs = [['validator' => $validator, 'fileSet' => $fileSet]];
         $validationResult = new ValidationResult(
-            [$validator],
+            $validators,
             ResultType::ERROR,
-            [['validator' => $validator, 'fileSet' => $fileSet]]
+            $pairs
         );
 
         $exitCode = $this->renderer->render($validationResult);
@@ -67,9 +75,11 @@ class ValidationResultCliRendererTest extends TestCase
 
     public function testRenderWithDryRun(): void
     {
+        /** @var MockObject&InputInterface $input */
+        $input = $this->input;
         $renderer = new ValidationResultCliRenderer(
             $this->output,
-            $this->input,
+            $input,
             true  // dry run
         );
 
@@ -92,9 +102,11 @@ class ValidationResultCliRendererTest extends TestCase
 
     public function testRenderWithStrictMode(): void
     {
+        /** @var MockObject&InputInterface $input */
+        $input = $this->input;
         $renderer = new ValidationResultCliRenderer(
             $this->output,
-            $this->input,
+            $input,
             false, // dry run
             true   // strict
         );
@@ -220,7 +232,9 @@ class ValidationResultCliRendererTest extends TestCase
 
         // Test verbose mode
         $this->output = new BufferedOutput();
-        $this->renderer = new ValidationResultCliRenderer($this->output, $this->input);
+        /** @var MockObject&InputInterface $input */
+        $input = $this->input;
+        $this->renderer = new ValidationResultCliRenderer($this->output, $input);
         $this->output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
         $this->renderer->render($validationResult);
         $verboseOutput = $this->output->fetch();
@@ -474,8 +488,12 @@ class ValidationResultCliRendererTest extends TestCase
         $this->assertStringContainsString('Validators run: 2', $output);
     }
 
-    private function createMockValidator(ResultType $resultType = ResultType::ERROR): ValidatorInterface|MockObject
+    /**
+     * @return MockObject&ValidatorInterface
+     */
+    private function createMockValidator(ResultType $resultType = ResultType::ERROR): MockObject
     {
+        /** @var MockObject&ValidatorInterface $validator */
         $validator = $this->createMock(ValidatorInterface::class);
         $validator->method('resultTypeOnValidationFailure')->willReturn($resultType);
         $validator->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = '', bool $isVerbose = false): string => $isVerbose ? '- <fg=red>Error</> Validation error' : "- <fg=red>Error</> {$prefix}Validation error");
@@ -552,9 +570,11 @@ class ValidationResultCliRendererTest extends TestCase
     public function testRenderSummaryMessagesWithDryRun(): void
     {
         // Test dry-run message variations
+        /** @var MockObject&InputInterface $input */
+        $input = $this->input;
         $renderer = new ValidationResultCliRenderer(
             $this->output,
-            $this->input,
+            $input,
             true, // dry run
             false
         );
@@ -570,9 +590,11 @@ class ValidationResultCliRendererTest extends TestCase
     {
         $validationResult = new ValidationResult([], ResultType::WARNING);
 
+        /** @var MockObject&InputInterface $input */
+        $input = $this->input;
         $renderer = new ValidationResultCliRenderer(
             $this->output,
-            $this->input,
+            $input,
             false, // not dry run
             false  // not strict
         );
@@ -588,9 +610,11 @@ class ValidationResultCliRendererTest extends TestCase
     {
         $validationResult = new ValidationResult([], ResultType::WARNING);
 
+        /** @var MockObject&InputInterface $input */
+        $input = $this->input;
         $renderer = new ValidationResultCliRenderer(
             $this->output,
-            $this->input,
+            $input,
             false, // not dry run
             true   // strict mode
         );
@@ -606,9 +630,11 @@ class ValidationResultCliRendererTest extends TestCase
     {
         $validationResult = new ValidationResult([], ResultType::WARNING);
 
+        /** @var MockObject&InputInterface $input */
+        $input = $this->input;
         $renderer = new ValidationResultCliRenderer(
             $this->output,
-            $this->input,
+            $input,
             false, // not dry run
             false  // not strict
         );
@@ -626,9 +652,11 @@ class ValidationResultCliRendererTest extends TestCase
     {
         $validationResult = new ValidationResult([], ResultType::WARNING);
 
+        /** @var MockObject&InputInterface $input */
+        $input = $this->input;
         $renderer = new ValidationResultCliRenderer(
             $this->output,
-            $this->input,
+            $input,
             false, // not dry run
             false  // not strict
         );
