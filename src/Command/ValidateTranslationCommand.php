@@ -86,7 +86,7 @@ class ValidateTranslationCommand extends BaseCommand
             )
             ->setHelp(
                 <<<HELP
-The <info>validate-translations</info> command validates translation files (XLIFF and YAML)
+The <info>validate-translations</info> command validates translation files (XLIFF, YAML and JSON)
 using multiple validators to ensure consistency, correctness and schema compliance.
 
 <comment>Usage:</comment>

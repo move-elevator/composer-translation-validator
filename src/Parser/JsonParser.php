@@ -4,21 +4,29 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Parser;
 
-use Symfony\Component\Yaml\Yaml;
-
-class YamlParser extends AbstractParser implements ParserInterface
+class JsonParser extends AbstractParser implements ParserInterface
 {
     /** @var array<string, mixed> */
-    private array $yaml = [];
+    private array $json = [];
 
     public function __construct(protected string $filePath)
     {
         parent::__construct($filePath);
 
         try {
-            $this->yaml = Yaml::parseFile($filePath);
-        } catch (\Exception $e) {
-            throw new \RuntimeException(sprintf('Failed to parse YAML file "%s": %s', $filePath, $e->getMessage()), 0, $e);
+            $content = file_get_contents($filePath);
+            if (false === $content) {
+                throw new \RuntimeException("Failed to read file: {$filePath}");
+            }
+
+            $decoded = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+            if (!is_array($decoded) || array_is_list($decoded)) {
+                throw new \RuntimeException("JSON file does not contain an object: {$filePath}");
+            }
+
+            $this->json = $decoded;
+        } catch (\JsonException $e) {
+            throw new \RuntimeException(sprintf('Failed to parse JSON file "%s": %s', $filePath, $e->getMessage()), 0, $e);
         }
     }
 
@@ -49,15 +57,15 @@ class YamlParser extends AbstractParser implements ParserInterface
             return $keys;
         };
 
-        return $extract($this->yaml);
+        return $extract($this->json);
     }
 
     public function getContentByKey(string $key, string $attribute = 'source'): ?string
     {
         // Note: the $attribute parameter is required by ParserInterface
-        // but is not used for YAML, since YAML has no source/target concept.
+        // but is not used for JSON, since JSON has no source/target concept.
         $parts = explode('.', $key);
-        $value = $this->yaml;
+        $value = $this->json;
 
         foreach ($parts as $part) {
             if (is_array($value) && array_key_exists($part, $value)) {
@@ -75,13 +83,13 @@ class YamlParser extends AbstractParser implements ParserInterface
      */
     public static function getSupportedFileExtensions(): array
     {
-        return ['yaml', 'yml'];
+        return ['json'];
     }
 
     public function getLanguage(): string
     {
         if (preg_match(
-            '/\.(\w{2})\./',
+            '/\.([a-z]{2})(?:[-_][A-Z]{2})?\./',
             $this->getFileName(),
             $matches
         )) {

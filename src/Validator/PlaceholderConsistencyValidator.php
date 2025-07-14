@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
+use MoveElevator\ComposerTranslationValidator\Parser\JsonParser;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
@@ -283,7 +284,7 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
      */
     public function supportsParser(): array
     {
-        return [XliffParser::class, YamlParser::class];
+        return [XliffParser::class, YamlParser::class, JsonParser::class];
     }
 
     protected function resetState(): void

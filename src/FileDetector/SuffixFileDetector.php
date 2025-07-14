@@ -17,7 +17,7 @@ class SuffixFileDetector implements DetectorInterface
 
         foreach ($files as $file) {
             $basename = basename($file);
-            if (preg_match('/^([^.]+)\.[a-z]{2}([-_][A-Z]{2})?(\.ya?ml|\.xlf)?$/i', $basename, $matches)) {
+            if (preg_match('/^([^.]+)\.[a-z]{2}([-_][A-Z]{2})?(\.ya?ml|\.xlf|\.json)?$/i', $basename, $matches)) {
                 $key = $matches[1];
                 $groups[$key][] = $file;
             }

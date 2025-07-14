@@ -1,0 +1,16 @@
+{
+  "greeting": "Hallo!",
+  "farewell": "Auf Wiedersehen!",
+  "user": {
+	"created": "Benutzer wurde erfolgreich erstellt.",
+	"deleted": "Benutzer wurde gelöscht."
+  },
+  "form": {
+	"submit": "Absenden",
+	"cancel": "Abbrechen"
+  },
+  "error": {
+	"not_found": "Die angeforderte Ressource wurde nicht gefunden."
+  },
+  "missing_from_english": "This key exists only in German"
+}

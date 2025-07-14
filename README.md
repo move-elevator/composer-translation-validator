@@ -67,6 +67,7 @@ The plugin supports the following translation file formats (and targets the foll
 |----------------------------------------------|--------------------------------------------------------------------------------------------------------------|-----------|----------------------------------------|
 | [XLIFF](https://en.wikipedia.org/wiki/XLIFF) | Supports source/target translations in xliff language files. | [TYPO3 CMS](https://typo3.org/)          | `locallang.xlf`, `de.locallang.xlf`    |
 | [Yaml](https://en.wikipedia.org/wiki/YAML)   | Supports yaml language files.                     | [Symfony Framework](https://symfony.com/)          | `messages.en.yaml`, `messages.de.yaml` |
+| [JSON](https://en.wikipedia.org/wiki/JSON)   | Supports JSON language files with nested key support.                     | [Laravel](https://laravel.com/) / [Symfony](https://symfony.com/)          | `messages.en.json`, `messages.de.json` |
 
 > [!NOTE]
 > The translation files will be grouped to file sets based on the file name prefix or suffix. For example, `locallang.xlf` and `de.locallang.xlf` will be grouped together as they share the same prefix (`locallang`), while `messages.en.yaml` and `messages.de.yaml` will be grouped by their suffix (`.en`, `.de`). See the [File Detectors](docs/file-detector.md) for more details.
@@ -77,12 +78,12 @@ The following validators are available:
 
 | Validator                  | Function                                                                                                                                                                 | Supports    | Throws  |
 |----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|---------|
-| `MismatchValidator`        | This validator checks for keys that are present in some files but not in others. It helps to identify mismatches in translation keys across different translation files. | XLIFF, Yaml | WARNING   |
+| `MismatchValidator`        | This validator checks for keys that are present in some files but not in others. It helps to identify mismatches in translation keys across different translation files. | XLIFF, YAML, JSON | WARNING   |
 | `DuplicateKeysValidator`   | This validator checks for duplicate keys in translation files.                                                                                                           | XLIFF       | ERROR   |
-| `DuplicateValuesValidator` | This validator checks for duplicate values in translation files.                                                                                                         | XLIFF, Yaml     | WARNING |
+| `DuplicateValuesValidator` | This validator checks for duplicate values in translation files.                                                                                                         | XLIFF, YAML, JSON     | WARNING |
 | `XliffSchemaValidator`     | Validates the XML schema of translation files against the XLIFF standard. See available [schemas](https://github.com/symfony/translation/tree/6.4/Resources/schemas).    | XLIFF       | ERROR   |
-| `EmptyValuesValidator`      | Finds empty or whitespace-only translation values.                                                                                                                       | XLIFF, Yaml              | WARNING        |
-| `PlaceholderConsistencyValidator`                                | Validates placeholder consistency across files.                                                                                                                          | XLIFF, Yaml     | WARNING |
+| `EmptyValuesValidator`      | Finds empty or whitespace-only translation values.                                                                                                                       | XLIFF, YAML, JSON              | WARNING        |
+| `PlaceholderConsistencyValidator`                                | Validates placeholder consistency across files.                                                                                                                          | XLIFF, YAML, JSON     | WARNING |
 
 
 ## 🧑‍💻 Contributing
