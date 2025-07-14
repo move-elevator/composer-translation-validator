@@ -19,7 +19,7 @@ class PathUtility
         }
 
         $normalizedPath = rtrim($realPath, DIRECTORY_SEPARATOR);
-        
+
         $cwd = getcwd();
         if (false === $cwd) {
             return $normalizedPath;

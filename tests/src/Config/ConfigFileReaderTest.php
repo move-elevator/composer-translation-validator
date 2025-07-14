@@ -22,7 +22,10 @@ final class ConfigFileReaderTest extends TestCase
     protected function tearDown(): void
     {
         if (is_dir($this->tempDir)) {
-            array_map('unlink', glob($this->tempDir.'/*'));
+            $files = glob($this->tempDir.'/*');
+            if (false !== $files) {
+                array_map('unlink', $files);
+            }
             rmdir($this->tempDir);
         }
     }

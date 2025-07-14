@@ -33,6 +33,12 @@ final class CollectorTest extends TestCase
     private function removeDirectory(string $path): void
     {
         $files = glob($path.'/*');
+        if (false === $files) {
+            rmdir($path);
+
+            return;
+        }
+
         foreach ($files as $file) {
             is_dir($file) ? $this->removeDirectory($file) : unlink($file);
         }

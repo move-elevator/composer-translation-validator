@@ -304,8 +304,9 @@ HELP
                 $type,
                 $name
             );
-            /* @var class-string $name */
-            $classes[] = $name;
+            /** @var class-string $validatedName */
+            $validatedName = $name;
+            $classes[] = $validatedName;
         }
 
         return $classes;

@@ -15,7 +15,11 @@ final class PathUtilityTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->originalCwd = getcwd();
+        $cwd = getcwd();
+        if (false === $cwd) {
+            $this->fail('Could not get current working directory');
+        }
+        $this->originalCwd = $cwd;
         $this->tempDir = sys_get_temp_dir().'/path_utility_test_'.uniqid('', true);
         mkdir($this->tempDir);
     }
@@ -32,6 +36,12 @@ final class PathUtilityTest extends TestCase
     private function removeDirectory(string $path): void
     {
         $files = glob($path.'/*');
+        if (false === $files) {
+            rmdir($path);
+
+            return;
+        }
+
         foreach ($files as $file) {
             is_dir($file) ? $this->removeDirectory($file) : unlink($file);
         }
