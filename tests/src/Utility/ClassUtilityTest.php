@@ -75,8 +75,8 @@ final class ClassUtilityTest extends TestCase
 
         ClassUtility::instantiate(DummyInterface::class, $logger, 'test', 'NonExistentClass');
 
-        $this->assertStringContainsString('The class "NonExistentClass" does not exist.', $loggedMessages[0]);
-        $this->assertStringContainsString('The test class "NonExistentClass" must implement MoveElevator\ComposerTranslationValidator\Tests\Utility\DummyInterface', $loggedMessages[1]);
+        $this->assertStringContainsString('The class "NonExistentClass" does not exist.', (string) $loggedMessages[0]);
+        $this->assertStringContainsString('The test class "NonExistentClass" must implement MoveElevator\ComposerTranslationValidator\Tests\Utility\DummyInterface', (string) $loggedMessages[1]);
     }
 
     public function testInstantiateWithClassNotImplementingInterface(): void
@@ -89,7 +89,7 @@ final class ClassUtilityTest extends TestCase
 
         $this->assertNull(ClassUtility::instantiate(DummyInterface::class, $logger, 'test', InvalidClass::class));
 
-        $this->assertStringContainsString('The test class "MoveElevator\ComposerTranslationValidator\Tests\Utility\InvalidClass" must implement MoveElevator\ComposerTranslationValidator\Tests\Utility\DummyInterface', $loggedMessages[1]);
+        $this->assertStringContainsString('The test class "MoveElevator\ComposerTranslationValidator\Tests\Utility\InvalidClass" must implement MoveElevator\ComposerTranslationValidator\Tests\Utility\DummyInterface', (string) $loggedMessages[1]);
     }
 
     public function testInstantiateWithValidClass(): void

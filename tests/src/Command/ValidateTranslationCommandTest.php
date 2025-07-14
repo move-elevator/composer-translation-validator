@@ -136,7 +136,7 @@ class ValidateTranslationCommandTest extends TestCase
         $this->assertArrayHasKey('status', $output);
         $this->assertSame(0, $output['status']);
         $this->assertArrayHasKey('message', $output);
-        $this->assertStringContainsString('Language validation succeeded.', $output['message']);
+        $this->assertStringContainsString('Language validation succeeded.', (string) $output['message']);
         $this->assertArrayHasKey('issues', $output);
         $this->assertEmpty($output['issues']);
         $this->assertSame(0, $commandTester->getStatusCode());
@@ -177,7 +177,7 @@ class ValidateTranslationCommandTest extends TestCase
         $this->assertArrayHasKey('status', $output);
         $this->assertSame(1, $output['status']);
         $this->assertArrayHasKey('message', $output);
-        $this->assertStringContainsString('Language validation failed with errors.', $output['message']);
+        $this->assertStringContainsString('Language validation failed with errors.', (string) $output['message']);
         $this->assertArrayHasKey('issues', $output);
         $this->assertNotEmpty($output['issues']);
         $this->assertSame(1, $commandTester->getStatusCode());

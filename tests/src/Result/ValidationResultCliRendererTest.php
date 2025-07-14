@@ -351,11 +351,11 @@ class ValidationResultCliRendererTest extends TestCase
 
         // Test with validator name prefix (non-verbose)
         $result = $method->invoke($this->renderer, $validator, $issue, 'TestValidator', false);
-        $this->assertStringContainsString('(TestValidator)', $result);
+        $this->assertStringContainsString('(TestValidator)', (string) $result);
 
         // Test verbose mode (no prefix)
         $result = $method->invoke($this->renderer, $validator, $issue, 'TestValidator', true);
-        $this->assertStringNotContainsString('(TestValidator)', $result);
+        $this->assertStringNotContainsString('(TestValidator)', (string) $result);
     }
 
     public function testRenderStatisticsInVerboseMode(): void
