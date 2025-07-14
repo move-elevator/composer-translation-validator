@@ -54,6 +54,8 @@ class YamlParser extends AbstractParser implements ParserInterface
 
     public function getContentByKey(string $key, string $attribute = 'source'): ?string
     {
+        // Note: the $attribute parameter is required by ParserInterface
+        // but is not used for YAML, since YAML has no source/target concept.
         $parts = explode('.', $key);
         $value = $this->yaml;
 

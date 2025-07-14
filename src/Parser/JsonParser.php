@@ -62,6 +62,8 @@ class JsonParser extends AbstractParser implements ParserInterface
 
     public function getContentByKey(string $key, string $attribute = 'source'): ?string
     {
+        // Note: the $attribute parameter is required by ParserInterface
+        // but is not used for JSON, since JSON has no source/target concept.
         $parts = explode('.', $key);
         $value = $this->json;
 
@@ -87,7 +89,7 @@ class JsonParser extends AbstractParser implements ParserInterface
     public function getLanguage(): string
     {
         if (preg_match(
-            '/\.(\w{2})(?:[-_][A-Z]{2})?\./',
+            '/\.([a-z]{2})(?:[-_][A-Z]{2})?\./',
             $this->getFileName(),
             $matches
         )) {
