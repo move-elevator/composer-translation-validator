@@ -14,7 +14,7 @@ class FileDetectorRegistry
         return [
             PrefixFileDetector::class,
             SuffixFileDetector::class,
-            LaravelFileDetector::class,
+            DirectoryFileDetector::class,
         ];
     }
 }

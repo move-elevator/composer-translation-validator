@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\FileDetector;
 
-use MoveElevator\ComposerTranslationValidator\FileDetector\LaravelFileDetector;
+use MoveElevator\ComposerTranslationValidator\FileDetector\DirectoryFileDetector;
 use PHPUnit\Framework\TestCase;
 
-final class LaravelFileDetectorTest extends TestCase
+final class DirectoryFileDetectorTest extends TestCase
 {
-    public function testMapTranslationSetWithLaravelStyleFiles(): void
+    public function testMapTranslationSetWithDirectoryBasedFiles(): void
     {
-        $detector = new LaravelFileDetector();
+        $detector = new DirectoryFileDetector();
 
         $files = [
             '/path/to/resources/lang/en/messages.php',
@@ -40,7 +40,7 @@ final class LaravelFileDetectorTest extends TestCase
 
     public function testMapTranslationSetWithComplexLocales(): void
     {
-        $detector = new LaravelFileDetector();
+        $detector = new DirectoryFileDetector();
 
         $files = [
             '/app/lang/en_US/messages.php',
@@ -65,16 +65,55 @@ final class LaravelFileDetectorTest extends TestCase
         $this->assertSame($expected, $result);
     }
 
-    public function testMapTranslationSetIgnoresNonPhpFiles(): void
+    public function testMapTranslationSetWithMixedFileFormats(): void
     {
-        $detector = new LaravelFileDetector();
+        $detector = new DirectoryFileDetector();
 
         $files = [
             '/path/to/lang/en/messages.php',
-            '/path/to/lang/en/messages.json',
-            '/path/to/lang/en/messages.yaml',
-            '/path/to/lang/en/messages.xlf',
             '/path/to/lang/de/messages.php',
+            '/path/to/lang/en/auth.json',
+            '/path/to/lang/de/auth.json',
+            '/path/to/lang/en/validation.yaml',
+            '/path/to/lang/de/validation.yml',
+            '/path/to/lang/en/errors.xlf',
+            '/path/to/lang/de/errors.xliff',
+        ];
+
+        $result = $detector->mapTranslationSet($files);
+
+        $expected = [
+            'messages' => [
+                '/path/to/lang/en/messages.php',
+                '/path/to/lang/de/messages.php',
+            ],
+            'auth' => [
+                '/path/to/lang/en/auth.json',
+                '/path/to/lang/de/auth.json',
+            ],
+            'validation' => [
+                '/path/to/lang/en/validation.yaml',
+                '/path/to/lang/de/validation.yml',
+            ],
+            'errors' => [
+                '/path/to/lang/en/errors.xlf',
+                '/path/to/lang/de/errors.xliff',
+            ],
+        ];
+
+        $this->assertSame($expected, $result);
+    }
+
+    public function testMapTranslationSetIgnoresUnsupportedFiles(): void
+    {
+        $detector = new DirectoryFileDetector();
+
+        $files = [
+            '/path/to/lang/en/messages.php',    // Supported
+            '/path/to/lang/en/config.ini',      // Unsupported
+            '/path/to/lang/en/data.xml',        // Unsupported
+            '/path/to/lang/en/readme.txt',      // Unsupported
+            '/path/to/lang/de/messages.php',    // Supported
         ];
 
         $result = $detector->mapTranslationSet($files);
@@ -91,7 +130,7 @@ final class LaravelFileDetectorTest extends TestCase
 
     public function testMapTranslationSetIgnoresInvalidLanguageCodes(): void
     {
-        $detector = new LaravelFileDetector();
+        $detector = new DirectoryFileDetector();
 
         $files = [
             '/path/to/lang/english/messages.php', // Invalid: full language name
@@ -116,7 +155,7 @@ final class LaravelFileDetectorTest extends TestCase
 
     public function testMapTranslationSetWithWindowsPaths(): void
     {
-        $detector = new LaravelFileDetector();
+        $detector = new DirectoryFileDetector();
 
         $files = [
             'C:\\app\\resources\\lang\\en\\messages.php',
@@ -137,7 +176,7 @@ final class LaravelFileDetectorTest extends TestCase
 
     public function testMapTranslationSetWithEmptyArray(): void
     {
-        $detector = new LaravelFileDetector();
+        $detector = new DirectoryFileDetector();
 
         $result = $detector->mapTranslationSet([]);
 
@@ -146,7 +185,7 @@ final class LaravelFileDetectorTest extends TestCase
 
     public function testMapTranslationSetWithNoMatchingFiles(): void
     {
-        $detector = new LaravelFileDetector();
+        $detector = new DirectoryFileDetector();
 
         $files = [
             '/path/to/config/app.php',
@@ -161,7 +200,7 @@ final class LaravelFileDetectorTest extends TestCase
 
     public function testMapTranslationSetWithMixedStructures(): void
     {
-        $detector = new LaravelFileDetector();
+        $detector = new DirectoryFileDetector();
 
         $files = [
             // Laravel structure
@@ -193,7 +232,7 @@ final class LaravelFileDetectorTest extends TestCase
 
     public function testMapTranslationSetWithSameFileNameDifferentPaths(): void
     {
-        $detector = new LaravelFileDetector();
+        $detector = new DirectoryFileDetector();
 
         $files = [
             '/app1/lang/en/messages.php',

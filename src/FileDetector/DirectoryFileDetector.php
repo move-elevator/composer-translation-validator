@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\FileDetector;
 
-class LaravelFileDetector implements DetectorInterface
+class DirectoryFileDetector implements DetectorInterface
 {
     /**
-     * Maps Laravel-style translation files organized by language directories.
+     * Maps translation files organized by language directories.
      * Examples:
-     * - lang/en/messages.php, lang/de/messages.php
-     * - resources/lang/en/auth.php, resources/lang/fr/auth.php.
+     * - lang/en/messages.php, lang/de/messages.php (Laravel style)
+     * - resources/lang/en/auth.php, resources/lang/fr/auth.php (Laravel style)
+     * - translations/en/messages.php, translations/de/messages.php (directory-based).
      *
      * @param array<int, string> $files
      *
@@ -25,11 +26,11 @@ class LaravelFileDetector implements DetectorInterface
             $fileName = array_pop($pathParts);
             $languageDir = array_pop($pathParts);
 
-            // Check if this follows Laravel pattern: lang_code/filename.php
+            // Check if this follows directory-based pattern: lang_code/filename.ext
             if (
                 $languageDir
                 && preg_match('/^[a-z]{2}(?:[-_][A-Z]{2})?$/', $languageDir)
-                && preg_match('/^([^.]+)\.php$/i', $fileName, $matches)
+                && preg_match('/^([^.]+)\.(php|json|ya?ml|xlf|xliff)$/i', $fileName, $matches)
             ) {
                 $key = $matches[1];
                 $groups[$key][] = $file;
