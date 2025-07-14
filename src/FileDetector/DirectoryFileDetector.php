@@ -26,10 +26,13 @@ class DirectoryFileDetector implements DetectorInterface
             $fileName = array_pop($pathParts);
             $languageDir = array_pop($pathParts);
 
+            if (!$fileName || !$languageDir) {
+                continue;
+            }
+
             // Check if this follows directory-based pattern: lang_code/filename.ext
             if (
-                $languageDir
-                && preg_match('/^[a-z]{2}(?:[-_][A-Z]{2})?$/', $languageDir)
+                preg_match('/^[a-z]{2}(?:[-_][A-Z]{2})?$/', $languageDir)
                 && preg_match('/^([^.]+)\.(php|json|ya?ml|xlf|xliff)$/i', $fileName, $matches)
             ) {
                 $key = $matches[1];
