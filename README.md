@@ -11,6 +11,7 @@
 
 A Composer plugin that validates translation files in your project.
 Provides a command `validate-translations` to check for translations mismatches, duplicates and schema validation.
+Supports XLIFF, YAML, JSON and PHP translation files.
 
 ## ✨ Features
 
@@ -36,6 +37,19 @@ Validate your translation files by running the command:
 composer validate-translations ./translations
 ```
 
+The plugin automatically detects and validates all supported file formats:
+
+```bash
+# Validate Laravel-style PHP files
+composer validate-translations ./resources/lang
+
+# Validate Symfony-style PHP files
+composer validate-translations ./translations
+
+# Validate multiple paths and formats
+composer validate-translations ./translations ./resources/lang
+```
+
 ![console.png](docs/console.png)
 
 The command `validate-translations` can be used to validate translation files in your project. It will automatically detect the translation files based on the supported formats and run the configured validators.
@@ -59,32 +73,62 @@ Find more information about store a [config file](docs/config-file.md).
 
 ## 📝 Documentation
 
-### Supported Formats
+### Supported Translation File Formats
 
 The plugin supports the following translation file formats (and targets the following frameworks):
 
 | Format                                       | Description                                                                                                  | Framework | Example files                          |
 |----------------------------------------------|--------------------------------------------------------------------------------------------------------------|-----------|----------------------------------------|
 | [XLIFF](https://en.wikipedia.org/wiki/XLIFF) | Supports source/target translations in xliff language files. | [TYPO3 CMS](https://typo3.org/)          | `locallang.xlf`, `de.locallang.xlf`    |
-| [Yaml](https://en.wikipedia.org/wiki/YAML)   | Supports yaml language files.                     | [Symfony Framework](https://symfony.com/)          | `messages.en.yaml`, `messages.de.yaml` |
+| [YAML](https://en.wikipedia.org/wiki/YAML)   | Supports yaml language files.                     | [Symfony Framework](https://symfony.com/)          | `messages.en.yaml`, `messages.de.yaml` |
 | [JSON](https://en.wikipedia.org/wiki/JSON)   | Supports JSON language files with nested key support.                     | [Laravel](https://laravel.com/) / [Symfony](https://symfony.com/)          | `messages.en.json`, `messages.de.json` |
+| [PHP](https://www.php.net/manual/en/language.types.array.php)   | Supports PHP array-based translation files with Laravel and Symfony styles.                     | [Laravel](https://laravel.com/) / [Symfony](https://symfony.com/)          | `resources/lang/en/messages.php`, `translations/messages.en.php` |
 
 > [!NOTE]
 > The translation files will be grouped to file sets based on the file name prefix or suffix. For example, `locallang.xlf` and `de.locallang.xlf` will be grouped together as they share the same prefix (`locallang`), while `messages.en.yaml` and `messages.de.yaml` will be grouped by their suffix (`.en`, `.de`). See the [File Detectors](docs/file-detector.md) for more details.
 
-### Validators
+### Translation Validators
 
-The following validators are available:
+The following translation validators are available:
 
 | Validator                  | Function                                                                                                                                                                 | Supports    | Throws  |
 |----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|---------|
-| `MismatchValidator`        | This validator checks for keys that are present in some files but not in others. It helps to identify mismatches in translation keys across different translation files. | XLIFF, YAML, JSON | WARNING   |
-| `DuplicateKeysValidator`   | This validator checks for duplicate keys in translation files.                                                                                                           | XLIFF       | ERROR   |
-| `DuplicateValuesValidator` | This validator checks for duplicate values in translation files.                                                                                                         | XLIFF, YAML, JSON     | WARNING |
+| `MismatchValidator`        | This validator checks for keys that are present in some files but not in others. It helps to identify mismatches in translation keys across different translation files. | XLIFF, YAML, JSON, PHP | WARNING   |
+| `DuplicateKeysValidator`   | This validator checks for duplicate keys in translation files.                                                                                                           | XLIFF, YAML, JSON, PHP       | ERROR   |
+| `DuplicateValuesValidator` | This validator checks for duplicate values in translation files.                                                                                                         | XLIFF, YAML, JSON, PHP     | WARNING |
 | `XliffSchemaValidator`     | Validates the XML schema of translation files against the XLIFF standard. See available [schemas](https://github.com/symfony/translation/tree/6.4/Resources/schemas).    | XLIFF       | ERROR   |
-| `EmptyValuesValidator`      | Finds empty or whitespace-only translation values.                                                                                                                       | XLIFF, YAML, JSON              | WARNING        |
-| `PlaceholderConsistencyValidator`                                | Validates placeholder consistency across files.                                                                                                                          | XLIFF, YAML, JSON     | WARNING |
+| `EmptyValuesValidator`      | Finds empty or whitespace-only translation values.                                                                                                                       | XLIFF, YAML, JSON, PHP              | WARNING        |
+| `PlaceholderConsistencyValidator`                                | Validates placeholder consistency across files.                                                                                                                          | XLIFF, YAML, JSON, PHP     | WARNING |
 
+### PHP Translation Files
+
+The plugin supports PHP array-based translation files commonly used in Laravel and Symfony projects. Both directory-based and filename-based language organization patterns are supported:
+
+**Laravel Style** (directory-based):
+```php
+// resources/lang/en/messages.php
+<?php
+return [
+    'welcome' => 'Welcome to our application!',
+    'user' => [
+        'profile' => 'User Profile',
+        'name' => 'Hello :name',
+    ],
+];
+```
+
+**Symfony Style** (filename-based):
+```php
+// translations/messages.en.php
+<?php
+return [
+    'welcome' => 'Welcome to our application!',
+    'user.profile' => 'User Profile',
+    'user.name' => 'Hello %name%',
+];
+```
+
+The PHP parser automatically detects the language from either the directory name (Laravel style) or filename pattern (Symfony style) and supports deep nested arrays with dot notation for key extraction.
 
 ## 🧑‍💻 Contributing
 

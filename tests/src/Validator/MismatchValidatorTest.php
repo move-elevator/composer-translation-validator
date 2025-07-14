@@ -190,6 +190,7 @@ final class MismatchValidatorTest extends TestCase
             \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class,
             \MoveElevator\ComposerTranslationValidator\Parser\YamlParser::class,
             \MoveElevator\ComposerTranslationValidator\Parser\JsonParser::class,
+            \MoveElevator\ComposerTranslationValidator\Parser\PhpParser::class,
         ], $validator->supportsParser());
     }
 

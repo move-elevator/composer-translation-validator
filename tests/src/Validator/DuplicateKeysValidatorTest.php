@@ -63,7 +63,13 @@ final class DuplicateKeysValidatorTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $validator = new DuplicateKeysValidator($logger);
 
-        $this->assertSame([\MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class], $validator->supportsParser());
+        $expectedParsers = [
+            \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class,
+            \MoveElevator\ComposerTranslationValidator\Parser\YamlParser::class,
+            \MoveElevator\ComposerTranslationValidator\Parser\JsonParser::class,
+            \MoveElevator\ComposerTranslationValidator\Parser\PhpParser::class,
+        ];
+        $this->assertSame($expectedParsers, $validator->supportsParser());
     }
 
     public function testGetShortName(): void

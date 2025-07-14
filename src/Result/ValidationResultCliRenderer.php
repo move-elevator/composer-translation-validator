@@ -46,7 +46,7 @@ class ValidationResultCliRenderer extends AbstractValidationResultRenderer
     {
         $this->io->title('Composer Translation Validator');
         $this->io->text([
-            'A comprehensive tool for validating translation files (XLIFF and YAML).',
+            'A comprehensive tool for validating translation files (XLIFF, YAML, JSON and PHP).',
             'Checks for mismatches, duplicates, placeholder consistency and schema compliance.',
             '',
             'For more information and usage examples, run: <fg=cyan>composer validate-translations --help</>',
