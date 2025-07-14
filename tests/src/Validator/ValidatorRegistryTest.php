@@ -6,6 +6,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator;
 use MoveElevator\ComposerTranslationValidator\Validator\EmptyValuesValidator;
+use MoveElevator\ComposerTranslationValidator\Validator\EncodingValidator;
 use MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator;
 use MoveElevator\ComposerTranslationValidator\Validator\PlaceholderConsistencyValidator;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorRegistry;
@@ -23,7 +24,8 @@ final class ValidatorRegistryTest extends TestCase
         $this->assertContains(EmptyValuesValidator::class, $validators);
         $this->assertContains(PlaceholderConsistencyValidator::class, $validators);
         $this->assertContains(XliffSchemaValidator::class, $validators);
-        $this->assertCount(6, $validators);
+        $this->assertContains(EncodingValidator::class, $validators);
+        $this->assertCount(7, $validators);
     }
 
     public function testGetAvailableValidatorsReturnsArray(): void

@@ -96,7 +96,7 @@ EOT
 
         $this->assertNotEmpty($result);
         $this->assertArrayHasKey('message', $result[0]);
-        $this->assertStringContainsString("The attribute 'version' is required but missing.", $result[0]['message']);
+        $this->assertStringContainsString("The attribute 'version' is required but missing.", (string) $result[0]['message']);
     }
 
     public function testProcessFileWithNonExistentFile(): void

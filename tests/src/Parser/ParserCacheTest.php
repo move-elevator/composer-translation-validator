@@ -128,8 +128,8 @@ class ParserCacheTest extends TestCase
         $statsAfter = ParserCache::getCacheStats();
         $this->assertSame(1, $statsAfter['cached_parsers']);
         $this->assertCount(1, $statsAfter['cache_keys']);
-        $this->assertStringContainsString($this->testFile, $statsAfter['cache_keys'][0]);
-        $this->assertStringContainsString(YamlParser::class, $statsAfter['cache_keys'][0]);
+        $this->assertStringContainsString($this->testFile, (string) $statsAfter['cache_keys'][0]);
+        $this->assertStringContainsString(YamlParser::class, (string) $statsAfter['cache_keys'][0]);
     }
 
     public function testCacheKeyFormat(): void
