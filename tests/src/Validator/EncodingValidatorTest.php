@@ -132,23 +132,19 @@ final class EncodingValidatorTest extends TestCase
         $this->assertStringContainsString('non-NFC normalized', $issues['unicode_normalization']);
     }
 
-    public function testInvalidJsonSyntax(): void
+    public function testJsonFilesAreSupported(): void
     {
-        $filePath = $this->testFilesPath.'/invalid-json.json';
-        file_put_contents($filePath, '{"key": "value",}'); // Trailing comma
+        $filePath = $this->testFilesPath.'/valid.json';
+        file_put_contents($filePath, '{"key": "value"}');
 
-        // We need to test the validator directly without parsing
-        // Since the parser would fail before we can validate
-        $mockParser = $this->createMock(JsonParser::class);
-        $mockParser->method('getFilePath')->willReturn($filePath);
+        $parser = new JsonParser($filePath);
+        $issues = $this->validator->processFile($parser);
 
-        $issues = $this->validator->processFile($mockParser);
-
-        $this->assertArrayHasKey('json_syntax', $issues);
-        $this->assertStringContainsString('invalid JSON syntax', $issues['json_syntax']);
+        // Should not have any encoding issues for valid JSON
+        $this->assertEmpty($issues);
     }
 
-    public function testValidJsonWithBomIsHandled(): void
+    public function testJsonWithBomIsDetected(): void
     {
         $filePath = $this->testFilesPath.'/valid-json-with-bom.json';
         file_put_contents($filePath, "\xEF\xBB\xBF{\"key\": \"value\"}"); // Valid JSON with BOM
@@ -159,21 +155,20 @@ final class EncodingValidatorTest extends TestCase
 
         $issues = $this->validator->processFile($mockParser);
 
-        // Should have BOM issue but not JSON syntax issue
+        // Should detect BOM issue
         $this->assertArrayHasKey('bom', $issues);
-        $this->assertArrayNotHasKey('json_syntax', $issues);
     }
 
-    public function testNonJsonFileDoesNotCheckJsonSyntax(): void
+    public function testPhpFilesAreSupported(): void
     {
-        $filePath = $this->testFilesPath.'/invalid-json.php';
-        file_put_contents($filePath, '<?php return ["key" => "value",]; // Trailing comma OK in PHP');
+        $filePath = $this->testFilesPath.'/valid.php';
+        file_put_contents($filePath, '<?php return ["key" => "value"]; // Valid PHP');
 
         $parser = new PhpParser($filePath);
         $issues = $this->validator->processFile($parser);
 
-        // Should not check JSON syntax for PHP files
-        $this->assertArrayNotHasKey('json_syntax', $issues);
+        // Should not have any encoding issues for valid PHP
+        $this->assertEmpty($issues);
     }
 
     public function testFileReadError(): void

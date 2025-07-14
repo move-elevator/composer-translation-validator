@@ -85,7 +85,7 @@ The following translation validators are available:
 | `DuplicateValuesValidator` | This validator checks for duplicate values in translation files.                                                                                                         | XLIFF, YAML, JSON, PHP     | WARNING |
 | `XliffSchemaValidator`     | Validates the XML schema of translation files against the XLIFF standard. See available [schemas](https://github.com/symfony/translation/tree/6.4/Resources/schemas).    | XLIFF       | ERROR   |
 | `EmptyValuesValidator`      | Finds empty or whitespace-only translation values.                                                                                                                       | XLIFF, YAML, JSON, PHP              | WARNING        |
-| `EncodingValidator`        | Validates file encoding, checks for BOM, invisible characters, Unicode normalization issues, and JSON syntax validation.                                               | XLIFF, YAML, JSON, PHP | WARNING |
+| `EncodingValidator`        | Validates file encoding, checks for BOM, invisible characters and Unicode normalization issues.                                                                      | XLIFF, YAML, JSON, PHP | WARNING |
 | `PlaceholderConsistencyValidator`                                | Validates placeholder consistency across files.                                                                                                                          | XLIFF, YAML, JSON, PHP     | WARNING |
 
 ## 🧑‍💻 Contributing
