@@ -12,6 +12,8 @@
 	],
 	"require": {
 		"php": "^8.1",
+		"ext-intl": "*",
+		"ext-mbstring": "*",
 		"ext-simplexml": "*",
 		"composer-plugin-api": "^1.0 || ^2.0",
 		"justinrainbow/json-schema": "^6.4",
