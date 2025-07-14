@@ -1,2 +1,163 @@
 parameters:
-	ignoreErrors: []
+	ignoreErrors:
+		-
+			message: '#^Method MoveElevator\\ComposerTranslationValidator\\Command\\ValidateTranslationCommand\:\:validateClassInput\(\) should return array\<int, class\-string\> but returns array\<int, string\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Command/ValidateTranslationCommand.php
+
+		-
+			message: '#^Parameter \#2 \$array of method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\) expects array\<mixed\>\|ArrayAccess\<\(int\|string\), mixed\>, non\-empty\-array\|ArrayAccess given\.$#'
+			identifier: argument.type
+			count: 4
+			path: tests/src/Command/ValidateTranslationCommandTest.php
+
+		-
+			message: '#^Parameter \#2 \$array of function array_map expects array, list\<string\>\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/src/Config/ConfigFileReaderTest.php
+
+		-
+			message: '#^Argument of an invalid type list\<string\>\|false supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: tests/src/FileDetector/CollectorTest.php
+
+		-
+			message: '#^Argument of an invalid type list\<string\>\|false supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: tests/src/Parser/JsonParserTest.php
+
+		-
+			message: '#^Cannot call method getFilePath\(\) on MoveElevator\\ComposerTranslationValidator\\Parser\\ParserInterface\|false\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: tests/src/Parser/ParserCacheTest.php
+
+		-
+			message: '#^Argument of an invalid type list\<string\>\|false supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: tests/src/Parser/XliffParserTest.php
+
+		-
+			message: '#^Argument of an invalid type list\<string\>\|false supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: tests/src/Parser/YamlParserTest.php
+
+		-
+			message: '#^Parameter \#1 \$logger of class MoveElevator\\ComposerTranslationValidator\\Result\\Output constructor expects Psr\\Log\\LoggerInterface, PHPUnit\\Framework\\MockObject\\MockObject\|Psr\\Log\\LoggerInterface given\.$#'
+			identifier: argument.type
+			count: 8
+			path: tests/src/Result/OutputTest.php
+
+		-
+			message: '#^Parameter \#3 \$input of class MoveElevator\\ComposerTranslationValidator\\Result\\Output constructor expects Symfony\\Component\\Console\\Input\\InputInterface, PHPUnit\\Framework\\MockObject\\MockObject\|Symfony\\Component\\Console\\Input\\InputInterface given\.$#'
+			identifier: argument.type
+			count: 8
+			path: tests/src/Result/OutputTest.php
+
+		-
+			message: '#^Call to an undefined method MoveElevator\\ComposerTranslationValidator\\Validator\\ValidatorInterface\|PHPUnit\\Framework\\MockObject\\MockObject\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 34
+			path: tests/src/Result/ValidationResultCliRendererTest.php
+
+		-
+			message: '#^Parameter \#1 \$validatorInstances of class MoveElevator\\ComposerTranslationValidator\\Result\\ValidationResult constructor expects array\<MoveElevator\\ComposerTranslationValidator\\Validator\\ValidatorInterface\>, array\<int, MoveElevator\\ComposerTranslationValidator\\Validator\\ValidatorInterface\|PHPUnit\\Framework\\MockObject\\MockObject\> given\.$#'
+			identifier: argument.type
+			count: 15
+			path: tests/src/Result/ValidationResultCliRendererTest.php
+
+		-
+			message: '#^Parameter \#2 \$input of class MoveElevator\\ComposerTranslationValidator\\Result\\ValidationResultCliRenderer constructor expects Symfony\\Component\\Console\\Input\\InputInterface, PHPUnit\\Framework\\MockObject\\MockObject\|Symfony\\Component\\Console\\Input\\InputInterface given\.$#'
+			identifier: argument.type
+			count: 8
+			path: tests/src/Result/ValidationResultCliRendererTest.php
+
+		-
+			message: '#^Parameter \#3 \$validatorFileSetPairs of class MoveElevator\\ComposerTranslationValidator\\Result\\ValidationResult constructor expects array\<array\{validator\: MoveElevator\\ComposerTranslationValidator\\Validator\\ValidatorInterface, fileSet\: MoveElevator\\ComposerTranslationValidator\\FileDetector\\FileSet\}\>, array\{array\{validator\: MoveElevator\\ComposerTranslationValidator\\Validator\\ValidatorInterface\|PHPUnit\\Framework\\MockObject\\MockObject, fileSet\: MoveElevator\\ComposerTranslationValidator\\FileDetector\\FileSet\}, array\{validator\: MoveElevator\\ComposerTranslationValidator\\Validator\\ValidatorInterface\|PHPUnit\\Framework\\MockObject\\MockObject, fileSet\: MoveElevator\\ComposerTranslationValidator\\FileDetector\\FileSet\}\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/src/Result/ValidationResultCliRendererTest.php
+
+		-
+			message: '#^Parameter \#3 \$validatorFileSetPairs of class MoveElevator\\ComposerTranslationValidator\\Result\\ValidationResult constructor expects array\<array\{validator\: MoveElevator\\ComposerTranslationValidator\\Validator\\ValidatorInterface, fileSet\: MoveElevator\\ComposerTranslationValidator\\FileDetector\\FileSet\}\>, array\{array\{validator\: MoveElevator\\ComposerTranslationValidator\\Validator\\ValidatorInterface\|PHPUnit\\Framework\\MockObject\\MockObject, fileSet\: MoveElevator\\ComposerTranslationValidator\\FileDetector\\FileSet\}\} given\.$#'
+			identifier: argument.type
+			count: 14
+			path: tests/src/Result/ValidationResultCliRendererTest.php
+
+		-
+			message: '#^Call to an undefined method MoveElevator\\ComposerTranslationValidator\\Validator\\ValidatorInterface\|PHPUnit\\Framework\\MockObject\\MockObject\:\:method\(\)\.$#'
+			identifier: method.notFound
+			count: 15
+			path: tests/src/Result/ValidationResultJsonRendererTest.php
+
+		-
+			message: '#^Parameter \#1 \$validatorInstances of class MoveElevator\\ComposerTranslationValidator\\Result\\ValidationResult constructor expects array\<MoveElevator\\ComposerTranslationValidator\\Validator\\ValidatorInterface\>, array\<int, MoveElevator\\ComposerTranslationValidator\\Validator\\ValidatorInterface\|PHPUnit\\Framework\\MockObject\\MockObject\> given\.$#'
+			identifier: argument.type
+			count: 7
+			path: tests/src/Result/ValidationResultJsonRendererTest.php
+
+		-
+			message: '#^Parameter \#3 \$validatorFileSetPairs of class MoveElevator\\ComposerTranslationValidator\\Result\\ValidationResult constructor expects array\<array\{validator\: MoveElevator\\ComposerTranslationValidator\\Validator\\ValidatorInterface, fileSet\: MoveElevator\\ComposerTranslationValidator\\FileDetector\\FileSet\}\>, array\{array\{validator\: MoveElevator\\ComposerTranslationValidator\\Validator\\ValidatorInterface\|PHPUnit\\Framework\\MockObject\\MockObject, fileSet\: MoveElevator\\ComposerTranslationValidator\\FileDetector\\FileSet\}\} given\.$#'
+			identifier: argument.type
+			count: 7
+			path: tests/src/Result/ValidationResultJsonRendererTest.php
+
+		-
+			message: '#^Parameter \#1 \$path of static method MoveElevator\\ComposerTranslationValidator\\Utility\\PathUtility\:\:normalizeFolderPath\(\) expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/src/Utility/PathUtilityExtendedTest.php
+
+		-
+			message: '#^Argument of an invalid type list\<string\>\|false supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: tests/src/Utility/PathUtilityTest.php
+
+		-
+			message: '#^Property MoveElevator\\ComposerTranslationValidator\\Tests\\Utility\\PathUtilityTest\:\:\$originalCwd \(string\) does not accept string\|false\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: tests/src/Utility/PathUtilityTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\MockObject\\MockObject\|Psr\\Log\\LoggerInterface\:\:expects\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/src/Validator/AbstractValidatorTest.php
+
+		-
+			message: '#^Parameter \#1 \$logger of class MoveElevator\\ComposerTranslationValidator\\Tests\\Validator\\ConcreteValidator constructor expects Psr\\Log\\LoggerInterface\|null, PHPUnit\\Framework\\MockObject\\MockObject\|Psr\\Log\\LoggerInterface given\.$#'
+			identifier: argument.type
+			count: 12
+			path: tests/src/Validator/AbstractValidatorTest.php
+
+		-
+			message: '#^Call to an undefined method PHPUnit\\Framework\\MockObject\\MockObject\|Psr\\Log\\LoggerInterface\:\:expects\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/src/Validator/DuplicateValuesValidatorTest.php
+
+		-
+			message: '#^Parameter \#1 \$logger of class MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateValuesValidator constructor expects Psr\\Log\\LoggerInterface\|null, PHPUnit\\Framework\\MockObject\\MockObject\|Psr\\Log\\LoggerInterface given\.$#'
+			identifier: argument.type
+			count: 9
+			path: tests/src/Validator/DuplicateValuesValidatorTest.php
+
+		-
+			message: '#^Parameter \#2 \.\.\.\$arrays of function array_diff expects array, array\<mixed\>\|Traversable given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/src/Validator/PlaceholderConsistencyValidatorTest.php
+
+		-
+			message: '#^Argument of an invalid type list\<string\>\|false supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: tests/src/Validator/SchemaValidatorTest.php

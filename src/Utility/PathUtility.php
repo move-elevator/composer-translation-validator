@@ -18,8 +18,17 @@ class PathUtility
             return $normalizedPath;
         }
 
-        $cwd = realpath(getcwd()).DIRECTORY_SEPARATOR;
         $normalizedPath = rtrim($realPath, DIRECTORY_SEPARATOR);
+        
+        $cwd = getcwd();
+        if (false === $cwd) {
+            return $normalizedPath;
+        }
+        $realCwd = realpath($cwd);
+        if (false === $realCwd) {
+            return $normalizedPath;
+        }
+        $cwd = $realCwd.DIRECTORY_SEPARATOR;
 
         if (str_starts_with($normalizedPath.DIRECTORY_SEPARATOR, $cwd)) {
             return substr($normalizedPath, strlen($cwd));
