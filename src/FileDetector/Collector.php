@@ -37,7 +37,7 @@ class Collector
 
             foreach (ParserRegistry::getAvailableParsers() as $parserClass) {
                 $files = $this->findFiles($path, $parserClass::getSupportedFileExtensions(), $recursive);
-                if (false === $files || empty($files)) {
+                if (empty($files)) {
                     $this->logger?->debug('No files found for parser class "'.$parserClass.'" in path "'.$path.'".');
                     continue;
                 }
@@ -47,7 +47,7 @@ class Collector
                         $files,
                         static fn ($file) => !array_filter(
                             $excludePatterns,
-                            static fn ($pattern) => fnmatch($pattern, basename($file))
+                            static fn ($pattern) => fnmatch($pattern, basename((string) $file))
                         )
                     );
                 }
@@ -79,14 +79,16 @@ class Collector
      *
      * @param string[] $supportedExtensions
      *
-     * @return string[]|false
+     * @return string[]
      */
-    private function findFiles(string $path, array $supportedExtensions, bool $recursive): array|false
+    private function findFiles(string $path, array $supportedExtensions, bool $recursive): array
     {
         if (!$recursive) {
             $globFiles = glob($path.'/*');
             if (false === $globFiles) {
-                return false;
+                $this->logger?->warning('Failed to glob files in path: '.$path);
+
+                return [];
             }
 
             return array_filter(
@@ -125,7 +127,7 @@ class Collector
         } catch (\Exception $e) {
             $this->logger?->error('Error during recursive file search: '.$e->getMessage());
 
-            return false;
+            return [];
         }
 
         return $files;
