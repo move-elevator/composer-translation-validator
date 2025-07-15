@@ -317,4 +317,42 @@ final class AbstractValidatorTest extends TestCase
         $this->assertSame('some_file.xlf', $issues[0]->getFile());
         $this->assertSame(['validationIssue'], $issues[0]->getDetails());
     }
+
+    public function testValidateLogsDebugForUnsupportedParser(): void
+    {
+        $loggerMock = $this->createMock(LoggerInterface::class);
+        $loggerMock->expects($this->atLeastOnce())
+            ->method('debug')
+            ->with($this->logicalOr(
+                $this->stringContains('is not supported by the validator'),
+                $this->stringContains('UnsupportedValidator')
+            ));
+
+        // Create a custom validator that doesn't support TestParser
+        $validator = new class($loggerMock) extends AbstractValidator implements ValidatorInterface {
+            public function processFile(ParserInterface $file): array
+            {
+                return [];
+            }
+
+            public function supportsParser(): array
+            {
+                return []; // Empty - doesn't support any parser
+            }
+
+            public function postProcess(): void
+            {
+            }
+
+            public function getShortName(): string
+            {
+                return 'UnsupportedValidator';
+            }
+        };
+
+        $files = ['/path/to/test.xlf'];
+        $result = $validator->validate($files, TestParser::class);
+
+        $this->assertEmpty($result);
+    }
 }

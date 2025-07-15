@@ -356,4 +356,64 @@ final class CollectorTest extends TestCase
         // Should find files at multiple levels
         $this->assertNotEmpty($result);
     }
+
+    public function testCollectFilesWithoutDetector(): void
+    {
+        // Test fallback to FileDetectorRegistry when no detector is provided
+        file_put_contents($this->tempDir.'/test.xlf', 'xliff content');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $collector = new Collector($logger);
+
+        // Test without providing a detector (should use registry)
+        $result = $collector->collectFiles([$this->tempDir], null, null, false);
+
+        // Should use FileDetectorRegistry and find files
+        $this->assertNotEmpty($result);
+    }
+
+    public function testCollectFilesWithFileDetectorReturningEmptyResults(): void
+    {
+        // Create a file that exists but won't be detected by any file detector
+        file_put_contents($this->tempDir.'/test.xlf', 'xliff content');
+
+        $logger = $this->createMock(LoggerInterface::class);
+
+        // Mock a detector that returns empty results
+        $detector = $this->createMock(DetectorInterface::class);
+        $detector->method('mapTranslationSet')->willReturn([]);
+
+        $collector = new Collector($logger);
+
+        $result = $collector->collectFiles([$this->tempDir], $detector, null, false);
+
+        // When detector returns empty results, the result structure will include
+        // the parser class with the empty translation set
+        $this->assertNotEmpty($result);
+
+        // Check that the translation set is empty
+        $xliffParserClass = XliffParser::class;
+        $this->assertArrayHasKey($xliffParserClass, $result);
+        $this->assertArrayHasKey($this->tempDir, $result[$xliffParserClass]);
+        $this->assertEmpty($result[$xliffParserClass][$this->tempDir]);
+    }
+
+    public function testCollectFilesLogsDebugWhenNoFilesFoundForParser(): void
+    {
+        // Create directory with files that don't match any parser extensions
+        file_put_contents($this->tempDir.'/readme.txt', 'content');
+        file_put_contents($this->tempDir.'/data.csv', 'content');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->exactly(4)) // One for each parser class
+            ->method('debug')
+            ->with($this->stringContains('No files found for parser class'));
+
+        $detector = $this->createMock(DetectorInterface::class);
+        $collector = new Collector($logger);
+
+        $result = $collector->collectFiles([$this->tempDir], $detector, null);
+
+        $this->assertEmpty($result);
+    }
 }

@@ -189,4 +189,61 @@ return $config;
 
         $this->reader->readAsConfig($configPath);
     }
+
+    public function testReadPhpConfigWithInvalidPath(): void
+    {
+        // We need to test readAsConfig() directly for PHP files to reach the realpath() check
+        $configPath = $this->tempDir.'/config.php';
+        $brokenLink = $this->tempDir.'/broken_link.php';
+
+        file_put_contents($configPath, '<?php return "test";');
+        symlink($configPath, $brokenLink);
+        unlink($configPath); // Break the symlink
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Invalid configuration file path');
+
+        $this->reader->readAsConfig($brokenLink);
+    }
+
+    public function testReadJsonConfigWithNonArrayContent(): void
+    {
+        $configPath = $this->tempDir.'/config.json';
+        file_put_contents($configPath, '"string-content"');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Invalid JSON configuration file');
+
+        $this->reader->readFile($configPath);
+    }
+
+    public function testReadYamlConfigWithNonArrayContent(): void
+    {
+        $configPath = $this->tempDir.'/config.yaml';
+        file_put_contents($configPath, '"string-content"');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Invalid YAML configuration file');
+
+        $this->reader->readFile($configPath);
+    }
+
+    public function testReadAsConfigUsesDirectPhpConfigPath(): void
+    {
+        // Test that readAsConfig() uses the direct PHP config path
+        $configPath = $this->tempDir.'/config.php';
+        $phpContent = '<?php
+use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
+
+$config = new TranslationValidatorConfig();
+$config->setPaths([\'direct-php-test\']);
+return $config;
+';
+
+        file_put_contents($configPath, $phpContent);
+
+        $config = $this->reader->readAsConfig($configPath);
+
+        $this->assertSame(['direct-php-test'], $config->getPaths());
+    }
 }
