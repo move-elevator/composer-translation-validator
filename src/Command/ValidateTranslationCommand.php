@@ -84,6 +84,12 @@ class ValidateTranslationCommand extends BaseCommand
                 InputOption::VALUE_OPTIONAL,
                 'Path to the configuration file'
             )
+            ->addOption(
+                'recursive',
+                'r',
+                InputOption::VALUE_NONE,
+                'Search for translation files recursively in subdirectories'
+            )
             ->setHelp(
                 <<<HELP
 The <info>validate-translations</info> command validates translation files (XLIFF, YAML, JSON and PHP)
@@ -94,7 +100,8 @@ using multiple validators to ensure consistency, correctness and schema complian
 
 <comment>Examples:</comment>
   <info>composer validate-translations translations/</info>
-  <info>composer validate-translations translations/ --format json</info>
+  <info>composer validate-translations translations/ --recursive</info>
+  <info>composer validate-translations translations/ -r --format json</info>
   <info>composer validate-translations translations/ --dry-run</info>
   <info>composer validate-translations translations/ --strict</info>
   <info>composer validate-translations translations/ --only \</info>
@@ -145,6 +152,7 @@ HELP
 
         $this->dryRun = $config->getDryRun() || $input->getOption('dry-run');
         $this->strict = $config->getStrict() || $input->getOption('strict');
+        $recursive = (bool) $input->getOption('recursive');
         $excludePatterns = $config->getExclude();
 
         $fileDetector = $this->resolveFileDetector($config);
@@ -158,7 +166,8 @@ HELP
         $allFiles = (new Collector($this->logger))->collectFiles(
             $paths,
             $fileDetector,
-            $excludePatterns
+            $excludePatterns,
+            $recursive
         );
         if (empty($allFiles)) {
             $this->io->warning('No files found in the specified directories.');
