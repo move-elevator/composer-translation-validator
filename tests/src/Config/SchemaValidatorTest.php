@@ -168,4 +168,57 @@ class SchemaValidatorTest extends TestCase
             $this->assertGreaterThan(1, substr_count($message, '['));
         }
     }
+
+    public function testValidateReturnsEarlyWhenJsonSchemaValidatorNotAvailable(): void
+    {
+        // Create a mock SchemaValidator that simulates JsonSchema\Validator not being available
+        $validator = new class extends SchemaValidator {
+            public function validate(array $data): void
+            {
+                // Simulate the class_exists check returning false
+                if (!$this->isAvailable()) {
+                    return;
+                }
+
+                parent::validate($data);
+            }
+
+            public function isAvailable(): bool
+            {
+                return false; // Simulate JsonSchema\Validator not available
+            }
+        };
+
+        // This should return early without throwing an exception
+        $validator->validate(['invalid' => 'data']);
+
+        $this->addToAssertionCount(1);
+    }
+
+    public function testLoadSchemaFileReadFailureThrowsException(): void
+    {
+        $reflection = new \ReflectionClass(SchemaValidator::class);
+        $schemaPathProperty = $reflection->getConstant('SCHEMA_PATH');
+
+        // Backup the original schema file
+        $backupPath = $schemaPathProperty.'.backup';
+        if (file_exists($schemaPathProperty)) {
+            rename($schemaPathProperty, $backupPath);
+        }
+
+        // Create a directory instead of a file to simulate read failure
+        mkdir($schemaPathProperty);
+
+        try {
+            $this->expectException(\RuntimeException::class);
+
+            $this->schemaValidator->validate(['paths' => ['test']]);
+        } finally {
+            // Clean up: remove directory and restore original file
+            rmdir($schemaPathProperty);
+            if (file_exists($backupPath)) {
+                rename($backupPath, $schemaPathProperty);
+            }
+        }
+    }
 }

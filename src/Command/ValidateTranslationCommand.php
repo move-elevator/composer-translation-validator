@@ -271,11 +271,14 @@ HELP
         $only = !empty($inputOnly) ? $inputOnly : $config->getOnly();
         $skip = !empty($inputSkip) ? $inputSkip : $config->getSkip();
 
-        return match (true) {
+        /** @var array<int, class-string<ValidatorInterface>> $result */
+        $result = match (true) {
             !empty($only) => $only,
-            !empty($skip) => array_diff(ValidatorRegistry::getAvailableValidators(), $skip),
+            !empty($skip) => array_values(array_diff(ValidatorRegistry::getAvailableValidators(), $skip)),
             default => ValidatorRegistry::getAvailableValidators(),
         };
+
+        return $result;
     }
 
     /**
@@ -291,6 +294,7 @@ HELP
         }
 
         $classNames = str_contains($className, ',') ? explode(',', $className) : [$className];
+        /** @var array<int, class-string> $classes */
         $classes = [];
 
         foreach ($classNames as $name) {
@@ -300,7 +304,9 @@ HELP
                 $type,
                 $name
             );
-            $classes[] = $name;
+            /** @var class-string $validatedName */
+            $validatedName = $name;
+            $classes[] = $validatedName;
         }
 
         return $classes;

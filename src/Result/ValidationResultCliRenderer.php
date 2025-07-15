@@ -207,6 +207,10 @@ class ValidationResultCliRenderer extends AbstractValidationResultRenderer
         }
 
         try {
+            if (!class_exists($validatorClass)) {
+                return 1;
+            }
+            /** @var class-string $validatorClass */
             $reflection = new \ReflectionClass($validatorClass);
             if ($reflection->isInstantiable()) {
                 $validator = $reflection->newInstance();

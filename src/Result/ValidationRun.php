@@ -33,7 +33,9 @@ class ValidationRun
             $filesChecked += count($fileSet->getFiles());
             foreach ($validatorClasses as $validatorClass) {
                 $validatorInstance = new $validatorClass($this->logger);
-                $result = $validatorInstance->validate($fileSet->getFiles(), $fileSet->getParser());
+                /** @var class-string<\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface> $parserClass */
+                $parserClass = $fileSet->getParser();
+                $result = $validatorInstance->validate($fileSet->getFiles(), $parserClass);
                 if (!empty($result)) {
                     $overallResult = $overallResult->max($validatorInstance->resultTypeOnValidationFailure());
                     $validatorInstances[] = $validatorInstance;
@@ -101,6 +103,9 @@ class ValidationRun
             foreach ($fileSet->getFiles() as $file) {
                 try {
                     $parser = ParserCache::get($file, $parserClass);
+                    if (false === $parser) {
+                        continue;
+                    }
                     $keys = $parser->extractKeys();
                     if (is_array($keys)) {
                         $keysChecked += count($keys);

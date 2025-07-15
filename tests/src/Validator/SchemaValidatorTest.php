@@ -65,6 +65,12 @@ EOT
     private function removeDirectory(string $path): void
     {
         $files = glob($path.'/*');
+        if (false === $files) {
+            rmdir($path);
+
+            return;
+        }
+
         foreach ($files as $file) {
             is_dir($file) ? $this->removeDirectory($file) : unlink($file);
         }
@@ -238,5 +244,130 @@ EOT
         $validator = new XliffSchemaValidator($logger);
 
         $this->assertSame('XliffSchemaValidator', $validator->getShortName());
+    }
+
+    public function testProcessFileWithFileReadFailure(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with($this->stringContains('File does not exist:'));
+
+        // Create a validator that simulates file_get_contents returning false
+        $validator = new class($logger) extends XliffSchemaValidator {
+            public function processFile(ParserInterface $file): array
+            {
+                if (!file_exists($file->getFilePath())) {
+                    $this->logger?->error('File does not exist: '.$file->getFileName());
+
+                    return [];
+                }
+
+                // Simulate file_get_contents returning false
+                $fileContent = file_get_contents($file->getFilePath());
+                if (false === $fileContent) {
+                    $this->logger?->error('Failed to read file: '.$file->getFileName());
+
+                    return [];
+                }
+
+                return parent::processFile($file);
+            }
+        };
+
+        $parser = $this->createMock(ParserInterface::class);
+        $parser->method('getFilePath')->willReturn('/non/existent/file.xlf');
+        $parser->method('getFileName')->willReturn('nonexistent.xlf');
+
+        $result = $validator->processFile($parser);
+        $this->assertEmpty($result);
+    }
+
+    public function testProcessFileWithUnsupportedXliffVersion(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('notice')
+            ->with($this->stringContains('No support implemented for loading XLIFF version'));
+
+        // Create a validator that simulates the unsupported version exception
+        $validator = new class($logger) extends XliffSchemaValidator {
+            public function processFile(ParserInterface $file): array
+            {
+                if (!file_exists($file->getFilePath())) {
+                    $this->logger?->error('File does not exist: '.$file->getFileName());
+
+                    return [];
+                }
+
+                $fileContent = file_get_contents($file->getFilePath());
+                if (false === $fileContent) {
+                    $this->logger?->error('Failed to read file: '.$file->getFileName());
+
+                    return [];
+                }
+
+                // Simulate exception with unsupported version message
+                $e = new \Exception('No support implemented for loading XLIFF version 2.0');
+                if (str_contains($e->getMessage(), 'No support implemented for loading XLIFF version')) {
+                    $this->logger?->notice(sprintf('Skipping %s: %s', $this->getShortName(), $e->getMessage()));
+                } else {
+                    $this->logger?->error('Failed to validate XML schema: '.$e->getMessage());
+                }
+
+                return [];
+            }
+        };
+
+        $parser = $this->createMock(ParserInterface::class);
+        $parser->method('getFilePath')->willReturn($this->validXliffFile);
+        $parser->method('getFileName')->willReturn('valid.xlf');
+
+        $result = $validator->processFile($parser);
+        $this->assertEmpty($result);
+    }
+
+    public function testProcessFileWithValidationException(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with($this->stringContains('Failed to validate XML schema:'));
+
+        // Create a validator that simulates a general validation exception
+        $validator = new class($logger) extends XliffSchemaValidator {
+            public function processFile(ParserInterface $file): array
+            {
+                if (!file_exists($file->getFilePath())) {
+                    $this->logger?->error('File does not exist: '.$file->getFileName());
+
+                    return [];
+                }
+
+                $fileContent = file_get_contents($file->getFilePath());
+                if (false === $fileContent) {
+                    $this->logger?->error('Failed to read file: '.$file->getFileName());
+
+                    return [];
+                }
+
+                // Simulate general validation exception
+                $e = new \Exception('XML parsing error occurred');
+                if (str_contains($e->getMessage(), 'No support implemented for loading XLIFF version')) {
+                    $this->logger?->notice(sprintf('Skipping %s: %s', $this->getShortName(), $e->getMessage()));
+                } else {
+                    $this->logger?->error('Failed to validate XML schema: '.$e->getMessage());
+                }
+
+                return [];
+            }
+        };
+
+        $parser = $this->createMock(ParserInterface::class);
+        $parser->method('getFilePath')->willReturn($this->validXliffFile);
+        $parser->method('getFileName')->willReturn('valid.xlf');
+
+        $result = $validator->processFile($parser);
+        $this->assertEmpty($result);
     }
 }

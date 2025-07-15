@@ -53,7 +53,12 @@ class ConfigReader
             return null;
         }
 
-        $composerData = json_decode(file_get_contents($composerJsonPath), true, 512, JSON_THROW_ON_ERROR);
+        $content = file_get_contents($composerJsonPath);
+        if (false === $content) {
+            return null;
+        }
+
+        $composerData = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
         if (!is_array($composerData)) {
             return null;
         }

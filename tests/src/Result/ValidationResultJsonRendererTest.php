@@ -30,7 +30,9 @@ class ValidationResultJsonRendererTest extends TestCase
 
     public function testRenderWithNoIssues(): void
     {
-        $validationResult = new ValidationResult([], ResultType::SUCCESS);
+        /** @var array<ValidatorInterface> $validators */
+        $validators = [];
+        $validationResult = new ValidationResult($validators, ResultType::SUCCESS);
 
         $exitCode = $this->renderer->render($validationResult);
 
@@ -53,10 +55,14 @@ class ValidationResultJsonRendererTest extends TestCase
         $validator->method('getIssues')->willReturn([$issue]);
 
         $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
+        /** @var array<ValidatorInterface> $validators */
+        $validators = [$validator];
+        /** @var array<array{validator: ValidatorInterface, fileSet: FileSet}> $pairs */
+        $pairs = [['validator' => $validator, 'fileSet' => $fileSet]];
         $validationResult = new ValidationResult(
-            [$validator],
+            $validators,
             ResultType::ERROR,
-            [['validator' => $validator, 'fileSet' => $fileSet]]
+            $pairs
         );
 
         $exitCode = $this->renderer->render($validationResult);
@@ -199,8 +205,12 @@ class ValidationResultJsonRendererTest extends TestCase
         $this->assertStringContainsString('    ', $jsonOutput); // Indentation
     }
 
-    private function createMockValidator(): ValidatorInterface|MockObject
+    /**
+     * @return MockObject&ValidatorInterface
+     */
+    private function createMockValidator(): MockObject
     {
+        /** @var MockObject&ValidatorInterface $validator */
         $validator = $this->createMock(ValidatorInterface::class);
         $validator->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
         $validator->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error");

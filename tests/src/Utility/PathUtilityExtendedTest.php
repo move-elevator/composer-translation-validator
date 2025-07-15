@@ -32,6 +32,9 @@ class PathUtilityExtendedTest extends TestCase
     public function testNormalizeFolderPathWithCurrentDirectory(): void
     {
         $currentDir = getcwd();
+        if (false === $currentDir) {
+            $this->markTestSkipped('Could not get current working directory');
+        }
         $result = PathUtility::normalizeFolderPath($currentDir);
 
         // Test that the method returns a result (may be empty string for current directory)
@@ -41,6 +44,9 @@ class PathUtilityExtendedTest extends TestCase
     public function testNormalizeFolderPathWithSubdirectoryOfCwd(): void
     {
         $currentDir = getcwd();
+        if (false === $currentDir) {
+            $this->markTestSkipped('Could not get current working directory');
+        }
         $testDir = $currentDir.'/test_subdir';
 
         // Create temporary directory

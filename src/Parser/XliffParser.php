@@ -19,11 +19,17 @@ class XliffParser extends AbstractParser implements ParserInterface
         parent::__construct($filePath);
 
         $xmlContent = file_get_contents($filePath);
+        if (false === $xmlContent) {
+            throw new \InvalidArgumentException("Failed to read file: {$filePath}");
+        }
+
+        libxml_use_internal_errors(true);
         $this->xml = simplexml_load_string($xmlContent);
 
         if (false === $this->xml) {
             throw new \InvalidArgumentException("Failed to parse XML content from file: {$filePath}");
         }
+        libxml_clear_errors();
     }
 
     /**

@@ -111,7 +111,7 @@ class TestParser implements ParserInterface
 
 final class AbstractValidatorTest extends TestCase
 {
-    private MockObject|LoggerInterface $loggerMock;
+    private LoggerInterface $loggerMock;
 
     protected function setUp(): void
     {
@@ -168,7 +168,9 @@ final class AbstractValidatorTest extends TestCase
 
     public function testValidateWithDebugLogging(): void
     {
-        $this->loggerMock->expects($this->atLeastOnce())
+        /** @var MockObject&LoggerInterface $loggerMock */
+        $loggerMock = $this->loggerMock;
+        $loggerMock->expects($this->atLeastOnce())
             ->method('debug');
 
         $validator = new ConcreteValidator($this->loggerMock);

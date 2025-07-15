@@ -35,8 +35,13 @@ class Collector
             }
 
             foreach (ParserRegistry::getAvailableParsers() as $parserClass) {
+                $globFiles = glob($path.'/*');
+                if (false === $globFiles) {
+                    continue;
+                }
+
                 $files = array_filter(
-                    glob($path.'/*'),
+                    $globFiles,
                     static fn ($file) => in_array(
                         pathinfo($file, PATHINFO_EXTENSION),
                         $parserClass::getSupportedFileExtensions(),

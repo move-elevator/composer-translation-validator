@@ -121,7 +121,8 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         $this->assertContains('%surname%', $placeholders);
         // Verify that we have exactly these placeholders (excluding potential false matches)
         $expectedPlaceholders = ['%name%', '%surname%'];
-        $this->assertEmpty(array_diff($expectedPlaceholders, $placeholders));
+        $placeholdersArray = is_array($placeholders) ? $placeholders : iterator_to_array($placeholders);
+        $this->assertEmpty(array_diff($expectedPlaceholders, $placeholdersArray));
     }
 
     public function testExtractIcuStylePlaceholders(): void

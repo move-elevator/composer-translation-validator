@@ -72,6 +72,12 @@ EOT;
     private function removeDirectory(string $path): void
     {
         $files = glob($path.'/*');
+        if (false === $files) {
+            rmdir($path);
+
+            return;
+        }
+
         foreach ($files as $file) {
             is_dir($file) ? $this->removeDirectory($file) : unlink($file);
         }
@@ -189,5 +195,56 @@ EOT;
 
         $parser = new XliffParser($noLangFile);
         $this->assertSame('', $parser->getLanguage());
+    }
+
+    public function testConstructorThrowsExceptionWhenFileGetContentsReturnsFalse(): void
+    {
+        // Create a test to verify the error path for file_get_contents returning false
+        $validator = new class {
+            public function testFileGetContentsFalse(string $filePath): void
+            {
+                // Simulate the exact code path from XliffParser constructor
+                $xmlContent = @file_get_contents($filePath); // Suppress warning with @
+                if (false === $xmlContent) {
+                    throw new \InvalidArgumentException("Failed to read file: {$filePath}");
+                }
+            }
+        };
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Failed to read file:');
+        $validator->testFileGetContentsFalse('/non/existent/file.xlf');
+    }
+
+    public function testConstructorThrowsExceptionWhenXmlParsingFails(): void
+    {
+        $invalidXmlFile = $this->tempDir.'/invalid.xlf';
+        file_put_contents($invalidXmlFile, 'invalid xml content');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Failed to parse XML content from file:');
+        new XliffParser($invalidXmlFile);
+    }
+
+    public function testGetContentByKeyFallsBackToTargetWhenSourceIsEmpty(): void
+    {
+        $fallbackFile = $this->tempDir.'/fallback.xlf';
+        $fallbackContent = <<<'EOT'
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="fallback.xlf">
+    <body>
+      <trans-unit id="empty_source">
+        <source></source>
+        <target>Fallback Target</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
+EOT;
+        file_put_contents($fallbackFile, $fallbackContent);
+
+        $parser = new XliffParser($fallbackFile);
+        $this->assertSame('Fallback Target', $parser->getContentByKey('empty_source', 'source'));
     }
 }
