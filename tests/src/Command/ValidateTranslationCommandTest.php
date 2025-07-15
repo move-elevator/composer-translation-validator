@@ -218,4 +218,79 @@ class ValidateTranslationCommandTest extends TestCase
         $this->assertStringContainsString('Language validation succeeded.', $commandTester->getDisplay());
         $this->assertSame(0, $commandTester->getStatusCode());
     }
+
+    public function testExecuteWithRecursiveOption(): void
+    {
+        $application = new Application();
+        $application->add(new ValidateTranslationCommand());
+
+        $command = $application->find('validate-translations');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute([
+            'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
+            '--recursive' => true,
+            '--dry-run' => true,
+        ]);
+
+        $output = $commandTester->getDisplay();
+        $this->assertStringContainsString('Language validation', $output);
+        $this->assertSame(0, $commandTester->getStatusCode());
+    }
+
+    public function testExecuteWithRecursiveShortOption(): void
+    {
+        $application = new Application();
+        $application->add(new ValidateTranslationCommand());
+
+        $command = $application->find('validate-translations');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute([
+            'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
+            '-r' => true,
+            '--dry-run' => true,
+        ]);
+
+        $output = $commandTester->getDisplay();
+        $this->assertStringContainsString('Language validation', $output);
+        $this->assertSame(0, $commandTester->getStatusCode());
+    }
+
+    public function testExecuteWithRecursiveAndJsonFormat(): void
+    {
+        $application = new Application();
+        $application->add(new ValidateTranslationCommand());
+
+        $command = $application->find('validate-translations');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute([
+            'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
+            '--recursive' => true,
+            '--format' => 'json',
+        ]);
+
+        $output = json_decode($commandTester->getDisplay(), true);
+        $this->assertIsArray($output);
+        $this->assertArrayHasKey('status', $output);
+    }
+
+    public function testRecursiveOptionCanBeUsedWithOtherOptions(): void
+    {
+        $application = new Application();
+        $application->add(new ValidateTranslationCommand());
+
+        $command = $application->find('validate-translations');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute([
+            'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
+            '--recursive' => true,
+            '--dry-run' => true,
+            '--strict' => true,
+        ]);
+
+        $this->assertSame(0, $commandTester->getStatusCode());
+    }
 }
