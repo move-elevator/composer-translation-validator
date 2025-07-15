@@ -8,7 +8,7 @@ to customize validation behavior, specify paths and control which validators are
 >
 > See the [JSON Schema](../schema/translation-validator.schema.json) section for more details.
 
-See the [Configuration Schema](../schema.md) for details on available options.
+See the [Configuration Schema](../docs/schema.md) for details on available options.
 
 ## Formats
 
