@@ -12,7 +12,7 @@ Thank you for considering contributing to this project! Every contribution is we
 ```bash
 # Clone repository
 git clone https://github.com/move-elevator/composer-translation-validation.git
-cd version-bumper
+cd composer-translation-validation
 
 # Install dependencies
 composer install
