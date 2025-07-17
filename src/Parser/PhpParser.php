@@ -54,7 +54,7 @@ class PhpParser extends AbstractParser implements ParserInterface
         return $extract($this->translations);
     }
 
-    public function getContentByKey(string $key, string $attribute = 'source'): ?string
+    public function getContentByKey(string $key): ?string
     {
         // Note: the $attribute parameter is required by ParserInterface
         // but is not used for PHP files, since PHP has no source/target concept.

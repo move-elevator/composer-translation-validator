@@ -29,9 +29,9 @@ final class DuplicateValuesValidatorTest extends TestCase
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser->method('getContentByKey')
             ->willReturnMap([
-                ['key1', 'source', 'valueA'],
-                ['key2', 'source', 'valueB'],
-                ['key3', 'source', 'valueA'], // Duplicate value
+                ['key1', 'valueA'],
+                ['key2', 'valueB'],
+                ['key3', 'valueA'], // Duplicate value
             ]);
         $parser->method('getFileName')->willReturn('test.xlf');
 
@@ -55,9 +55,9 @@ final class DuplicateValuesValidatorTest extends TestCase
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser->method('getContentByKey')
             ->willReturnMap([
-                ['key1', 'source', 'valueA'],
-                ['key2', 'source', 'valueB'],
-                ['key3', 'source', 'valueC'],
+                ['key1', 'valueA'],
+                ['key2', 'valueB'],
+                ['key3', 'valueC'],
             ]);
         $parser->method('getFileName')->willReturn('test.xlf');
 
@@ -254,9 +254,9 @@ final class DuplicateValuesValidatorTest extends TestCase
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser->method('getContentByKey')
             ->willReturnMap([
-                ['key1', 'source', 'valueA'],
-                ['key2', 'source', null], // This should be skipped
-                ['key3', 'source', 'valueB'],
+                ['key1', 'valueA'],
+                ['key2', null], // This should be skipped
+                ['key3', 'valueB'],
             ]);
         $parser->method('getFileName')->willReturn('test.xlf');
 

@@ -60,7 +60,7 @@ class JsonParser extends AbstractParser implements ParserInterface
         return $extract($this->json);
     }
 
-    public function getContentByKey(string $key, string $attribute = 'source'): ?string
+    public function getContentByKey(string $key): ?string
     {
         // Note: the $attribute parameter is required by ParserInterface
         // but is not used for JSON, since JSON has no source/target concept.

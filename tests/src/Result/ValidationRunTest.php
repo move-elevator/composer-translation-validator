@@ -275,7 +275,7 @@ class MockParserForTesting implements ParserInterface
         return ['key1', 'key2', 'key3']; // Return 3 mock keys for testing
     }
 
-    public function getContentByKey(string $key, string $attribute = 'source'): ?string
+    public function getContentByKey(string $key): ?string
     {
         return "Mock content for {$key}";
     }
@@ -469,7 +469,7 @@ class MockParserThatThrows implements ParserInterface
         throw new \RuntimeException('Parser failed');
     }
 
-    public function getContentByKey(string $key, string $attribute = 'source'): ?string
+    public function getContentByKey(string $key): ?string
     {
         return null;
     }
@@ -507,7 +507,7 @@ class MockParserReturningNull implements ParserInterface
         return null;
     }
 
-    public function getContentByKey(string $key, string $attribute = 'source'): ?string
+    public function getContentByKey(string $key): ?string
     {
         return null;
     }

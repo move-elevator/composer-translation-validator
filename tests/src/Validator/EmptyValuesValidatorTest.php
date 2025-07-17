@@ -22,9 +22,9 @@ final class EmptyValuesValidatorTest extends TestCase
         $parser = $this->createMock(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser->method('getContentByKey')->willReturnMap([
-            ['key1', 'source', 'Valid content'],
-            ['key2', 'source', ''],
-            ['key3', 'source', '   '],
+            ['key1', 'Valid content'],
+            ['key2', ''],
+            ['key3', '   '],
         ]);
         $parser->method('getFileName')->willReturn('test.xlf');
 
@@ -42,9 +42,9 @@ final class EmptyValuesValidatorTest extends TestCase
         $parser = $this->createMock(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser->method('getContentByKey')->willReturnMap([
-            ['key1', 'source', 'Valid content'],
-            ['key2', 'source', 'Another valid content'],
-            ['key3', 'source', 'Third valid content'],
+            ['key1', 'Valid content'],
+            ['key2', 'Another valid content'],
+            ['key3', 'Third valid content'],
         ]);
         $parser->method('getFileName')->willReturn('test.xlf');
 
@@ -62,8 +62,8 @@ final class EmptyValuesValidatorTest extends TestCase
         $parser = $this->createMock(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2']);
         $parser->method('getContentByKey')->willReturnMap([
-            ['key1', 'source', 'Valid content'],
-            ['key2', 'source', null],
+            ['key1', 'Valid content'],
+            ['key2', null],
         ]);
         $parser->method('getFileName')->willReturn('test.xlf');
 
@@ -81,10 +81,10 @@ final class EmptyValuesValidatorTest extends TestCase
         $parser = $this->createMock(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3', 'key4']);
         $parser->method('getContentByKey')->willReturnMap([
-            ['key1', 'source', 'Valid content'],
-            ['key2', 'source', ''],
-            ['key3', 'source', ' '],
-            ['key4', 'source', "\t\n "],
+            ['key1', 'Valid content'],
+            ['key2', ''],
+            ['key3', ' '],
+            ['key4', "\t\n "],
         ]);
         $parser->method('getFileName')->willReturn('test.xlf');
 
@@ -242,11 +242,11 @@ final class EmptyValuesValidatorTest extends TestCase
         $parser = $this->createMock(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3', 'key4', 'key5']);
         $parser->method('getContentByKey')->willReturnMap([
-            ['key1', 'source', 'Valid content'],
-            ['key2', 'source', ''],
-            ['key3', 'source', 'Another valid content'],
-            ['key4', 'source', '   '],
-            ['key5', 'source', 'Final valid content'],
+            ['key1', 'Valid content'],
+            ['key2', ''],
+            ['key3', 'Another valid content'],
+            ['key4', '   '],
+            ['key5', 'Final valid content'],
         ]);
         $parser->method('getFileName')->willReturn('test.xlf');
 
