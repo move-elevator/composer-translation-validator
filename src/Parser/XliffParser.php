@@ -45,16 +45,28 @@ class XliffParser extends AbstractParser implements ParserInterface
         return $keys;
     }
 
-    public function getContentByKey(string $key, string $attribute = 'source'): ?string
+    public function getContentByKey(string $key): ?string
     {
+        $attribute = $this->hasTargetLanguage() ? 'target' : 'source';
+
         foreach ($this->xml->file->body->{'trans-unit'} as $unit) {
             if ((string) $unit['id'] === $key) {
                 if ('' !== (string) $unit->{$attribute}) {
                     return (string) $unit->{$attribute};
                 }
 
-                if ('source' === $attribute) {
-                    return $this->getContentByKey($key, 'target');
+                if ('target' === $attribute && $this->hasTargetLanguage()) {
+                    $fallbackContent = (string) $unit->source;
+                    if ('' !== $fallbackContent) {
+                        return $fallbackContent;
+                    }
+                }
+
+                if ('source' === $attribute && !$this->hasTargetLanguage()) {
+                    $fallbackContent = (string) $unit->target;
+                    if ('' !== $fallbackContent) {
+                        return $fallbackContent;
+                    }
                 }
             }
         }
@@ -83,5 +95,10 @@ class XliffParser extends AbstractParser implements ParserInterface
         }
 
         return $language;
+    }
+
+    private function hasTargetLanguage(): bool
+    {
+        return !empty((string) $this->xml->file['target-language']);
     }
 }

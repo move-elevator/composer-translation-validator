@@ -78,7 +78,7 @@ class TestParser implements ParserInterface
         return [];
     }
 
-    public function getContentByKey(string $key, string $attribute = 'source'): ?string
+    public function getContentByKey(string $key): ?string
     {
         return null;
     }

@@ -13,4 +13,5 @@ return $config->setRules([
         '@PSR2' => true,
         '@Symfony' => true,
     ])
+    ->setUnsupportedPhpVersionAllowed(true)
     ->setFinder($finder);

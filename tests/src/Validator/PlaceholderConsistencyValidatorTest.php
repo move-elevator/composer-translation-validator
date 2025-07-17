@@ -24,8 +24,8 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         $parser = $this->createMock(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2']);
         $parser->method('getContentByKey')->willReturnMap([
-            ['key1', 'source', 'Hello %name%!'],
-            ['key2', 'source', 'Welcome {user}'],
+            ['key1', 'Hello %name%!'],
+            ['key2', 'Welcome {user}'],
         ]);
         $parser->method('getFileName')->willReturn('test.xlf');
 
@@ -417,16 +417,16 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         $parser1 = $this->createMock(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['greeting', 'farewell']);
         $parser1->method('getContentByKey')->willReturnMap([
-            ['greeting', 'source', 'Hello %name%! Welcome to {site}'],
-            ['farewell', 'source', 'Goodbye %name%'],
+            ['greeting', 'Hello %name%! Welcome to {site}'],
+            ['farewell', 'Goodbye %name%'],
         ]);
         $parser1->method('getFileName')->willReturn('en.xlf');
 
         $parser2 = $this->createMock(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['greeting', 'farewell']);
         $parser2->method('getContentByKey')->willReturnMap([
-            ['greeting', 'source', 'Hallo %username%! Willkommen bei {site}'],
-            ['farewell', 'source', 'Auf Wiedersehen %name% und %surname%'],
+            ['greeting', 'Hallo %username%! Willkommen bei {site}'],
+            ['farewell', 'Auf Wiedersehen %name% und %surname%'],
         ]);
         $parser2->method('getFileName')->willReturn('de.xlf');
 

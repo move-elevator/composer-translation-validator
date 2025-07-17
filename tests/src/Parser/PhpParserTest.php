@@ -115,9 +115,9 @@ final class PhpParserTest extends TestCase
         $parser = new PhpParser($filePath);
 
         // The attribute parameter should be ignored for PHP files
-        $this->assertSame('Welcome to our application!', $parser->getContentByKey('welcome', 'source'));
-        $this->assertSame('Welcome to our application!', $parser->getContentByKey('welcome', 'target'));
-        $this->assertSame('Welcome to our application!', $parser->getContentByKey('welcome', 'anything'));
+        $this->assertSame('Welcome to our application!', $parser->getContentByKey('welcome'));
+        $this->assertSame('Welcome to our application!', $parser->getContentByKey('welcome'));
+        $this->assertSame('Welcome to our application!', $parser->getContentByKey('welcome'));
     }
 
     public function testGetLanguageFromSymfonyStyleFilename(): void
