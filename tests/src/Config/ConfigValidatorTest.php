@@ -2,10 +2,30 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the Composer plugin "composer-translation-validator".
+ *
+ * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 namespace MoveElevator\ComposerTranslationValidator\Tests\Config;
 
 use MoveElevator\ComposerTranslationValidator\Config\ConfigValidator;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class ConfigValidatorTest extends TestCase
 {
@@ -38,7 +58,7 @@ final class ConfigValidatorTest extends TestCase
 
     public function testValidateInvalidPathsType(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("Configuration 'paths' must be an array");
 
         $this->validator->validate(['paths' => 'invalid']);
@@ -46,7 +66,7 @@ final class ConfigValidatorTest extends TestCase
 
     public function testValidateInvalidValidatorsType(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("Configuration 'validators' must be an array");
 
         $this->validator->validate(['validators' => 'invalid']);
@@ -54,7 +74,7 @@ final class ConfigValidatorTest extends TestCase
 
     public function testValidateInvalidFileDetectorsType(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("Configuration 'file-detectors' must be an array");
 
         $this->validator->validate(['file-detectors' => 'invalid']);
@@ -62,7 +82,7 @@ final class ConfigValidatorTest extends TestCase
 
     public function testValidateInvalidParsersType(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("Configuration 'parsers' must be an array");
 
         $this->validator->validate(['parsers' => 'invalid']);
@@ -70,7 +90,7 @@ final class ConfigValidatorTest extends TestCase
 
     public function testValidateInvalidOnlyType(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("Configuration 'only' must be an array");
 
         $this->validator->validate(['only' => 'invalid']);
@@ -78,7 +98,7 @@ final class ConfigValidatorTest extends TestCase
 
     public function testValidateInvalidSkipType(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("Configuration 'skip' must be an array");
 
         $this->validator->validate(['skip' => 'invalid']);
@@ -86,7 +106,7 @@ final class ConfigValidatorTest extends TestCase
 
     public function testValidateInvalidExcludeType(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("Configuration 'exclude' must be an array");
 
         $this->validator->validate(['exclude' => 'invalid']);
@@ -94,7 +114,7 @@ final class ConfigValidatorTest extends TestCase
 
     public function testValidateInvalidStrictType(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("Configuration 'strict' must be a boolean");
 
         $this->validator->validate(['strict' => 'invalid']);
@@ -102,7 +122,7 @@ final class ConfigValidatorTest extends TestCase
 
     public function testValidateInvalidDryRunType(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("Configuration 'dry-run' must be a boolean");
 
         $this->validator->validate(['dry-run' => 'invalid']);
@@ -110,7 +130,7 @@ final class ConfigValidatorTest extends TestCase
 
     public function testValidateInvalidFormatType(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("Configuration 'format' must be a string");
 
         $this->validator->validate(['format' => 123]);
@@ -118,7 +138,7 @@ final class ConfigValidatorTest extends TestCase
 
     public function testValidateInvalidFormatValue(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("Invalid format 'invalid'. Allowed formats: cli, json, yaml, php");
 
         $this->validator->validate(['format' => 'invalid']);
@@ -126,7 +146,7 @@ final class ConfigValidatorTest extends TestCase
 
     public function testValidateInvalidVerboseType(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("Configuration 'verbose' must be a boolean");
 
         $this->validator->validate(['verbose' => 'invalid']);

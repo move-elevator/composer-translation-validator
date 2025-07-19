@@ -2,8 +2,28 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the Composer plugin "composer-translation-validator".
+ *
+ * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
+use Exception;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Validator\XliffSchemaValidator;
 use PHPUnit\Framework\TestCase;
@@ -145,7 +165,7 @@ EOT
                 ],
             ],
             'XliffParser',
-            'SchemaValidator'
+            'SchemaValidator',
         );
 
         $result = $validator->formatIssueMessage($issue);
@@ -173,7 +193,7 @@ EOT
                 ],
             ],
             'XliffParser',
-            'SchemaValidator'
+            'SchemaValidator',
         );
 
         $result = $validator->formatIssueMessage($issue);
@@ -206,7 +226,7 @@ EOT
                 ],
             ],
             'XliffParser',
-            'SchemaValidator'
+            'SchemaValidator',
         );
 
         $result = $validator->formatIssueMessage($issue);
@@ -228,7 +248,7 @@ EOT
             'test.xlf',
             [],
             'XliffParser',
-            'SchemaValidator'
+            'SchemaValidator',
         );
 
         $result = $validator->formatIssueMessage($issue);
@@ -308,7 +328,7 @@ EOT
                 }
 
                 // Simulate exception with unsupported version message
-                $e = new \Exception('No support implemented for loading XLIFF version 2.0');
+                $e = new Exception('No support implemented for loading XLIFF version 2.0');
                 if (str_contains($e->getMessage(), 'No support implemented for loading XLIFF version')) {
                     $this->logger?->notice(sprintf('Skipping %s: %s', $this->getShortName(), $e->getMessage()));
                 } else {
@@ -352,7 +372,7 @@ EOT
                 }
 
                 // Simulate general validation exception
-                $e = new \Exception('XML parsing error occurred');
+                $e = new Exception('XML parsing error occurred');
                 if (str_contains($e->getMessage(), 'No support implemented for loading XLIFF version')) {
                     $this->logger?->notice(sprintf('Skipping %s: %s', $this->getShortName(), $e->getMessage()));
                 } else {

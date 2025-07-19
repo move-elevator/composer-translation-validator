@@ -2,6 +2,25 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the Composer plugin "composer-translation-validator".
+ *
+ * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\JsonParser;
@@ -11,6 +30,7 @@ use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use MoveElevator\ComposerTranslationValidator\Validator\EncodingValidator;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
+use Normalizer;
 use PHPUnit\Framework\TestCase;
 
 final class EncodingValidatorTest extends TestCase
@@ -122,7 +142,7 @@ final class EncodingValidatorTest extends TestCase
 
         $filePath = $this->testFilesPath.'/unicode-norm.yaml';
         // Create content with NFD normalization (decomposed)
-        $content = 'key: '.\Normalizer::normalize('café', \Normalizer::FORM_D);
+        $content = 'key: '.Normalizer::normalize('café', Normalizer::FORM_D);
         file_put_contents($filePath, $content);
 
         $parser = new YamlParser($filePath);
@@ -186,7 +206,7 @@ final class EncodingValidatorTest extends TestCase
                 $content = @file_get_contents($file->getFilePath()); // Suppress warning with @
                 if (false === $content) {
                     $this->logger?->error(
-                        'Could not read file content: '.$file->getFileName()
+                        'Could not read file content: '.$file->getFileName(),
                     );
 
                     return [];

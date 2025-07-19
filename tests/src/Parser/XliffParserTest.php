@@ -2,10 +2,31 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the Composer plugin "composer-translation-validator".
+ *
+ * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 namespace MoveElevator\ComposerTranslationValidator\Tests\Parser;
 
+use InvalidArgumentException;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class XliffParserTest extends TestCase
 {
@@ -112,7 +133,7 @@ EOT;
 
     public function testConstructorThrowsExceptionIfFileDoesNotExist(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessageMatches('/File ".*" does not exist./');
         new XliffParser('/non/existent/file.xlf');
     }
@@ -123,7 +144,7 @@ EOT;
         file_put_contents($unreadableFile, 'content');
         chmod($unreadableFile, 0000); // Make unreadable
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessageMatches('/File ".*" is not readable./');
         new XliffParser($unreadableFile);
     }
@@ -133,7 +154,7 @@ EOT;
         $invalidFile = $this->tempDir.'/invalid.txt';
         file_put_contents($invalidFile, 'content');
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessageMatches('/File ".*" is not a valid file./');
         new XliffParser($invalidFile);
     }
@@ -232,12 +253,12 @@ EOT;
                 // Simulate the exact code path from XliffParser constructor
                 $xmlContent = @file_get_contents($filePath); // Suppress warning with @
                 if (false === $xmlContent) {
-                    throw new \InvalidArgumentException("Failed to read file: {$filePath}");
+                    throw new InvalidArgumentException("Failed to read file: {$filePath}");
                 }
             }
         };
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Failed to read file:');
         $validator->testFileGetContentsFalse('/non/existent/file.xlf');
     }
@@ -247,7 +268,7 @@ EOT;
         $invalidXmlFile = $this->tempDir.'/invalid.xlf';
         file_put_contents($invalidXmlFile, 'invalid xml content');
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Failed to parse XML content from file:');
         new XliffParser($invalidXmlFile);
     }

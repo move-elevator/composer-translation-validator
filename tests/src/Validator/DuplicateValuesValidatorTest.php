@@ -2,6 +2,25 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the Composer plugin "composer-translation-validator".
+ *
+ * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
@@ -12,6 +31,7 @@ use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use ReflectionClass;
 
 final class DuplicateValuesValidatorTest extends TestCase
 {
@@ -39,7 +59,7 @@ final class DuplicateValuesValidatorTest extends TestCase
         $validator->processFile($parser);
 
         // Access protected property to check internal state
-        $reflection = new \ReflectionClass($validator);
+        $reflection = new ReflectionClass($validator);
         $valuesArrayProperty = $reflection->getProperty('valuesArray');
         $valuesArrayProperty->setAccessible(true);
         $valuesArray = $valuesArrayProperty->getValue($validator);
@@ -64,7 +84,7 @@ final class DuplicateValuesValidatorTest extends TestCase
         $validator = new DuplicateValuesValidator($this->loggerMock);
         $validator->processFile($parser);
 
-        $reflection = new \ReflectionClass($validator);
+        $reflection = new ReflectionClass($validator);
         $valuesArrayProperty = $reflection->getProperty('valuesArray');
         $valuesArrayProperty->setAccessible(true);
         $valuesArray = $valuesArrayProperty->getValue($validator);
@@ -93,7 +113,7 @@ final class DuplicateValuesValidatorTest extends TestCase
         $validator = new DuplicateValuesValidator($this->loggerMock);
         $validator->processFile($parser);
 
-        $reflection = new \ReflectionClass($validator);
+        $reflection = new ReflectionClass($validator);
         $valuesArrayProperty = $reflection->getProperty('valuesArray');
         $valuesArrayProperty->setAccessible(true);
         $valuesArray = $valuesArrayProperty->getValue($validator);
@@ -106,7 +126,7 @@ final class DuplicateValuesValidatorTest extends TestCase
         $validator = new DuplicateValuesValidator($this->loggerMock);
 
         // Manually set valuesArray to simulate previous processFile calls
-        $reflection = new \ReflectionClass($validator);
+        $reflection = new ReflectionClass($validator);
         $valuesArrayProperty = $reflection->getProperty('valuesArray');
         $valuesArrayProperty->setAccessible(true);
         $valuesArrayProperty->setValue($validator, [
@@ -152,7 +172,7 @@ final class DuplicateValuesValidatorTest extends TestCase
         $validator = new DuplicateValuesValidator($this->loggerMock);
 
         // Manually set valuesArray with no duplicates
-        $reflection = new \ReflectionClass($validator);
+        $reflection = new ReflectionClass($validator);
         $valuesArrayProperty = $reflection->getProperty('valuesArray');
         $valuesArrayProperty->setAccessible(true);
         $valuesArrayProperty->setValue($validator, [
@@ -177,7 +197,7 @@ final class DuplicateValuesValidatorTest extends TestCase
         $validator = new DuplicateValuesValidator($logger);
 
         // Manually set valuesArray to simulate previous validation
-        $reflection = new \ReflectionClass($validator);
+        $reflection = new ReflectionClass($validator);
         $valuesArrayProperty = $reflection->getProperty('valuesArray');
         $valuesArrayProperty->setAccessible(true);
         $valuesArrayProperty->setValue($validator, [
@@ -235,7 +255,7 @@ final class DuplicateValuesValidatorTest extends TestCase
             'test.xlf',
             ['duplicate_value' => ['key1', 'key2'], 'another_value' => ['key3', 'key4']],
             'XliffParser',
-            'DuplicateValuesValidator'
+            'DuplicateValuesValidator',
         );
 
         $result = $validator->formatIssueMessage($issue);
@@ -264,7 +284,7 @@ final class DuplicateValuesValidatorTest extends TestCase
         $validator->processFile($parser);
 
         // Access protected property to check internal state
-        $reflection = new \ReflectionClass($validator);
+        $reflection = new ReflectionClass($validator);
         $valuesArrayProperty = $reflection->getProperty('valuesArray');
         $valuesArrayProperty->setAccessible(true);
         $valuesArray = $valuesArrayProperty->getValue($validator);

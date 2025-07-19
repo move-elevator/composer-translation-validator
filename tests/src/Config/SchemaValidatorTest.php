@@ -2,11 +2,33 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the Composer plugin "composer-translation-validator".
+ *
+ * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 namespace MoveElevator\ComposerTranslationValidator\Tests\Config;
 
+use JsonException;
 use MoveElevator\ComposerTranslationValidator\Config\SchemaValidator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+use RuntimeException;
 
 #[CoversClass(SchemaValidator::class)]
 class SchemaValidatorTest extends TestCase
@@ -65,7 +87,7 @@ class SchemaValidatorTest extends TestCase
     {
         $emptyData = [];
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Configuration validation failed:');
 
         $this->schemaValidator->validate($emptyData);
@@ -78,7 +100,7 @@ class SchemaValidatorTest extends TestCase
             'format' => 'invalid-format', // Invalid enum value
         ];
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Configuration validation failed:');
 
         $this->schemaValidator->validate($invalidData);
@@ -87,7 +109,7 @@ class SchemaValidatorTest extends TestCase
     public function testLoadSchemaFileNotFoundThrowsException(): void
     {
         // Create a temporary SchemaValidator with a non-existent schema path
-        $reflection = new \ReflectionClass(SchemaValidator::class);
+        $reflection = new ReflectionClass(SchemaValidator::class);
         $schemaPathProperty = $reflection->getConstant('SCHEMA_PATH');
 
         // Backup the original schema file and rename it temporarily
@@ -97,7 +119,7 @@ class SchemaValidatorTest extends TestCase
         }
 
         try {
-            $this->expectException(\RuntimeException::class);
+            $this->expectException(RuntimeException::class);
             $this->expectExceptionMessage('JSON Schema file not found:');
 
             $this->schemaValidator->validate(['paths' => ['test']]);
@@ -111,7 +133,7 @@ class SchemaValidatorTest extends TestCase
 
     public function testLoadSchemaWithInvalidJsonThrowsException(): void
     {
-        $reflection = new \ReflectionClass(SchemaValidator::class);
+        $reflection = new ReflectionClass(SchemaValidator::class);
         $schemaPathProperty = $reflection->getConstant('SCHEMA_PATH');
 
         // Backup the original schema file
@@ -124,7 +146,7 @@ class SchemaValidatorTest extends TestCase
         file_put_contents($schemaPathProperty, 'invalid json content');
 
         try {
-            $this->expectException(\JsonException::class);
+            $this->expectException(JsonException::class);
             $this->expectExceptionMessage('Syntax error');
 
             $this->schemaValidator->validate(['paths' => ['test']]);
@@ -144,7 +166,7 @@ class SchemaValidatorTest extends TestCase
             'strict' => null, // Invalid - should be boolean
         ];
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Configuration validation failed:');
 
         $this->schemaValidator->validate($dataWithNull);
@@ -161,7 +183,7 @@ class SchemaValidatorTest extends TestCase
         try {
             $this->schemaValidator->validate($invalidData);
             $this->fail('Expected RuntimeException was not thrown');
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $message = $e->getMessage();
             $this->assertStringContainsString('Configuration validation failed:', $message);
             // The error message should contain multiple error lines
@@ -197,7 +219,7 @@ class SchemaValidatorTest extends TestCase
 
     public function testLoadSchemaFileReadFailureThrowsException(): void
     {
-        $reflection = new \ReflectionClass(SchemaValidator::class);
+        $reflection = new ReflectionClass(SchemaValidator::class);
         $schemaPathProperty = $reflection->getConstant('SCHEMA_PATH');
 
         // Backup the original schema file
@@ -210,7 +232,7 @@ class SchemaValidatorTest extends TestCase
         mkdir($schemaPathProperty);
 
         try {
-            $this->expectException(\RuntimeException::class);
+            $this->expectException(RuntimeException::class);
 
             $this->schemaValidator->validate(['paths' => ['test']]);
         } finally {

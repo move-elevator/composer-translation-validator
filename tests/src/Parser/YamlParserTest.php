@@ -2,10 +2,31 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the Composer plugin "composer-translation-validator".
+ *
+ * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 namespace MoveElevator\ComposerTranslationValidator\Tests\Parser;
 
+use InvalidArgumentException;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class YamlParserTest extends TestCase
 {
@@ -75,7 +96,7 @@ EOT
 
     public function testConstructorThrowsExceptionIfFileDoesNotExist(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessageMatches('/File ".*" does not exist./');
         new YamlParser('/non/existent/file.yaml');
     }
@@ -86,7 +107,7 @@ EOT
         file_put_contents($unreadableFile, 'content');
         chmod($unreadableFile, 0000); // Make unreadable
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessageMatches('/File ".*" is not readable./');
         new YamlParser($unreadableFile);
     }
@@ -96,14 +117,14 @@ EOT
         $invalidFile = $this->tempDir.'/invalid.txt';
         file_put_contents($invalidFile, 'content');
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessageMatches('/File ".*" is not a valid file./');
         new YamlParser($invalidFile);
     }
 
     public function testConstructorThrowsExceptionIfYamlIsInvalid(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessageMatches('/Failed to parse YAML file/');
         new YamlParser($this->invalidYamlFile);
     }

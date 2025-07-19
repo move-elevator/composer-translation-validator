@@ -2,6 +2,25 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the Composer plugin "composer-translation-validator".
+ *
+ * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
@@ -17,9 +36,7 @@ abstract class AbstractValidator
     /** @var array<Issue> */
     protected array $issues = [];
 
-    public function __construct(protected ?LoggerInterface $logger = null)
-    {
-    }
+    public function __construct(protected ?LoggerInterface $logger = null) {}
 
     /**
      * @param string[]                           $files
@@ -36,8 +53,8 @@ abstract class AbstractValidator
         $this->logger->debug(
             sprintf(
                 '> Checking for <options=bold,underscore>%s</> ...',
-                $name
-            )
+                $name,
+            ),
         );
 
         foreach ($files as $filePath) {
@@ -45,8 +62,8 @@ abstract class AbstractValidator
                 $filePath,
                 $parserClass ?: ParserRegistry::resolveParserClass(
                     $filePath,
-                    $this->logger
-                )
+                    $this->logger,
+                ),
             );
             /* @var ParserInterface $file */
 
@@ -56,8 +73,8 @@ abstract class AbstractValidator
                         'The file <fg=cyan>%s</> could not be parsed by the '
                         .'validator <fg=red>%s</>.',
                         $filePath,
-                        static::class
-                    )
+                        static::class,
+                    ),
                 );
                 continue;
             }
@@ -67,8 +84,8 @@ abstract class AbstractValidator
                     sprintf(
                         'The file <fg=cyan>%s</> is not supported by the validator <fg=red>%s</>.',
                         $file->getFileName(),
-                        static::class
-                    )
+                        static::class,
+                    ),
                 );
                 continue;
             }
@@ -78,7 +95,7 @@ abstract class AbstractValidator
                 .$file->getFileDirectory()
                 .'</><fg=cyan>'
                 .$file->getFileName()
-                .'</> ...'
+                .'</> ...',
             );
 
             $validationResult = $this->processFile($file);
@@ -90,7 +107,7 @@ abstract class AbstractValidator
                 $file->getFileName(),
                 $validationResult,
                 $file::class,
-                $name
+                $name,
             ));
         }
 

@@ -2,6 +2,25 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the Composer plugin "composer-translation-validator".
+ *
+ * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
@@ -12,6 +31,7 @@ use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -30,7 +50,7 @@ class ValidationResultCliRendererTest extends TestCase
         $this->input = $input;
         $this->renderer = new ValidationResultCliRenderer(
             $this->output,
-            $input
+            $input,
         );
     }
 
@@ -61,7 +81,7 @@ class ValidationResultCliRendererTest extends TestCase
         $validationResult = new ValidationResult(
             $validators,
             ResultType::ERROR,
-            $pairs
+            $pairs,
         );
 
         $exitCode = $this->renderer->render($validationResult);
@@ -80,7 +100,7 @@ class ValidationResultCliRendererTest extends TestCase
         $renderer = new ValidationResultCliRenderer(
             $this->output,
             $input,
-            true  // dry run
+            true,  // dry run
         );
 
         $validator = $this->createMockValidator();
@@ -91,7 +111,7 @@ class ValidationResultCliRendererTest extends TestCase
         $validationResult = new ValidationResult(
             [$validator],
             ResultType::ERROR,
-            [['validator' => $validator, 'fileSet' => $fileSet]]
+            [['validator' => $validator, 'fileSet' => $fileSet]],
         );
 
         $exitCode = $renderer->render($validationResult);
@@ -108,7 +128,7 @@ class ValidationResultCliRendererTest extends TestCase
             $this->output,
             $input,
             false, // dry run
-            true   // strict
+            true,   // strict
         );
 
         $validator = $this->createMockValidator();
@@ -119,7 +139,7 @@ class ValidationResultCliRendererTest extends TestCase
         $validationResult = new ValidationResult(
             [$validator],
             ResultType::WARNING,
-            [['validator' => $validator, 'fileSet' => $fileSet]]
+            [['validator' => $validator, 'fileSet' => $fileSet]],
         );
 
         $exitCode = $renderer->render($validationResult);
@@ -140,7 +160,7 @@ class ValidationResultCliRendererTest extends TestCase
         $validationResult = new ValidationResult(
             [$validator],
             ResultType::ERROR,
-            [['validator' => $validator, 'fileSet' => $fileSet]]
+            [['validator' => $validator, 'fileSet' => $fileSet]],
         );
 
         $this->renderer->render($validationResult);
@@ -161,7 +181,7 @@ class ValidationResultCliRendererTest extends TestCase
         $validationResult = new ValidationResult(
             [$validator],
             ResultType::WARNING,
-            [['validator' => $validator, 'fileSet' => $fileSet]]
+            [['validator' => $validator, 'fileSet' => $fileSet]],
         );
 
         $exitCode = $this->renderer->render($validationResult);
@@ -198,7 +218,7 @@ class ValidationResultCliRendererTest extends TestCase
             [
                 ['validator' => $validator1, 'fileSet' => $fileSet1],
                 ['validator' => $validator1, 'fileSet' => $fileSet2],
-            ]
+            ],
         );
 
         $this->renderer->render($validationResult);
@@ -222,7 +242,7 @@ class ValidationResultCliRendererTest extends TestCase
         $validationResult = new ValidationResult(
             [$validator],
             ResultType::ERROR,
-            [['validator' => $validator, 'fileSet' => $fileSet]]
+            [['validator' => $validator, 'fileSet' => $fileSet]],
         );
 
         // Test compact mode (non-verbose)
@@ -258,7 +278,7 @@ class ValidationResultCliRendererTest extends TestCase
         $validationResult = new ValidationResult(
             [$validator],
             ResultType::ERROR,
-            [['validator' => $validator, 'fileSet' => $fileSet]]
+            [['validator' => $validator, 'fileSet' => $fileSet]],
         );
 
         $this->output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
@@ -281,7 +301,7 @@ class ValidationResultCliRendererTest extends TestCase
         $validationResult = new ValidationResult(
             [$validator],
             ResultType::ERROR,
-            [['validator' => $validator, 'fileSet' => $fileSet]]
+            [['validator' => $validator, 'fileSet' => $fileSet]],
         );
 
         $this->renderer->render($validationResult);
@@ -306,7 +326,7 @@ class ValidationResultCliRendererTest extends TestCase
             ['validator' => $validator2, 'issue' => $issue2],
         ];
 
-        $reflection = new \ReflectionClass($this->renderer);
+        $reflection = new ReflectionClass($this->renderer);
         $method = $reflection->getMethod('sortIssuesBySeverity');
         $method->setAccessible(true);
 
@@ -326,7 +346,7 @@ class ValidationResultCliRendererTest extends TestCase
             'TestValidator3' => ['validator' => $this->createMockValidator(), 'issues' => []],
         ];
 
-        $reflection = new \ReflectionClass($this->renderer);
+        $reflection = new ReflectionClass($this->renderer);
         $method = $reflection->getMethod('sortValidatorGroupsBySeverity');
         $method->setAccessible(true);
 
@@ -341,7 +361,7 @@ class ValidationResultCliRendererTest extends TestCase
 
     public function testGetValidatorSeverity(): void
     {
-        $reflection = new \ReflectionClass($this->renderer);
+        $reflection = new ReflectionClass($this->renderer);
         $method = $reflection->getMethod('getValidatorSeverity');
         $method->setAccessible(true);
 
@@ -359,7 +379,7 @@ class ValidationResultCliRendererTest extends TestCase
         $validator = $this->createMockValidator();
         $issue = new Issue('test.xlf', ['message' => 'Test error'], 'TestParser', 'TestValidator');
 
-        $reflection = new \ReflectionClass($this->renderer);
+        $reflection = new ReflectionClass($this->renderer);
         $method = $reflection->getMethod('formatIssueMessage');
         $method->setAccessible(true);
 
@@ -378,7 +398,7 @@ class ValidationResultCliRendererTest extends TestCase
             0.123,  // 123ms
             5,      // files
             15,     // keys
-            3       // validators
+            3,       // validators
         );
 
         $validationResult = new ValidationResult([], ResultType::SUCCESS, [], $statistics);
@@ -401,7 +421,7 @@ class ValidationResultCliRendererTest extends TestCase
             10,     // files
             50,     // keys
             4,      // validators
-            7       // parsers cached
+            7,       // parsers cached
         );
 
         $validationResult = new ValidationResult([], ResultType::SUCCESS, [], $statistics);
@@ -423,7 +443,7 @@ class ValidationResultCliRendererTest extends TestCase
             0.123,
             5,
             15,
-            3
+            3,
         );
 
         $validationResult = new ValidationResult([], ResultType::SUCCESS, [], $statistics);
@@ -465,7 +485,7 @@ class ValidationResultCliRendererTest extends TestCase
             0.089,  // 89ms
             2,      // files
             8,      // keys
-            2       // validators
+            2,       // validators
         );
 
         $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
@@ -473,7 +493,7 @@ class ValidationResultCliRendererTest extends TestCase
             [$validator],
             ResultType::ERROR,
             [['validator' => $validator, 'fileSet' => $fileSet]],
-            $statistics
+            $statistics,
         );
 
         $this->output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
@@ -529,7 +549,7 @@ class ValidationResultCliRendererTest extends TestCase
         $validationResult = new ValidationResult(
             [$validator],
             ResultType::WARNING,
-            [['validator' => $validator, 'fileSet' => $fileSet]]
+            [['validator' => $validator, 'fileSet' => $fileSet]],
         );
 
         $this->output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
@@ -554,7 +574,7 @@ class ValidationResultCliRendererTest extends TestCase
         $validationResult = new ValidationResult(
             [$validator],
             ResultType::ERROR,
-            [['validator' => $validator, 'fileSet' => $fileSet]]
+            [['validator' => $validator, 'fileSet' => $fileSet]],
         );
 
         $this->output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
@@ -576,7 +596,7 @@ class ValidationResultCliRendererTest extends TestCase
             $this->output,
             $input,
             true, // dry run
-            false
+            false,
         );
 
         $validationResult = new ValidationResult([], ResultType::ERROR);
@@ -596,7 +616,7 @@ class ValidationResultCliRendererTest extends TestCase
             $this->output,
             $input,
             false, // not dry run
-            false  // not strict
+            false,  // not strict
         );
 
         $this->output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
@@ -616,7 +636,7 @@ class ValidationResultCliRendererTest extends TestCase
             $this->output,
             $input,
             false, // not dry run
-            true   // strict mode
+            true,   // strict mode
         );
 
         $this->output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
@@ -636,7 +656,7 @@ class ValidationResultCliRendererTest extends TestCase
             $this->output,
             $input,
             false, // not dry run
-            false  // not strict
+            false,  // not strict
         );
 
         $this->output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
@@ -658,7 +678,7 @@ class ValidationResultCliRendererTest extends TestCase
             $this->output,
             $input,
             false, // not dry run
-            false  // not strict
+            false,  // not strict
         );
 
         $this->output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
@@ -700,7 +720,7 @@ class ValidationResultCliRendererTest extends TestCase
             [
                 ['validator' => $validator1, 'fileSet' => $fileSet],
                 ['validator' => $validator2, 'fileSet' => $fileSet],
-            ]
+            ],
         );
 
         $this->output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
@@ -735,7 +755,7 @@ class ValidationResultCliRendererTest extends TestCase
         $validationResult = new ValidationResult(
             [$validator],
             ResultType::ERROR,
-            [['validator' => $validator, 'fileSet' => $fileSet]]
+            [['validator' => $validator, 'fileSet' => $fileSet]],
         );
 
         $this->output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
@@ -765,7 +785,7 @@ class ValidationResultCliRendererTest extends TestCase
         $validationResult = new ValidationResult(
             [$validator],
             ResultType::WARNING,
-            [['validator' => $validator, 'fileSet' => $fileSet]]
+            [['validator' => $validator, 'fileSet' => $fileSet]],
         );
 
         $this->output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
@@ -810,7 +830,7 @@ class ValidationResultCliRendererTest extends TestCase
         $validationResult = new ValidationResult(
             [$validator],
             ResultType::ERROR,
-            [['validator' => $validator, 'fileSet' => $fileSet]]
+            [['validator' => $validator, 'fileSet' => $fileSet]],
         );
 
         $this->output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
