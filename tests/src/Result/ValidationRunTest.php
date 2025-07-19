@@ -2,6 +2,25 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the Composer plugin "composer-translation-validator".
+ *
+ * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
@@ -13,6 +32,7 @@ use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ValidationRunTest extends TestCase
@@ -92,7 +112,7 @@ class ValidationRunTest extends TestCase
         $validationRun = new ValidationRun($this->logger);
         $result = $validationRun->executeFor(
             [$fileSet1, $fileSet2],
-            [$validatorClass1, $validatorClass2]
+            [$validatorClass1, $validatorClass2],
         );
 
         // Only validators with issues should be included
@@ -209,7 +229,7 @@ class ValidationRunTest extends TestCase
         $validationRun = new ValidationRun($this->logger);
         $result = $validationRun->executeFor(
             [$fileSet1, $fileSet2],
-            [$validatorClass1, $validatorClass2]
+            [$validatorClass1, $validatorClass2],
         );
 
         $statistics = $result->getStatistics();
@@ -345,9 +365,7 @@ class MockValidatorWithoutIssues implements ValidatorInterface
         return [];
     }
 
-    public function addIssue(Issue $issue): void
-    {
-    }
+    public function addIssue(Issue $issue): void {}
 
     public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
     {
@@ -364,9 +382,7 @@ class MockValidatorWithoutIssues implements ValidatorInterface
         return false;
     }
 
-    public function renderDetailedOutput(OutputInterface $output, array $issues): void
-    {
-    }
+    public function renderDetailedOutput(OutputInterface $output, array $issues): void {}
 
     public function getShortName(): string
     {
@@ -418,9 +434,7 @@ class MockValidatorWithIssues implements ValidatorInterface
         return [new Issue('test.xlf', ['mock'], 'MockParser', 'MockValidator')];
     }
 
-    public function addIssue(Issue $issue): void
-    {
-    }
+    public function addIssue(Issue $issue): void {}
 
     public function formatIssueMessage(Issue $issue, string $prefix = '', bool $isVerbose = false): string
     {
@@ -447,9 +461,7 @@ class MockValidatorWithIssues implements ValidatorInterface
         return false;
     }
 
-    public function renderDetailedOutput(OutputInterface $output, array $issues): void
-    {
-    }
+    public function renderDetailedOutput(OutputInterface $output, array $issues): void {}
 
     public function getShortName(): string
     {
@@ -466,7 +478,7 @@ class MockParserThatThrows implements ParserInterface
 
     public function extractKeys(): ?array
     {
-        throw new \RuntimeException('Parser failed');
+        throw new RuntimeException('Parser failed');
     }
 
     public function getContentByKey(string $key): ?string

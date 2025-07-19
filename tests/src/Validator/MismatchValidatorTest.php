@@ -2,12 +2,32 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the Composer plugin "composer-translation-validator".
+ *
+ * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use ReflectionClass;
 
 final class MismatchValidatorTest extends TestCase
 {
@@ -28,7 +48,7 @@ final class MismatchValidatorTest extends TestCase
         $validator->processFile($parser2);
 
         // Accessing protected property for testing purposes
-        $reflection = new \ReflectionClass($validator);
+        $reflection = new ReflectionClass($validator);
         $keyArrayProperty = $reflection->getProperty('keyArray');
         $keyArrayProperty->setAccessible(true);
         $keyArray = $keyArrayProperty->getValue($validator);
@@ -38,7 +58,7 @@ final class MismatchValidatorTest extends TestCase
                 'file1.xlf' => ['key1' => null, 'key2' => null],
                 'file2.xlf' => ['key2' => null, 'key3' => null],
             ],
-            $keyArray
+            $keyArray,
         );
     }
 
@@ -78,7 +98,7 @@ final class MismatchValidatorTest extends TestCase
         $validator->postProcess();
 
         // Accessing protected property for testing purposes
-        $reflection = new \ReflectionClass($validator);
+        $reflection = new ReflectionClass($validator);
         $issuesProperty = $reflection->getProperty('issues');
         $issuesProperty->setAccessible(true);
         $issues = $issuesProperty->getValue($validator);
@@ -144,7 +164,7 @@ final class MismatchValidatorTest extends TestCase
         $validator->postProcess();
 
         // Accessing protected property for testing purposes
-        $reflection = new \ReflectionClass($validator);
+        $reflection = new ReflectionClass($validator);
         $issuesProperty = $reflection->getProperty('issues');
         $issuesProperty->setAccessible(true);
         $issues = $issuesProperty->getValue($validator);
@@ -158,7 +178,7 @@ final class MismatchValidatorTest extends TestCase
         $validator = new MismatchValidator($logger);
 
         // Manually set keyArray to simulate previous validation
-        $reflection = new \ReflectionClass($validator);
+        $reflection = new ReflectionClass($validator);
         $keyArrayProperty = $reflection->getProperty('keyArray');
         $keyArrayProperty->setAccessible(true);
         $keyArrayProperty->setValue($validator, [
@@ -210,7 +230,7 @@ final class MismatchValidatorTest extends TestCase
                 ],
             ],
             '',
-            'MismatchValidator'
+            'MismatchValidator',
         );
         $validator->addIssue($issue);
 
@@ -218,7 +238,7 @@ final class MismatchValidatorTest extends TestCase
             'TestParser',
             '/test/path',
             'setKey',
-            ['file1.xlf', 'file2.xlf']
+            ['file1.xlf', 'file2.xlf'],
         );
 
         $distribution = $validator->distributeIssuesForDisplay($fileSet);
@@ -256,7 +276,7 @@ final class MismatchValidatorTest extends TestCase
                 ],
             ],
             '',
-            'MismatchValidator'
+            'MismatchValidator',
         );
 
         $validator->renderDetailedOutput($output, [$issue]);
@@ -287,7 +307,7 @@ final class MismatchValidatorTest extends TestCase
                 ],
             ],
             'TestParser',
-            'MismatchValidator'
+            'MismatchValidator',
         );
 
         $result = $validator->formatIssueMessage($issue);
