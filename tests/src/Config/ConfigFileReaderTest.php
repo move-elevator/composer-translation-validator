@@ -2,10 +2,33 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the Composer plugin "composer-translation-validator".
+ *
+ * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 namespace MoveElevator\ComposerTranslationValidator\Tests\Config;
 
+use Exception;
+use InvalidArgumentException;
+use JsonException;
 use MoveElevator\ComposerTranslationValidator\Config\ConfigFileReader;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class ConfigFileReaderTest extends TestCase
 {
@@ -126,7 +149,7 @@ return $config;
 
     public function testReadFileNotFound(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Configuration file not found');
 
         $this->reader->readFile('/non/existent/file.json');
@@ -138,7 +161,7 @@ return $config;
         file_put_contents($configPath, '{}');
         chmod($configPath, 0000);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Configuration file is not readable');
 
         try {
@@ -153,7 +176,7 @@ return $config;
         $configPath = $this->tempDir.'/config.txt';
         file_put_contents($configPath, 'content');
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Unsupported configuration file format: txt');
 
         $this->reader->readFile($configPath);
@@ -164,7 +187,7 @@ return $config;
         $configPath = $this->tempDir.'/config.json';
         file_put_contents($configPath, 'invalid json');
 
-        $this->expectException(\JsonException::class);
+        $this->expectException(JsonException::class);
 
         $this->reader->readFile($configPath);
     }
@@ -174,7 +197,7 @@ return $config;
         $configPath = $this->tempDir.'/config.yaml';
         file_put_contents($configPath, "invalid:\n  - yaml\n  content:");
 
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
 
         $this->reader->readFile($configPath);
     }
@@ -184,7 +207,7 @@ return $config;
         $configPath = $this->tempDir.'/config.php';
         file_put_contents($configPath, '<?php return "invalid";');
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('PHP configuration file must return an instance of TranslationValidatorConfig');
 
         $this->reader->readAsConfig($configPath);
@@ -200,7 +223,7 @@ return $config;
         symlink($configPath, $brokenLink);
         unlink($configPath); // Break the symlink
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Invalid configuration file path');
 
         $this->reader->readAsConfig($brokenLink);
@@ -211,7 +234,7 @@ return $config;
         $configPath = $this->tempDir.'/config.json';
         file_put_contents($configPath, '"string-content"');
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Invalid JSON configuration file');
 
         $this->reader->readFile($configPath);
@@ -222,7 +245,7 @@ return $config;
         $configPath = $this->tempDir.'/config.yaml';
         file_put_contents($configPath, '"string-content"');
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Invalid YAML configuration file');
 
         $this->reader->readFile($configPath);

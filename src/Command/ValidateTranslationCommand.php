@@ -2,9 +2,29 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the Composer plugin "composer-translation-validator".
+ *
+ * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 namespace MoveElevator\ComposerTranslationValidator\Command;
 
 use Composer\Command\BaseCommand;
+use JsonException;
 use MoveElevator\ComposerTranslationValidator\Config\ConfigReader;
 use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
 use MoveElevator\ComposerTranslationValidator\FileDetector\Collector;
@@ -17,6 +37,7 @@ use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorRegistry;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -45,50 +66,50 @@ class ValidateTranslationCommand extends BaseCommand
             ->addArgument(
                 'path',
                 InputArgument::IS_ARRAY | InputArgument::REQUIRED,
-                'Paths to the folders containing translation files'
+                'Paths to the folders containing translation files',
             )
             ->addOption(
                 'dry-run',
                 null,
                 InputOption::VALUE_NONE,
-                'Run the command in dry-run mode without throwing errors'
+                'Run the command in dry-run mode without throwing errors',
             )
             ->addOption(
                 'strict',
                 null,
                 InputOption::VALUE_NONE,
-                'Fail on warnings as errors'
+                'Fail on warnings as errors',
             )
             ->addOption(
                 'format',
                 'f',
                 InputOption::VALUE_OPTIONAL,
                 'Output format: cli or json',
-                FormatType::CLI->value
+                FormatType::CLI->value,
             )
             ->addOption(
                 'only',
                 'o',
                 InputOption::VALUE_OPTIONAL,
-                'The specific validators to use (FQCN), comma-separated'
+                'The specific validators to use (FQCN), comma-separated',
             )
             ->addOption(
                 'skip',
                 's',
                 InputOption::VALUE_OPTIONAL,
-                'Skip specific validators (FQCN), comma-separated'
+                'Skip specific validators (FQCN), comma-separated',
             )
             ->addOption(
                 'config',
                 'c',
                 InputOption::VALUE_OPTIONAL,
-                'Path to the configuration file'
+                'Path to the configuration file',
             )
             ->addOption(
                 'recursive',
                 'r',
                 InputOption::VALUE_NONE,
-                'Search for translation files recursively in subdirectories'
+                'Search for translation files recursively in subdirectories',
             )
             ->setHelp(
                 <<<HELP
@@ -142,7 +163,7 @@ HELP
     }
 
     /**
-     * @throws \ReflectionException|\JsonException
+     * @throws ReflectionException|JsonException
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -167,7 +188,7 @@ HELP
             $paths,
             $fileDetector,
             $excludePatterns,
-            $recursive
+            $recursive,
         );
         if (empty($allFiles)) {
             $this->io->warning('No files found in the specified directories.');
@@ -196,7 +217,7 @@ HELP
             $format,
             $validationResult,
             $this->dryRun,
-            $this->strict
+            $this->strict,
         ))->summarize();
     }
 
@@ -240,7 +261,7 @@ HELP
             static fn ($path) => str_starts_with((string) $path, '/')
                 ? $path
                 : getcwd().'/'.$path,
-            $paths
+            $paths,
         );
     }
 
@@ -253,7 +274,7 @@ HELP
             DetectorInterface::class,
             $this->logger,
             'file detector',
-            $fileDetectorClass
+            $fileDetectorClass,
         );
 
         return $detector instanceof DetectorInterface ? $detector : null;
@@ -269,12 +290,12 @@ HELP
         $inputOnly = $this->validateClassInput(
             ValidatorInterface::class,
             'validator',
-            $input->getOption('only')
+            $input->getOption('only'),
         );
         $inputSkip = $this->validateClassInput(
             ValidatorInterface::class,
             'validator',
-            $input->getOption('skip')
+            $input->getOption('skip'),
         );
 
         $only = !empty($inputOnly) ? $inputOnly : $config->getOnly();
@@ -311,7 +332,7 @@ HELP
                 $interface,
                 $this->logger,
                 $type,
-                $name
+                $name,
             );
             /** @var class-string $validatedName */
             $validatedName = $name;
