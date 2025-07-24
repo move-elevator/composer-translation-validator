@@ -38,6 +38,7 @@ use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorRegistry;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -179,7 +180,7 @@ HELP
         $fileDetector = $this->resolveFileDetector($config);
 
         if (empty($paths)) {
-            $this->io->error('No paths provided.');
+            $this->io?->error('No paths provided.');
 
             return Command::FAILURE;
         }
@@ -191,7 +192,7 @@ HELP
             $recursive,
         );
         if (empty($allFiles)) {
-            $this->io->warning('No files found in the specified directories.');
+            $this->io?->warning('No files found in the specified directories.');
 
             return Command::SUCCESS;
         }
@@ -205,9 +206,13 @@ HELP
         $format = FormatType::tryFrom($input->getOption('format') ?: $config->getFormat());
 
         if (null === $format) {
-            $this->io->error('Invalid output format specified. Use "cli" or "json".');
+            $this->io?->error('Invalid output format specified. Use "cli" or "json".');
 
             return Command::FAILURE;
+        }
+
+        if (null === $this->output || null === $this->input) {
+            throw new RuntimeException('Output or Input interface not initialized');
         }
 
         return (new Output(

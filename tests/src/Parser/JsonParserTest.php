@@ -265,7 +265,9 @@ final class JsonParserTest extends TestCase
             'root',
         ];
 
-        sort($keys);
+        if (null !== $keys) {
+            sort($keys);
+        }
         sort($expectedKeys);
 
         $this->assertSame($expectedKeys, $keys);

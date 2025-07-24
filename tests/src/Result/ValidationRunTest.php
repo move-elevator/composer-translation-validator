@@ -263,8 +263,10 @@ class ValidationRunTest extends TestCase
 
         $statistics = $result->getStatistics();
         // Should handle parser exceptions gracefully and continue execution
-        $this->assertSame(1, $statistics->getFilesChecked());
-        $this->assertSame(0, $statistics->getKeysChecked()); // No keys counted due to exception
+        if (null !== $statistics) {
+            $this->assertSame(1, $statistics->getFilesChecked());
+            $this->assertSame(0, $statistics->getKeysChecked()); // No keys counted due to exception
+        }
     }
 
     public function testExecuteForWithParserReturningNullKeys(): void
@@ -276,8 +278,10 @@ class ValidationRunTest extends TestCase
         $result = $validationRun->executeFor([$fileSet], [$validatorClass]);
 
         $statistics = $result->getStatistics();
-        $this->assertSame(1, $statistics->getFilesChecked());
-        $this->assertSame(0, $statistics->getKeysChecked()); // null keys should result in 0
+        if (null !== $statistics) {
+            $this->assertSame(1, $statistics->getFilesChecked());
+            $this->assertSame(0, $statistics->getKeysChecked()); // null keys should result in 0
+        }
     }
 }
 

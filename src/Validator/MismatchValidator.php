@@ -37,6 +37,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 class MismatchValidator extends AbstractValidator implements ValidatorInterface
 {
     /** @var array<string, array<string>> */
+    /**
+     * @var array<string, array<string, string|null>>
+     */
     protected array $keyArray = [];
 
     public function processFile(ParserInterface $file): array
