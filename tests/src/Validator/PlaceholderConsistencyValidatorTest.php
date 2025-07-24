@@ -2,6 +2,25 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the Composer plugin "composer-translation-validator".
+ *
+ * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
@@ -15,6 +34,7 @@ use MoveElevator\ComposerTranslationValidator\Validator\PlaceholderConsistencyVa
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use ReflectionClass;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 final class PlaceholderConsistencyValidatorTest extends TestCase
@@ -112,7 +132,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
-        $reflectionClass = new \ReflectionClass($validator);
+        $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('extractPlaceholders');
         $method->setAccessible(true);
 
@@ -135,7 +155,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
-        $reflectionClass = new \ReflectionClass($validator);
+        $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('extractPlaceholders');
         $method->setAccessible(true);
 
@@ -155,7 +175,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
-        $reflectionClass = new \ReflectionClass($validator);
+        $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('extractPlaceholders');
         $method->setAccessible(true);
 
@@ -175,7 +195,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
-        $reflectionClass = new \ReflectionClass($validator);
+        $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('extractPlaceholders');
         $method->setAccessible(true);
 
@@ -195,7 +215,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
-        $reflectionClass = new \ReflectionClass($validator);
+        $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('extractPlaceholders');
         $method->setAccessible(true);
 
@@ -215,7 +235,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
-        $reflectionClass = new \ReflectionClass($validator);
+        $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('extractPlaceholders');
         $method->setAccessible(true);
 
@@ -274,7 +294,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
                 ],
             ],
             'XliffParser',
-            'PlaceholderConsistencyValidator'
+            'PlaceholderConsistencyValidator',
         );
 
         $result = $validator->formatIssueMessage($issue);
@@ -298,7 +318,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
                 'inconsistencies' => ['Some inconsistency'],
             ],
             'XliffParser',
-            'PlaceholderConsistencyValidator'
+            'PlaceholderConsistencyValidator',
         );
 
         $result = $validator->formatIssueMessage($issue, '(TestPrefix) ');
@@ -322,7 +342,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
                 ],
             ],
             '',
-            'PlaceholderConsistencyValidator'
+            'PlaceholderConsistencyValidator',
         );
 
         $validator->addIssue($issue);
@@ -355,7 +375,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
                 ],
             ],
             'XliffParser',
-            'PlaceholderConsistencyValidator'
+            'PlaceholderConsistencyValidator',
         );
 
         $output = new BufferedOutput();
@@ -382,7 +402,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
         $validator->processFile($parser);
 
-        $reflectionClass = new \ReflectionClass($validator);
+        $reflectionClass = new ReflectionClass($validator);
         $property = $reflectionClass->getProperty('keyData');
         $property->setAccessible(true);
 
@@ -400,7 +420,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
-        $reflectionClass = new \ReflectionClass($validator);
+        $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('findPlaceholderInconsistencies');
         $method->setAccessible(true);
 

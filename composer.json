@@ -27,9 +27,9 @@
 	"require-dev": {
 		"armin/editorconfig-cli": "^1.0 || ^2.0",
 		"composer/composer": "^2.0",
+		"eliashaeussler/php-cs-fixer-config": "2.3.0",
 		"eliashaeussler/rector-config": "^3.0",
 		"ergebnis/composer-normalize": "^2.44",
-		"friendsofphp/php-cs-fixer": "^3.52",
 		"phpstan/phpstan": "^2.0",
 		"phpstan/phpstan-phpunit": "^2.0",
 		"phpstan/phpstan-symfony": "^2.0",

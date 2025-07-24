@@ -2,6 +2,25 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the Composer plugin "composer-translation-validator".
+ *
+ * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
@@ -11,6 +30,8 @@ use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use ReflectionClass;
+use ReflectionException;
 
 // Dummy implementation of AbstractValidator for testing purposes
 class ConcreteValidator extends AbstractValidator implements ValidatorInterface
@@ -55,7 +76,7 @@ class ConcreteValidator extends AbstractValidator implements ValidatorInterface
                 'test_file.xlf',
                 ['postProcessIssue'],
                 'TestParser',
-                'ConcreteValidator'
+                'ConcreteValidator',
             ));
         }
     }
@@ -69,9 +90,7 @@ class ConcreteValidator extends AbstractValidator implements ValidatorInterface
 // Dummy Parser for testing
 class TestParser implements ParserInterface
 {
-    public function __construct(private readonly string $filePath)
-    {
-    }
+    public function __construct(private readonly string $filePath) {}
 
     public function extractKeys(): ?array
     {
@@ -122,7 +141,7 @@ final class AbstractValidatorTest extends TestCase
     public function testConstructorSetsLogger(): void
     {
         $validator = new ConcreteValidator($this->loggerMock);
-        $reflection = new \ReflectionClass($validator);
+        $reflection = new ReflectionClass($validator);
         $loggerProperty = $reflection->getProperty('logger');
         $loggerProperty->setAccessible(true);
         $this->assertSame($this->loggerMock, $loggerProperty->getValue($validator));
@@ -141,7 +160,7 @@ final class AbstractValidatorTest extends TestCase
     }
 
     /**
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testValidateWithIssues(): void
     {
@@ -162,7 +181,7 @@ final class AbstractValidatorTest extends TestCase
                     'type' => ConcreteValidator::class,
                 ],
             ],
-            $result
+            $result,
         );
     }
 
@@ -211,7 +230,7 @@ final class AbstractValidatorTest extends TestCase
             'test.xlf',
             ['error' => 'test'],
             'TestParser',
-            'TestValidator'
+            'TestValidator',
         );
         $validator->addIssue($issue);
 
@@ -232,13 +251,13 @@ final class AbstractValidatorTest extends TestCase
             'file1.xlf',
             ['error1'],
             'Parser1',
-            'Validator1'
+            'Validator1',
         );
         $issue2 = new Issue(
             'file2.xlf',
             ['error2'],
             'Parser2',
-            'Validator2'
+            'Validator2',
         );
 
         $validator->addIssue($issue1);
@@ -257,7 +276,7 @@ final class AbstractValidatorTest extends TestCase
             'test.xlf',
             ['test_error'],
             'TestParser',
-            'TestValidator'
+            'TestValidator',
         );
 
         $this->assertCount(0, $validator->getIssues());
@@ -275,14 +294,14 @@ final class AbstractValidatorTest extends TestCase
             'test.xlf',
             ['error'],
             'TestParser',
-            'TestValidator'
+            'TestValidator',
         );
         $validator->addIssue($issue);
 
         $this->assertTrue($validator->hasIssues());
 
         // Access resetState via reflection since it's protected
-        $reflection = new \ReflectionClass($validator);
+        $reflection = new ReflectionClass($validator);
         $resetStateMethod = $reflection->getMethod('resetState');
         $resetStateMethod->setAccessible(true);
         $resetStateMethod->invoke($validator);
@@ -300,7 +319,7 @@ final class AbstractValidatorTest extends TestCase
             'old.xlf',
             ['old_error'],
             'OldParser',
-            'OldValidator'
+            'OldValidator',
         );
         $validator->addIssue($issue);
 
@@ -325,7 +344,7 @@ final class AbstractValidatorTest extends TestCase
             ->method('debug')
             ->with($this->logicalOr(
                 $this->stringContains('is not supported by the validator'),
-                $this->stringContains('UnsupportedValidator')
+                $this->stringContains('UnsupportedValidator'),
             ));
 
         // Create a custom validator that doesn't support TestParser
@@ -340,9 +359,7 @@ final class AbstractValidatorTest extends TestCase
                 return []; // Empty - doesn't support any parser
             }
 
-            public function postProcess(): void
-            {
-            }
+            public function postProcess(): void {}
 
             public function getShortName(): string
             {

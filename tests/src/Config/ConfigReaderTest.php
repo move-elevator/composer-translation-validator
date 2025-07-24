@@ -2,12 +2,34 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the Composer plugin "composer-translation-validator".
+ *
+ * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 namespace MoveElevator\ComposerTranslationValidator\Tests\Config;
 
+use InvalidArgumentException;
+use JsonException;
 use MoveElevator\ComposerTranslationValidator\Config\ConfigReader;
 use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 #[CoversClass(ConfigReader::class)]
 class ConfigReaderTest extends TestCase
@@ -23,7 +45,7 @@ class ConfigReaderTest extends TestCase
 
     public function testReadNonExistentFile(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Configuration file not found:');
 
         $this->configReader->read('/non/existent/file.json');
@@ -34,7 +56,7 @@ class ConfigReaderTest extends TestCase
         $configFile = $this->fixturesDir.'/unsupported.txt';
         file_put_contents($configFile, 'some content');
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Unsupported configuration file format: txt');
 
         $this->configReader->read($configFile);
@@ -57,7 +79,7 @@ class ConfigReaderTest extends TestCase
     {
         $configFile = $this->fixturesDir.'/invalid.php';
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('PHP configuration file must return an instance of TranslationValidatorConfig');
 
         $this->configReader->read($configFile);
@@ -78,7 +100,7 @@ class ConfigReaderTest extends TestCase
     {
         $configFile = $this->fixturesDir.'/invalid.json';
 
-        $this->expectException(\JsonException::class);
+        $this->expectException(JsonException::class);
         $this->expectExceptionMessage('Syntax error');
 
         $this->configReader->read($configFile);
@@ -208,7 +230,7 @@ class ConfigReaderTest extends TestCase
     {
         $configFile = $this->fixturesDir.'/invalid-paths.json';
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Configuration validation failed:');
 
         $this->configReader->read($configFile);
@@ -218,7 +240,7 @@ class ConfigReaderTest extends TestCase
     {
         $configFile = $this->fixturesDir.'/invalid-format.json';
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Configuration validation failed:');
 
         $this->configReader->read($configFile);
@@ -254,7 +276,7 @@ class ConfigReaderTest extends TestCase
         file_put_contents($configFile, json_encode(['paths' => ['test']]));
         chmod($configFile, 0000);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Configuration file is not readable:');
 
         try {
@@ -273,7 +295,7 @@ class ConfigReaderTest extends TestCase
         $composerJson = $tempDir.'/composer.json';
         file_put_contents($composerJson, 'invalid json');
 
-        $this->expectException(\JsonException::class);
+        $this->expectException(JsonException::class);
         $this->expectExceptionMessage('Syntax error');
 
         try {
@@ -355,7 +377,7 @@ class ConfigReaderTest extends TestCase
         $configFile = $this->fixturesDir.'/scalar.yaml';
         file_put_contents($configFile, 'scalar-value');
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Invalid YAML configuration file:');
 
         try {
@@ -370,7 +392,7 @@ class ConfigReaderTest extends TestCase
         $configFile = $this->fixturesDir.'/invalid-validators.json';
         file_put_contents($configFile, json_encode(['validators' => 'not-array']));
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Configuration validation failed:');
 
         try {
@@ -385,7 +407,7 @@ class ConfigReaderTest extends TestCase
         $configFile = $this->fixturesDir.'/invalid-parsers.json';
         file_put_contents($configFile, json_encode(['parsers' => 'not-array']));
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Configuration validation failed:');
 
         try {
@@ -400,7 +422,7 @@ class ConfigReaderTest extends TestCase
         $configFile = $this->fixturesDir.'/invalid-strict.json';
         file_put_contents($configFile, json_encode(['strict' => 'not-bool']));
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Configuration validation failed:');
 
         try {
@@ -415,7 +437,7 @@ class ConfigReaderTest extends TestCase
         $configFile = $this->fixturesDir.'/invalid-dry-run.json';
         file_put_contents($configFile, json_encode(['dry-run' => 'not-bool']));
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Configuration validation failed:');
 
         try {
@@ -430,7 +452,7 @@ class ConfigReaderTest extends TestCase
         $configFile = $this->fixturesDir.'/invalid-verbose.json';
         file_put_contents($configFile, json_encode(['verbose' => 'not-bool']));
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Configuration validation failed:');
 
         try {
@@ -445,7 +467,7 @@ class ConfigReaderTest extends TestCase
         $configFile = $this->fixturesDir.'/invalid-format-type.json';
         file_put_contents($configFile, json_encode(['format' => 123]));
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Configuration validation failed:');
 
         try {
