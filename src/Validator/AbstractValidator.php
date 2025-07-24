@@ -50,7 +50,7 @@ abstract class AbstractValidator
         $this->resetState();
 
         $name = $this->getShortName();
-        $this->logger->debug(
+        $this->logger?->debug(
             sprintf(
                 '> Checking for <options=bold,underscore>%s</> ...',
                 $name,
@@ -90,7 +90,7 @@ abstract class AbstractValidator
                 continue;
             }
 
-            $this->logger->debug(
+            $this->logger?->debug(
                 '> Checking language file: <fg=gray>'
                 .$file->getFileDirectory()
                 .'</><fg=cyan>'
