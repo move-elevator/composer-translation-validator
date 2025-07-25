@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Result;
 
+use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserCache;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
@@ -40,7 +41,7 @@ class ValidationRun
      * @param array<FileSet>                          $fileSets
      * @param array<class-string<ValidatorInterface>> $validatorClasses
      */
-    public function executeFor(array $fileSets, array $validatorClasses): ValidationResult
+    public function executeFor(array $fileSets, array $validatorClasses, ?TranslationValidatorConfig $config = null): ValidationResult
     {
         $startTime = microtime(true);
         $validatorInstances = [];
@@ -52,6 +53,12 @@ class ValidationRun
             $filesChecked += count($fileSet->getFiles());
             foreach ($validatorClasses as $validatorClass) {
                 $validatorInstance = new $validatorClass($this->logger);
+
+                // Pass config to validator if it supports it
+                if (null !== $config && method_exists($validatorInstance, 'setConfig')) {
+                    $validatorInstance->setConfig($config);
+                }
+
                 /** @var class-string<\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface> $parserClass */
                 $parserClass = $fileSet->getParser();
                 $result = $validatorInstance->validate($fileSet->getFiles(), $parserClass);

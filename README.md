@@ -85,9 +85,14 @@ The following translation validators are available:
 | `DuplicateValuesValidator`        | This validator checks for duplicate values in translation files.                                                                                                         | XLIFF, YAML, JSON, PHP  | <span style="color:#FFCA28">WARNING</span> |
 | `EmptyValuesValidator`            | Finds empty or whitespace-only translation values.                                                                                                                       | XLIFF, YAML, JSON, PHP  | <span style="color:#FFCA28">WARNING</span> |
 | `EncodingValidator`               | Validates file encoding, checks for BOM, invisible characters and Unicode normalization issues.                                                                          | XLIFF, YAML, JSON, PHP  | <span style="color:#FFCA28">WARNING</span> |
+| `KeyNamingConventionValidator`    | Validates translation key naming conventions. Supports configurable patterns like snake_case, camelCase, dot.notation, kebab-case, and custom regex patterns. **Requires configuration to run.** | XLIFF, YAML, JSON, PHP  | <span style="color:#FFCA28">WARNING</span> |
 | `MismatchValidator`               | This validator checks for keys that are present in some files but not in others. It helps to identify mismatches in translation keys across different translation files. | XLIFF, YAML, JSON, PHP  | <span style="color:#FFCA28">WARNING</span> |
 | `PlaceholderConsistencyValidator` | Validates placeholder consistency across files.                                                                                                                          | XLIFF, YAML, JSON, PHP  | <span style="color:#FFCA28">WARNING</span> |
 | `XliffSchemaValidator`            | Validates the XML schema of translation files against the XLIFF standard. See available [schemas](https://github.com/symfony/translation/tree/6.4/Resources/schemas).    | XLIFF                   | <span style="color:#FF7043">ERROR</span>   |
+
+### Validator-Specific Configuration
+
+Some validators support additional configuration options. For detailed configuration instructions and examples, see [Validator Configuration](docs/validator-configuration.md).
 
 ## 🧑‍💻 Contributing
 

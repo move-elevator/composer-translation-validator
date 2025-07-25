@@ -76,5 +76,10 @@ class ConfigFactory
                 $config->$method($data[$key]);
             }
         }
+
+        // Handle validator-specific settings
+        if (isset($data['validator-settings']) && is_array($data['validator-settings'])) {
+            $config->setValidatorSettings($data['validator-settings']);
+        }
     }
 }

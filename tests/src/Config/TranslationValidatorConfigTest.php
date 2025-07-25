@@ -197,6 +197,7 @@ class TranslationValidatorConfigTest extends TestCase
             'dry-run' => true,
             'format' => 'json',
             'verbose' => true,
+            'validator-settings' => [],
         ];
 
         $this->assertSame($expected, $this->config->toArray());
@@ -247,6 +248,7 @@ class TranslationValidatorConfigTest extends TestCase
             'dry-run' => true,
             'format' => 'json',
             'verbose' => true,
+            'validator-settings' => [],
         ];
 
         $this->assertSame($expected, $this->config->toArray());
@@ -266,6 +268,7 @@ class TranslationValidatorConfigTest extends TestCase
             'dry-run' => false,
             'format' => 'cli',
             'verbose' => false,
+            'validator-settings' => [],
         ];
 
         $this->assertSame($expected, $this->config->toArray());
