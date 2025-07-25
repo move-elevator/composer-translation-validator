@@ -178,12 +178,9 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
         }
 
         $inconsistencies = [];
-        $allStructures = [];
 
         // Collect all HTML structures from all files for this key
-        foreach ($fileData as $fileName => $data) {
-            $allStructures[$fileName] = $data['html_structure'];
-        }
+        $allStructures = array_map(static fn ($data) => $data['html_structure'], $fileData);
 
         // Compare HTML structures between files
         $fileNames = array_keys($allStructures);
@@ -226,10 +223,8 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
                     $currAttrs = $currentAttributes[$tagName];
 
                     // Check for class attribute differences (common source of inconsistency)
-                    if (isset($refAttrs['class']) && isset($currAttrs['class'])) {
-                        if ($refAttrs['class'] !== $currAttrs['class']) {
-                            $inconsistencies[] = "File '{$currentFile}' has different class attribute for <{$tagName}>: '{$currAttrs['class']}' vs '{$refAttrs['class']}'";
-                        }
+                    if (isset($refAttrs['class']) && isset($currAttrs['class']) && $refAttrs['class'] !== $currAttrs['class']) {
+                        $inconsistencies[] = "File '{$currentFile}' has different class attribute for <{$tagName}>: '{$currAttrs['class']}' vs '{$refAttrs['class']}'";
                     }
                 }
             }
@@ -262,7 +257,7 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
             $details = $issue->getDetails();
             $files = $details['files'] ?? [];
 
-            foreach ($files as $fileName => $fileInfo) {
+            foreach ($files as $fileName => $_) {
                 if (!empty($fileName)) {
                     $basePath = rtrim($fileSet->getPath(), '/');
                     $filePath = $basePath.'/'.$fileName;
@@ -343,11 +338,9 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
 
     private function highlightHtmlTags(string $value): string
     {
-        // Highlight HTML tags in different colors
         $value = preg_replace('/<(\w+)([^>]*)>/', '<fg=cyan><$1$2></>', $value) ?? $value;
-        $value = preg_replace('/<\/(\w+)>/', '<fg=magenta></$1></>', $value) ?? $value;
 
-        return $value;
+        return preg_replace('/<\/(\w+)>/', '<fg=magenta></$1></>', $value) ?? $value;
     }
 
     /**
