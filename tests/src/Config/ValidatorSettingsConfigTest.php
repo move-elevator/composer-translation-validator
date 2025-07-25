@@ -148,6 +148,7 @@ class ValidatorSettingsConfigTest extends TestCase
         // Override with new settings
         $config->setValidatorSetting('TestValidator', ['new' => 'value', 'additional' => 'setting']);
         $settings = $config->getValidatorSettings('TestValidator');
+        // @phpstan-ignore-next-line
         $this->assertSame(['new' => 'value', 'additional' => 'setting'], $settings);
         $this->assertArrayNotHasKey('initial', $settings);
     }
