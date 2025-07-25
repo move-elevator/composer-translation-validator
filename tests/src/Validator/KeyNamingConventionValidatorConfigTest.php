@@ -90,7 +90,7 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
         $this->assertEquals('invalidKey123', $result[0]['key']);
     }
 
-    public function testValidatorWithoutConfigurationDoesNotRun(): void
+    public function testValidatorWithoutConfigurationStillRuns(): void
     {
         $factory = new ConfigFactory();
         $config = $factory->createFromArray(['paths' => ['test/']]);
@@ -100,7 +100,8 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
         $validator = new KeyNamingConventionValidator();
         $validator->setConfig($config);
 
-        $this->assertFalse($validator->shouldRun());
+        // Should run to detect mixed conventions even without config
+        $this->assertTrue($validator->shouldRun());
     }
 
     public function testValidatorHandlesInvalidConventionInConfig(): void
@@ -120,8 +121,8 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
         $validator = new KeyNamingConventionValidator($logger);
         $validator->setConfig($config);
 
-        // Should not run due to invalid configuration
-        $this->assertFalse($validator->shouldRun());
+        // Should still run to detect mixed conventions even with invalid config
+        $this->assertTrue($validator->shouldRun());
     }
 
     public function testValidatorHandlesInvalidCustomPatternInConfig(): void
@@ -141,8 +142,8 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
         $validator = new KeyNamingConventionValidator($logger);
         $validator->setConfig($config);
 
-        // Should not run due to invalid configuration
-        $this->assertFalse($validator->shouldRun());
+        // Should still run to detect mixed conventions even with invalid config
+        $this->assertTrue($validator->shouldRun());
     }
 
     public function testCustomPatternOverridesConvention(): void
@@ -180,7 +181,8 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
         $validator = new KeyNamingConventionValidator();
         $validator->setConfig(null);
 
-        $this->assertFalse($validator->shouldRun());
+        // Should still run to detect mixed conventions even with null config
+        $this->assertTrue($validator->shouldRun());
     }
 
     public function testValidatorWithEmptyValidatorSettings(): void
@@ -192,6 +194,7 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
         $validator = new KeyNamingConventionValidator();
         $validator->setConfig($config);
 
-        $this->assertFalse($validator->shouldRun());
+        // Should still run to detect mixed conventions even without validator settings
+        $this->assertTrue($validator->shouldRun());
     }
 }

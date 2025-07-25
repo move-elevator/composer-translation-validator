@@ -72,8 +72,8 @@ final class ValidatorInterfaceTest extends TestCase
         $validator = new TestValidatorImplementation();
 
         // Add some issues
-        $issue1 = new Issue('file1.xlf', ['message' => 'Error 1'], 'TestParser', 'TestValidator');
-        $issue2 = new Issue('file2.xlf', ['message' => 'Error 2'], 'TestParser', 'TestValidator');
+        $issue1 = new Issue('/test/path/file1.xlf', ['message' => 'Error 1'], 'TestParser', 'TestValidator');
+        $issue2 = new Issue('/test/path/file2.xlf', ['message' => 'Error 2'], 'TestParser', 'TestValidator');
         $validator->addIssue($issue1);
         $validator->addIssue($issue2);
 

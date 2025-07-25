@@ -66,7 +66,7 @@ class ValidateTranslationCommand extends BaseCommand
             ->setDescription('Validates translation files with several validators.')
             ->addArgument(
                 'path',
-                InputArgument::IS_ARRAY | InputArgument::REQUIRED,
+                InputArgument::IS_ARRAY | InputArgument::OPTIONAL,
                 'Paths to the folders containing translation files',
             )
             ->addOption(

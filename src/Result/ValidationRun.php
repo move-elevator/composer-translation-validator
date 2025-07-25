@@ -52,6 +52,7 @@ class ValidationRun
         foreach ($fileSets as $fileSet) {
             $filesChecked += count($fileSet->getFiles());
             foreach ($validatorClasses as $validatorClass) {
+                // Create a new validator instance for each FileSet to ensure isolation
                 $validatorInstance = new $validatorClass($this->logger);
 
                 // Pass config to validator if it supports it

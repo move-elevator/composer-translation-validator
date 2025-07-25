@@ -350,10 +350,10 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         $fileSet = new FileSet('XliffParser', '/path/to/files', 'test', []);
         $distribution = $validator->distributeIssuesForDisplay($fileSet);
 
-        $this->assertArrayHasKey('/path/to/files/en.xlf', $distribution);
-        $this->assertArrayHasKey('/path/to/files/de.xlf', $distribution);
-        $this->assertCount(1, $distribution['/path/to/files/en.xlf']);
-        $this->assertCount(1, $distribution['/path/to/files/de.xlf']);
+        $this->assertArrayHasKey('en.xlf', $distribution);
+        $this->assertArrayHasKey('de.xlf', $distribution);
+        $this->assertCount(1, $distribution['en.xlf']);
+        $this->assertCount(1, $distribution['de.xlf']);
     }
 
     public function testRenderDetailedOutput(): void

@@ -43,10 +43,6 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
             'pattern' => '/^[a-z][a-zA-Z0-9]*$/',
             'description' => 'camelCase (first letter lowercase)',
         ],
-        'dot.notation' => [
-            'pattern' => '/^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)*$/',
-            'description' => 'dot.notation (lowercase with dots)',
-        ],
         'kebab-case' => [
             'pattern' => '/^[a-z][a-z0-9-]*[a-z0-9]$|^[a-z]$/',
             'description' => 'kebab-case (lowercase with hyphens)',
@@ -69,11 +65,6 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
 
     public function processFile(ParserInterface $file): array
     {
-        // Skip validation if no convention is configured
-        if (null === $this->convention && null === $this->customPattern) {
-            return [];
-        }
-
         $keys = $file->extractKeys();
 
         if (null === $keys) {
@@ -86,19 +77,26 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
 
         $issues = [];
 
-        foreach ($keys as $key) {
-            if (!$this->validateKeyFormat($key)) {
-                $issues[] = [
-                    'key' => $key,
-                    'file' => $file->getFileName(),
-                    'expected_convention' => $this->convention,
-                    'pattern' => $this->getActivePattern(),
-                    'suggestion' => $this->suggestCorrection($key),
-                ];
+        // If no convention is configured, analyze keys for inconsistencies
+        if (null === $this->convention && null === $this->customPattern) {
+            $issueData = $this->analyzeKeyConsistency($keys, $file->getFileName());
+        } else {
+            // Use configured convention
+            $issueData = [];
+            foreach ($keys as $key) {
+                if (!$this->validateKeyFormat($key)) {
+                    $issueData[] = [
+                        'key' => $key,
+                        'file' => $file->getFileName(),
+                        'expected_convention' => $this->convention,
+                        'pattern' => $this->getActivePattern(),
+                        'suggestion' => $this->suggestCorrection($key),
+                    ];
+                }
             }
         }
 
-        return $issues;
+        return $issueData;
     }
 
     private function loadConventionFromConfig(): void
@@ -158,12 +156,40 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
 
     private function validateKeyFormat(string $key): bool
     {
-        $pattern = $this->getActivePattern();
-        if (null === $pattern) {
+        if (null === $this->convention && null === $this->customPattern) {
             return true; // No validation if no pattern is set
         }
 
-        return (bool) preg_match($pattern, $key);
+        // If custom pattern is set, use it directly
+        if (null !== $this->customPattern) {
+            return (bool) preg_match($this->customPattern, $key);
+        }
+
+        // For base conventions, validate each segment separately if key contains dots
+        if (str_contains($key, '.')) {
+            $segments = explode('.', $key);
+            foreach ($segments as $segment) {
+                if (!$this->validateSegment($segment)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // Single segment, validate directly
+        return $this->validateSegment($key);
+    }
+
+    private function validateSegment(string $segment): bool
+    {
+        if (null === $this->convention || !isset(self::CONVENTIONS[$this->convention])) {
+            return true;
+        }
+
+        $pattern = self::CONVENTIONS[$this->convention]['pattern'];
+
+        return (bool) preg_match($pattern, $segment);
     }
 
     private function getActivePattern(): ?string
@@ -185,10 +211,15 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
             return $key; // No suggestion for custom patterns
         }
 
+        // Handle dot-separated keys: convert each segment
+        if (str_contains($key, '.')) {
+            return $this->convertDotSeparatedKey($key);
+        }
+
+        // Single segment conversion
         return match ($this->convention) {
             'snake_case' => $this->toSnakeCase($key),
             'camelCase' => $this->toCamelCase($key),
-            'dot.notation' => $this->toDotNotation($key),
             'kebab-case' => $this->toKebabCase($key),
             'PascalCase' => $this->toPascalCase($key),
             default => $key,
@@ -221,21 +252,11 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
         }
 
         $result = strtolower($parts[0] ?? '');
-        for ($i = 1; $i < count($parts); ++$i) {
+        for ($i = 1, $iMax = count($parts); $i < $iMax; ++$i) {
             $result .= ucfirst(strtolower($parts[$i]));
         }
 
         return $result;
-    }
-
-    private function toDotNotation(string $key): string
-    {
-        // Convert snake_case and kebab-case to dot.notation
-        $result = str_replace(['_', '-'], '.', $key);
-        // Convert camelCase/PascalCase to dot.notation
-        $result = preg_replace('/([a-z])([A-Z])/', '$1.$2', $result);
-
-        return strtolower($result ?? $key);
     }
 
     private function toKebabCase(string $key): string
@@ -265,6 +286,24 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
         return implode('', array_map('ucfirst', array_map('strtolower', $parts)));
     }
 
+    private function convertDotSeparatedKey(string $key): string
+    {
+        $segments = explode('.', $key);
+        $convertedSegments = [];
+
+        foreach ($segments as $segment) {
+            $convertedSegments[] = match ($this->convention) {
+                'snake_case' => $this->toSnakeCase($segment),
+                'camelCase' => $this->toCamelCase($segment),
+                'kebab-case' => $this->toKebabCase($segment),
+                'PascalCase' => $this->toPascalCase($segment),
+                default => $segment,
+            };
+        }
+
+        return implode('.', $convertedSegments);
+    }
+
     public function formatIssueMessage(Issue $issue, string $prefix = ''): string
     {
         $details = $issue->getDetails();
@@ -274,12 +313,26 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
         $color = $resultType->toColorString();
 
         $key = $details['key'] ?? 'unknown';
-        $convention = $details['expected_convention'] ?? 'custom pattern';
-        $suggestion = $details['suggestion'] ?? '';
 
-        $message = "key naming convention violation: `{$key}` does not follow {$convention} convention";
-        if (!empty($suggestion) && $suggestion !== $key) {
-            $message .= " (suggestion: `{$suggestion}`)";
+        // Handle different issue types
+        if (isset($details['inconsistency_type']) && 'mixed_conventions' === $details['inconsistency_type']) {
+            $detectedConventions = $details['detected_conventions'] ?? [];
+            $dominantConvention = $details['dominant_convention'] ?? 'unknown';
+            $allConventions = $details['all_conventions_found'] ?? [];
+
+            $detectedStr = implode(', ', $detectedConventions);
+            $allStr = implode(', ', $allConventions);
+
+            $message = "inconsistent key naming: `{$key}` follows {$detectedStr} but file uses mixed conventions ({$allStr}). Dominant convention: {$dominantConvention}";
+        } else {
+            // Legacy behavior for configured conventions
+            $convention = $details['expected_convention'] ?? 'custom pattern';
+            $suggestion = $details['suggestion'] ?? '';
+
+            $message = "key naming convention violation: `{$key}` does not follow {$convention} convention";
+            if (!empty($suggestion) && $suggestion !== $key) {
+                $message .= " (suggestion: `{$suggestion}`)";
+            }
         }
 
         return "- <fg={$color}>{$level}</> {$prefix}{$message}";
@@ -318,6 +371,131 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
      */
     public function shouldRun(): bool
     {
-        return null !== $this->convention || null !== $this->customPattern;
+        return true; // Always run, even without configuration
+    }
+
+    /**
+     * Analyze keys for consistency when no convention is configured.
+     *
+     * @param array<string> $keys
+     *
+     * @return array<array<string, mixed>>
+     */
+    private function analyzeKeyConsistency(array $keys, string $fileName): array
+    {
+        if (empty($keys)) {
+            return [];
+        }
+
+        $conventionCounts = [];
+        $keyConventions = [];
+
+        // Analyze each key to determine which conventions it matches
+        foreach ($keys as $key) {
+            $matchingConventions = $this->detectKeyConventions($key);
+            $keyConventions[$key] = $matchingConventions;
+
+            foreach ($matchingConventions as $convention) {
+                $conventionCounts[$convention] = ($conventionCounts[$convention] ?? 0) + 1;
+            }
+        }
+
+        // If all keys follow the same convention(s), no issues
+        if (count($conventionCounts) <= 1) {
+            return [];
+        }
+
+        // Find the most common convention
+        $dominantConvention = array_key_first($conventionCounts);
+        $maxCount = $conventionCounts[$dominantConvention];
+
+        foreach ($conventionCounts as $convention => $count) {
+            if ($count > $maxCount) {
+                $dominantConvention = $convention;
+                $maxCount = $count;
+            }
+        }
+
+        $issues = [];
+        $conventionNames = array_keys($conventionCounts);
+
+        // Report inconsistencies
+        foreach ($keys as $key) {
+            $keyMatches = $keyConventions[$key];
+
+            // If key doesn't match the dominant convention, it's an issue
+            if (!in_array($dominantConvention, $keyMatches, true)) {
+                $issues[] = [
+                    'key' => $key,
+                    'file' => $fileName,
+                    'detected_conventions' => $keyMatches,
+                    'dominant_convention' => $dominantConvention,
+                    'all_conventions_found' => $conventionNames,
+                    'inconsistency_type' => 'mixed_conventions',
+                ];
+            }
+        }
+
+        return $issues;
+    }
+
+    /**
+     * Detect which conventions a key matches.
+     *
+     * @return array<string>
+     */
+    private function detectKeyConventions(string $key): array
+    {
+        // For keys with dots, analyze segments for consistent convention usage
+        if (str_contains($key, '.')) {
+            $segments = explode('.', $key);
+            $consistentConventions = null;
+
+            // Check which conventions ALL segments support
+            foreach ($segments as $segment) {
+                $segmentMatches = $this->detectSegmentConventions($segment);
+
+                if (null === $consistentConventions) {
+                    // First segment - initialize with its conventions
+                    $consistentConventions = $segmentMatches;
+                } else {
+                    // Subsequent segments - keep only conventions that ALL segments support
+                    $consistentConventions = array_intersect($consistentConventions, $segmentMatches);
+                }
+            }
+
+            // If no convention is consistent across all segments, it's mixed
+            if (empty($consistentConventions) || in_array('unknown', $consistentConventions, true)) {
+                return ['mixed_conventions'];
+            }
+
+            return array_values($consistentConventions);
+        } else {
+            // No dots, check regular conventions
+            return $this->detectSegmentConventions($key);
+        }
+    }
+
+    /**
+     * Detect conventions for a single segment (without dots).
+     *
+     * @return array<string>
+     */
+    private function detectSegmentConventions(string $segment): array
+    {
+        $matchingConventions = [];
+
+        foreach (self::CONVENTIONS as $conventionName => $conventionData) {
+            if (preg_match($conventionData['pattern'], $segment)) {
+                $matchingConventions[] = $conventionName;
+            }
+        }
+
+        // If no convention matches, classify as 'unknown'
+        if (empty($matchingConventions)) {
+            $matchingConventions[] = 'unknown';
+        }
+
+        return $matchingConventions;
     }
 }
