@@ -19,6 +19,10 @@
                 <source/>
                 <target>German Key #1</target>
             </trans-unit>
+            <trans-unit id="key6">
+                <source/>
+                <target><![CDATA[<strong>German</strong> Key #6]]></target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

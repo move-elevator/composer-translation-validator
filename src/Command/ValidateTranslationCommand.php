@@ -135,6 +135,7 @@ using multiple validators to ensure consistency, correctness and schema complian
   • <info>DuplicateValuesValidator</info> - Finds duplicate translation values
   • <info>EmptyValuesValidator</info>     - Finds empty or whitespace-only translation values
   • <info>EncodingValidator</info>        - Validates file encoding and character issues
+  • <info>HtmlTagValidator</info>         - Validates HTML tag consistency across translations
   • <info>KeyNamingConventionValidator</info> - Validates translation key naming conventions
   • <info>PlaceholderConsistencyValidator</info> - Validates placeholder consistency across files
   • <info>XliffSchemaValidator</info>     - Validates XLIFF schema compliance
