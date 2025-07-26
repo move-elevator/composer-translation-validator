@@ -7,7 +7,7 @@ This directory contains pre-built example files demonstrating validation issues 
 ```
 examples/
 ├── duplicate-keys/        # DuplicateKeysValidator examples
-├── duplicate-values/      # DuplicateValuesValidator examples  
+├── duplicate-values/      # DuplicateValuesValidator examples
 ├── empty-values/          # EmptyValuesValidator examples
 ├── encoding/              # EncodingValidator examples
 ├── html-tags/             # HtmlTagValidator examples
