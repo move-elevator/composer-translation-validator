@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" target-language="en" datatype="plaintext">
+    <body>
+      <trans-unit id="welcome">
+        <source>Welcome to our app!</source>
+        <target>Welcome to our app!</target>
+      </trans-unit>
+      <trans-unit id="greeting">
+        <source>Hello user</source>
+        <target>Hello user</target>
+      </trans-unit>
+      <trans-unit id="welcome">
+        <source>Welcome back!</source>
+        <target>Welcome back!</target>
+      </trans-unit>
+      <trans-unit id="settings">
+        <source>Settings</source>
+        <target>Settings</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

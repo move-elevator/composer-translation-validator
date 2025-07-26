@@ -1,0 +1,9 @@
+paths:
+  - ../tests/Fixtures/examples/key-naming
+
+validators:
+  - MoveElevator\\ComposerTranslationValidator\\Validator\\KeyNamingConventionValidator
+
+validator-settings:
+  KeyNamingConventionValidator:
+    pattern: 'snake_case'

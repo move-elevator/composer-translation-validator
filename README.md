@@ -79,17 +79,19 @@ The plugin supports the following translation file formats (and targets the foll
 
 The following translation validators are available:
 
-| Validator                        | Function                                                                                                                                                                 | Supports                | Throws                                  |
-|-----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------|-----------------------------------------|
-| `DuplicateKeysValidator`          | This validator checks for duplicate keys in translation files.                                                                                                           | XLIFF, YAML, JSON, PHP  | <span style="color:red">ERROR</span>   |
-| `DuplicateValuesValidator`        | This validator checks for duplicate values in translation files.                                                                                                         | XLIFF, YAML, JSON, PHP  | <span style="color:orange">WARNING</span> |
-| `EmptyValuesValidator`            | Finds empty or whitespace-only translation values.                                                                                                                       | XLIFF, YAML, JSON, PHP  | <span style="color:orange">WARNING</span> |
-| `EncodingValidator`               | Validates file encoding, checks for BOM, invisible characters and Unicode normalization issues.                                                                          | XLIFF, YAML, JSON, PHP  | <span style="color:orange">WARNING</span> |
-| `HtmlTagValidator`                | Validates HTML tag consistency across translations. Checks for matching tags, proper nesting, and consistent attributes between languages.                              | XLIFF, YAML, JSON, PHP  | <span style="color:orange">WARNING</span> |
-| `KeyNamingConventionValidator`    | Validates translation key naming conventions. Supports configurable patterns like snake_case, camelCase, dot.notation, kebab-case, and custom regex patterns. **Requires configuration to run.** | XLIFF, YAML, JSON, PHP  | <span style="color:#FFCA28">WARNING</span> |
-| `MismatchValidator`               | This validator checks for keys that are present in some files but not in others. It helps to identify mismatches in translation keys across different translation files. | XLIFF, YAML, JSON, PHP  | <span style="color:orange">WARNING</span> |
-| `PlaceholderConsistencyValidator` | Validates placeholder consistency across files.                                                                                                                          | XLIFF, YAML, JSON, PHP  | <span style="color:orange">WARNING</span> |
-| `XliffSchemaValidator`            | Validates the XML schema of translation files against the XLIFF standard. See available [schemas](https://github.com/symfony/translation/tree/6.4/Resources/schemas).    | XLIFF                   | <span style="color:red">ERROR</span>   |
+| Validator | Description | Result |
+|-----------|-------------|---------|
+| **[DuplicateKeysValidator](docs/validators.md#duplicatekeysvalidator)** | Catches duplicate keys within files | <span style="color:red">ERROR</span> |
+| **[DuplicateValuesValidator](docs/validators.md#duplicatevaluesvalidator)** | Finds identical translation values | <span style="color:orange">WARNING</span> |
+| **[EmptyValuesValidator](docs/validators.md#emptyvaluesvalidator)** | Detects empty or whitespace-only values | <span style="color:orange">WARNING</span> |
+| **[EncodingValidator](docs/validators.md#encodingvalidator)** | Validates UTF-8 encoding and Unicode issues | <span style="color:orange">WARNING</span> |
+| **[HtmlTagValidator](docs/validators.md#htmltagvalidator)** | Ensures HTML tag consistency across languages | <span style="color:orange">WARNING</span> |
+| **[KeyNamingConventionValidator](docs/validators.md#keynamingconventionvalidator)** | Enforces key naming patterns (requires config) | <span style="color:orange">WARNING</span> |
+| **[MismatchValidator](docs/validators.md#mismatchvalidator)** | Finds missing translations between files | <span style="color:orange">WARNING</span> |
+| **[PlaceholderConsistencyValidator](docs/validators.md#placeholderconsistencyvalidator)** | Validates placeholder patterns | <span style="color:orange">WARNING</span> |
+| **[XliffSchemaValidator](docs/validators.md#xliffschemavalidator)** | Validates XLIFF against XML schemas | <span style="color:red">ERROR</span> |
+
+📖 **[View detailed documentation with examples →](docs/validators.md)**
 
 ### Validator-Specific Configuration
 
