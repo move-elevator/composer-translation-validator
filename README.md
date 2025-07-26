@@ -61,19 +61,16 @@ Find more information about store a [config file](docs/config-file.md).
 
 ## 📝 Documentation
 
-### Supported Translation File Formats
+### Supported File Formats
 
-The plugin supports the following translation file formats (and targets the following frameworks):
+| Format | Frameworks | Examples |
+|--------|------------|----------|
+| **[XLIFF](docs/file-detector.md#xliff-xml-localization-interchange-file-format)** | TYPO3 CMS | `locallang.xlf`, `de.locallang.xlf` |
+| **[YAML](docs/file-detector.md#yaml-yaml-aint-markup-language)** | Symfony | `messages.en.yaml`, `messages.de.yaml` |
+| **[JSON](docs/file-detector.md#json-javascript-object-notation)** | Laravel, Symfony | `messages.en.json`, `messages.de.json` |
+| **[PHP](docs/file-detector.md#php-arrays)** | Laravel, Symfony | `en/messages.php`, `messages.en.php` |
 
-| Format                                       | Description                                                                                                  | Framework | Example files                          |
-|----------------------------------------------|--------------------------------------------------------------------------------------------------------------|-----------|----------------------------------------|
-| [XLIFF](https://en.wikipedia.org/wiki/XLIFF) | Supports source/target translations in xliff language files. | [TYPO3 CMS](https://typo3.org/)          | `locallang.xlf`, `de.locallang.xlf`    |
-| [YAML](https://en.wikipedia.org/wiki/YAML)   | Supports yaml language files.                     | [Symfony](https://symfony.com/)          | `messages.en.yaml`, `messages.de.yaml` |
-| [JSON](https://en.wikipedia.org/wiki/JSON)   | Supports JSON language files with nested key support.                     | [Laravel](https://laravel.com/) / [Symfony](https://symfony.com/)         | `messages.en.json`, `messages.de.json` |
-| [PHP](https://www.php.net/manual/en/language.types.array.php)   | Supports PHP array-based translation files with Laravel and Symfony styles.                     | [Laravel](https://laravel.com/) / [Symfony](https://symfony.com/)         | `resources/lang/en/messages.php`, `translations/messages.en.php` |
-
-> [!NOTE]
-> The translation files will be grouped to file sets based on the file name prefix or suffix. For example, `locallang.xlf` and `de.locallang.xlf` will be grouped together as they share the same prefix (`locallang`), while `messages.en.yaml` and `messages.de.yaml` will be grouped by their suffix (`.en`, `.de`). See the [File Detectors](docs/file-detector.md) for more details.
+See detailed format [documentation](docs/file-detector.md) and file grouping.
 
 ### Translation Validators
 
@@ -91,7 +88,7 @@ The following translation validators are available:
 | **[PlaceholderConsistencyValidator](docs/validators.md#placeholderconsistencyvalidator)** | Validates placeholder patterns | <span style="color:orange">WARNING</span> |
 | **[XliffSchemaValidator](docs/validators.md#xliffschemavalidator)** | Validates XLIFF against XML schemas | <span style="color:red">ERROR</span> |
 
-📖 **[View detailed documentation with examples →](docs/validators.md)**
+View detailed [documentation](docs/validators.md) with examples.
 
 ### Validator-Specific Configuration
 
