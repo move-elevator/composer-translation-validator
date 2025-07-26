@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
-use Exception;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use MoveElevator\ComposerTranslationValidator\Validator\XliffSchemaValidator;
@@ -172,12 +171,12 @@ XML;
             'test.xlf',
             $errorDetails,
             'XliffParser',
-            'XliffSchemaValidator'
+            'XliffSchemaValidator',
         );
 
         $result = $this->validator->formatIssueMessage($issue, 'Prefix: ');
 
-        $expected = "- <fg=red>Error</> Prefix: Element validation failed (Line: 42) (Code: XLIFF001)";
+        $expected = '- <fg=red>Error</> Prefix: Element validation failed (Line: 42) (Code: XLIFF001)';
         $this->assertSame($expected, $result);
     }
 
@@ -194,12 +193,12 @@ XML;
             'test.xlf',
             $errorDetails,
             'XliffParser',
-            'XliffSchemaValidator'
+            'XliffSchemaValidator',
         );
 
         $result = $this->validator->formatIssueMessage($issue);
 
-        $expected = "- <fg=yellow>Warning</> Optional element missing";
+        $expected = '- <fg=yellow>Warning</> Optional element missing';
         $this->assertSame($expected, $result);
     }
 
@@ -209,12 +208,12 @@ XML;
             'test.xlf',
             [],
             'XliffParser',
-            'XliffSchemaValidator'
+            'XliffSchemaValidator',
         );
 
         $result = $this->validator->formatIssueMessage($issue);
 
-        $expected = "- <fg=red>Error</> Schema validation error";
+        $expected = '- <fg=red>Error</> Schema validation error';
         $this->assertSame($expected, $result);
     }
 
@@ -233,7 +232,7 @@ XML;
             'test.xlf',
             $errorDetails,
             'XliffParser',
-            'XliffSchemaValidator'
+            'XliffSchemaValidator',
         );
 
         $result = $this->validator->formatIssueMessage($issue);

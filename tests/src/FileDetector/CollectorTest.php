@@ -31,6 +31,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use ReflectionClass;
 
 final class CollectorTest extends TestCase
 {
@@ -442,13 +443,13 @@ final class CollectorTest extends TestCase
     {
         // Create a path that doesn't exist and will cause glob to return false
         $nonExistentPath = '/this/path/absolutely/does/not/exist/anywhere';
-        
+
         $logger = $this->createMock(LoggerInterface::class);
         // Don't expect any specific log calls since non-existent paths might not trigger warning logs
-        
+
         $detector = $this->createMock(DetectorInterface::class);
         $collector = new Collector($logger);
-        
+
         $result = $collector->collectFiles([$nonExistentPath], $detector, null);
 
         // Should return empty array when path doesn't exist
@@ -461,7 +462,7 @@ final class CollectorTest extends TestCase
         $collector = new Collector($logger);
 
         // Use reflection to test the private normalizePath method
-        $reflection = new \ReflectionClass($collector);
+        $reflection = new ReflectionClass($collector);
         $normalizePathMethod = $reflection->getMethod('normalizePath');
         $normalizePathMethod->setAccessible(true);
 
@@ -491,10 +492,10 @@ final class CollectorTest extends TestCase
 
         // Use exclude patterns that will filter out all files
         $result = $collector->collectFiles(
-            [$this->tempDir], 
-            $detector, 
+            [$this->tempDir],
+            $detector,
             ['*.xlf', '*.xml'], // Exclude all xlf files
-            false
+            false,
         );
 
         $this->assertEmpty($result);
@@ -506,10 +507,10 @@ final class CollectorTest extends TestCase
         $restrictedDir = $this->tempDir.'/restricted';
         mkdir($restrictedDir, 0755);
         file_put_contents($restrictedDir.'/test.xlf', 'content');
-        
+
         // Make the directory unreadable to trigger an exception
         chmod($restrictedDir, 0000);
-        
+
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->atLeastOnce())
             ->method('error')
