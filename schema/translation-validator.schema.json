@@ -103,6 +103,28 @@
 	  "type": "boolean",
 	  "description": "Enable verbose output",
 	  "default": false
+	},
+	"validator-settings": {
+	  "type": "object",
+	  "description": "Validator-specific configuration settings",
+	  "patternProperties": {
+		"^[A-Za-z_][A-Za-z0-9_]*(?:\\\\\\\\[A-Za-z_][A-Za-z0-9_]*)*$": {
+		  "type": "object",
+		  "description": "Settings for a specific validator",
+		  "additionalProperties": true
+		}
+	  },
+	  "additionalProperties": false,
+	  "examples": [
+		{
+		  "KeyNamingConventionValidator": {
+			"convention": "snake_case"
+		  },
+		  "HtmlTagValidator": {
+			"strict_attributes": true
+		  }
+		}
+	  ]
 	}
   },
   "required": ["paths"],
@@ -143,6 +165,17 @@
 	  "dry-run": false,
 	  "format": "cli",
 	  "verbose": true
+	},
+	{
+	  "paths": ["translations"],
+	  "validator-settings": {
+		"KeyNamingConventionValidator": {
+		  "convention": "snake_case"
+		},
+		"HtmlTagValidator": {
+		  "strict_attributes": false
+		}
+	  }
 	}
   ]
 }

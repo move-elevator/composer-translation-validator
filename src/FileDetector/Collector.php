@@ -81,11 +81,18 @@ class Collector
                 if (null !== $detector) {
                     $allFiles[$parserClass][$path] = $detector->mapTranslationSet($files);
                 } else {
-                    foreach (FileDetectorRegistry::getAvailableFileDetectors() as $fileDetector) {
-                        $translationSet = (new $fileDetector())->mapTranslationSet($files);
-                        if (!empty($translationSet)) {
-                            $allFiles[$parserClass][$path] = $translationSet;
-                            continue 2;
+                    // Group files by directory to prevent cross-directory FileSets
+                    $filesByDirectory = $this->groupFilesByDirectory($files);
+
+                    foreach ($filesByDirectory as $directory => $directoryFiles) {
+                        foreach (FileDetectorRegistry::getAvailableFileDetectors() as $fileDetector) {
+                            $translationSet = (new $fileDetector())->mapTranslationSet($directoryFiles);
+                            if (!empty($translationSet)) {
+                                // Use directory-specific path key to separate FileSets
+                                $pathKey = $path.'/'.$directory;
+                                $allFiles[$parserClass][$pathKey] = $translationSet;
+                                break; // Found a detector for this directory, move to next directory
+                            }
                         }
                     }
                 }
@@ -181,5 +188,24 @@ class Collector
         }
 
         return substr_count($path, '/') + substr_count($path, '\\') <= 20;
+    }
+
+    /**
+     * Groups files by their immediate parent directory to prevent cross-directory FileSets.
+     *
+     * @param array<string> $files
+     *
+     * @return array<string, array<string>>
+     */
+    private function groupFilesByDirectory(array $files): array
+    {
+        $groups = [];
+
+        foreach ($files as $file) {
+            $directory = dirname($file);
+            $groups[$directory][] = $file;
+        }
+
+        return $groups;
     }
 }

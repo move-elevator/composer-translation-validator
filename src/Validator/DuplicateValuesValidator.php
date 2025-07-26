@@ -53,7 +53,8 @@ class DuplicateValuesValidator extends AbstractValidator implements ValidatorInt
             if (null === $value) {
                 continue;
             }
-            $this->valuesArray[$file->getFileName()][$value][] = $key;
+            $fileKey = !empty($this->currentFilePath) ? $this->currentFilePath : $file->getFileName();
+            $this->valuesArray[$fileKey][$value][] = $key;
         }
 
         return [];

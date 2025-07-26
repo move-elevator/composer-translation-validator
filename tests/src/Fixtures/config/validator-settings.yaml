@@ -1,0 +1,13 @@
+paths:
+  - translations/
+
+validator-settings:
+  KeyNamingConventionValidator:
+    convention: snake_case
+
+  HtmlTagValidator:
+    strict_attributes: false
+
+strict: false
+format: cli
+verbose: false

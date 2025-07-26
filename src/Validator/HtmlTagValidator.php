@@ -58,7 +58,8 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
             }
 
             $htmlStructure = $this->analyzeHtmlStructure($value);
-            $this->keyData[$key][$file->getFileName()] = [
+            $fileKey = !empty($this->currentFilePath) ? $this->currentFilePath : $file->getFileName();
+            $this->keyData[$key][$fileKey] = [
                 'value' => $value,
                 'html_structure' => $htmlStructure,
             ];
@@ -188,8 +189,8 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
         $referenceStructure = $allStructures[$referenceFile];
 
         for ($i = 1, $iMax = count($fileNames); $i < $iMax; ++$i) {
-            $currentFile = $fileNames[$i];
-            $currentStructure = $allStructures[$currentFile];
+            $currentFile = basename($fileNames[$i]);
+            $currentStructure = $allStructures[$fileNames[$i]];
 
             // Check tag consistency
             $referenceTags = $referenceStructure['tags'] ?? [];
@@ -257,11 +258,8 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
             $details = $issue->getDetails();
             $files = $details['files'] ?? [];
 
-            foreach ($files as $fileName => $_) {
-                if (!empty($fileName)) {
-                    $basePath = rtrim($fileSet->getPath(), '/');
-                    $filePath = $basePath.'/'.$fileName;
-
+            foreach ($files as $filePath => $_) {
+                if (!empty($filePath)) {
                     $fileSpecificIssue = new Issue(
                         $filePath,
                         $details,
@@ -297,7 +295,8 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
                 $allKeys[] = $key;
             }
 
-            foreach ($files as $fileName => $fileInfo) {
+            foreach ($files as $filePath => $fileInfo) {
+                $fileName = basename((string) $filePath);
                 $value = $fileInfo['value'] ?? '';
                 if (!isset($allFilesData[$key])) {
                     $allFilesData[$key] = [];
@@ -310,7 +309,7 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
         $firstDetails = $firstIssue->getDetails();
         $firstFiles = $firstDetails['files'] ?? [];
 
-        $fileOrder = array_keys($firstFiles);
+        $fileOrder = array_map(static fn ($path) => basename((string) $path), array_keys($firstFiles));
 
         $header = ['Translation Key'];
         foreach ($fileOrder as $fileName) {

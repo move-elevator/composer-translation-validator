@@ -1,0 +1,5 @@
+welcome: "Welcome to our app!"
+user:
+  greeting: "Hello user"
+  name: "Username"
+settings: "Settings"

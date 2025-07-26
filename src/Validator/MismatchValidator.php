@@ -53,7 +53,8 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
         }
         foreach ($keys as $key) {
             $value = $file->getContentByKey($key);
-            $this->keyArray[$file->getFileName()][$key] = $value ?? null;
+            $fileKey = !empty($this->currentFilePath) ? $this->currentFilePath : $file->getFileName();
+            $this->keyArray[$fileKey][$key] = $value ?? null;
         }
 
         return [];
@@ -111,7 +112,7 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
         $currentFileHasValue = false;
 
         foreach ($files as $fileInfo) {
-            $fileName = $fileInfo['file'] ?? 'unknown';
+            $fileName = basename($fileInfo['file'] ?? 'unknown');
             if ($fileName === $currentFile) {
                 $currentFileHasValue = null !== $fileInfo['value'];
             } else {
@@ -139,11 +140,8 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
             $files = $details['files'] ?? [];
 
             foreach ($files as $fileInfo) {
-                $fileName = $fileInfo['file'] ?? '';
-                if (!empty($fileName)) {
-                    $basePath = rtrim($fileSet->getPath(), '/');
-                    $filePath = $basePath.'/'.$fileName;
-
+                $filePath = $fileInfo['file'] ?? '';
+                if (!empty($filePath)) {
                     $fileSpecificIssue = new Issue(
                         $filePath,
                         $details,
@@ -184,7 +182,7 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
             }
 
             foreach ($files as $fileInfo) {
-                $fileName = $fileInfo['file'] ?? '';
+                $fileName = basename($fileInfo['file'] ?? '');
                 $value = $fileInfo['value'];
 
                 if (!isset($allFilesData[$key])) {
@@ -201,7 +199,7 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
 
         $fileOrder = [$currentFile];
         foreach ($firstFiles as $fileInfo) {
-            $fileName = $fileInfo['file'] ?? '';
+            $fileName = basename($fileInfo['file'] ?? '');
             if ($fileName !== $currentFile && !in_array($fileName, $fileOrder, true)) {
                 $fileOrder[] = $fileName;
             }

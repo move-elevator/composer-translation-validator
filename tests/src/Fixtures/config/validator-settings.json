@@ -1,0 +1,14 @@
+{
+  "paths": ["translations/"],
+  "validator-settings": {
+	"KeyNamingConventionValidator": {
+	  "convention": "camelCase"
+	},
+	"HtmlTagValidator": {
+	  "strict_attributes": true
+	}
+  },
+  "strict": false,
+  "format": "cli",
+  "verbose": false
+}

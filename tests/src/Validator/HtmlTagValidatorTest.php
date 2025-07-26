@@ -232,8 +232,8 @@ final class HtmlTagValidatorTest extends TestCase
             [
                 'key' => 'greeting',
                 'files' => [
-                    'en.xlf' => ['value' => 'Hello <strong>world</strong>!'],
-                    'de.xlf' => ['value' => 'Hallo <b>Welt</b>!'],
+                    '/test/path/en.xlf' => ['value' => 'Hello <strong>world</strong>!'],
+                    '/test/path/de.xlf' => ['value' => 'Hallo <b>Welt</b>!'],
                 ],
                 'inconsistencies' => ['HTML tag mismatch'],
             ],

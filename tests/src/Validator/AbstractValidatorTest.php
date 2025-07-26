@@ -333,7 +333,7 @@ final class AbstractValidatorTest extends TestCase
         // The old issue should be gone, and only validation results should remain
         $issues = $validator->getIssues();
         $this->assertCount(1, $issues);
-        $this->assertSame('some_file.xlf', $issues[0]->getFile());
+        $this->assertSame('/path/to/some_file.xlf', $issues[0]->getFile());
         $this->assertSame(['validationIssue'], $issues[0]->getDetails());
     }
 

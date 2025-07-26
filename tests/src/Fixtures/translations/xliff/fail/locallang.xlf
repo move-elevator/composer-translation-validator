@@ -21,6 +21,9 @@
             <trans-unit id="key6">
                 <source><![CDATA[<strong>English</b> Key #6]]></source>
             </trans-unit>
+            <trans-unit id="key7.helloWorld.nice-to-meet-you">
+                <source>English Key #2</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>

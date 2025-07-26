@@ -54,6 +54,9 @@ class TranslationValidatorConfig
 
     private bool $verbose = false;
 
+    /** @var array<string, array<string, mixed>> */
+    private array $validatorSettings = [];
+
     /**
      * @param string[] $paths
      */
@@ -264,6 +267,58 @@ class TranslationValidatorConfig
     }
 
     /**
+     * Set validator-specific settings.
+     *
+     * @param array<string, array<string, mixed>> $validatorSettings
+     */
+    public function setValidatorSettings(array $validatorSettings): self
+    {
+        $this->validatorSettings = $validatorSettings;
+
+        return $this;
+    }
+
+    /**
+     * Set settings for a specific validator.
+     *
+     * @param array<string, mixed> $settings
+     */
+    public function setValidatorSetting(string $validatorName, array $settings): self
+    {
+        $this->validatorSettings[$validatorName] = $settings;
+
+        return $this;
+    }
+
+    /**
+     * Get settings for a specific validator.
+     *
+     * @return array<string, mixed>
+     */
+    public function getValidatorSettings(string $validatorName): array
+    {
+        return $this->validatorSettings[$validatorName] ?? [];
+    }
+
+    /**
+     * Get all validator settings.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function getAllValidatorSettings(): array
+    {
+        return $this->validatorSettings;
+    }
+
+    /**
+     * Check if a validator has specific settings.
+     */
+    public function hasValidatorSettings(string $validatorName): bool
+    {
+        return isset($this->validatorSettings[$validatorName]);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function toArray(): array
@@ -280,6 +335,7 @@ class TranslationValidatorConfig
             'dry-run' => $this->dryRun,
             'format' => $this->format,
             'verbose' => $this->verbose,
+            'validator-settings' => $this->validatorSettings,
         ];
     }
 }

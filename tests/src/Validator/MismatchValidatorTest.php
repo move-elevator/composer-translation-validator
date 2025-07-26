@@ -225,8 +225,8 @@ final class MismatchValidatorTest extends TestCase
             [
                 'key' => 'test_key',
                 'files' => [
-                    ['file' => 'file1.xlf', 'value' => 'value1'],
-                    ['file' => 'file2.xlf', 'value' => null],
+                    ['file' => '/test/path/file1.xlf', 'value' => 'value1'],
+                    ['file' => '/test/path/file2.xlf', 'value' => null],
                 ],
             ],
             '',

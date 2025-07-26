@@ -58,7 +58,8 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
             }
 
             $placeholders = $this->extractPlaceholders($value);
-            $this->keyData[$key][$file->getFileName()] = [
+            $fileKey = !empty($this->currentFilePath) ? $this->currentFilePath : $file->getFileName();
+            $this->keyData[$key][$fileKey] = [
                 'value' => $value,
                 'placeholders' => $placeholders,
             ];
@@ -167,8 +168,8 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
         $referencePlaceholders = $allPlaceholders[$referenceFile];
 
         for ($i = 1, $iMax = count($fileNames); $i < $iMax; ++$i) {
-            $currentFile = $fileNames[$i];
-            $currentPlaceholders = $allPlaceholders[$currentFile];
+            $currentFile = basename($fileNames[$i]);
+            $currentPlaceholders = $allPlaceholders[$fileNames[$i]];
 
             $missing = array_diff($referencePlaceholders, $currentPlaceholders);
             $extra = array_diff($currentPlaceholders, $referencePlaceholders);
@@ -209,11 +210,8 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
             $details = $issue->getDetails();
             $files = $details['files'] ?? [];
 
-            foreach ($files as $fileName => $fileInfo) {
-                if (!empty($fileName)) {
-                    $basePath = rtrim($fileSet->getPath(), '/');
-                    $filePath = $basePath.'/'.$fileName;
-
+            foreach ($files as $filePath => $fileInfo) {
+                if (!empty($filePath)) {
                     $fileSpecificIssue = new Issue(
                         $filePath,
                         $details,
@@ -249,7 +247,8 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
                 $allKeys[] = $key;
             }
 
-            foreach ($files as $fileName => $fileInfo) {
+            foreach ($files as $filePath => $fileInfo) {
+                $fileName = basename((string) $filePath);
                 $value = $fileInfo['value'] ?? '';
                 if (!isset($allFilesData[$key])) {
                     $allFilesData[$key] = [];
@@ -262,7 +261,7 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
         $firstDetails = $firstIssue->getDetails();
         $firstFiles = $firstDetails['files'] ?? [];
 
-        $fileOrder = array_keys($firstFiles);
+        $fileOrder = array_map(static fn ($path) => basename((string) $path), array_keys($firstFiles));
 
         $header = ['Translation Key'];
         foreach ($fileOrder as $fileName) {
