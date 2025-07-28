@@ -36,11 +36,17 @@ class PrefixFileDetector implements DetectorInterface
 
         foreach ($files as $file) {
             $basename = basename($file);
-            if (
-                preg_match('/^([a-z]{2}(?:[-_][A-Z]{2})?)\.(.+)$/i', $basename, $matches) // Prefix
-                || preg_match('/^[^.]+\.[^.]+$/', $basename, $matches) // No prefix, only one dot (e.g. locallang_be.xlf)
-            ) {
-                $key = $matches[2] ?? $matches[0];
+            if (preg_match('/^([a-z]{2}(?:[-_][A-Z]{2})?)\.(.+)$/i', $basename, $matches)) {
+                // Language prefix pattern (e.g., de.messages.xlf -> key: messages.xlf)
+                $key = $matches[2];
+                $groups[$key][] = $file;
+            } elseif (preg_match('/^(locallang|messages|validation|errors|labels|translations?|test)\./', $basename)) {
+                // Common translation file patterns (e.g., messages.xlf -> key: messages.xlf)
+                $key = $basename;
+                $groups[$key][] = $file;
+            } elseif (preg_match('/^[^.]+\.(xlf|xliff|json|ya?ml|php)$/i', $basename) && !preg_match('/(config|validator|setting)/', $basename)) {
+                // Generic translation files, but exclude config/validator files
+                $key = $basename;
                 $groups[$key][] = $file;
             }
         }
