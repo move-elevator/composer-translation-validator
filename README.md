@@ -16,8 +16,9 @@ Supports XLIFF, YAML, JSON and PHP translation files.
 ## ✨ Features
 
 * Autodetect coherent language files
-* Supports various [translation formats](#supported-translation-file-formats)
+* Supports various [translation file formats](#supported-translation-file-formats)
 * Provides multiple [validators](#translation-validators)
+* Configurable via separate [configuration files](docs/config-file.md)
 
 ## 🔥 Installation
 
@@ -45,18 +46,20 @@ The command `validate-translations` can be used to validate translation files in
 
 ### Supported File Formats
 
-| Format | Frameworks | Examples |
-|--------|------------|----------|
-| **[XLIFF](docs/file-detector.md#xliff-xml-localization-interchange-file-format)** | TYPO3 CMS | `locallang.xlf`, `de.locallang.xlf` |
-| **[YAML](docs/file-detector.md#yaml-yaml-aint-markup-language)** | Symfony | `messages.en.yaml`, `messages.de.yaml` |
-| **[JSON](docs/file-detector.md#json-javascript-object-notation)** | Laravel, Symfony | `messages.en.json`, `messages.de.json` |
-| **[PHP](docs/file-detector.md#php-arrays)** | Laravel, Symfony | `en/messages.php`, `messages.en.php` |
+Translations will be detected and grouped by the following formats:
 
-See detailed format [documentation](docs/file-detector.md) and file grouping.
+| Format | Frameworks | Example files                          |
+|--------|------------|----------------------------------------|
+| [XLIFF](docs/file-detector.md#xliff-xml-localization-interchange-file-format) | TYPO3 CMS | `locallang.xlf`, `de.locallang.xlf`    |
+| [YAML](docs/file-detector.md#yaml-yaml-aint-markup-language) | Symfony | `messages.en.yaml`, `messages.de.yaml` |
+| [JSON](docs/file-detector.md#json-javascript-object-notation) | Laravel, Symfony | `messages.en.json`, `messages.de.json` |
+| [PHP](docs/file-detector.md#php-arrays) | Laravel, Symfony | `en/messages.php`, `messages.en.php`   |
+
+See detailed [file format and file detection documentation](docs/file-detector.md) with examples.
 
 ### Translation Validators
 
-The following translation validators are available:
+The following translation validators are available (and enabled by default):
 
 | Validator | Description |
 |-----------|-------------|
@@ -70,11 +73,7 @@ The following translation validators are available:
 | [PlaceholderConsistencyValidator](docs/validators.md#placeholderconsistencyvalidator) | Validates placeholder patterns |
 | [XliffSchemaValidator](docs/validators.md#xliffschemavalidator) | Validates XLIFF against XML schemas |
 
-View detailed [documentation](docs/validators.md) with examples.
-
-### Validator-Specific Configuration
-
-Some validators support additional configuration options. For detailed configuration instructions and examples, see [Validator Configuration](docs/validator-configuration.md).
+View detailed [validator documentation](docs/validators.md) with examples.
 
 ## 🧑‍💻 Contributing
 

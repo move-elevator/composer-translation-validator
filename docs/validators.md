@@ -238,7 +238,7 @@ composer -d tests validate-translations Fixtures/examples/encoding --only "MoveE
 
 ---
 
-## [`HtmlTagValidator`](../src/Validator/HtmlTagValidator.php)HtmlTagValidator
+## [`HtmlTagValidator`](../src/Validator/HtmlTagValidator.php)
 
 Verifies HTML tags are consistent across all language versions: same tags, proper nesting, matching attributes.
 

@@ -2,15 +2,23 @@
 
 This document provides comprehensive information about supported translation file formats and how the validator detects and groups related translation files across different languages.
 
+- [Supported Translation File Formats](#supported-translation-file-formats)
+  - [XLIFF](#xliff)
+  - [YAML](#yaml)
+  - [JSON](#json)
+  - [PHP Arrays](#php-arrays)
+- [File Detection Strategies](#file-detection-strategies)
+  - [PrefixFileDetector](#prefixfiledetector)
+  - [SuffixFileDetector](#suffixfiledetector)
+  - [DirectoryFileDetector](#directoryfiledetector)
+
 ## Supported Translation File Formats
 
 The Composer Translation Validator supports multiple translation file formats commonly used in PHP frameworks and applications:
 
-### XLIFF (XML Localization Interchange File Format)
+### XLIFF
 - **Extensions**: `.xlf`, `.xliff`
 - **Frameworks**: TYPO3 CMS, Symfony (optional)
-- **Features**: Industry standard, supports metadata, translation states, and comments
-- **Structure**: XML-based with `<source>` and `<target>` elements
 - **Example**:
   ```xml
   <?xml version="1.0" encoding="UTF-8"?>
@@ -26,11 +34,9 @@ The Composer Translation Validator supports multiple translation file formats co
   </xliff>
   ```
 
-### YAML (YAML Ain't Markup Language)
+### YAML
 - **Extensions**: `.yaml`, `.yml`
 - **Frameworks**: Symfony (primary), Laravel (supported)
-- **Features**: Human-readable, supports nested structures, comments
-- **Structure**: Key-value pairs with hierarchical nesting
 - **Example**:
   ```yaml
   welcome: "Welcome to our application"
@@ -42,11 +48,9 @@ The Composer Translation Validator supports multiple translation file formats co
     about: "About Us"
   ```
 
-### JSON (JavaScript Object Notation)
+### JSON
 - **Extensions**: `.json`
 - **Frameworks**: Laravel, Symfony, Vue.js, React
-- **Features**: Lightweight, widely supported, machine-readable
-- **Structure**: Nested objects and arrays
 - **Example**:
   ```json
   {
@@ -65,8 +69,6 @@ The Composer Translation Validator supports multiple translation file formats co
 ### PHP Arrays
 - **Extensions**: `.php`
 - **Frameworks**: Laravel (primary), Symfony (supported)
-- **Features**: Native PHP syntax, supports complex data structures, dynamic values
-- **Structure**: PHP array return statements
 - **Example**:
   ```php
   <?php
@@ -87,9 +89,7 @@ The Composer Translation Validator supports multiple translation file formats co
 
 File Detectors group translation files that represent the same content in different languages. The validator supports three detection strategies for different project layouts.
 
-### Available File Detectors
-
-#### PrefixFileDetector
+### PrefixFileDetector
 Groups files where the language code appears as a **prefix**.
 
 - **Pattern**: `{lang}.{name}.{ext}` or `{name}.{ext}`
@@ -98,7 +98,7 @@ Groups files where the language code appears as a **prefix**.
 - **Example**: `en.messages.xlf`, `de.messages.xlf` → grouped as `messages.xlf`
 - **Framework Context**: Common in TYPO3 where the default language file has no prefix
 
-#### SuffixFileDetector
+### SuffixFileDetector
 Groups files where the language code appears as a **suffix**.
 
 - **Pattern**: `{name}.{lang}.{ext}`
@@ -107,7 +107,7 @@ Groups files where the language code appears as a **suffix**.
 - **Example**: `messages.en.yaml`, `messages.de.yaml` → grouped as `messages`
 - **Framework Context**: Standard approach in Symfony applications
 
-#### DirectoryFileDetector
+### DirectoryFileDetector
 Groups files organized in **language directories**.
 
 - **Pattern**: `{lang}/{name}.{ext}`
@@ -253,43 +253,3 @@ file-detectors:
   ]
 }
 ```
-
-## Troubleshooting Common Issues
-
-### No Translation Files Detected
-**Symptoms**: Command shows "No translation files found"
-
-**Solutions**:
-- Verify file extensions are supported (`.xlf`, `.yaml`, `.json`, `.php`)
-- Check language codes follow supported formats
-- Ensure file naming matches one of the three patterns
-- Use `--verbose` flag to see detection details
-- Try `--recursive` flag for nested directories
-
-### Files Not Grouped Correctly
-**Symptoms**: Validators report missing translations when files exist
-
-**Solutions**:
-- Ensure consistent naming pattern throughout project
-- Don't mix different detection patterns in the same directory
-- Check for typos in language codes or file names
-- Verify file extensions are identical across language variants
-- Use `--verbose` to see how files are being grouped
-
-### Mixed Project Structures
-**Symptoms**: Some files detected, others ignored
-
-**Solutions**:
-- Reorganize files to use consistent pattern
-- Configure specific detectors manually
-- Use separate validation runs for different file types
-- Consider splitting translation directories by pattern
-
-### Performance with Large Projects
-**Symptoms**: Slow file detection or high memory usage
-
-**Solutions**:
-- Use specific paths instead of project root
-- Configure exclude patterns for non-translation directories
-- Limit file detectors to only needed types
-- Use `--recursive` selectively rather than globally
