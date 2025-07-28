@@ -563,18 +563,121 @@ final class KeyNamingConventionValidatorTest extends TestCase
     {
         $conventions = KeyNamingConventionValidator::getAvailableConventions();
 
-        // Test that only base conventions are available (dots are always allowed)
+        // Test that all conventions are available including dot notation
         $this->assertArrayHasKey('camelCase', $conventions);
         $this->assertArrayHasKey('snake_case', $conventions);
         $this->assertArrayHasKey('kebab-case', $conventions);
         $this->assertArrayHasKey('PascalCase', $conventions);
+        $this->assertArrayHasKey('dot.notation', $conventions);
 
-        // Test that dot variants are not listed (they're implicit)
-        $this->assertArrayNotHasKey('dot.camelCase', $conventions);
-        $this->assertArrayNotHasKey('dot.snake_case', $conventions);
-
-        // Test descriptions don't mention dot notation (it's always supported)
+        // Test descriptions
         $this->assertStringContainsString('camelCase', $conventions['camelCase']['description']);
-        $this->assertStringNotContainsString('dot', $conventions['camelCase']['description']);
+        $this->assertStringContainsString('dot.notation', $conventions['dot.notation']['description']);
+    }
+
+    public function testDotNotationValidation(): void
+    {
+        $parser = $this->createMock(ParserInterface::class);
+        $parser->method('extractKeys')->willReturn(['user.name', 'user.email', 'invalid_key']);
+        $parser->method('getFileName')->willReturn('test.yaml');
+
+        $validator = new KeyNamingConventionValidator();
+        $validator->setConvention('dot.notation');
+        $result = $validator->processFile($parser);
+
+        // Should detect invalid_key as violation
+        $this->assertCount(1, $result);
+        $this->assertEquals('invalid_key', $result[0]['key']);
+        // expected_convention is now an enum, not a string
+        $this->assertInstanceOf(\MoveElevator\ComposerTranslationValidator\Enum\KeyNamingConvention::class, $result[0]['expected_convention']);
+    }
+
+    public function testDotNotationConversion(): void
+    {
+        $parser = $this->createMock(ParserInterface::class);
+        $parser->method('extractKeys')->willReturn(['userProfile', 'api_endpoint', 'HTTP-Header']);
+        $parser->method('getFileName')->willReturn('test.yaml');
+
+        $validator = new KeyNamingConventionValidator();
+        $validator->setConvention('dot.notation');
+        $result = $validator->processFile($parser);
+
+        $this->assertCount(3, $result);
+        
+        // Test suggestions for different input formats
+        $suggestions = array_column($result, 'suggestion');
+        $this->assertContains('user.profile', $suggestions); // camelCase -> dot.notation
+        $this->assertContains('api.endpoint', $suggestions); // snake_case -> dot.notation
+        $this->assertContains('http.header', $suggestions); // kebab-case -> dot.notation
+    }
+
+    public function testValidateSegmentWithNullConvention(): void
+    {
+        $validator = new KeyNamingConventionValidator();
+        // Don't set any convention
+        
+        $parser = $this->createMock(ParserInterface::class);
+        $parser->method('extractKeys')->willReturn(['anyKey']);
+        $parser->method('getFileName')->willReturn('test.yaml');
+
+        $result = $validator->processFile($parser);
+        
+        // Should return empty array since no convention is set and only one key
+        $this->assertEmpty($result);
+    }
+
+    public function testDetectKeyConventionsWithDotsAndMixedSegments(): void
+    {
+        $parser = $this->createMock(ParserInterface::class);
+        $parser->method('extractKeys')->willReturn(['user.profile_data', 'admin.adminPanel']);
+        $parser->method('getFileName')->willReturn('test.yaml');
+
+        $validator = new KeyNamingConventionValidator();
+        // No convention set - should analyze for consistency
+        $result = $validator->processFile($parser);
+
+        // Should detect mixed conventions in dot-separated keys
+        $this->assertNotEmpty($result);
+        $this->assertEquals('mixed_conventions', $result[0]['inconsistency_type']);
+    }
+
+    public function testDetectKeyConventionsWithUnknownPattern(): void
+    {
+        $parser = $this->createMock(ParserInterface::class);
+        $parser->method('extractKeys')->willReturn(['123invalid', '$pecial_chars', 'validKey']);
+        $parser->method('getFileName')->willReturn('test.yaml');
+
+        $validator = new KeyNamingConventionValidator();
+        // No convention set - should analyze for consistency
+        $result = $validator->processFile($parser);
+
+        // Should detect mixed conventions when there are valid and invalid keys
+        $this->assertNotEmpty($result);
+        $this->assertEquals('mixed_conventions', $result[0]['inconsistency_type']);
+    }
+
+    public function testFormatIssueMessageWithEnumConvention(): void
+    {
+        $validator = new KeyNamingConventionValidator();
+        $validator->setConvention('snake_case');
+
+        $details = [
+            'key' => 'invalidKey',
+            'suggestion' => 'invalid_key',
+        ];
+
+        $issue = new Issue(
+            'test.yaml',
+            $details,
+            'YamlParser',
+            'KeyNamingConventionValidator',
+        );
+
+        $message = $validator->formatIssueMessage($issue);
+
+        // Just test that the method works and contains the key info
+        $this->assertStringContainsString('invalidKey', $message);
+        $this->assertStringContainsString('invalid_key', $message);
+        $this->assertStringContainsString('convention', $message);
     }
 }

@@ -294,4 +294,99 @@ final class EncodingValidatorTest extends TestCase
 
         $this->assertEmpty($issues);
     }
+
+    public function testEmptyFileContentReturnsNoIssues(): void
+    {
+        // Test the specific case where file_get_contents returns empty string
+        $filePath = $this->testFilesPath.'/just-empty-content.txt';
+        file_put_contents($filePath, ''); // Completely empty file
+        
+        // Create a mock parser that can handle empty files
+        $mockParser = $this->createMock(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface::class);
+        $mockParser->method('getFilePath')->willReturn($filePath);
+        $mockParser->method('getFileName')->willReturn('just-empty-content.txt');
+
+        $issues = $this->validator->processFile($mockParser);
+
+        $this->assertEmpty($issues);
+    }
+
+    public function testFileReadErrorHandling(): void
+    {
+        // Create a file and then make it unreadable or delete it
+        $filePath = $this->testFilesPath.'/temp-file.yaml';
+        file_put_contents($filePath, 'test content');
+        
+        // Create mock parser
+        $mockParser = $this->createMock(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface::class);
+        $mockParser->method('getFilePath')->willReturn($filePath);
+        $mockParser->method('getFileName')->willReturn('temp-file.yaml');
+
+        // Delete the file after creating parser to simulate read error
+        unlink($filePath);
+
+        $logger = $this->createMock(\Psr\Log\LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with('Could not read file content: temp-file.yaml');
+
+        $validator = new EncodingValidator($logger);
+        $issues = $validator->processFile($mockParser);
+
+        $this->assertEmpty($issues);
+    }
+
+    public function testUnicodeNormalizationWithoutIntlExtension(): void
+    {
+        // Test the fallback when Normalizer class doesn't exist
+        $filePath = $this->testFilesPath.'/unicode-test.yaml';
+        file_put_contents($filePath, "key: café"); // Contains normalized Unicode
+
+        $parser = new YamlParser($filePath);
+        
+        // Test by calling the method through reflection since it's private
+        $reflector = new \ReflectionClass(EncodingValidator::class);
+        $method = $reflector->getMethod('hasUnicodeNormalizationIssues');
+        $method->setAccessible(true);
+
+        $validator = new EncodingValidator();
+        
+        if (!class_exists('Normalizer')) {
+            $result = $method->invokeArgs($validator, [file_get_contents($filePath)]);
+            $this->assertFalse($result);
+        } else {
+            // If Normalizer exists, test that it works normally
+            $issues = $validator->processFile($parser);
+            // File with normal Unicode should not have normalization issues
+            $this->assertArrayNotHasKey('unicode_normalization', $issues);
+        }
+    }
+
+    public function testUnicodeNormalizationWithNonNormalizedContent(): void
+    {
+        if (!class_exists('Normalizer')) {
+            $this->markTestSkipped('Normalizer class not available');
+        }
+
+        $filePath = $this->testFilesPath.'/non-normalized-unicode.yaml';
+        
+        // Create content with combining characters that need normalization
+        // é can be written as e + combining accent (decomposed form)
+        $decomposedE = "e\u{0301}"; // e + combining acute accent
+        $content = "key: caf{$decomposedE}"; // café in decomposed form
+        
+        file_put_contents($filePath, $content);
+
+        $parser = new YamlParser($filePath);
+        $issues = $this->validator->processFile($parser);
+
+        // The content should trigger unicode_normalization issue if it's not in NFC form
+        $normalizedContent = Normalizer::normalize($content, Normalizer::FORM_C);
+        if ($content !== $normalizedContent) {
+            $this->assertArrayHasKey('unicode_normalization', $issues);
+            $this->assertStringContainsString('non-NFC normalized', $issues['unicode_normalization']);
+        } else {
+            $this->assertArrayNotHasKey('unicode_normalization', $issues);
+        }
+    }
 }
