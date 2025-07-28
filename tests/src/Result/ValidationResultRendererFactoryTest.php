@@ -25,6 +25,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 
 use MoveElevator\ComposerTranslationValidator\Result\FormatType;
 use MoveElevator\ComposerTranslationValidator\Result\ValidationResultCliRenderer;
+use MoveElevator\ComposerTranslationValidator\Result\ValidationResultGitHubRenderer;
 use MoveElevator\ComposerTranslationValidator\Result\ValidationResultJsonRenderer;
 use MoveElevator\ComposerTranslationValidator\Result\ValidationResultRendererFactory;
 use PHPUnit\Framework\TestCase;
@@ -127,5 +128,53 @@ final class ValidationResultRendererFactoryTest extends TestCase
         );
 
         $this->assertInstanceOf(ValidationResultJsonRenderer::class, $renderer);
+    }
+
+    public function testCreateGitHubRenderer(): void
+    {
+        $output = $this->createMock(OutputInterface::class);
+        $input = $this->createMock(InputInterface::class);
+
+        $renderer = ValidationResultRendererFactory::create(
+            FormatType::GITHUB,
+            $output,
+            $input,
+            false,
+            false,
+        );
+
+        $this->assertInstanceOf(ValidationResultGitHubRenderer::class, $renderer);
+    }
+
+    public function testCreateGitHubRendererWithDryRun(): void
+    {
+        $output = $this->createMock(OutputInterface::class);
+        $input = $this->createMock(InputInterface::class);
+
+        $renderer = ValidationResultRendererFactory::create(
+            FormatType::GITHUB,
+            $output,
+            $input,
+            true,
+            false,
+        );
+
+        $this->assertInstanceOf(ValidationResultGitHubRenderer::class, $renderer);
+    }
+
+    public function testCreateGitHubRendererWithStrictMode(): void
+    {
+        $output = $this->createMock(OutputInterface::class);
+        $input = $this->createMock(InputInterface::class);
+
+        $renderer = ValidationResultRendererFactory::create(
+            FormatType::GITHUB,
+            $output,
+            $input,
+            false,
+            true,
+        );
+
+        $this->assertInstanceOf(ValidationResultGitHubRenderer::class, $renderer);
     }
 }

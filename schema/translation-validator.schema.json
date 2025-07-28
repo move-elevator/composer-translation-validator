@@ -96,7 +96,7 @@
 	"format": {
 	  "type": "string",
 	  "description": "Output format for validation results",
-	  "enum": ["cli", "json", "yaml", "php"],
+	  "enum": ["cli", "json", "github"],
 	  "default": "cli"
 	},
 	"verbose": {
@@ -152,7 +152,7 @@
 	{
 	  "paths": ["translations"],
 	  "strict": true,
-	  "format": "json"
+	  "format": "github"
 	},
 	{
 	  "paths": ["resources/lang", "translations"],

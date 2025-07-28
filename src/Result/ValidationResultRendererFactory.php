@@ -38,6 +38,7 @@ class ValidationResultRendererFactory
         return match ($format) {
             FormatType::CLI => new ValidationResultCliRenderer($output, $input, $dryRun, $strict),
             FormatType::JSON => new ValidationResultJsonRenderer($output, $dryRun, $strict),
+            FormatType::GITHUB => new ValidationResultGitHubRenderer($output, $dryRun, $strict),
         };
     }
 }
