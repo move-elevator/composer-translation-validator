@@ -320,7 +320,14 @@ User.Address: "Address"         # Mixed styles
 
 ### #Console Output
 ```
- [OK] Language validation succeeded.
+Fixtures/examples/key-naming/mixed.en.yaml
+
+  KeyNamingConventionValidator
+    - Warning key naming convention violation: `userEmail` does not follow snake_case convention (suggestion: `user_email`)
+    - Warning key naming convention violation: `user-phone` does not follow snake_case convention (suggestion: `user_phone`)
+    - Warning key naming convention violation: `User.Address` does not follow snake_case convention (suggestion: `user.address`)
+
+[WARNING] Language validation completed with warnings.
 ```
 
 **Note:** The current fixture file contains only valid snake_case keys. To see validation errors, you would need to include keys that violate the naming convention (like camelCase or kebab-case).
