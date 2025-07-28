@@ -318,7 +318,7 @@ user-phone: "Phone"             # kebab-case
 User.Address: "Address"         # Mixed styles
 ```
 
-### #Console Output
+#### Console Output
 ```
 Fixtures/examples/key-naming/mixed.en.yaml
 

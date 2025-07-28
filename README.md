@@ -16,7 +16,7 @@ Supports XLIFF, YAML, JSON and PHP translation files.
 ## ✨ Features
 
 * Autodetect coherent language files
-* Supports various [translation file formats](#supported-translation-file-formats)
+* Supports various [translation file formats](#supported-file-formats)
 * Provides multiple [validators](#translation-validators)
 * Configurable via separate [configuration files](docs/config-file.md)
 
@@ -46,7 +46,7 @@ The command `validate-translations` can be used to validate translation files in
 
 ### Supported File Formats
 
-Translations will be detected and grouped by the following formats:
+Translations will be detected and grouped by the following file formats (regarding the associated frameworks):
 
 | Format | Frameworks | Example files                          |
 |--------|------------|----------------------------------------|
