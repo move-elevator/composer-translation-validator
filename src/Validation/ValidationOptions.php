@@ -27,19 +27,19 @@ use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 
 /**
  * Immutable value object representing validation options for the API.
- * 
+ *
  * This replaces array-based configuration for type-safe external API usage.
  */
 final readonly class ValidationOptions
 {
     /**
-     * @param array<int, class-string<ValidatorInterface>> $onlyValidators Specific validators to run (FQCN)
-     * @param array<int, class-string<ValidatorInterface>> $skipValidators Validators to skip (FQCN)
-     * @param array<string> $excludePatterns File patterns to exclude
-     * @param bool $recursive Search recursively in subdirectories
-     * @param bool $strict Treat warnings as errors
-     * @param bool $dryRun Run without throwing errors
-     * @param string|null $fileDetector File detector class to use
+     * @param array<int, class-string<ValidatorInterface>> $onlyValidators  Specific validators to run (FQCN)
+     * @param array<int, class-string<ValidatorInterface>> $skipValidators  Validators to skip (FQCN)
+     * @param array<string>                                $excludePatterns File patterns to exclude
+     * @param bool                                         $recursive       Search recursively in subdirectories
+     * @param bool                                         $strict          Treat warnings as errors
+     * @param bool                                         $dryRun          Run without throwing errors
+     * @param string|null                                  $fileDetector    File detector class to use
      */
     public function __construct(
         public array $onlyValidators = [],
@@ -55,7 +55,6 @@ final readonly class ValidationOptions
      * Create ValidationOptions from array configuration.
      *
      * @param array<string, mixed> $config Configuration array
-     * @return self
      */
     public static function fromArray(array $config): self
     {

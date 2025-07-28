@@ -27,14 +27,14 @@ use InvalidArgumentException;
 use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
 use MoveElevator\ComposerTranslationValidator\Result\ValidationResult;
 use MoveElevator\ComposerTranslationValidator\Service\ValidationOrchestrationService;
-use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorRegistry;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Throwable;
 
 /**
  * Main API implementation for programmatic translation validation.
- * 
+ *
  * This class provides the primary entry point for external packages
  * to validate translation files programmatically.
  */
@@ -56,15 +56,15 @@ final class ValidationEngine implements ValidationEngineInterface
 
         // Resolve absolute paths
         $absolutePaths = $this->orchestrationService->resolvePaths($paths, $config);
-        
+
         // Resolve file detector
         $fileDetector = $this->orchestrationService->resolveFileDetector($config);
-        
+
         // Resolve validators
         $validators = $this->orchestrationService->resolveValidators(
             $validationOptions->onlyValidators,
             $validationOptions->skipValidators,
-            $config
+            $config,
         );
 
         try {
@@ -74,19 +74,15 @@ final class ValidationEngine implements ValidationEngineInterface
                 $validationOptions->recursive,
                 $fileDetector,
                 $validators,
-                $config
+                $config,
             );
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->error('Validation execution failed', [
                 'error' => $e->getMessage(),
                 'paths' => $paths,
                 'options' => $options,
             ]);
-            throw new RuntimeException(
-                sprintf('Validation failed: %s', $e->getMessage()),
-                0,
-                $e
-            );
+            throw new RuntimeException(sprintf('Validation failed: %s', $e->getMessage()), 0, $e);
         }
     }
 
@@ -97,14 +93,12 @@ final class ValidationEngine implements ValidationEngineInterface
         }
 
         if (!is_dir($projectPath)) {
-            throw new InvalidArgumentException(
-                sprintf('Project path "%s" is not a valid directory', $projectPath)
-            );
+            throw new InvalidArgumentException(sprintf('Project path "%s" is not a valid directory', $projectPath));
         }
 
         // Use project path as single path to validate
         $paths = [rtrim($projectPath, '/')];
-        
+
         // Enable recursive by default for project validation
         $options = array_merge(['recursive' => true], $configuration);
 
@@ -128,37 +122,34 @@ final class ValidationEngine implements ValidationEngineInterface
             // Basic readiness checks passed
 
             return true;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return false;
         }
     }
 
     /**
      * Create configuration from validation options.
-     *
-     * @param ValidationOptions $options
-     * @return TranslationValidatorConfig
      */
     private function createConfigFromOptions(ValidationOptions $options): TranslationValidatorConfig
     {
         $config = new TranslationValidatorConfig();
-        
+
         if (!empty($options->onlyValidators)) {
             $config->setOnly($options->onlyValidators);
         }
-        
+
         if (!empty($options->skipValidators)) {
             $config->setSkip($options->skipValidators);
         }
-        
+
         if (!empty($options->excludePatterns)) {
             $config->setExclude($options->excludePatterns);
         }
-        
-        if ($options->fileDetector !== null) {
+
+        if (null !== $options->fileDetector) {
             $config->setFileDetectors([$options->fileDetector]);
         }
-        
+
         $config->setDryRun($options->dryRun);
         $config->setStrict($options->strict);
 

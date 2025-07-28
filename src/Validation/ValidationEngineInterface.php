@@ -23,11 +23,13 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Validation;
 
+use InvalidArgumentException;
 use MoveElevator\ComposerTranslationValidator\Result\ValidationResult;
+use RuntimeException;
 
 /**
  * Core API interface for programmatic translation validation.
- * 
+ *
  * This interface provides the main entry point for external packages
  * (e.g., TYPO3 Commands) to validate translation files programmatically.
  */
@@ -36,24 +38,26 @@ interface ValidationEngineInterface
     /**
      * Validate translation files in given paths.
      *
-     * @param array<string> $paths Translation file paths to validate
+     * @param array<string>        $paths   Translation file paths to validate
      * @param array<string, mixed> $options Validation options
+     *
      * @return ValidationResult|null Validation result or null if no files found
-     * 
-     * @throws \InvalidArgumentException If paths are invalid
-     * @throws \RuntimeException If validation fails due to system errors
+     *
+     * @throws InvalidArgumentException If paths are invalid
+     * @throws RuntimeException         If validation fails due to system errors
      */
     public function validatePaths(array $paths, array $options = []): ?ValidationResult;
 
     /**
      * Validate specific translation project with configuration.
      *
-     * @param string $projectPath Root path of translation project
+     * @param string               $projectPath   Root path of translation project
      * @param array<string, mixed> $configuration Validation configuration
+     *
      * @return ValidationResult|null Validation result or null if no files found
-     * 
-     * @throws \InvalidArgumentException If project path is invalid
-     * @throws \RuntimeException If validation fails due to system errors
+     *
+     * @throws InvalidArgumentException If project path is invalid
+     * @throws RuntimeException         If validation fails due to system errors
      */
     public function validateProject(string $projectPath, array $configuration = []): ?ValidationResult;
 

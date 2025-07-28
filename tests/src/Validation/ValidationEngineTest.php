@@ -59,8 +59,8 @@ class ValidationEngineTest extends TestCase
 
     public function testValidatePathsWithValidPaths(): void
     {
-        $testPath = __DIR__ . '/../Fixtures/translations/xliff/success';
-        
+        $testPath = __DIR__.'/../Fixtures/translations/xliff/success';
+
         $result = $this->engine->validatePaths([$testPath]);
 
         $this->assertInstanceOf(ValidationResult::class, $result);
@@ -68,13 +68,13 @@ class ValidationEngineTest extends TestCase
 
     public function testValidatePathsWithOptions(): void
     {
-        $testPath = __DIR__ . '/../Fixtures/translations/xliff/success';
+        $testPath = __DIR__.'/../Fixtures/translations/xliff/success';
         $options = [
             'recursive' => true,
             'strict' => true,
             'dryRun' => false,
         ];
-        
+
         $result = $this->engine->validatePaths([$testPath], $options);
 
         $this->assertInstanceOf(ValidationResult::class, $result);
@@ -84,7 +84,7 @@ class ValidationEngineTest extends TestCase
     {
         $result = $this->engine->validatePaths(['/nonexistent/path']);
 
-        $this->assertNull($result);
+        $this->assertNotInstanceOf(\MoveElevator\ComposerTranslationValidator\Result\ValidationResult::class, $result);
     }
 
     public function testValidateProjectWithEmptyPath(): void
@@ -105,8 +105,8 @@ class ValidationEngineTest extends TestCase
 
     public function testValidateProjectWithValidDirectory(): void
     {
-        $testPath = __DIR__ . '/../Fixtures/translations/xliff/success';
-        
+        $testPath = __DIR__.'/../Fixtures/translations/xliff/success';
+
         $result = $this->engine->validateProject($testPath);
 
         // Result can be null if no translation files are found, which is valid
@@ -114,27 +114,27 @@ class ValidationEngineTest extends TestCase
             $result,
             $this->logicalOr(
                 $this->isNull(),
-                $this->isInstanceOf(ValidationResult::class)
-            )
+                $this->isInstanceOf(ValidationResult::class),
+            ),
         );
     }
 
     public function testValidateProjectWithConfiguration(): void
     {
-        $testPath = __DIR__ . '/../Fixtures/translations/xliff/success';
+        $testPath = __DIR__.'/../Fixtures/translations/xliff/success';
         $configuration = [
             'strict' => true,
             'excludePatterns' => ['**/fail/**'],
         ];
-        
+
         $result = $this->engine->validateProject($testPath, $configuration);
 
         $this->assertThat(
             $result,
             $this->logicalOr(
                 $this->isNull(),
-                $this->isInstanceOf(ValidationResult::class)
-            )
+                $this->isInstanceOf(ValidationResult::class),
+            ),
         );
     }
 
@@ -156,45 +156,45 @@ class ValidationEngineTest extends TestCase
 
     public function testValidatePathsRecursiveDefault(): void
     {
-        $testPath = __DIR__ . '/../Fixtures/recursive';
-        
+        $testPath = __DIR__.'/../Fixtures/recursive';
+
         // Test with recursive disabled (default for validatePaths)
         $result = $this->engine->validatePaths([$testPath], ['recursive' => false]);
-        
+
         $this->assertThat(
             $result,
             $this->logicalOr(
                 $this->isNull(),
-                $this->isInstanceOf(ValidationResult::class)
-            )
+                $this->isInstanceOf(ValidationResult::class),
+            ),
         );
     }
 
     public function testValidateProjectRecursiveDefault(): void
     {
-        $testPath = __DIR__ . '/../Fixtures/recursive';
-        
+        $testPath = __DIR__.'/../Fixtures/recursive';
+
         // validateProject should enable recursive by default
         $result = $this->engine->validateProject($testPath);
-        
+
         $this->assertThat(
             $result,
             $this->logicalOr(
                 $this->isNull(),
-                $this->isInstanceOf(ValidationResult::class)
-            )
+                $this->isInstanceOf(ValidationResult::class),
+            ),
         );
     }
 
     public function testValidatePathsWithValidatorSelection(): void
     {
-        $testPath = __DIR__ . '/../Fixtures/translations/xliff/success';
+        $testPath = __DIR__.'/../Fixtures/translations/xliff/success';
         $availableValidators = ValidatorRegistry::getAvailableValidators();
-        
+
         $options = [
             'onlyValidators' => [array_slice($availableValidators, 0, 1)[0]],
         ];
-        
+
         $result = $this->engine->validatePaths([$testPath], $options);
 
         $this->assertInstanceOf(ValidationResult::class, $result);
@@ -202,13 +202,13 @@ class ValidationEngineTest extends TestCase
 
     public function testValidatePathsWithValidatorSkipping(): void
     {
-        $testPath = __DIR__ . '/../Fixtures/translations/xliff/success';
+        $testPath = __DIR__.'/../Fixtures/translations/xliff/success';
         $availableValidators = ValidatorRegistry::getAvailableValidators();
-        
+
         $options = [
             'skipValidators' => [array_slice($availableValidators, 0, 1)[0]],
         ];
-        
+
         $result = $this->engine->validatePaths([$testPath], $options);
 
         $this->assertInstanceOf(ValidationResult::class, $result);
@@ -222,11 +222,9 @@ class ValidationEngineTest extends TestCase
             ->method('error')
             ->with(
                 'Validation execution failed',
-                $this->callback(function($context) {
-                    return isset($context['error']) && 
-                           isset($context['paths']) && 
-                           isset($context['options']);
-                })
+                $this->callback(fn($context) => isset($context['error'])
+                       && isset($context['paths'])
+                       && isset($context['options'])),
             );
 
         // Create a mock orchestration service that throws an exception during execution

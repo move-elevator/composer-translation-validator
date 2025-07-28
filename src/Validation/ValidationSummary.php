@@ -25,21 +25,22 @@ namespace MoveElevator\ComposerTranslationValidator\Validation;
 
 use MoveElevator\ComposerTranslationValidator\Result\ValidationResult;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
+use RuntimeException;
 
 /**
  * Immutable value object providing API-friendly validation summary.
- * 
+ *
  * This wraps ValidationResult for cleaner external API usage.
  */
 final readonly class ValidationSummary
 {
     /**
-     * @param bool $success Whether validation passed
-     * @param ResultType $resultType Overall result type
-     * @param int $issuesCount Total number of issues found
-     * @param int $filesChecked Number of files validated
-     * @param int $validatorsRun Number of validators executed
-     * @param float $executionTime Validation execution time in seconds
+     * @param bool          $success       Whether validation passed
+     * @param ResultType    $resultType    Overall result type
+     * @param int           $issuesCount   Total number of issues found
+     * @param int           $filesChecked  Number of files validated
+     * @param int           $validatorsRun Number of validators executed
+     * @param float         $executionTime Validation execution time in seconds
      * @param array<string> $issueMessages List of issue messages
      */
     public function __construct(
@@ -56,7 +57,6 @@ final readonly class ValidationSummary
      * Create ValidationSummary from ValidationResult.
      *
      * @param ValidationResult $result Original validation result
-     * @return self
      */
     public static function fromValidationResult(ValidationResult $result): self
     {
@@ -74,19 +74,19 @@ final readonly class ValidationSummary
                     '[%s] %s: %s',
                     $validator::class,
                     $issue->getFile(),
-                    $message
+                    $message,
                 );
             }
         }
 
         $statistics = $result->getStatistics();
-        
-        if ($statistics === null) {
-            throw new \RuntimeException('ValidationResult statistics cannot be null');
+
+        if (null === $statistics) {
+            throw new RuntimeException('ValidationResult statistics cannot be null');
         }
 
         return new self(
-            success: $result->getOverallResult() === ResultType::SUCCESS,
+            success: ResultType::SUCCESS === $result->getOverallResult(),
             resultType: $result->getOverallResult(),
             issuesCount: $issuesCount,
             filesChecked: $statistics->getFilesChecked(),
@@ -98,8 +98,6 @@ final readonly class ValidationSummary
 
     /**
      * Check if validation had any issues.
-     *
-     * @return bool
      */
     public function hasIssues(): bool
     {
@@ -108,21 +106,17 @@ final readonly class ValidationSummary
 
     /**
      * Check if validation failed (errors found).
-     *
-     * @return bool
      */
     public function hasFailed(): bool
     {
-        return $this->resultType === ResultType::ERROR;
+        return ResultType::ERROR === $this->resultType;
     }
 
     /**
      * Check if validation has warnings.
-     *
-     * @return bool
      */
     public function hasWarnings(): bool
     {
-        return $this->resultType === ResultType::WARNING;
+        return ResultType::WARNING === $this->resultType;
     }
 }

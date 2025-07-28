@@ -53,7 +53,7 @@ class ValidationSummaryTest extends TestCase
         $this->assertSame(0, $summary->issuesCount);
         $this->assertSame(5, $summary->filesChecked);
         $this->assertSame(3, $summary->validatorsRun);
-        $this->assertSame(1.5, $summary->executionTime);
+        $this->assertEqualsWithDelta(1.5, $summary->executionTime, PHP_FLOAT_EPSILON);
         $this->assertSame([], $summary->issueMessages);
     }
 
@@ -69,14 +69,14 @@ class ValidationSummaryTest extends TestCase
         $this->assertSame(0, $summary->issuesCount);
         $this->assertSame(5, $summary->filesChecked);
         $this->assertSame(3, $summary->validatorsRun);
-        $this->assertSame(1.0, $summary->executionTime);
+        $this->assertEqualsWithDelta(1.0, $summary->executionTime, PHP_FLOAT_EPSILON);
         $this->assertSame([], $summary->issueMessages);
     }
 
     public function testFromValidationResultWithIssues(): void
     {
         $statistics = new ValidationStatistics(2.0, 10, 200, 5, 3);
-        
+
         // Create validator with issues
         $validator = new MismatchValidator(new NullLogger());
         $fileSet = new FileSet('TestParser', '/test/path', 'test', ['test.xlf']);
@@ -88,7 +88,7 @@ class ValidationSummaryTest extends TestCase
             [$validator],
             ResultType::ERROR,
             $validatorFileSetPairs,
-            $statistics
+            $statistics,
         );
 
         $summary = ValidationSummary::fromValidationResult($validationResult);
@@ -98,7 +98,7 @@ class ValidationSummaryTest extends TestCase
         $this->assertSame(1, $summary->issuesCount);
         $this->assertSame(10, $summary->filesChecked);
         $this->assertSame(5, $summary->validatorsRun);
-        $this->assertSame(2.0, $summary->executionTime);
+        $this->assertEqualsWithDelta(2.0, $summary->executionTime, PHP_FLOAT_EPSILON);
     }
 
     public function testHasIssuesWithNoIssues(): void
