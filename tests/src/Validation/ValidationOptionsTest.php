@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validation;
 
 use MoveElevator\ComposerTranslationValidator\Validation\ValidationOptions;
+use MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -46,8 +47,8 @@ class ValidationOptionsTest extends TestCase
     public function testConstructorWithAllParameters(): void
     {
         $options = new ValidationOptions(
-            onlyValidators: ['Validator1', 'Validator2'],
-            skipValidators: ['Validator3'],
+            onlyValidators: [MismatchValidator::class, MismatchValidator::class],
+            skipValidators: [MismatchValidator::class],
             excludePatterns: ['*.backup'],
             recursive: true,
             strict: true,
@@ -55,8 +56,8 @@ class ValidationOptionsTest extends TestCase
             fileDetector: 'CustomDetector',
         );
 
-        $this->assertSame(['Validator1', 'Validator2'], $options->onlyValidators);
-        $this->assertSame(['Validator3'], $options->skipValidators);
+        $this->assertSame([MismatchValidator::class, MismatchValidator::class], $options->onlyValidators);
+        $this->assertSame([MismatchValidator::class], $options->skipValidators);
         $this->assertSame(['*.backup'], $options->excludePatterns);
         $this->assertTrue($options->recursive);
         $this->assertTrue($options->strict);
@@ -80,8 +81,8 @@ class ValidationOptionsTest extends TestCase
     public function testFromArrayWithStandardKeys(): void
     {
         $config = [
-            'only' => ['Validator1'],
-            'skip' => ['Validator2'],
+            'only' => [MismatchValidator::class],
+            'skip' => [MismatchValidator::class],
             'exclude' => ['*.tmp'],
             'recursive' => true,
             'strict' => true,
@@ -91,8 +92,8 @@ class ValidationOptionsTest extends TestCase
 
         $options = ValidationOptions::fromArray($config);
 
-        $this->assertSame(['Validator1'], $options->onlyValidators);
-        $this->assertSame(['Validator2'], $options->skipValidators);
+        $this->assertSame([MismatchValidator::class], $options->onlyValidators);
+        $this->assertSame([MismatchValidator::class], $options->skipValidators);
         $this->assertSame(['*.tmp'], $options->excludePatterns);
         $this->assertTrue($options->recursive);
         $this->assertTrue($options->strict);
@@ -103,8 +104,8 @@ class ValidationOptionsTest extends TestCase
     public function testFromArrayWithAlternativeKeys(): void
     {
         $config = [
-            'onlyValidators' => ['Validator1'],
-            'skipValidators' => ['Validator2'],
+            'onlyValidators' => [MismatchValidator::class],
+            'skipValidators' => [MismatchValidator::class],
             'excludePatterns' => ['*.tmp'],
             'dry-run' => true,
             'file-detector' => 'TestDetector',
@@ -112,8 +113,8 @@ class ValidationOptionsTest extends TestCase
 
         $options = ValidationOptions::fromArray($config);
 
-        $this->assertSame(['Validator1'], $options->onlyValidators);
-        $this->assertSame(['Validator2'], $options->skipValidators);
+        $this->assertSame([MismatchValidator::class], $options->onlyValidators);
+        $this->assertSame([MismatchValidator::class], $options->skipValidators);
         $this->assertSame(['*.tmp'], $options->excludePatterns);
         $this->assertTrue($options->dryRun);
         $this->assertSame('TestDetector', $options->fileDetector);
@@ -122,8 +123,8 @@ class ValidationOptionsTest extends TestCase
     public function testToArray(): void
     {
         $options = new ValidationOptions(
-            onlyValidators: ['Validator1'],
-            skipValidators: ['Validator2'],
+            onlyValidators: [MismatchValidator::class],
+            skipValidators: [MismatchValidator::class],
             excludePatterns: ['*.backup'],
             recursive: true,
             strict: true,
@@ -132,8 +133,8 @@ class ValidationOptionsTest extends TestCase
         );
 
         $expected = [
-            'only' => ['Validator1'],
-            'skip' => ['Validator2'],
+            'only' => [MismatchValidator::class],
+            'skip' => [MismatchValidator::class],
             'exclude' => ['*.backup'],
             'recursive' => true,
             'strict' => true,
@@ -147,15 +148,15 @@ class ValidationOptionsTest extends TestCase
     public function testImmutability(): void
     {
         $options = new ValidationOptions(
-            onlyValidators: ['Validator1'],
-            skipValidators: ['Validator2'],
+            onlyValidators: [MismatchValidator::class],
+            skipValidators: [MismatchValidator::class],
         );
 
         // Try to modify arrays (should not affect the object)
         $onlyValidators = $options->onlyValidators;
-        $onlyValidators[] = 'Validator3';
+        $onlyValidators[] = MismatchValidator::class;
 
-        $this->assertSame(['Validator1'], $options->onlyValidators);
+        $this->assertSame([MismatchValidator::class], $options->onlyValidators);
         $this->assertNotSame($onlyValidators, $options->onlyValidators);
     }
 }

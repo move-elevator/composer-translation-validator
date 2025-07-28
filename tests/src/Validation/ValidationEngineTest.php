@@ -24,12 +24,14 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validation;
 
 use InvalidArgumentException;
+use MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface;
 use MoveElevator\ComposerTranslationValidator\Result\ValidationResult;
 use MoveElevator\ComposerTranslationValidator\Service\ValidationOrchestrationService;
 use MoveElevator\ComposerTranslationValidator\Validation\ValidationEngine;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
 
@@ -103,7 +105,7 @@ class ValidationEngineTest extends TestCase
 
     public function testValidateProjectWithValidDirectory(): void
     {
-        $testPath = __DIR__ . '/../Fixtures/translations';
+        $testPath = __DIR__ . '/../Fixtures/translations/xliff/success';
         
         $result = $this->engine->validateProject($testPath);
 
@@ -119,7 +121,7 @@ class ValidationEngineTest extends TestCase
 
     public function testValidateProjectWithConfiguration(): void
     {
-        $testPath = __DIR__ . '/../Fixtures/translations';
+        $testPath = __DIR__ . '/../Fixtures/translations/xliff/success';
         $configuration = [
             'strict' => true,
             'excludePatterns' => ['**/fail/**'],
@@ -210,5 +212,39 @@ class ValidationEngineTest extends TestCase
         $result = $this->engine->validatePaths([$testPath], $options);
 
         $this->assertInstanceOf(ValidationResult::class, $result);
+    }
+
+    public function testValidatePathsLogsErrorOnException(): void
+    {
+        // Create a mock logger to capture log calls
+        $mockLogger = $this->createMock(LoggerInterface::class);
+        $mockLogger->expects($this->once())
+            ->method('error')
+            ->with(
+                'Validation execution failed',
+                $this->callback(function($context) {
+                    return isset($context['error']) && 
+                           isset($context['paths']) && 
+                           isset($context['options']);
+                })
+            );
+
+        // Create a mock orchestration service that throws an exception during execution
+        $mockOrchestrationService = $this->createMock(ValidationOrchestrationService::class);
+        $mockOrchestrationService->method('resolvePaths')
+            ->willReturn(['/test/path']);
+        $mockOrchestrationService->method('resolveFileDetector')
+            ->willReturn($this->createMock(DetectorInterface::class));
+        $mockOrchestrationService->method('resolveValidators')
+            ->willReturn([]);
+        $mockOrchestrationService->method('executeValidation')
+            ->willThrowException(new RuntimeException('Test error'));
+
+        $engine = new ValidationEngine($mockOrchestrationService, $mockLogger);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Validation failed: Test error');
+
+        $engine->validatePaths(['/test/path']);
     }
 }

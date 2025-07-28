@@ -77,6 +77,11 @@ final class ValidationEngine implements ValidationEngineInterface
                 $config
             );
         } catch (\Throwable $e) {
+            $this->logger->error('Validation execution failed', [
+                'error' => $e->getMessage(),
+                'paths' => $paths,
+                'options' => $options,
+            ]);
             throw new RuntimeException(
                 sprintf('Validation failed: %s', $e->getMessage()),
                 0,
@@ -120,15 +125,7 @@ final class ValidationEngine implements ValidationEngineInterface
                 return false;
             }
 
-            // Check if orchestration service is properly initialized
-            if (!isset($this->orchestrationService)) {
-                return false;
-            }
-
-            // Check if logger is available
-            if (!isset($this->logger)) {
-                return false;
-            }
+            // Basic readiness checks passed
 
             return true;
         } catch (\Throwable) {

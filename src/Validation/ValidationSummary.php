@@ -68,11 +68,13 @@ final readonly class ValidationSummary
             $validator = $pair['validator'];
             $issues = $validator->getIssues();
             foreach ($issues as $issue) {
+                $details = $issue->getDetails();
+                $message = implode(', ', $details);
                 $issueMessages[] = sprintf(
                     '[%s] %s: %s',
                     $validator::class,
                     $issue->getFile(),
-                    $issue->getMessage()
+                    $message
                 );
             }
         }
