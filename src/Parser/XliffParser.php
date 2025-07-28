@@ -36,7 +36,7 @@ class XliffParser extends AbstractParser implements ParserInterface
      * @throws InvalidArgumentException If file cannot be parsed as
      *                                  valid XML
      */
-    public function __construct(protected string $filePath)
+    public function __construct(string $filePath)
     {
         parent::__construct($filePath);
 
