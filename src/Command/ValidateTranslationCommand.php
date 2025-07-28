@@ -85,7 +85,7 @@ class ValidateTranslationCommand extends BaseCommand
                 'format',
                 'f',
                 InputOption::VALUE_OPTIONAL,
-                'Output format: cli or json',
+                'Output format: cli, json, or github',
                 FormatType::CLI->value,
             )
             ->addOption(
@@ -124,6 +124,7 @@ using multiple validators to ensure consistency, correctness and schema complian
   <info>composer validate-translations translations/</info>
   <info>composer validate-translations translations/ --recursive</info>
   <info>composer validate-translations translations/ -r --format json</info>
+  <info>composer validate-translations translations/ --format github</info>
   <info>composer validate-translations translations/ --dry-run</info>
   <info>composer validate-translations translations/ --strict</info>
   <info>composer validate-translations translations/ --only \</info>
@@ -148,8 +149,9 @@ You can configure the validator using:
   4. Auto-detection from project structure
 
 <comment>Output Formats:</comment>
-  • <info>cli</info>  - Human-readable console output (default)
-  • <info>json</info> - Machine-readable JSON output
+  • <info>cli</info>    - Human-readable console output (default)
+  • <info>json</info>   - Machine-readable JSON output
+  • <info>github</info> - GitHub Actions workflow commands for CI integration
 
 <comment>Modes:</comment>
   • <info>--dry-run</info> - Run validation without failing on errors

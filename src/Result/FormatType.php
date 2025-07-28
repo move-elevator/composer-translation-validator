@@ -27,4 +27,5 @@ enum FormatType: string
 {
     case CLI = 'cli';
     case JSON = 'json';
+    case GITHUB = 'github';
 }
