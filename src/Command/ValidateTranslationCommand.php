@@ -27,15 +27,10 @@ use Composer\Command\BaseCommand;
 use JsonException;
 use MoveElevator\ComposerTranslationValidator\Config\ConfigReader;
 use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
-use MoveElevator\ComposerTranslationValidator\FileDetector\Collector;
-use MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface;
 use MoveElevator\ComposerTranslationValidator\Result\FormatType;
 use MoveElevator\ComposerTranslationValidator\Result\Output;
-use MoveElevator\ComposerTranslationValidator\Result\ValidationRun;
-use MoveElevator\ComposerTranslationValidator\Utility\ClassUtility;
-use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
+use MoveElevator\ComposerTranslationValidator\Service\ValidationOrchestrationService;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
-use MoveElevator\ComposerTranslationValidator\Validator\ValidatorRegistry;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 use RuntimeException;
@@ -54,8 +49,8 @@ class ValidateTranslationCommand extends BaseCommand
     protected ?OutputInterface $output = null;
 
     protected LoggerInterface $logger;
+    protected ValidationOrchestrationService $orchestrationService;
 
-    protected ResultType $resultType = ResultType::SUCCESS;
     protected bool $dryRun = false;
     protected bool $strict = false;
 
@@ -166,6 +161,7 @@ HELP
         $this->output = $output;
         $this->io = new SymfonyStyle($input, $output);
         $this->logger = new ConsoleLogger($output);
+        $this->orchestrationService = new ValidationOrchestrationService($this->logger);
     }
 
     /**
@@ -175,14 +171,15 @@ HELP
     {
         $config = $this->loadConfiguration($input);
 
-        $paths = $this->resolvePaths($input, $config);
+        $inputPaths = $input->getArgument('path') ?: [];
+        $paths = $this->orchestrationService->resolvePaths($inputPaths, $config);
 
         $this->dryRun = $config->getDryRun() || $input->getOption('dry-run');
         $this->strict = $config->getStrict() || $input->getOption('strict');
         $recursive = (bool) $input->getOption('recursive');
         $excludePatterns = $config->getExclude();
 
-        $fileDetector = $this->resolveFileDetector($config);
+        $fileDetector = $this->orchestrationService->resolveFileDetector($config);
 
         if (empty($paths)) {
             $this->io?->error('No paths provided.');
@@ -190,23 +187,33 @@ HELP
             return Command::FAILURE;
         }
 
-        $allFiles = (new Collector($this->logger))->collectFiles(
+        $onlyValidators = $this->orchestrationService->validateClassInput(
+            ValidatorInterface::class,
+            'validator',
+            $input->getOption('only'),
+        );
+        $skipValidators = $this->orchestrationService->validateClassInput(
+            ValidatorInterface::class,
+            'validator',
+            $input->getOption('skip'),
+        );
+
+        $validators = $this->orchestrationService->resolveValidators($onlyValidators, $skipValidators, $config);
+
+        $validationResult = $this->orchestrationService->executeValidation(
             $paths,
-            $fileDetector,
             $excludePatterns,
             $recursive,
+            $fileDetector,
+            $validators,
+            $config,
         );
-        if (empty($allFiles)) {
+
+        if (null === $validationResult) {
             $this->io?->warning('No files found in the specified directories.');
 
             return Command::SUCCESS;
         }
-
-        $validators = $this->resolveValidators($input, $config);
-        $fileSets = ValidationRun::createFileSetsFromArray($allFiles);
-
-        $validationRun = new ValidationRun($this->logger);
-        $validationResult = $validationRun->executeFor($fileSets, $validators, $config);
 
         $format = FormatType::tryFrom($input->getOption('format') ?: $config->getFormat());
 
@@ -255,100 +262,5 @@ HELP
 
         // Return default configuration
         return new TranslationValidatorConfig();
-    }
-
-    /**
-     * @return string[]
-     */
-    private function resolvePaths(InputInterface $input, TranslationValidatorConfig $config): array
-    {
-        $inputPaths = $input->getArgument('path');
-        $configPaths = $config->getPaths();
-
-        $paths = !empty($inputPaths) ? $inputPaths : $configPaths;
-
-        return array_map(
-            static fn ($path) => str_starts_with((string) $path, '/')
-                ? $path
-                : getcwd().'/'.$path,
-            $paths,
-        );
-    }
-
-    private function resolveFileDetector(TranslationValidatorConfig $config): ?DetectorInterface
-    {
-        $configFileDetectors = $config->getFileDetectors();
-        $fileDetectorClass = !empty($configFileDetectors) ? $configFileDetectors[0] : null;
-
-        $detector = ClassUtility::instantiate(
-            DetectorInterface::class,
-            $this->logger,
-            'file detector',
-            $fileDetectorClass,
-        );
-
-        return $detector instanceof DetectorInterface ? $detector : null;
-    }
-
-    /**
-     * @return array<int, class-string<ValidatorInterface>>
-     */
-    private function resolveValidators(
-        InputInterface $input,
-        TranslationValidatorConfig $config,
-    ): array {
-        $inputOnly = $this->validateClassInput(
-            ValidatorInterface::class,
-            'validator',
-            $input->getOption('only'),
-        );
-        $inputSkip = $this->validateClassInput(
-            ValidatorInterface::class,
-            'validator',
-            $input->getOption('skip'),
-        );
-
-        $only = !empty($inputOnly) ? $inputOnly : $config->getOnly();
-        $skip = !empty($inputSkip) ? $inputSkip : $config->getSkip();
-
-        /** @var array<int, class-string<ValidatorInterface>> $result */
-        $result = match (true) {
-            !empty($only) => $only,
-            !empty($skip) => array_values(array_diff(ValidatorRegistry::getAvailableValidators(), $skip)),
-            default => ValidatorRegistry::getAvailableValidators(),
-        };
-
-        return $result;
-    }
-
-    /**
-     * @return array<int, class-string>
-     */
-    private function validateClassInput(
-        string $interface,
-        string $type,
-        ?string $className = null,
-    ): array {
-        if (null === $className) {
-            return [];
-        }
-
-        $classNames = str_contains($className, ',') ? explode(',', $className) : [$className];
-        /** @var array<int, class-string> $classes */
-        $classes = [];
-
-        foreach ($classNames as $name) {
-            ClassUtility::instantiate(
-                $interface,
-                $this->logger,
-                $type,
-                $name,
-            );
-            /** @var class-string $validatedName */
-            $validatedName = $name;
-            $classes[] = $validatedName;
-        }
-
-        return $classes;
     }
 }
