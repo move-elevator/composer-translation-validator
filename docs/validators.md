@@ -280,9 +280,9 @@ composer -d tests validate-translations Fixtures/examples/html-tags --only "Move
 **Configuration:**
 ```yaml
 # translation-validator.yaml
-validators:
+validator-settings:
   KeyNamingConventionValidator:
-    pattern: 'snake_case'
+    convention: snake_case
 ```
 
 **File: `mixed.en.yaml`**

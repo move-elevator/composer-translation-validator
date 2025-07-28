@@ -42,7 +42,7 @@ composer validate-translations ./translations
 The command `validate-translations` can be used to validate translation files in your project. It will automatically detect the translation files based on the supported formats and run the configured validators.
 
 ```bash
-composer validate-translations [<path>...] [--dry-run] [--strict] [--format|-f <cli|json>] [--skip|-s <VALIDATOR>...] [--only|-o <VALIDATOR>...] [--recursive|-r] [--verbose|-v] [--config|-c <CONFIG>]```
+composer validate-translations [<path>...] [--dry-run] [--strict] [--format|-f <cli|json>] [--skip|-s <VALIDATOR>...] [--only|-o <VALIDATOR>...] [--recursive|-r] [--verbose|-v] [--config|-c <CONFIG>]
 ```
 
 | Argument / Option | Shortcut | Description                                                                                       |
@@ -51,13 +51,13 @@ composer validate-translations [<path>...] [--dry-run] [--strict] [--format|-f <
 | `--format`        | `-f`     | Sets the output format (`cli`, `json`).                                                           |
 | `--skip`          | `-s`     | Skips specific validators (can be used multiple times).                                           |
 | `--only`          | `-o`     | Runs only the specified validators (can be used multiple times).                                  |
-| `--recursive`     | `-r`     | Search for translation files recursively in subdirectories                                  |
+| `--recursive`     | `-r`     | Search for translation files recursively in subdirectories                                   |
 | `--verbose`       | `-v`     | Shows additional output for detailed information.                                                 |
 | `--strict`        |          | Enables strict mode, treating warnings as errors.                                                 |
 | `--dry-run`       |          | Runs the validation in test mode without saving changes.                                          |
 | `--config`        | `-c`     | Path to a configuration file (e.g. `translation-validator.yaml`).                                 |
 
-Find more information about store a [config file](docs/config-file.md).
+Find more information about storing a [config file](docs/config-file.md).
 
 ## 📝 Documentation
 

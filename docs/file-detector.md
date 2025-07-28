@@ -240,7 +240,7 @@ Override automatic detection by specifying detectors in your configuration:
 
 ```yaml
 # translation-validator.yaml
-file_detectors:
+file-detectors:
   - "MoveElevator\\ComposerTranslationValidator\\FileDetector\\DirectoryFileDetector"
   - "MoveElevator\\ComposerTranslationValidator\\FileDetector\\SuffixFileDetector"
 ```
@@ -248,7 +248,7 @@ file_detectors:
 ```json
 // translation-validator.json
 {
-  "file_detectors": [
+  "file-detectors": [
     "MoveElevator\\ComposerTranslationValidator\\FileDetector\\PrefixFileDetector"
   ]
 }

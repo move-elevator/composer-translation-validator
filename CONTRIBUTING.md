@@ -11,8 +11,8 @@ Thank you for considering contributing to this project! Every contribution is we
 
 ```bash
 # Clone repository
-git clone https://github.com/move-elevator/composer-translation-validation.git
-cd composer-translation-validation
+git clone https://github.com/move-elevator/composer-translation-validator.git
+cd composer-translation-validator
 
 # Install dependencies
 composer install
