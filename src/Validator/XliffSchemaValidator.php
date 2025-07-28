@@ -73,27 +73,22 @@ class XliffSchemaValidator extends AbstractValidator implements ValidatorInterfa
     public function formatIssueMessage(Issue $issue, string $prefix = ''): string
     {
         $details = $issue->getDetails();
-        $messages = [];
 
-        foreach ($details as $error) {
-            if (is_array($error)) {
-                $message = $error['message'] ?? 'Schema validation error';
-                $line = isset($error['line']) ? " (Line: {$error['line']})" : '';
-                $code = isset($error['code']) ? " (Code: {$error['code']})" : '';
-                $level = $error['level'] ?? 'ERROR';
+        // Since AbstractValidator creates one Issue per error array,
+        // $details is the individual error array, not an array of errors
+        if (isset($details['message'])) {
+            $message = $details['message'];
+            $line = isset($details['line']) ? " (Line: {$details['line']})" : '';
+            $code = isset($details['code']) ? " (Code: {$details['code']})" : '';
+            $level = $details['level'] ?? 'ERROR';
 
-                $color = 'ERROR' === strtoupper($level) ? 'red' : 'yellow';
-                $levelText = ucfirst(strtolower($level));
+            $color = 'ERROR' === strtoupper((string) $level) ? 'red' : 'yellow';
+            $levelText = ucfirst(strtolower((string) $level));
 
-                $messages[] = "- <fg=$color>$levelText</> {$prefix}$message$line$code";
-            }
+            return "- <fg=$color>$levelText</> {$prefix}$message$line$code";
         }
 
-        if (empty($messages)) {
-            $messages[] = "- <fg=red>Error</> {$prefix}Schema validation error";
-        }
-
-        return implode("\n", $messages);
+        return "- <fg=red>Error</> {$prefix}Schema validation error";
     }
 
     /**

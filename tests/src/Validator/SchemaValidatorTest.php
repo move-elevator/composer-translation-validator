@@ -157,12 +157,10 @@ EOT
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
             'test.xlf',
             [
-                [
-                    'message' => 'Element was not closed',
-                    'line' => 10,
-                    'code' => 76,
-                    'level' => 'ERROR',
-                ],
+                'message' => 'Element was not closed',
+                'line' => 10,
+                'code' => 76,
+                'level' => 'ERROR',
             ],
             'XliffParser',
             'SchemaValidator',
@@ -185,12 +183,10 @@ EOT
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
             'test.xlf',
             [
-                [
-                    'message' => 'Some warning',
-                    'line' => 5,
-                    'code' => 77,
-                    'level' => 'WARNING',
-                ],
+                'message' => 'Some warning',
+                'line' => 5,
+                'code' => 77,
+                'level' => 'WARNING',
             ],
             'XliffParser',
             'SchemaValidator',
@@ -204,26 +200,19 @@ EOT
         $this->assertStringContainsString('<fg=yellow>', $result);
     }
 
-    public function testFormatIssueMessageMultipleErrors(): void
+    public function testFormatIssueMessageSingleError(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
         $validator = new XliffSchemaValidator($logger);
 
+        // With the new behavior, each error is a separate Issue
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
             'test.xlf',
             [
-                [
-                    'message' => 'First error',
-                    'line' => 10,
-                    'code' => 76,
-                    'level' => 'ERROR',
-                ],
-                [
-                    'message' => 'Second error',
-                    'line' => 15,
-                    'code' => 77,
-                    'level' => 'ERROR',
-                ],
+                'message' => 'Single error',
+                'line' => 10,
+                'code' => 76,
+                'level' => 'ERROR',
             ],
             'XliffParser',
             'SchemaValidator',
@@ -231,12 +220,10 @@ EOT
 
         $result = $validator->formatIssueMessage($issue);
 
-        $this->assertStringContainsString('First error', $result);
-        $this->assertStringContainsString('Second error', $result);
+        $this->assertStringContainsString('Single error', $result);
         $this->assertStringContainsString('Line: 10', $result);
-        $this->assertStringContainsString('Line: 15', $result);
-        // Should contain newline for multiple errors
-        $this->assertStringContainsString("\n", $result);
+        $this->assertStringContainsString('Code: 76', $result);
+        $this->assertStringContainsString('<fg=red>', $result);
     }
 
     public function testFormatIssueMessageEmptyDetails(): void
