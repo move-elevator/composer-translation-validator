@@ -40,5 +40,6 @@ final class FormatTypeTest extends TestCase
         $cases = FormatType::cases();
         $this->assertContains(FormatType::CLI, $cases);
         $this->assertContains(FormatType::JSON, $cases);
+        $this->assertContains(FormatType::GITHUB, $cases);
     }
 }
