@@ -36,6 +36,8 @@ abstract class AbstractValidator
     /** @var array<Issue> */
     protected array $issues = [];
 
+    protected string $currentFilePath = '';
+
     public function __construct(protected ?LoggerInterface $logger = null) {}
 
     /**
@@ -58,6 +60,8 @@ abstract class AbstractValidator
         );
 
         foreach ($files as $filePath) {
+            $this->currentFilePath = $filePath;
+
             $file = ParserCache::get(
                 $filePath,
                 $parserClass ?: ParserRegistry::resolveParserClass(
@@ -103,12 +107,26 @@ abstract class AbstractValidator
                 continue;
             }
 
-            $this->addIssue(new Issue(
-                $file->getFileName(),
-                $validationResult,
-                $file::class,
-                $name,
-            ));
+            // Handle case where processFile returns multiple issues
+            if (isset($validationResult[0]) && is_array($validationResult[0])) {
+                // Multiple issues - create one Issue object per item
+                foreach ($validationResult as $issueData) {
+                    $this->addIssue(new Issue(
+                        $filePath,
+                        $issueData,
+                        $file::class,
+                        $name,
+                    ));
+                }
+            } else {
+                // Single issue data - create one Issue object
+                $this->addIssue(new Issue(
+                    $filePath,
+                    $validationResult,
+                    $file::class,
+                    $name,
+                ));
+            }
         }
 
         $this->postProcess();
@@ -185,15 +203,12 @@ abstract class AbstractValidator
         $distribution = [];
 
         foreach ($this->issues as $issue) {
-            $fileName = $issue->getFile();
-            if (empty($fileName)) {
+            $filePath = $issue->getFile();
+            if (empty($filePath)) {
                 continue;
             }
 
-            // Build full path from fileSet and filename for consistency
-            $basePath = rtrim($fileSet->getPath(), '/');
-            $filePath = $basePath.'/'.$fileName;
-
+            // Use the full file path directly since it's now stored in Issue objects
             $distribution[$filePath] ??= [];
             $distribution[$filePath][] = $issue;
         }

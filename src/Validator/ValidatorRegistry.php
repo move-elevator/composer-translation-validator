@@ -37,6 +37,7 @@ class ValidatorRegistry
             EmptyValuesValidator::class,
             PlaceholderConsistencyValidator::class,
             HtmlTagValidator::class,
+            KeyNamingConventionValidator::class,
             XliffSchemaValidator::class,
             EncodingValidator::class,
         ];

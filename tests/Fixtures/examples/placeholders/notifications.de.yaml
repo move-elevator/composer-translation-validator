@@ -1,0 +1,3 @@
+welcome: "Willkommen {benutzername}!"
+order: "Bestellung #{order_id} für {sum}"
+email: "Gesendet an {email_address}"

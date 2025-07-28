@@ -274,4 +274,26 @@ final class DirectoryFileDetectorTest extends TestCase
 
         $this->assertSame($expected, $result);
     }
+
+    public function testMapTranslationSetWithInvalidPaths(): void
+    {
+        $detector = new DirectoryFileDetector();
+
+        $files = [
+            'messages.php',        // No directory structure
+            '/messages.php',       // Only one path segment
+            '/lang/en/messages.php', // Valid
+            '',                    // Empty path
+        ];
+
+        $result = $detector->mapTranslationSet($files);
+
+        $expected = [
+            'messages' => [
+                '/lang/en/messages.php',
+            ],
+        ];
+
+        $this->assertSame($expected, $result);
+    }
 }

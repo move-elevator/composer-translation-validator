@@ -31,6 +31,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use ReflectionClass;
 
 final class CollectorTest extends TestCase
 {
@@ -434,6 +435,94 @@ final class CollectorTest extends TestCase
         $collector = new Collector($logger);
 
         $result = $collector->collectFiles([$this->tempDir], $detector, null);
+
+        $this->assertEmpty($result);
+    }
+
+    public function testCollectFilesWithGlobFailure(): void
+    {
+        // Create a path that doesn't exist and will cause glob to return false
+        $nonExistentPath = '/this/path/absolutely/does/not/exist/anywhere';
+
+        $logger = $this->createMock(LoggerInterface::class);
+        // Don't expect any specific log calls since non-existent paths might not trigger warning logs
+
+        $detector = $this->createMock(DetectorInterface::class);
+        $collector = new Collector($logger);
+
+        $result = $collector->collectFiles([$nonExistentPath], $detector, null);
+
+        // Should return empty array when path doesn't exist
+        $this->assertEmpty($result);
+    }
+
+    public function testNormalizePathWithRealpathFailure(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $collector = new Collector($logger);
+
+        // Use reflection to test the private normalizePath method
+        $reflection = new ReflectionClass($collector);
+        $normalizePathMethod = $reflection->getMethod('normalizePath');
+        $normalizePathMethod->setAccessible(true);
+
+        // Test with a path that will cause realpath to fail
+        $nonExistentPath = '/completely/non/existent/path/that/will/fail';
+        $result = $normalizePathMethod->invoke($collector, $nonExistentPath);
+
+        // Should return the trimmed path when realpath fails
+        $expected = rtrim($nonExistentPath, '/\\');
+        $this->assertSame($expected, $result);
+    }
+
+    public function testCollectFilesWithExcludePatternFilteringAllFiles(): void
+    {
+        // Create test files
+        file_put_contents($this->tempDir.'/test.xlf', 'content');
+        file_put_contents($this->tempDir.'/another.xlf', 'content');
+
+        // Create a logger mock that expects a debug message when no files are found after filtering
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->atLeastOnce())
+            ->method('debug')
+            ->with($this->stringContains('No files found for parser class'));
+
+        $detector = $this->createMock(DetectorInterface::class);
+        $collector = new Collector($logger);
+
+        // Use exclude patterns that will filter out all files
+        $result = $collector->collectFiles(
+            [$this->tempDir],
+            $detector,
+            ['*.xlf', '*.xml'], // Exclude all xlf files
+            false,
+        );
+
+        $this->assertEmpty($result);
+    }
+
+    public function testCollectFilesRecursiveHandlesException(): void
+    {
+        // Create a directory that we'll try to access but then make inaccessible
+        $restrictedDir = $this->tempDir.'/restricted';
+        mkdir($restrictedDir, 0755);
+        file_put_contents($restrictedDir.'/test.xlf', 'content');
+
+        // Make the directory unreadable to trigger an exception
+        chmod($restrictedDir, 0000);
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->atLeastOnce())
+            ->method('error')
+            ->with($this->stringContains('Error during recursive file search:'));
+
+        $detector = $this->createMock(DetectorInterface::class);
+        $collector = new Collector($logger);
+
+        $result = $collector->collectFiles([$restrictedDir], $detector, null, true);
+
+        // Restore permissions for cleanup
+        chmod($restrictedDir, 0755);
 
         $this->assertEmpty($result);
     }
