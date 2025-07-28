@@ -329,7 +329,7 @@ final class EncodingValidatorTest extends TestCase
         $logger = $this->createMock(\Psr\Log\LoggerInterface::class);
         $logger->expects($this->once())
             ->method('error')
-            ->with('Could not read file content: temp-file.yaml');
+            ->with('File does not exist: temp-file.yaml');
 
         $validator = new EncodingValidator($logger);
         $issues = $validator->processFile($mockParser);
