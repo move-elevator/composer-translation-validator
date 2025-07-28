@@ -19,4 +19,4 @@ composer validate-translations [<path>...] [--dry-run] [--strict] [--format|-f <
 > [!IMPORTANT]
 > Either a path to translation files has to provided as a command argument or within the configuration file. If no path is provided, the validator will abort.
 
-Find more information about storing configuration within a [config file](docs/config-file.md).
+Find more information about storing configuration within a [config file](config-file.md).
