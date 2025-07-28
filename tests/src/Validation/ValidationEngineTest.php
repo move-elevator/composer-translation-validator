@@ -84,7 +84,7 @@ class ValidationEngineTest extends TestCase
     {
         $result = $this->engine->validatePaths(['/nonexistent/path']);
 
-        $this->assertNotInstanceOf(\MoveElevator\ComposerTranslationValidator\Result\ValidationResult::class, $result);
+        $this->assertNotInstanceOf(ValidationResult::class, $result);
     }
 
     public function testValidateProjectWithEmptyPath(): void
@@ -222,7 +222,7 @@ class ValidationEngineTest extends TestCase
             ->method('error')
             ->with(
                 'Validation execution failed',
-                $this->callback(fn($context) => isset($context['error'])
+                $this->callback(fn ($context) => isset($context['error'])
                        && isset($context['paths'])
                        && isset($context['options'])),
             );
