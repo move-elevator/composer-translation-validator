@@ -125,7 +125,7 @@ composer -d tests validate-translations Fixtures/examples/duplicate-values --onl
 > Example command to skip this validator:
 > ```bash
 > composer validate-translations ./translations --skip "MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateValuesValidator"
-> ````
+> ```
 >
 > or within your configuration file , e.g. `translation-validator.yaml`:
 > ```yaml
