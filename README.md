@@ -16,8 +16,9 @@ Supports XLIFF, YAML, JSON and PHP translation files.
 ## ✨ Features
 
 * Autodetect coherent language files
-* Supports various [translation formats](#supported-translation-file-formats)
+* Supports various [translation file formats](#supported-file-formats)
 * Provides multiple [validators](#translation-validators)
+* Configurable via separate [configuration files](docs/config-file.md)
 
 ## 🔥 Installation
 
@@ -39,60 +40,40 @@ composer validate-translations ./translations
 
 ![console.png](docs/console.png)
 
-The command `validate-translations` can be used to validate translation files in your project. It will automatically detect the translation files based on the supported formats and run the configured validators.
-
-```bash
-composer validate-translations [<path>...] [--dry-run] [--strict] [--format|-f <cli|json>] [--skip|-s <VALIDATOR>...] [--only|-o <VALIDATOR>...] [--recursive|-r] [--verbose|-v] [--config|-c <CONFIG>]```
-```
-
-| Argument / Option | Shortcut | Description                                                                                       |
-|-------------------|----------|---------------------------------------------------------------------------------------------------|
-| `<path>`          |          | (Optional) Path to the translation files or directories to validate (can be used multiple times). |
-| `--format`        | `-f`     | Sets the output format (`cli`, `json`).                                                           |
-| `--skip`          | `-s`     | Skips specific validators (can be used multiple times).                                           |
-| `--only`          | `-o`     | Runs only the specified validators (can be used multiple times).                                  |
-| `--recursive`     | `-r`     | Search for translation files recursively in subdirectories                                  |
-| `--verbose`       | `-v`     | Shows additional output for detailed information.                                                 |
-| `--strict`        |          | Enables strict mode, treating warnings as errors.                                                 |
-| `--dry-run`       |          | Runs the validation in test mode without saving changes.                                          |
-| `--config`        | `-c`     | Path to a configuration file (e.g. `translation-validator.yaml`).                                 |
-
-Find more information about store a [config file](docs/config-file.md).
+The command `validate-translations` can be used to validate translation files in your project. It will automatically detect the translation files based on the supported formats and run the configured validators. See the [console command documentation](docs/console-command.md) for more details.
 
 ## 📝 Documentation
 
 ### Supported File Formats
 
-| Format | Frameworks | Examples |
-|--------|------------|----------|
-| **[XLIFF](docs/file-detector.md#xliff-xml-localization-interchange-file-format)** | TYPO3 CMS | `locallang.xlf`, `de.locallang.xlf` |
-| **[YAML](docs/file-detector.md#yaml-yaml-aint-markup-language)** | Symfony | `messages.en.yaml`, `messages.de.yaml` |
-| **[JSON](docs/file-detector.md#json-javascript-object-notation)** | Laravel, Symfony | `messages.en.json`, `messages.de.json` |
-| **[PHP](docs/file-detector.md#php-arrays)** | Laravel, Symfony | `en/messages.php`, `messages.en.php` |
+Translations will be detected and grouped by the following file formats (regarding the associated frameworks):
 
-See detailed format [documentation](docs/file-detector.md) and file grouping.
+| Format | Frameworks | Example files                          |
+|--------|------------|----------------------------------------|
+| [XLIFF](docs/file-detector.md#xliff-xml-localization-interchange-file-format) | TYPO3 CMS | `locallang.xlf`, `de.locallang.xlf`    |
+| [YAML](docs/file-detector.md#yaml-yaml-aint-markup-language) | Symfony | `messages.en.yaml`, `messages.de.yaml` |
+| [JSON](docs/file-detector.md#json-javascript-object-notation) | Laravel, Symfony | `messages.en.json`, `messages.de.json` |
+| [PHP](docs/file-detector.md#php-arrays) | Laravel, Symfony | `en/messages.php`, `messages.en.php`   |
+
+See detailed [file format and file detection documentation](docs/file-detector.md) with examples.
 
 ### Translation Validators
 
-The following translation validators are available:
+The following translation validators are available (and enabled by default):
 
-| Validator | Description | Result |
-|-----------|-------------|---------|
-| **[DuplicateKeysValidator](docs/validators.md#duplicatekeysvalidator)** | Catches duplicate keys within files | <span style="color:red">ERROR</span> |
-| **[DuplicateValuesValidator](docs/validators.md#duplicatevaluesvalidator)** | Finds identical translation values | <span style="color:orange">WARNING</span> |
-| **[EmptyValuesValidator](docs/validators.md#emptyvaluesvalidator)** | Detects empty or whitespace-only values | <span style="color:orange">WARNING</span> |
-| **[EncodingValidator](docs/validators.md#encodingvalidator)** | Validates UTF-8 encoding and Unicode issues | <span style="color:orange">WARNING</span> |
-| **[HtmlTagValidator](docs/validators.md#htmltagvalidator)** | Ensures HTML tag consistency across languages | <span style="color:orange">WARNING</span> |
-| **[KeyNamingConventionValidator](docs/validators.md#keynamingconventionvalidator)** | Enforces key naming patterns (requires config) | <span style="color:orange">WARNING</span> |
-| **[MismatchValidator](docs/validators.md#mismatchvalidator)** | Finds missing translations between files | <span style="color:orange">WARNING</span> |
-| **[PlaceholderConsistencyValidator](docs/validators.md#placeholderconsistencyvalidator)** | Validates placeholder patterns | <span style="color:orange">WARNING</span> |
-| **[XliffSchemaValidator](docs/validators.md#xliffschemavalidator)** | Validates XLIFF against XML schemas | <span style="color:red">ERROR</span> |
+| Validator | Description |
+|-----------|-------------|
+| [DuplicateKeysValidator](docs/validators.md#duplicatekeysvalidator) | Catches duplicate keys within files |
+| [DuplicateValuesValidator](docs/validators.md#duplicatevaluesvalidator) | Finds identical translation values |
+| [EmptyValuesValidator](docs/validators.md#emptyvaluesvalidator) | Detects empty or whitespace-only values |
+| [EncodingValidator](docs/validators.md#encodingvalidator) | Validates UTF-8 encoding and Unicode issues |
+| [HtmlTagValidator](docs/validators.md#htmltagvalidator) | Ensures HTML tag consistency across languages |
+| [KeyNamingConventionValidator](docs/validators.md#keynamingconventionvalidator) | Enforces key naming patterns (requires config) |
+| [MismatchValidator](docs/validators.md#mismatchvalidator) | Finds missing translations between files |
+| [PlaceholderConsistencyValidator](docs/validators.md#placeholderconsistencyvalidator) | Validates placeholder patterns |
+| [XliffSchemaValidator](docs/validators.md#xliffschemavalidator) | Validates XLIFF against XML schemas |
 
-View detailed [documentation](docs/validators.md) with examples.
-
-### Validator-Specific Configuration
-
-Some validators support additional configuration options. For detailed configuration instructions and examples, see [Validator Configuration](docs/validator-configuration.md).
+View detailed [validator documentation](docs/validators.md) with examples.
 
 ## 🧑‍💻 Contributing
 

@@ -8,7 +8,7 @@ to customize validation behavior, specify paths and control which validators are
 >
 > See the [JSON Schema](../schema/translation-validator.schema.json) section for more details.
 
-See the [Configuration Schema](../docs/schema.md) for details on available options.
+See the [Configuration Schema](schema.md) for details on available options.
 
 ## Formats
 
@@ -56,7 +56,7 @@ Create a JSON file with the following structure:
     "MoveElevator\\ComposerTranslationValidator\\Validator\\MismatchValidator",
     "MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator",
     "MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateValuesValidator",
-    "MoveElevator\\ComposerTranslationValidator\\Validator\\SchemaValidator"
+    "MoveElevator\\ComposerTranslationValidator\\Validator\\XliffSchemaValidator"
   ],
   "file-detectors": [
     "MoveElevator\\ComposerTranslationValidator\\FileDetector\\SuffixFileDetector"
@@ -65,7 +65,7 @@ Create a JSON file with the following structure:
     "MoveElevator\\ComposerTranslationValidator\\Validator\\MismatchValidator"
   ],
   "skip": [
-    "MoveElevator\\ComposerTranslationValidator\\Validator\\SchemaValidator"
+    "MoveElevator\\ComposerTranslationValidator\\Validator\\XliffSchemaValidator"
   ],
   "exclude": [
     "**/backup/**",
@@ -92,7 +92,7 @@ validators:
   - MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator
   - MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator
   - MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator
-  - MoveElevator\ComposerTranslationValidator\Validator\SchemaValidator
+  - MoveElevator\ComposerTranslationValidator\Validator\XliffSchemaValidator
 
 file-detectors:
   - MoveElevator\ComposerTranslationValidator\FileDetector\SuffixFileDetector
@@ -101,7 +101,7 @@ only:
   - MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator
 
 skip:
-  - MoveElevator\ComposerTranslationValidator\Validator\SchemaValidator
+  - MoveElevator\ComposerTranslationValidator\Validator\XliffSchemaValidator
 
 exclude:
   - "**/backup/**"
