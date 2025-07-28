@@ -588,8 +588,8 @@ final class KeyNamingConventionValidatorTest extends TestCase
         // Should detect invalid_key as violation
         $this->assertCount(1, $result);
         $this->assertEquals('invalid_key', $result[0]['key']);
-        // expected_convention is now an enum, not a string
-        $this->assertInstanceOf(\MoveElevator\ComposerTranslationValidator\Enum\KeyNamingConvention::class, $result[0]['expected_convention']);
+        // expected_convention is now a string value from enum
+        $this->assertEquals('dot.notation', $result[0]['expected_convention']);
     }
 
     public function testDotNotationConversion(): void

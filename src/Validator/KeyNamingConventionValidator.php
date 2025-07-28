@@ -70,7 +70,7 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
                     $issueData[] = [
                         'key' => $key,
                         'file' => $file->getFileName(),
-                        'expected_convention' => $this->convention,
+                        'expected_convention' => $this->convention->value ?? 'custom pattern',
                         'pattern' => $this->getActivePattern(),
                         'suggestion' => $this->suggestCorrection($key),
                     ];

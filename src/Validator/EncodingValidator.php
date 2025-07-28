@@ -41,6 +41,14 @@ class EncodingValidator extends AbstractValidator implements ValidatorInterface
         $filePath = $file->getFilePath();
         $issues = [];
 
+        if (!file_exists($filePath)) {
+            $this->logger?->error(
+                'File does not exist: '.$file->getFileName(),
+            );
+
+            return [];
+        }
+
         // Read raw file content
         $content = file_get_contents($filePath);
         if (false === $content) {
