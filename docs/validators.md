@@ -2,21 +2,12 @@
 
 This page provides detailed explanations for each validator available in the Composer Translation Validator. Each validator comes with practical examples showing problematic translations and their corresponding console output.
 
-## 🚀 Quick Testing
 
-All examples include ready-to-use test files in `tests/Fixtures/examples/`. No need to create files manually - just run the commands directly!
+## [`DuplicateKeysValidator`](../src/Validator/DuplicateKeysValidator.php)
 
-**Requirements:**
-- Run commands from the project root directory
-- Plugin is automatically available via `-d tests` flag
-- Use full validator class names (as shown in examples below)
+Catches duplicate translation keys within the same file, which can cause unpredictable behavior in your application.
 
-## DuplicateKeysValidator
-
-**What it does:** Catches duplicate translation keys within the same file, which can cause unpredictable behavior in your application.
-
-**Supports:** XLIFF, YAML, JSON, PHP
-**Result:** ERROR (blocks deployment)
+- **Result:** ![Error](https://img.shields.io/badge/ERROR-red)
 
 ### Example Problem
 
@@ -33,7 +24,7 @@ All examples include ready-to-use test files in `tests/Fixtures/examples/`. No n
         <source>Hello user</source>
         <target>Hello user</target>
       </trans-unit>
-      <trans-unit id="welcome">  <!-- 🚨 Duplicate ID! -->
+      <trans-unit id="welcome">  <!-- Duplicate ID! -->
         <source>Welcome back!</source>
         <target>Welcome back!</target>
       </trans-unit>
@@ -54,27 +45,29 @@ Fixtures/examples/duplicate-keys/messages.en.xlf
 ```
 
 <details>
-<summary>🧪 <strong>Test this example locally</strong></summary>
+<summary>Test this example locally</summary>
 
 ```bash
 # Run the validator using pre-created fixtures (from project root)
 composer -d tests validate-translations Fixtures/examples/duplicate-keys --only "MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator"
 ```
 
-**📁 Example files:** Check `tests/Fixtures/examples/duplicate-keys/` to see the XLIFF file with duplicate ID attributes.
+**Example files:** Check `tests/Fixtures/examples/duplicate-keys/` to see the XLIFF file with duplicate ID attributes.
 
 </details>
 
-**Why this matters:** Most parsers will silently use the last occurrence, making your first translation unreachable. This validator ensures you catch these before they reach production.
+Most parsers will silently use the last occurrence, making your first translation unreachable. This validator ensures you catch these before they reach production.
+
+> [!NOTE]
+> In many formats, such errors are already caught by the IDEs or an interpreter. However, such problems can occur, especially with XLIFF files.
 
 ---
 
-## DuplicateValuesValidator
+## [`DuplicateValuesValidator`](../src/Validator/DuplicateValuesValidator.php)
 
-**What it does:** Identifies identical translation values that might indicate copy-paste errors or missing translations.
+Identifies identical translation values that might indicate copy-paste errors or missing translations.
 
-**Supports:** XLIFF, YAML, JSON, PHP
-**Result:** WARNING
+- **Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
 
 ### Example Problem
 
@@ -82,9 +75,9 @@ composer -d tests validate-translations Fixtures/examples/duplicate-keys --only 
 ```yaml
 validation:
   required: "This field is required"
-  email: "This field is required"     # 🚨 Same value as 'required'
+  email: "This field is required"     # Same value as 'required'
   phone: "Please enter a valid phone"
-  address: "Please enter a valid phone" # 🚨 Copy-paste error
+  address: "Please enter a valid phone" # Copy-paste error
 ```
 
 ### Console Output
@@ -100,27 +93,40 @@ Fixtures/examples/duplicate-values/errors.en.yaml
 ```
 
 <details>
-<summary>🧪 <strong>Test this example locally</strong></summary>
+<summary>Test this example locally</summary>
 
 ```bash
 # Run the validator using pre-created fixtures (from project root)
 composer -d tests validate-translations Fixtures/examples/duplicate-values --only "MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateValuesValidator" -v
 ```
 
-**📁 Example files:** Check `tests/Fixtures/examples/duplicate-values/` to see the problematic translation file.
+**Example files:** Check `tests/Fixtures/examples/duplicate-values/` to see the problematic translation file.
 
 </details>
 
-**Pro tip:** While sometimes duplicate values are intentional, they often reveal incomplete translations or copy-paste mistakes.
+> [!TIP]
+> While sometimes duplicate values are intentional, they often reveal incomplete translations or copy-paste mistakes.
+> If you want to suppress these warnings, you can skip this validator using the `--skip` option or using the configuration file.
+>
+> Example command to skip this validator:
+> ```bash
+> composer validate-translations ./translations --skip "MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateValuesValidator"```
+> ````
+>
+> or within your configuration file , e.g. `translation-validator.yaml`:
+> ```yaml
+> skip:
+>   - MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator
+> ```
+
 
 ---
 
-## EmptyValuesValidator
+## [`EmptyValuesValidator`](../src/Validator/EmptyValuesValidator.php)
 
-**What it does:** Hunts down empty or whitespace-only translation values that would display nothing to users.
+Hunts down empty or whitespace-only translation values that would display nothing to users.
 
-**Supports:** XLIFF, YAML, JSON, PHP
-**Result:** WARNING
+- **Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
 
 ### Example Problem
 
@@ -135,11 +141,11 @@ composer -d tests validate-translations Fixtures/examples/duplicate-values --onl
       </trans-unit>
       <trans-unit id="about">
         <source>About</source>
-        <target></target> <!-- 🚨 Empty translation -->
+        <target></target> <!-- Empty translation -->
       </trans-unit>
       <trans-unit id="contact">
         <source>Contact</source>
-        <target>   </target> <!-- 🚨 Only whitespace -->
+        <target>   </target> <!-- Only whitespace -->
       </trans-unit>
     </body>
   </file>
@@ -158,32 +164,33 @@ Fixtures/examples/empty-values/navigation.de.xlf
 ```
 
 <details>
-<summary>🧪 <strong>Test this example locally</strong></summary>
+<summary>Test this example locally</summary>
 
 ```bash
 # Run the validator using pre-created fixtures (from project root)
 composer -d tests validate-translations Fixtures/examples/empty-values --only "MoveElevator\\ComposerTranslationValidator\\Validator\\EmptyValuesValidator" -v
 ```
 
-**📁 Example files:** Check `tests/Fixtures/examples/empty-values/` to see the XLIFF file with empty translations.
+**Example files:** Check `tests/Fixtures/examples/empty-values/` to see the XLIFF file with empty translations.
 
 </details>
 
-**Quick fix:** Either provide proper translations or remove these entries entirely if they're not needed yet.
+> [!NOTE]
+> Either provide proper translations or remove these entries entirely if they're not needed yet.
 
 ---
 
-## EncodingValidator
+## [`EncodingValidator`](../src/Validator/EncodingValidator.php)
 
-**What it does:** Ensures your files use proper UTF-8 encoding and catches sneaky Unicode issues that can break your app.
+Ensures your files use proper UTF-8 encoding and catches sneaky Unicode issues that can break your app.
 
-**Supports:** XLIFF, YAML, JSON, PHP
-**Result:** WARNING
+- **Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
 
 ### Example Problems
 
 **File: `special.en.json` (with BOM)**
 ```json
+\xEF\xBB\xBF
 {
   "currency": "Price: €99",
   "copyright": "© 2024 Company"
@@ -192,33 +199,37 @@ composer -d tests validate-translations Fixtures/examples/empty-values --only "M
 
 ### Console Output
 ```
- [OK] Language validation succeeded.
+special.en.json
+
+EncodingValidator
+  - Warning encoding issue: File contains UTF-8 Byte Order Mark (BOM)
+  - Warning encoding issue: File contains invisible characters: Zero-width space, Zero-width no-break space
+
+[WARNING] Language validation completed with warnings.
 ```
 
-**Note:** The EncodingValidator didn't detect issues with this specific file. For files with actual encoding problems (BOM, mixed line endings, etc.), you would see detailed warnings about the specific encoding issues detected.
-
 <details>
-<summary>🧪 <strong>Test this example locally</strong></summary>
+<summary>Test this example locally</summary>
 
 ```bash
 # Run the validator using pre-created fixtures (from project root)
 composer -d tests validate-translations Fixtures/examples/encoding --only "MoveElevator\\ComposerTranslationValidator\\Validator\\EncodingValidator"
 ```
 
-**📁 Example files:** Check `tests/Fixtures/examples/encoding/` to see the JSON file with BOM and encoding issues.
+**Example files:** Check `tests/Fixtures/examples/encoding/` to see the JSON file with BOM and encoding issues.
 
 </details>
 
-**Why this matters:** Encoding issues can cause mysterious character displays, especially with special symbols, emojis, or non-Latin scripts.
+> [!NOTE]
+> Encoding issues can cause mysterious character displays, especially with special symbols, emojis or non-Latin scripts.
 
 ---
 
-## HtmlTagValidator
+## [`HtmlTagValidator`](../src/Validator/HtmlTagValidator.php)HtmlTagValidator
 
-**What it does:** Verifies HTML tags are consistent across all language versions - same tags, proper nesting, matching attributes.
+Verifies HTML tags are consistent across all language versions: same tags, proper nesting, matching attributes.
 
-**Supports:** XLIFF, YAML, JSON, PHP
-**Result:** WARNING
+- **Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
 
 ### Example Problem
 
@@ -230,8 +241,8 @@ footer: 'Visit our <a href="/about" class="link">about page</a>'
 
 **File: `messages.de.yaml`**
 ```yaml
-welcome: "Willkommen <em>neuer Nutzer</em>!"  # 🚨 <strong> became <em>
-footer: 'Besuchen Sie unsere <a href="/about">Über-Seite</a>'  # 🚨 Missing class
+welcome: "Willkommen <em>neuer Nutzer</em>!"  # <strong> became <em>
+footer: 'Besuchen Sie unsere <a href="/about">Über-Seite</a>'  #  Missing class
 ```
 
 ### Console Output
@@ -252,28 +263,27 @@ Fixtures/examples/html-tags/messages.de.yaml
 ```
 
 <details>
-<summary>🧪 <strong>Test this example locally</strong></summary>
+<summary>Test this example locally</summary>
 
 ```bash
 # Run the validator using pre-created fixtures (from project root)
 composer -d tests validate-translations Fixtures/examples/html-tags --only "MoveElevator\\ComposerTranslationValidator\\Validator\\HtmlTagValidator" -v
 ```
 
-**📁 Example files:** Check `tests/Fixtures/examples/html-tags/` to see the English and German files with mismatched HTML tags.
+**Example files:** Check `tests/Fixtures/examples/html-tags/` to see the English and German files with mismatched HTML tags.
 
 </details>
 
-**Best practice:** Keep HTML structure identical across languages, only translate the text content.
-
 ---
 
-## KeyNamingConventionValidator
+## [`KeyNamingConventionValidator`](../src/Validator/KeyNamingConventionValidator.php)
 
-**What it does:** Enforces consistent naming patterns for translation keys (requires configuration to activate).
+Enforces consistent naming patterns for translation keys (requires configuration to activate).
 
-**Supports:** XLIFF, YAML, JSON, PHP
-**Result:** WARNING
-**Note:** Only runs when explicitly configured
+- **Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
+
+> [!NOTE]
+> This validator requires a configuration file to specify a desired naming convention (e.g., `snake_case`, `camelCase`, etc.). If not configured, it try to detect the most common pattern used in your files and warns about inconsistencies.
 
 ### Example Problem
 
@@ -285,12 +295,14 @@ validator-settings:
     convention: snake_case
 ```
 
+See the [configuration file documentation](config-file.md) for more details on how to set this up.
+
 **File: `mixed.en.yaml`**
 ```yaml
-user_name: "Username"           # ✅ Good
-userEmail: "Email"              # 🚨 camelCase
-user-phone: "Phone"             # 🚨 kebab-case
-User.Address: "Address"         # 🚨 Mixed styles
+user_name: "Username"
+userEmail: "Email"              # camelCase
+user-phone: "Phone"             # kebab-case
+User.Address: "Address"         # Mixed styles
 ```
 
 ### Console Output
@@ -301,27 +313,50 @@ User.Address: "Address"         # 🚨 Mixed styles
 **Note:** The current fixture file contains only valid snake_case keys. To see validation errors, you would need to include keys that violate the naming convention (like camelCase or kebab-case).
 
 <details>
-<summary>🧪 <strong>Test this example locally</strong></summary>
+<summary>Test this example locally</summary>
 
 ```bash
 # Run the validator using pre-created fixtures (from project root)
 composer -d tests validate-translations Fixtures/examples/key-naming --only "MoveElevator\\ComposerTranslationValidator\\Validator\\KeyNamingConventionValidator" --config Fixtures/examples/key-naming/translation-validator.yaml -v
 ```
 
-**📁 Example files:** Check `tests/Fixtures/examples/key-naming/` to see the translation file with mixed naming conventions and the config file.
+**Example files:** Check `tests/Fixtures/examples/key-naming/` to see the translation file with mixed naming conventions and the config file.
 
 </details>
 
-**Available patterns:** `snake_case`, `camelCase`, `kebab-case`, `dot.notation`, or custom regex patterns.
+The following naming conventions are supported:
+
+- `snake_case` - user_name, form_submit
+- `camelCase` - userName, formSubmit
+- `kebab-case` - user-name, form-submit
+- `PascalCase` - UserName, FormSubmit
+- `custom_pattern` - Define your own regex pattern
+
+> [!NOTE]
+> Dot notation (e.g., `user.name`, `form.submit`) is not supported by this validator, as it is typically used for nested structures rather than flat key names.
+
+You can also define your own regex pattern using the `custom_pattern` option in the configuration file.
+
+```yaml
+validator-settings:
+  KeyNamingConventionValidator:
+    # Only lowercase letters and numbers
+    custom_pattern: '/^[a-z0-9]+$/'
+
+    # Specific prefix requirement
+    custom_pattern: '/^app\.[a-z][a-z0-9_]*$/'
+
+    # Maximum length constraint
+    custom_pattern: '/^[a-z][a-z0-9_]{0,29}$/' # Max 30 characters
+```
 
 ---
 
-## MismatchValidator
+## [`MismatchValidator`](../src/Validator/MismatchValidator.php)
 
-**What it does:** The breadfinder! Catches translation keys that exist in some language files but are missing from others.
+The breadfinder! Catches translation keys that exist in some language files but are missing from others.
 
-**Supports:** XLIFF, YAML, JSON, PHP
-**Result:** WARNING
+- **Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
 
 ### Example Problem
 
@@ -338,7 +373,7 @@ edit: "Edit"
 save: "Speichern"
 cancel: "Abbrechen"
 edit: "Bearbeiten"
-# 🚨 'delete' key missing!
+# 'delete' key missing!
 ```
 
 **File: `buttons.fr.yaml`**
@@ -346,7 +381,7 @@ edit: "Bearbeiten"
 save: "Sauvegarder"
 cancel: "Annuler"
 delete: "Supprimer"
-duplicate: "Dupliquer"  # 🚨 Extra key not in other files
+duplicate: "Dupliquer"  # Extra key not in other files
 ```
 
 ### Console Output
@@ -371,27 +406,27 @@ Fixtures/examples/mismatch/buttons.de.yaml
 ```
 
 <details>
-<summary>🧪 <strong>Test this example locally</strong></summary>
+<summary>Test this example locally</summary>
 
 ```bash
 # Run the validator using pre-created fixtures (from project root)
 composer -d tests validate-translations Fixtures/examples/mismatch --only "MoveElevator\\ComposerTranslationValidator\\Validator\\MismatchValidator" -v
 ```
 
-**📁 Example files:** Check `tests/Fixtures/examples/mismatch/` to see the English, German, and French files with missing translation keys.
+**Example files:** Check `tests/Fixtures/examples/mismatch/` to see the English, German, and French files with missing translation keys.
 
 </details>
 
-**Pro tip:** This is usually the most valuable validator - it catches incomplete translations that would show key names to users instead of proper text.
+> [!TIP]
+> This is usually the most valuable validator - it catches incomplete translations that would show key names to users instead of proper text.
 
 ---
 
-## PlaceholderConsistencyValidator
+## [`PlaceholderConsistencyValidator`](../src/Validator/PlaceholderConsistencyValidator.php)
 
-**What it does:** Ensures placeholder patterns are consistent across languages so dynamic content works everywhere.
+Ensures placeholder patterns are consistent across languages so dynamic content works everywhere.
 
-**Supports:** XLIFF, YAML, JSON, PHP
-**Result:** WARNING
+- **Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
 
 ### Example Problem
 
@@ -404,9 +439,9 @@ email: "Sent to {{email_address}}"
 
 **File: `notifications.de.yaml`**
 ```yaml
-welcome: "Willkommen {benutzername}!"     # 🚨 Different placeholder name
-order: "Bestellung #{order_id} für {sum}" # 🚨 'amount' became 'sum'
-email: "Gesendet an {email_address}"      # 🚨 Missing double braces
+welcome: "Willkommen {benutzername}!"     # Different placeholder name
+order: "Bestellung #{order_id} für {sum}" # 'amount' became 'sum'
+email: "Gesendet an {email_address}"      # Missing double braces
 ```
 
 ### Console Output
@@ -431,27 +466,30 @@ Fixtures/examples/placeholders/notifications.de.yaml
 ```
 
 <details>
-<summary>🧪 <strong>Test this example locally</strong></summary>
+<summary>Test this example locally</summary>
 
 ```bash
 # Run the validator using pre-created fixtures (from project root)
 composer -d tests validate-translations Fixtures/examples/placeholders --only "MoveElevator\\ComposerTranslationValidator\\Validator\\PlaceholderConsistencyValidator" -v
 ```
 
-**📁 Example files:** Check `tests/Fixtures/examples/placeholders/` to see the English and German files with inconsistent placeholder patterns.
+**Example files:** Check `tests/Fixtures/examples/placeholders/` to see the English and German files with inconsistent placeholder patterns.
 
 </details>
 
-**Critical insight:** Mismatched placeholders will break variable substitution in your app, showing raw placeholder text to users.
+> [!WARNING]
+> Mismatched placeholders will break variable substitution in your app, showing raw placeholder text to users.
 
 ---
 
-## XliffSchemaValidator
+## [`XliffSchemaValidator`](../src/Validator/XliffSchemaValidator.php)
 
-**What it does:** Validates XLIFF files against official XML schemas to ensure they're structurally correct.
+Validates XLIFF files against official XML schemas to ensure they're structurally correct.
 
-**Supports:** XLIFF only
-**Result:** ERROR (blocks deployment)
+**Result:** ![Error](https://img.shields.io/badge/ERROR-red)
+
+> [!IMPORTANT]
+> This validator is only applicable to XLIFF files. It checks for schema compliance, missing required attributes and structural integrity.
 
 ### Example Problem
 
@@ -462,15 +500,15 @@ composer -d tests validate-translations Fixtures/examples/placeholders --only "M
     <body>
       <trans-unit id="test">
         <source>Hello</source>
-        <!-- 🚨 Missing closing </trans-unit> tag -->
+        <!-- Missing closing </trans-unit> tag -->
       </trans-unit>
-      <trans-unit>  <!-- 🚨 Missing required 'id' attribute -->
+      <trans-unit>  <!-- Missing required 'id' attribute -->
         <source>World</source>
         <target>Welt</target>
       </trans-unit>
     </body>
   </file>
-<!-- 🚨 Missing closing </xliff> tag -->
+<!-- Missing closing </xliff> tag -->
 ```
 
 ### Console Output
@@ -489,18 +527,19 @@ Fixtures/examples/xliff-schema/malformed.xlf
 **Note:** The XLIFF file contains schema violations like missing required `id` attributes. The validator detects these structural problems but the specific error details would need verbose mode or schema-specific reporting.
 
 <details>
-<summary>🧪 <strong>Test this example locally</strong></summary>
+<summary>Test this example locally</summary>
 
 ```bash
 # Run the validator using pre-created fixtures (from project root)
 composer -d tests validate-translations Fixtures/examples/xliff-schema --only "MoveElevator\\ComposerTranslationValidator\\Validator\\XliffSchemaValidator"
 ```
 
-**📁 Example files:** Check `tests/Fixtures/examples/xliff-schema/` to see the malformed XLIFF file with schema violations.
+**Example files:** Check `tests/Fixtures/examples/xliff-schema/` to see the malformed XLIFF file with schema violations.
 
 </details>
 
-**Why it's critical:** Malformed XLIFF files can crash translation tools or cause parsing errors in your application.
+> [!IMPORTANT]
+> Malformed XLIFF files can crash translation tools or cause parsing errors in your application.
 
 ---
 
@@ -510,25 +549,11 @@ You can run only the validators you need:
 
 ```bash
 # Run only mismatch detection (from project root)
-composer -d tests validate-translations ../path/to/translations --only "MoveElevator\\ComposerTranslationValidator\\Validator\\MismatchValidator"
+composer -d tests validate-translations ./translations --only "MoveElevator\\ComposerTranslationValidator\\Validator\\MismatchValidator"
 
 # Skip HTML validation for simple text projects
-composer -d tests validate-translations ../path/to/translations --skip "MoveElevator\\ComposerTranslationValidator\\Validator\\HtmlTagValidator"
+composer -d tests validate-translations ./translations --skip "MoveElevator\\ComposerTranslationValidator\\Validator\\HtmlTagValidator"
 
 # Focus on critical issues only (multiple validators)
-composer -d tests validate-translations ../path/to/translations --only "MoveElevator\\ComposerTranslationValidator\\Validator\\MismatchValidator,MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator,MoveElevator\\ComposerTranslationValidator\\Validator\\XliffSchemaValidator"
+composer -d tests validate-translations ./translations --only "MoveElevator\\ComposerTranslationValidator\\Validator\\MismatchValidator,MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator,MoveElevator\\ComposerTranslationValidator\\Validator\\XliffSchemaValidator"
 ```
-
-## Quick Troubleshooting
-
-**All validators passing but still seeing issues?**
-- Check your [configuration file](config-file.md) setup
-- Verify file detection is working with `--verbose` flag
-- Ensure your translation files follow expected [naming patterns](file-detector.md)
-
-**Too many warnings overwhelming you?**
-- Start with ERROR-level validators first (DuplicateKeys, XliffSchema)
-- Use `--only` to focus on one validator at a time
-- Consider `--strict` mode for production deployments
-
-**Want to contribute?** All validators implement the `ValidatorInterface` - check out the existing validators in `src/Validator/` to see how easy it is to add your own validation rules!
