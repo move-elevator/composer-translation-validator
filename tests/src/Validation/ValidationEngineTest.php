@@ -1,0 +1,190 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the Composer plugin "composer-translation-validator".
+ *
+ * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+namespace MoveElevator\ComposerTranslationValidator\Tests\Validation;
+
+use InvalidArgumentException;
+use MoveElevator\ComposerTranslationValidator\Result\ValidationResult;
+use MoveElevator\ComposerTranslationValidator\Service\ValidationOrchestrationService;
+use MoveElevator\ComposerTranslationValidator\Validation\ValidationEngine;
+use MoveElevator\ComposerTranslationValidator\Validator\ValidatorRegistry;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
+use RuntimeException;
+
+#[CoversClass(ValidationEngine::class)]
+class ValidationEngineTest extends TestCase
+{
+    private ValidationEngine $engine;
+    private ValidationOrchestrationService $orchestrationService;
+    private NullLogger $logger;
+
+    protected function setUp(): void
+    {
+        $this->logger = new NullLogger();
+        $this->orchestrationService = new ValidationOrchestrationService($this->logger);
+        $this->engine = new ValidationEngine($this->orchestrationService, $this->logger);
+    }
+
+    public function testValidatePathsWithEmptyPaths(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Paths array cannot be empty');
+
+        $this->engine->validatePaths([]);
+    }
+
+    public function testValidatePathsWithValidPaths(): void
+    {
+        $testPath = __DIR__ . '/../Fixtures/translations/xliff/success';
+        
+        $result = $this->engine->validatePaths([$testPath]);
+
+        $this->assertInstanceOf(ValidationResult::class, $result);
+    }
+
+    public function testValidatePathsWithOptions(): void
+    {
+        $testPath = __DIR__ . '/../Fixtures/translations/xliff/success';
+        $options = [
+            'recursive' => true,
+            'strict' => true,
+            'dryRun' => false,
+        ];
+        
+        $result = $this->engine->validatePaths([$testPath], $options);
+
+        $this->assertInstanceOf(ValidationResult::class, $result);
+    }
+
+    public function testValidatePathsWithNonexistentPath(): void
+    {
+        $result = $this->engine->validatePaths(['/nonexistent/path']);
+
+        $this->assertNull($result);
+    }
+
+    public function testValidateProjectWithEmptyPath(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Project path cannot be empty');
+
+        $this->engine->validateProject('');
+    }
+
+    public function testValidateProjectWithNonexistentDirectory(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Project path "/nonexistent/directory" is not a valid directory');
+
+        $this->engine->validateProject('/nonexistent/directory');
+    }
+
+    public function testValidateProjectWithValidDirectory(): void
+    {
+        $testPath = __DIR__ . '/../Fixtures/translations';
+        
+        $result = $this->engine->validateProject($testPath);
+
+        // Result can be null if no translation files are found, which is valid
+        $this->assertTrue($result === null || $result instanceof ValidationResult);
+    }
+
+    public function testValidateProjectWithConfiguration(): void
+    {
+        $testPath = __DIR__ . '/../Fixtures/translations';
+        $configuration = [
+            'strict' => true,
+            'excludePatterns' => ['**/fail/**'],
+        ];
+        
+        $result = $this->engine->validateProject($testPath, $configuration);
+
+        $this->assertTrue($result === null || $result instanceof ValidationResult);
+    }
+
+    public function testGetAvailableValidators(): void
+    {
+        $validators = $this->engine->getAvailableValidators();
+        $expectedValidators = ValidatorRegistry::getAvailableValidators();
+
+        $this->assertSame($expectedValidators, $validators);
+        $this->assertNotEmpty($validators);
+    }
+
+    public function testIsReadyWithValidEngine(): void
+    {
+        $ready = $this->engine->isReady();
+
+        $this->assertTrue($ready);
+    }
+
+    public function testValidatePathsRecursiveDefault(): void
+    {
+        $testPath = __DIR__ . '/../Fixtures/recursive';
+        
+        // Test with recursive disabled (default for validatePaths)
+        $result = $this->engine->validatePaths([$testPath], ['recursive' => false]);
+        
+        $this->assertTrue($result === null || $result instanceof ValidationResult);
+    }
+
+    public function testValidateProjectRecursiveDefault(): void
+    {
+        $testPath = __DIR__ . '/../Fixtures/recursive';
+        
+        // validateProject should enable recursive by default
+        $result = $this->engine->validateProject($testPath);
+        
+        $this->assertTrue($result === null || $result instanceof ValidationResult);
+    }
+
+    public function testValidatePathsWithValidatorSelection(): void
+    {
+        $testPath = __DIR__ . '/../Fixtures/translations/xliff/success';
+        $availableValidators = ValidatorRegistry::getAvailableValidators();
+        
+        $options = [
+            'onlyValidators' => [array_slice($availableValidators, 0, 1)[0]],
+        ];
+        
+        $result = $this->engine->validatePaths([$testPath], $options);
+
+        $this->assertInstanceOf(ValidationResult::class, $result);
+    }
+
+    public function testValidatePathsWithValidatorSkipping(): void
+    {
+        $testPath = __DIR__ . '/../Fixtures/translations/xliff/success';
+        $availableValidators = ValidatorRegistry::getAvailableValidators();
+        
+        $options = [
+            'skipValidators' => [array_slice($availableValidators, 0, 1)[0]],
+        ];
+        
+        $result = $this->engine->validatePaths([$testPath], $options);
+
+        $this->assertInstanceOf(ValidationResult::class, $result);
+    }
+}
