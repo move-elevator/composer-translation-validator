@@ -96,7 +96,7 @@
 	"format": {
 	  "type": "string",
 	  "description": "Output format for validation results",
-	  "enum": ["cli", "json", "github"],
+	  "enum": ["cli", "json", "github", "yaml", "php"],
 	  "default": "cli"
 	},
 	"verbose": {
