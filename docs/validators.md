@@ -2,14 +2,28 @@
 
 This page provides detailed explanations for each validator available in the Composer Translation Validator. Each validator comes with practical examples showing problematic translations and their corresponding console output.
 
+- [DuplicateKeysValidator](#duplicatekeysvalidator)
+- [DuplicateValuesValidator](#duplicatevaluesvalidator)
+- [EmptyValuesValidator](#emptyvaluesvalidator)
+- [EncodingValidator](#encodingvalidator)
+- [HtmlTagValidator](#htmltagvalidator)
+- [KeyNamingConventionValidator](#keynamingconventionvalidator)
+- [MismatchValidator](#mismatchvalidator)
+- [PlaceholderConsistencyValidator](#placeholderconsistencyvalidator)
+- [XliffSchemaValidator](#xliffschemavalidator)
+
+> [!IMPORTANT]
+> Validators differ in their result types.
+> - ![error](https://img.shields.io/badge/ERROR-red) Some validators return an error when critical issues are found. An error indicates that the validation failed and the translation files may not be usable. Use a `-v` or `--verbose` option to see more details about these errors.
+> - ![Warning](https://img.shields.io/badge/WARNING-yellow) Others validators return just return a warning. Therefore, just a warning indicates that the validation succeeded, but there are potential issues that should be addressed. Use the `-v` or `--verbose` option to see more details about these warnings and/or use the `--strict` option to treat warnings as errors.
 
 ## [`DuplicateKeysValidator`](../src/Validator/DuplicateKeysValidator.php)
 
 Catches duplicate translation keys within the same file, which can cause unpredictable behavior in your application.
 
-- **Result:** ![Error](https://img.shields.io/badge/ERROR-red)
+**Result:** ![Error](https://img.shields.io/badge/ERROR-red)
 
-### Example Problem
+### Example
 
 **File: `messages.en.xlf`**
 ```xml
@@ -33,7 +47,7 @@ Catches duplicate translation keys within the same file, which can cause unpredi
 </xliff>
 ```
 
-### Console Output
+#### Console Output
 ```
 Fixtures/examples/duplicate-keys/messages.en.xlf
 
@@ -67,9 +81,9 @@ Most parsers will silently use the last occurrence, making your first translatio
 
 Identifies identical translation values that might indicate copy-paste errors or missing translations.
 
-- **Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
+**Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
 
-### Example Problem
+### Example
 
 **File: `errors.en.yaml`**
 ```yaml
@@ -80,7 +94,7 @@ validation:
   address: "Please enter a valid phone" # Copy-paste error
 ```
 
-### Console Output
+#### Console Output
 ```
 Fixtures/examples/duplicate-values/errors.en.yaml
 
@@ -110,7 +124,7 @@ composer -d tests validate-translations Fixtures/examples/duplicate-values --onl
 >
 > Example command to skip this validator:
 > ```bash
-> composer validate-translations ./translations --skip "MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateValuesValidator"```
+> composer validate-translations ./translations --skip "MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateValuesValidator"
 > ````
 >
 > or within your configuration file , e.g. `translation-validator.yaml`:
@@ -119,16 +133,15 @@ composer -d tests validate-translations Fixtures/examples/duplicate-values --onl
 >   - MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator
 > ```
 
-
 ---
 
 ## [`EmptyValuesValidator`](../src/Validator/EmptyValuesValidator.php)
 
 Hunts down empty or whitespace-only translation values that would display nothing to users.
 
-- **Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
+**Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
 
-### Example Problem
+### Example
 
 **File: `navigation.de.xlf`**
 ```xml
@@ -152,7 +165,7 @@ Hunts down empty or whitespace-only translation values that would display nothin
 </xliff>
 ```
 
-### Console Output
+#### Console Output
 ```
 Fixtures/examples/empty-values/navigation.de.xlf
 
@@ -184,9 +197,9 @@ composer -d tests validate-translations Fixtures/examples/empty-values --only "M
 
 Ensures your files use proper UTF-8 encoding and catches sneaky Unicode issues that can break your app.
 
-- **Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
+**Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
 
-### Example Problems
+### Example
 
 **File: `special.en.json` (with BOM)**
 ```json
@@ -197,7 +210,7 @@ Ensures your files use proper UTF-8 encoding and catches sneaky Unicode issues t
 }
 ```
 
-### Console Output
+#### Console Output
 ```
 special.en.json
 
@@ -229,9 +242,9 @@ composer -d tests validate-translations Fixtures/examples/encoding --only "MoveE
 
 Verifies HTML tags are consistent across all language versions: same tags, proper nesting, matching attributes.
 
-- **Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
+**Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
 
-### Example Problem
+### Example
 
 **File: `messages.en.yaml`**
 ```yaml
@@ -245,7 +258,7 @@ welcome: "Willkommen <em>neuer Nutzer</em>!"  # <strong> became <em>
 footer: 'Besuchen Sie unsere <a href="/about">Über-Seite</a>'  #  Missing class
 ```
 
-### Console Output
+#### Console Output
 ```
 Fixtures/examples/html-tags/messages.de.yaml
 
@@ -280,12 +293,12 @@ composer -d tests validate-translations Fixtures/examples/html-tags --only "Move
 
 Enforces consistent naming patterns for translation keys (requires configuration to activate).
 
-- **Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
+**Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
 
 > [!NOTE]
 > This validator requires a configuration file to specify a desired naming convention (e.g., `snake_case`, `camelCase`, etc.). If not configured, it try to detect the most common pattern used in your files and warns about inconsistencies.
 
-### Example Problem
+### Example
 
 **Configuration:**
 ```yaml
@@ -305,7 +318,7 @@ user-phone: "Phone"             # kebab-case
 User.Address: "Address"         # Mixed styles
 ```
 
-### Console Output
+### #Console Output
 ```
  [OK] Language validation succeeded.
 ```
@@ -356,9 +369,9 @@ validator-settings:
 
 The breadfinder! Catches translation keys that exist in some language files but are missing from others.
 
-- **Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
+**Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
 
-### Example Problem
+### Example
 
 **File: `buttons.en.yaml`**
 ```yaml
@@ -384,7 +397,7 @@ delete: "Supprimer"
 duplicate: "Dupliquer"  # Extra key not in other files
 ```
 
-### Console Output
+#### Console Output
 ```
 Fixtures/examples/mismatch/buttons.de.yaml
 
@@ -426,9 +439,9 @@ composer -d tests validate-translations Fixtures/examples/mismatch --only "MoveE
 
 Ensures placeholder patterns are consistent across languages so dynamic content works everywhere.
 
-- **Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
+**Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
 
-### Example Problem
+### Example
 
 **File: `notifications.en.yaml`**
 ```yaml
@@ -444,7 +457,7 @@ order: "Bestellung #{order_id} für {sum}" # 'amount' became 'sum'
 email: "Gesendet an {email_address}"      # Missing double braces
 ```
 
-### Console Output
+#### Console Output
 ```
 Fixtures/examples/placeholders/notifications.de.yaml
 
@@ -491,7 +504,7 @@ Validates XLIFF files against official XML schemas to ensure they're structurall
 > [!IMPORTANT]
 > This validator is only applicable to XLIFF files. It checks for schema compliance, missing required attributes and structural integrity.
 
-### Example Problem
+### Example
 
 **File: `malformed.xlf`**
 ```xml
@@ -511,17 +524,17 @@ Validates XLIFF files against official XML schemas to ensure they're structurall
 <!-- Missing closing </xliff> tag -->
 ```
 
-### Console Output
+#### Console Output
 ```
-Fixtures/examples/xliff-schema/malformed.xlf
+tests/Fixtures/examples/xliff-schema/malformed.xlf
 
-  XliffSchemaValidator
-    - Error Schema validation error
-    - Error Schema validation error
-    - Error Schema validation error
+XliffSchemaValidator
+  - Error Element '{urn:oasis:names:tc:xliff:document:1.2}file': The attribute 'original' is required but missing. (Line: 3) (Code: 1868)
+  - Error Element '{urn:oasis:names:tc:xliff:document:1.2}trans-unit': The attribute 'id' is required but missing. (Line: 9) (Code: 1868)
+  - Error Element '{urn:oasis:names:tc:xliff:document:1.2}trans-unit': Not all fields of key identity-constraint '{urn:oasis:names:tc:xliff:document:1.2}K_unit_id' evaluate to a node. (Line: 9) (Code:
+1877)
 
-
- [ERROR] Language validation failed with errors.
+[ERROR] Language validation failed with errors.
 ```
 
 **Note:** The XLIFF file contains schema violations like missing required `id` attributes. The validator detects these structural problems but the specific error details would need verbose mode or schema-specific reporting.
