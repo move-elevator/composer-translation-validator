@@ -32,6 +32,7 @@ use MoveElevator\ComposerTranslationValidator\Validator\EncodingValidator;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use Normalizer;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 final class EncodingValidatorTest extends TestCase
 {
@@ -300,7 +301,7 @@ final class EncodingValidatorTest extends TestCase
         // Test the specific case where file_get_contents returns empty string
         $filePath = $this->testFilesPath.'/just-empty-content.txt';
         file_put_contents($filePath, ''); // Completely empty file
-        
+
         // Create a mock parser that can handle empty files
         $mockParser = $this->createMock(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface::class);
         $mockParser->method('getFilePath')->willReturn($filePath);
@@ -316,7 +317,7 @@ final class EncodingValidatorTest extends TestCase
         // Create a file and then make it unreadable or delete it
         $filePath = $this->testFilesPath.'/temp-file.yaml';
         file_put_contents($filePath, 'test content');
-        
+
         // Create mock parser
         $mockParser = $this->createMock(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface::class);
         $mockParser->method('getFilePath')->willReturn($filePath);
@@ -340,17 +341,17 @@ final class EncodingValidatorTest extends TestCase
     {
         // Test the fallback when Normalizer class doesn't exist
         $filePath = $this->testFilesPath.'/unicode-test.yaml';
-        file_put_contents($filePath, "key: café"); // Contains normalized Unicode
+        file_put_contents($filePath, 'key: café'); // Contains normalized Unicode
 
         $parser = new YamlParser($filePath);
-        
+
         // Test by calling the method through reflection since it's private
-        $reflector = new \ReflectionClass(EncodingValidator::class);
+        $reflector = new ReflectionClass(EncodingValidator::class);
         $method = $reflector->getMethod('hasUnicodeNormalizationIssues');
         $method->setAccessible(true);
 
         $validator = new EncodingValidator();
-        
+
         if (!class_exists('Normalizer')) {
             $result = $method->invokeArgs($validator, [file_get_contents($filePath)]);
             $this->assertFalse($result);
@@ -369,12 +370,12 @@ final class EncodingValidatorTest extends TestCase
         }
 
         $filePath = $this->testFilesPath.'/non-normalized-unicode.yaml';
-        
+
         // Create content with combining characters that need normalization
         // é can be written as e + combining accent (decomposed form)
         $decomposedE = "e\u{0301}"; // e + combining acute accent
         $content = "key: caf{$decomposedE}"; // café in decomposed form
-        
+
         file_put_contents($filePath, $content);
 
         $parser = new YamlParser($filePath);

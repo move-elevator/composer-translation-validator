@@ -603,7 +603,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
         $result = $validator->processFile($parser);
 
         $this->assertCount(3, $result);
-        
+
         // Test suggestions for different input formats
         $suggestions = array_column($result, 'suggestion');
         $this->assertContains('user.profile', $suggestions); // camelCase -> dot.notation
@@ -615,13 +615,13 @@ final class KeyNamingConventionValidatorTest extends TestCase
     {
         $validator = new KeyNamingConventionValidator();
         // Don't set any convention
-        
+
         $parser = $this->createMock(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['anyKey']);
         $parser->method('getFileName')->willReturn('test.yaml');
 
         $result = $validator->processFile($parser);
-        
+
         // Should return empty array since no convention is set and only one key
         $this->assertEmpty($result);
     }
