@@ -31,7 +31,7 @@ class JsonParser extends AbstractParser implements ParserInterface
     /** @var array<string, mixed> */
     private array $json = [];
 
-    public function __construct(protected string $filePath)
+    public function __construct(string $filePath)
     {
         parent::__construct($filePath);
 

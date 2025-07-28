@@ -31,7 +31,7 @@ class PhpParser extends AbstractParser implements ParserInterface
     /** @var array<string, mixed> */
     private array $translations = [];
 
-    public function __construct(protected string $filePath)
+    public function __construct(string $filePath)
     {
         parent::__construct($filePath);
 
