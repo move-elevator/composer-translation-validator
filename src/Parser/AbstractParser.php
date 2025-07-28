@@ -28,9 +28,9 @@ use RuntimeException;
 
 abstract class AbstractParser
 {
-    protected string $fileName = '';
+    protected readonly string $fileName;
 
-    public function __construct(protected string $filePath)
+    public function __construct(protected readonly string $filePath)
     {
         if (!file_exists($filePath)) {
             throw new InvalidArgumentException(sprintf('File "%s" does not exist.', $filePath));
