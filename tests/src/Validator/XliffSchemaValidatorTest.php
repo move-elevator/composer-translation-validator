@@ -158,13 +158,12 @@ XML;
 
     public function testFormatIssueMessageWithArrayError(): void
     {
+        // AbstractValidator creates one Issue per error, so errorDetails is a single error array
         $errorDetails = [
-            [
-                'message' => 'Element validation failed',
-                'line' => 42,
-                'code' => 'XLIFF001',
-                'level' => 'ERROR',
-            ],
+            'message' => 'Element validation failed',
+            'line' => 42,
+            'code' => 'XLIFF001',
+            'level' => 'ERROR',
         ];
 
         $issue = new Issue(
@@ -182,11 +181,10 @@ XML;
 
     public function testFormatIssueMessageWithWarning(): void
     {
+        // AbstractValidator creates one Issue per error, so errorDetails is a single error array
         $errorDetails = [
-            [
-                'message' => 'Optional element missing',
-                'level' => 'WARNING',
-            ],
+            'message' => 'Optional element missing',
+            'level' => 'WARNING',
         ];
 
         $issue = new Issue(
@@ -219,13 +217,12 @@ XML;
 
     public function testFormatIssueMessageWithIncompleteErrorArray(): void
     {
+        // Test a single error array with missing message
         $errorDetails = [
-            [
-                'message' => 'Incomplete error',
-            ],
-            [
-                'line' => 10,
-            ],
+            'line' => 10,
+            'code' => 1234,
+            'level' => 'ERROR',
+            // 'message' is missing
         ];
 
         $issue = new Issue(
@@ -237,7 +234,7 @@ XML;
 
         $result = $this->validator->formatIssueMessage($issue);
 
-        $expected = "- <fg=red>Error</> Incomplete error\n- <fg=red>Error</> Schema validation error (Line: 10)";
+        $expected = '- <fg=red>Error</> Schema validation error';
         $this->assertSame($expected, $result);
     }
 }
