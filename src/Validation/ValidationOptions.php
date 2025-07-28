@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Validation;
 
+use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
+
 /**
  * Immutable value object representing validation options for the API.
  * 
@@ -31,8 +33,8 @@ namespace MoveElevator\ComposerTranslationValidator\Validation;
 final readonly class ValidationOptions
 {
     /**
-     * @param array<string> $onlyValidators Specific validators to run (FQCN)
-     * @param array<string> $skipValidators Validators to skip (FQCN)
+     * @param array<int, class-string<ValidatorInterface>> $onlyValidators Specific validators to run (FQCN)
+     * @param array<int, class-string<ValidatorInterface>> $skipValidators Validators to skip (FQCN)
      * @param array<string> $excludePatterns File patterns to exclude
      * @param bool $recursive Search recursively in subdirectories
      * @param bool $strict Treat warnings as errors

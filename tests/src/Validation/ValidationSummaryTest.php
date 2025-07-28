@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validation;
 
+use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Result\ValidationResult;
 use MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics;
 use MoveElevator\ComposerTranslationValidator\Validation\ValidationSummary;
@@ -78,8 +79,9 @@ class ValidationSummaryTest extends TestCase
         
         // Create validator with issues
         $validator = new MismatchValidator(new NullLogger());
+        $fileSet = new FileSet('TestParser', '/test/path', 'test', ['test.xlf']);
         $validatorFileSetPairs = [
-            ['validator' => $validator, 'fileSet' => null],
+            ['validator' => $validator, 'fileSet' => $fileSet],
         ];
 
         $validationResult = new ValidationResult(

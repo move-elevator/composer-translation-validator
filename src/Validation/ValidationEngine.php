@@ -121,12 +121,12 @@ final class ValidationEngine implements ValidationEngineInterface
             }
 
             // Check if orchestration service is properly initialized
-            if (!$this->orchestrationService instanceof ValidationOrchestrationService) {
+            if (!isset($this->orchestrationService)) {
                 return false;
             }
 
             // Check if logger is available
-            if (!$this->logger instanceof LoggerInterface) {
+            if (!isset($this->logger)) {
                 return false;
             }
 

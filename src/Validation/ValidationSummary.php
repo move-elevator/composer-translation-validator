@@ -69,14 +69,19 @@ final readonly class ValidationSummary
             $issues = $validator->getIssues();
             foreach ($issues as $issue) {
                 $issueMessages[] = sprintf(
-                    '[%s] %s',
+                    '[%s] %s: %s',
                     $validator::class,
+                    $issue->getFile(),
                     $issue->getMessage()
                 );
             }
         }
 
         $statistics = $result->getStatistics();
+        
+        if ($statistics === null) {
+            throw new \RuntimeException('ValidationResult statistics cannot be null');
+        }
 
         return new self(
             success: $result->getOverallResult() === ResultType::SUCCESS,

@@ -108,7 +108,13 @@ class ValidationEngineTest extends TestCase
         $result = $this->engine->validateProject($testPath);
 
         // Result can be null if no translation files are found, which is valid
-        $this->assertTrue($result === null || $result instanceof ValidationResult);
+        $this->assertThat(
+            $result,
+            $this->logicalOr(
+                $this->isNull(),
+                $this->isInstanceOf(ValidationResult::class)
+            )
+        );
     }
 
     public function testValidateProjectWithConfiguration(): void
@@ -121,7 +127,13 @@ class ValidationEngineTest extends TestCase
         
         $result = $this->engine->validateProject($testPath, $configuration);
 
-        $this->assertTrue($result === null || $result instanceof ValidationResult);
+        $this->assertThat(
+            $result,
+            $this->logicalOr(
+                $this->isNull(),
+                $this->isInstanceOf(ValidationResult::class)
+            )
+        );
     }
 
     public function testGetAvailableValidators(): void
@@ -147,7 +159,13 @@ class ValidationEngineTest extends TestCase
         // Test with recursive disabled (default for validatePaths)
         $result = $this->engine->validatePaths([$testPath], ['recursive' => false]);
         
-        $this->assertTrue($result === null || $result instanceof ValidationResult);
+        $this->assertThat(
+            $result,
+            $this->logicalOr(
+                $this->isNull(),
+                $this->isInstanceOf(ValidationResult::class)
+            )
+        );
     }
 
     public function testValidateProjectRecursiveDefault(): void
@@ -157,7 +175,13 @@ class ValidationEngineTest extends TestCase
         // validateProject should enable recursive by default
         $result = $this->engine->validateProject($testPath);
         
-        $this->assertTrue($result === null || $result instanceof ValidationResult);
+        $this->assertThat(
+            $result,
+            $this->logicalOr(
+                $this->isNull(),
+                $this->isInstanceOf(ValidationResult::class)
+            )
+        );
     }
 
     public function testValidatePathsWithValidatorSelection(): void
