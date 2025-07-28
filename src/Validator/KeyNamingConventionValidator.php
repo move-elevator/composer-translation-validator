@@ -25,6 +25,7 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use InvalidArgumentException;
 use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
+use MoveElevator\ComposerTranslationValidator\Enum\KeyNamingConvention;
 use MoveElevator\ComposerTranslationValidator\Parser\JsonParser;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Parser\PhpParser;
@@ -34,26 +35,7 @@ use MoveElevator\ComposerTranslationValidator\Result\Issue;
 
 class KeyNamingConventionValidator extends AbstractValidator implements ValidatorInterface
 {
-    private const CONVENTIONS = [
-        'snake_case' => [
-            'pattern' => '/^[a-z]([a-z0-9]|_[a-z0-9])*$/',
-            'description' => 'snake_case (lowercase with underscores)',
-        ],
-        'camelCase' => [
-            'pattern' => '/^[a-z][a-zA-Z0-9]*$/',
-            'description' => 'camelCase (first letter lowercase)',
-        ],
-        'kebab-case' => [
-            'pattern' => '/^[a-z][a-z0-9-]*[a-z0-9]$|^[a-z]$/',
-            'description' => 'kebab-case (lowercase with hyphens)',
-        ],
-        'PascalCase' => [
-            'pattern' => '/^[A-Z][a-zA-Z0-9]*$/',
-            'description' => 'PascalCase (first letter uppercase)',
-        ],
-    ];
-
-    private ?string $convention = null;
+    private ?KeyNamingConvention $convention = null;
     private ?string $customPattern = null;
     private ?TranslationValidatorConfig $config = null;
 
@@ -136,11 +118,7 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
 
     public function setConvention(string $convention): void
     {
-        if (!array_key_exists($convention, self::CONVENTIONS)) {
-            throw new InvalidArgumentException(sprintf('Unknown convention "%s". Available conventions: %s', $convention, implode(', ', array_keys(self::CONVENTIONS))));
-        }
-
-        $this->convention = $convention;
+        $this->convention = KeyNamingConvention::fromString($convention);
     }
 
     public function setCustomPattern(string $pattern): void
@@ -183,13 +161,11 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
 
     private function validateSegment(string $segment): bool
     {
-        if (null === $this->convention || !isset(self::CONVENTIONS[$this->convention])) {
+        if (null === $this->convention) {
             return true;
         }
 
-        $pattern = self::CONVENTIONS[$this->convention]['pattern'];
-
-        return (bool) preg_match($pattern, $segment);
+        return $this->convention->matches($segment);
     }
 
     private function getActivePattern(): ?string
@@ -198,31 +174,25 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
             return $this->customPattern;
         }
 
-        if (null !== $this->convention && isset(self::CONVENTIONS[$this->convention])) {
-            return self::CONVENTIONS[$this->convention]['pattern'];
-        }
-
-        return null;
+        return $this->convention?->getPattern();
     }
 
     private function suggestCorrection(string $key): string
     {
         if (null === $this->convention) {
-            return $key; // No suggestion for custom patterns
+            return $key;
         }
 
-        // Handle dot-separated keys: convert each segment
         if (str_contains($key, '.')) {
             return $this->convertDotSeparatedKey($key);
         }
 
-        // Single segment conversion
         return match ($this->convention) {
-            'snake_case' => $this->toSnakeCase($key),
-            'camelCase' => $this->toCamelCase($key),
-            'kebab-case' => $this->toKebabCase($key),
-            'PascalCase' => $this->toPascalCase($key),
-            default => $key,
+            KeyNamingConvention::SNAKE_CASE => $this->toSnakeCase($key),
+            KeyNamingConvention::CAMEL_CASE => $this->toCamelCase($key),
+            KeyNamingConvention::KEBAB_CASE => $this->toKebabCase($key),
+            KeyNamingConvention::PASCAL_CASE => $this->toPascalCase($key),
+            KeyNamingConvention::DOT_NOTATION => $this->toDotNotation($key),
         };
     }
 
@@ -286,6 +256,16 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
         return implode('', array_map('ucfirst', array_map('strtolower', $parts)));
     }
 
+    private function toDotNotation(string $key): string
+    {
+        // Convert camelCase/PascalCase to dot.notation
+        $result = preg_replace('/([a-z])([A-Z])/', '$1.$2', $key);
+        // Convert snake_case and kebab-case to dot.notation
+        $result = str_replace(['_', '-'], '.', $result ?? $key);
+
+        return strtolower($result);
+    }
+
     private function convertDotSeparatedKey(string $key): string
     {
         $segments = explode('.', $key);
@@ -293,11 +273,12 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
 
         foreach ($segments as $segment) {
             $convertedSegments[] = match ($this->convention) {
-                'snake_case' => $this->toSnakeCase($segment),
-                'camelCase' => $this->toCamelCase($segment),
-                'kebab-case' => $this->toKebabCase($segment),
-                'PascalCase' => $this->toPascalCase($segment),
-                default => $segment,
+                KeyNamingConvention::SNAKE_CASE => $this->toSnakeCase($segment),
+                KeyNamingConvention::CAMEL_CASE => $this->toCamelCase($segment),
+                KeyNamingConvention::KEBAB_CASE => $this->toKebabCase($segment),
+                KeyNamingConvention::PASCAL_CASE => $this->toPascalCase($segment),
+                KeyNamingConvention::DOT_NOTATION => $this->toDotNotation($segment),
+                null => $segment,
             };
         }
 
@@ -363,7 +344,15 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
      */
     public static function getAvailableConventions(): array
     {
-        return self::CONVENTIONS;
+        $conventions = [];
+        foreach (KeyNamingConvention::cases() as $convention) {
+            $conventions[$convention->value] = [
+                'pattern' => $convention->getPattern(),
+                'description' => $convention->getDescription(),
+            ];
+        }
+
+        return $conventions;
     }
 
     /**
@@ -485,9 +474,9 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
     {
         $matchingConventions = [];
 
-        foreach (self::CONVENTIONS as $conventionName => $conventionData) {
-            if (preg_match($conventionData['pattern'], $segment)) {
-                $matchingConventions[] = $conventionName;
+        foreach (KeyNamingConvention::cases() as $convention) {
+            if ($convention->matches($segment)) {
+                $matchingConventions[] = $convention->value;
             }
         }
 
