@@ -36,9 +36,84 @@ use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use ReflectionClass;
 
 final class KeyNamingConventionValidatorTest extends TestCase
 {
+    public function testDotNotationNotConfusedWithCamelCaseDottedKeys(): void
+    {
+        // Test for the bug fix: camelCase keys with dots should not be confused with dot.notation
+        // This simulates the reported issue where keys like 'teaser.image.cropVariant.slider'
+        // were incorrectly classified as dot.notation
+        $validator = new KeyNamingConventionValidator();
+        $reflection = new ReflectionClass($validator);
+        $detectKeyConventions = $reflection->getMethod('detectKeyConventions');
+        $detectKeyConventions->setAccessible(true);
+
+        // Test the problematic camelCase key with dots
+        $camelCaseWithDots = 'teaser.image.cropVariant.slider';
+        $conventions = $detectKeyConventions->invoke($validator, $camelCaseWithDots);
+
+        // Should be detected as camelCase, NOT as dot.notation
+        $this->assertContains('camelCase', $conventions);
+        $this->assertNotContains('dot.notation', $conventions);
+
+        // Test a real dot.notation key for comparison
+        $realDotNotation = 'teaser.image.variant.slider';
+        $conventions2 = $detectKeyConventions->invoke($validator, $realDotNotation);
+
+        // Should be detected as dot.notation (among others)
+        $this->assertContains('dot.notation', $conventions2);
+    }
+
+    public function testOriginalReportedBugScenario(): void
+    {
+        // This reproduces the exact scenario from the bug report
+        // where camelCase keys were incorrectly reported as inconsistent
+        $parser = $this->createMock(ParserInterface::class);
+        $parser->method('extractKeys')->willReturn([
+            // Simulate a file with mostly snake_case but some camelCase dotted keys
+            'some_snake_case_key',
+            'another_snake_key',
+            'teaser.image.cropVariant.slider',        // This was incorrectly flagged
+            'teaser.image.cropVariant.default',       // This was incorrectly flagged
+        ]);
+        $parser->method('getFileName')->willReturn('test.yaml');
+
+        $validator = new KeyNamingConventionValidator();
+        $result = $validator->processFile($parser);
+
+        // Find any issue for the camelCase dotted key
+        $camelCaseIssues = array_filter($result, fn ($issue) => 'teaser.image.cropVariant.slider' === $issue['key'],
+        );
+
+        // If there is an issue, it should correctly identify the key as camelCase
+        if (!empty($camelCaseIssues)) {
+            $issue = array_values($camelCaseIssues)[0];
+            $this->assertContains('camelCase', $issue['detected_conventions']);
+            // The key should NOT be confused with dot.notation
+            $this->assertNotContains('dot.notation', $issue['detected_conventions']);
+        }
+    }
+
+    public function testRealDotNotationKeysAreDetectedCorrectly(): void
+    {
+        // Test that real dot.notation keys are still detected correctly
+        $parser = $this->createMock(ParserInterface::class);
+        $parser->method('extractKeys')->willReturn([
+            'user.profile.settings',     // proper dot.notation
+            'teaser.image.variant',      // proper dot.notation
+            'app.config.database',       // proper dot.notation
+        ]);
+        $parser->method('getFileName')->willReturn('test.yaml');
+
+        $validator = new KeyNamingConventionValidator();
+        $result = $validator->processFile($parser);
+
+        // All keys follow the same conventions (including dot.notation), so no issues
+        $this->assertEmpty($result);
+    }
+
     public function testProcessFileWithoutConventionConfigured(): void
     {
         $parser = $this->createMock(ParserInterface::class);

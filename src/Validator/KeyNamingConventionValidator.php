@@ -435,14 +435,24 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
      */
     private function detectKeyConventions(string $key): array
     {
-        // For keys with dots, analyze segments for consistent convention usage
+        // For keys with dots, we need to handle dot.notation specially
         if (str_contains($key, '.')) {
+            $matchingConventions = [];
+
+            // First, check if the entire key matches dot.notation
+            if (KeyNamingConvention::DOT_NOTATION->matches($key)) {
+                $matchingConventions[] = KeyNamingConvention::DOT_NOTATION->value;
+            }
+
+            // Then check if all segments follow a consistent non-dot convention
             $segments = explode('.', $key);
             $consistentConventions = null;
 
-            // Check which conventions ALL segments support
+            // Check which conventions ALL segments support (excluding dot.notation)
             foreach ($segments as $segment) {
                 $segmentMatches = $this->detectSegmentConventions($segment);
+                // Remove dot.notation from segment matches as it doesn't apply to individual segments
+                $segmentMatches = array_filter($segmentMatches, fn ($conv) => $conv !== KeyNamingConvention::DOT_NOTATION->value);
 
                 if (null === $consistentConventions) {
                     // First segment - initialize with its conventions
@@ -453,12 +463,17 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
                 }
             }
 
-            // If no convention is consistent across all segments, it's mixed
-            if (empty($consistentConventions) || in_array('unknown', $consistentConventions, true)) {
+            // Add segment-based conventions to the result
+            if (!empty($consistentConventions) && !in_array('unknown', $consistentConventions, true)) {
+                $matchingConventions = array_merge($matchingConventions, array_values($consistentConventions));
+            }
+
+            // If no convention matches, it's mixed
+            if (empty($matchingConventions)) {
                 return ['mixed_conventions'];
             }
 
-            return array_values($consistentConventions);
+            return array_unique($matchingConventions);
         } else {
             // No dots, check regular conventions
             return $this->detectSegmentConventions($key);
