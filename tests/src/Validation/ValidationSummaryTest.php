@@ -266,7 +266,7 @@ class ValidationSummaryTest extends TestCase
             /**
              * @param array<string> $details
              */
-            public function __construct(private string $file, private array $details) {}
+            public function __construct(private readonly string $file, private readonly array $details) {}
 
             public function getFile(): string
             {

@@ -86,7 +86,7 @@ class ValidationEngineTest extends TestCase
     {
         $result = $this->engine->validatePaths(['/nonexistent/path']);
 
-        $this->assertNull($result);
+        $this->assertNotInstanceOf(ValidationResult::class, $result);
     }
 
     public function testValidateProjectWithEmptyPath(): void
