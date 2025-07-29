@@ -66,8 +66,8 @@ final class ValidationSummary
 
         foreach ($issues as $pair) {
             $validator = $pair['validator'];
-            $issues = $validator->getIssues();
-            foreach ($issues as $issue) {
+            $validatorIssues = $validator->getIssues();
+            foreach ($validatorIssues as $issue) {
                 $details = $issue->getDetails();
                 $message = implode(', ', $details);
                 $issueMessages[] = sprintf(
