@@ -34,7 +34,9 @@ class ConfigReader
         'translation-validator.yml',
     ];
 
-    public function __construct(private readonly ConfigFileReader $fileReader = new ConfigFileReader()) {}
+    public function __construct(
+        private readonly ConfigFileReader $fileReader = new ConfigFileReader(),
+    ) {}
 
     /**
      * @throws JsonException
