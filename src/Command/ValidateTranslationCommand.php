@@ -218,7 +218,7 @@ HELP
         $format = FormatType::tryFrom($input->getOption('format') ?: $config->getFormat());
 
         if (null === $format) {
-            $this->io?->error('Invalid output format specified. Use "cli" or "json".');
+            $this->io?->error('Invalid output format specified. Use "cli", "json" or "github".');
 
             return Command::FAILURE;
         }
@@ -238,6 +238,9 @@ HELP
         ))->summarize();
     }
 
+    /**
+     * @throws JsonException
+     */
     private function loadConfiguration(InputInterface $input): TranslationValidatorConfig
     {
         $configReader = new ConfigReader();
