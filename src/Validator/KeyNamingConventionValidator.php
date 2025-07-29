@@ -408,13 +408,10 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
     public static function getAvailableConventions(): array
     {
         $conventions = [];
-        foreach (KeyNamingConvention::cases() as $convention) {
-            // Exclude dot.notation from configurable conventions
-            if ('dot.notation' === $convention->value) {
-                continue;
-            }
 
-            $conventions[$convention->value] = [
+        foreach (KeyNamingConvention::getConfigurableConventions() as $value) {
+            $convention = KeyNamingConvention::from($value);
+            $conventions[$value] = [
                 'pattern' => $convention->getPattern(),
                 'description' => $convention->getDescription(),
             ];
