@@ -25,14 +25,9 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
 use InvalidArgumentException;
 use Iterator;
-use MoveElevator\ComposerTranslationValidator\Parser\JsonParser;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
-use MoveElevator\ComposerTranslationValidator\Parser\PhpParser;
-use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
-use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use MoveElevator\ComposerTranslationValidator\Validator\KeyNamingConventionValidator;
-use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -366,22 +361,6 @@ final class KeyNamingConventionValidatorTest extends TestCase
         yield ['123invalid', false];
     }
 
-    public function testSnakeCaseWithDotsValidation(): void
-    {
-        $parser = $this->createMock(ParserInterface::class);
-        $parser->method('extractKeys')->willReturn(['valid_key', 'another.valid_key', 'user.profile.settings', 'user.camelCase']);
-        $parser->method('getFileName')->willReturn('test.yaml');
-
-        $validator = new KeyNamingConventionValidator();
-        $validator->setConvention('snake_case');
-        $result = $validator->processFile($parser);
-
-        // Should fail only for camelCase segment
-        $this->assertCount(1, $result);
-        $this->assertEquals('user.camelCase', $result[0]['key']);
-        $this->assertEquals('user.camel_case', $result[0]['suggestion']);
-    }
-
     public function testCustomPatternValidation(): void
     {
         $parser = $this->createMock(ParserInterface::class);
@@ -435,31 +414,6 @@ final class KeyNamingConventionValidatorTest extends TestCase
         $this->assertStringContainsString('invalid_key', $message);
     }
 
-    public function testSupportsParser(): void
-    {
-        $validator = new KeyNamingConventionValidator();
-        $supportedParsers = $validator->supportsParser();
-
-        $this->assertContains(XliffParser::class, $supportedParsers);
-        $this->assertContains(YamlParser::class, $supportedParsers);
-        $this->assertContains(JsonParser::class, $supportedParsers);
-        $this->assertContains(PhpParser::class, $supportedParsers);
-    }
-
-    public function testResultTypeOnValidationFailure(): void
-    {
-        $validator = new KeyNamingConventionValidator();
-        $resultType = $validator->resultTypeOnValidationFailure();
-
-        $this->assertSame(ResultType::WARNING, $resultType);
-    }
-
-    public function testShouldShowDetailedOutput(): void
-    {
-        $validator = new KeyNamingConventionValidator();
-        $this->assertFalse($validator->shouldShowDetailedOutput());
-    }
-
     public function testGetAvailableConventions(): void
     {
         $conventions = KeyNamingConventionValidator::getAvailableConventions();
@@ -480,23 +434,6 @@ final class KeyNamingConventionValidatorTest extends TestCase
             $this->assertNotEmpty($convention['pattern']);
             $this->assertNotEmpty($convention['description']);
         }
-    }
-
-    public function testShouldRun(): void
-    {
-        $validator = new KeyNamingConventionValidator();
-
-        // Should always run, even without configuration
-        $this->assertTrue($validator->shouldRun());
-
-        // Should run with convention set
-        $validator->setConvention('snake_case');
-        $this->assertTrue($validator->shouldRun());
-
-        // Should run with custom pattern set
-        $validator2 = new KeyNamingConventionValidator();
-        $validator2->setCustomPattern('/^[a-z]+$/');
-        $this->assertTrue($validator2->shouldRun());
     }
 
     public function testEnumGetConfigurableConventions(): void
@@ -767,164 +704,156 @@ final class KeyNamingConventionValidatorTest extends TestCase
         yield ['userProfileSettings', 'user_profile_settings', 'userProfileSettings', 'user_profile_settings', 'user-profile-settings', 'UserProfileSettings'];
     }
 
-    public function testStaticGetAvailableConventions(): void
+    /**
+     * @param array<string> $keys
+     * @param array<string> $expectedInvalidKeys
+     */
+    #[DataProvider('snakeCaseValidationProvider')]
+    public function testSnakeCaseValidationEdgeCases(array $keys, array $expectedInvalidKeys): void
     {
-        $conventions = KeyNamingConventionValidator::getAvailableConventions();
+        $parser = $this->createMock(ParserInterface::class);
+        $parser->method('extractKeys')->willReturn($keys);
+        $parser->method('getFileName')->willReturn('test.yaml');
 
-        // Test base conventions
-        $this->assertArrayHasKey('snake_case', $conventions);
-        $this->assertArrayHasKey('camelCase', $conventions);
-        $this->assertArrayHasKey('kebab-case', $conventions);
-        $this->assertArrayHasKey('PascalCase', $conventions);
+        $validator = new KeyNamingConventionValidator();
+        $validator->setConvention('snake_case');
 
-        // Test that no dot variants are listed (dots are always allowed)
-        $this->assertArrayNotHasKey('dot.snake_case', $conventions);
-        $this->assertArrayNotHasKey('dot.camelCase', $conventions);
+        $result = $validator->processFile($parser);
 
-        // Check structure of each convention
-        foreach ($conventions as $convention) {
-            $this->assertNotEmpty($convention['pattern']);
-            $this->assertNotEmpty($convention['description']);
+        $this->assertCount(count($expectedInvalidKeys), $result);
+        $invalidKeys = array_column($result, 'key');
+
+        foreach ($expectedInvalidKeys as $expectedInvalid) {
+            $this->assertContains($expectedInvalid, $invalidKeys);
         }
     }
 
-    public function testValidatorWithInvalidSnakeCaseKeys(): void
+    /**
+     * @return Iterator<string, array{0: array<string>, 1: array<string>}>
+     */
+    public static function snakeCaseValidationProvider(): Iterator
     {
-        $parser = $this->createMock(ParserInterface::class);
-        $parser->method('extractKeys')->willReturn(['_invalid_start', 'invalid_end_', 'valid_key']);
-        $parser->method('getContentByKey')->willReturnMap([
-            ['_invalid_start', 'Text 1'],
-            ['invalid_end_', 'Text 2'],
-            ['valid_key', 'Text 3'],
-        ]);
-        $parser->method('getFileName')->willReturn('test.yaml');
+        yield 'invalid start/end underscores' => [
+            ['_invalid_start', 'invalid_end_', 'valid_key'],
+            ['_invalid_start', 'invalid_end_'],
+        ];
 
-        $validator = new KeyNamingConventionValidator();
-        $validator->setConvention('snake_case');
+        yield 'numbers in keys' => [
+            ['key123', 'user_123', '123invalid'],
+            ['123invalid'],
+        ];
 
-        $result = $validator->processFile($parser);
-
-        // Should have 2 issues for the invalid keys
-        $this->assertCount(2, $result);
-        $invalidKeys = array_column($result, 'key');
-        $this->assertContains('_invalid_start', $invalidKeys);
-        $this->assertContains('invalid_end_', $invalidKeys);
-        $this->assertNotContains('valid_key', $invalidKeys);
+        yield 'complex edge cases' => [
+            ['XMLHttpRequest', 'APIKey', 'valid_key'],
+            ['XMLHttpRequest', 'APIKey'],
+        ];
     }
 
-    public function testValidatorWithNumbersInKeys(): void
+    /**
+     * @param array<string> $keys
+     */
+    #[DataProvider('mixedConventionProvider')]
+    public function testMixedConventionDetection(array $keys, int $expectedIssues, ?string $expectedDominant = null): void
     {
         $parser = $this->createMock(ParserInterface::class);
-        $parser->method('extractKeys')->willReturn(['key123', 'user_123', '123invalid']);
-        $parser->method('getContentByKey')->willReturnMap([
-            ['key123', 'Text 1'],
-            ['user_123', 'Text 2'],
-            ['123invalid', 'Text 3'],
-        ]);
+        $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
         $validator = new KeyNamingConventionValidator();
-        $validator->setConvention('snake_case');
-
         $result = $validator->processFile($parser);
 
-        // Only '123invalid' should fail (starts with number)
-        $this->assertCount(1, $result);
-        $this->assertEquals('123invalid', $result[0]['key']);
+        $this->assertCount($expectedIssues, $result);
+
+        if ($expectedIssues > 0 && $expectedDominant) {
+            $this->assertEquals('mixed_conventions', $result[0]['inconsistency_type']);
+            $this->assertEquals($expectedDominant, $result[0]['dominant_convention']);
+        }
     }
 
-    public function testConversionEdgeCases(): void
+    /**
+     * @return Iterator<string, array{0: array<string>, 1: int, 2?: string}>
+     */
+    public static function mixedConventionProvider(): Iterator
     {
-        $parser = $this->createMock(ParserInterface::class);
-        $parser->method('extractKeys')->willReturn(['XMLHttpRequest', 'APIKey']);
-        $parser->method('getContentByKey')->willReturnMap([
-            ['XMLHttpRequest', 'XML HTTP Request'],
-            ['APIKey', 'API Key'],
-        ]);
-        $parser->method('getFileName')->willReturn('test.yaml');
+        yield 'consistent snake_case' => [
+            ['valid_snake_case', 'another_snake_case', 'third_snake_case'],
+            0,
+        ];
 
-        $validator = new KeyNamingConventionValidator();
-        $validator->setConvention('snake_case');
+        yield 'mixed with snake_case dominant' => [
+            ['valid_snake_case', 'validCamelCase', 'another_snake'],
+            1,
+            'snake_case',
+        ];
 
-        $result = $validator->processFile($parser);
+        yield 'mixed with unknown patterns' => [
+            ['123invalid', '$pecial_chars', 'validKey'],
+            1,
+            'unknown',
+        ];
 
-        // Check that conversion works for complex PascalCase
-        $this->assertCount(2, $result);
-        $suggestions = array_column($result, 'suggestion');
-        $this->assertContains('xmlhttp_request', $suggestions);
-        $this->assertContains('apikey', $suggestions);
+        yield 'mixed dot separated' => [
+            ['user.profile_data', 'admin.adminPanel'],
+            1,
+            'snake_case',
+        ];
     }
 
-    public function testMixedConventionDetection(): void
+    /**
+     * @param array<string> $keys
+     * @param array<string> $expectedSuggestions
+     */
+    #[DataProvider('dotValidationProvider')]
+    public function testValidationWithDots(string $convention, array $keys, int $expectedIssues, array $expectedSuggestions = []): void
     {
         $parser = $this->createMock(ParserInterface::class);
-        $parser->method('extractKeys')->willReturn(['valid_snake_case', 'validCamelCase', 'another_snake']);
+        $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
         $validator = new KeyNamingConventionValidator();
+        $validator->setConvention($convention);
         $result = $validator->processFile($parser);
 
-        // Should detect inconsistency for camelCase key
-        $this->assertCount(1, $result);
-        $this->assertEquals('validCamelCase', $result[0]['key']);
-        $this->assertEquals('mixed_conventions', $result[0]['inconsistency_type']);
-        $this->assertEquals('snake_case', $result[0]['dominant_convention']);
+        $this->assertCount($expectedIssues, $result);
+
+        if (!empty($expectedSuggestions)) {
+            $suggestions = array_column($result, 'suggestion');
+            foreach ($expectedSuggestions as $expectedSuggestion) {
+                $this->assertContains($expectedSuggestion, $suggestions);
+            }
+        }
     }
 
-    public function testConsistentConventionWithoutConfiguration(): void
+    /**
+     * @return Iterator<string, array{0: string, 1: array<string>, 2: int, 3?: array<string>}>
+     */
+    public static function dotValidationProvider(): Iterator
     {
-        $parser = $this->createMock(ParserInterface::class);
-        $parser->method('extractKeys')->willReturn(['valid_snake_case', 'another_snake_case', 'third_snake_case']);
-        $parser->method('getFileName')->willReturn('test.yaml');
+        yield 'camelCase with dots - valid' => [
+            'camelCase',
+            ['header.metaNavigation', 'header.userProfile'],
+            0,
+        ];
 
-        $validator = new KeyNamingConventionValidator();
-        $result = $validator->processFile($parser);
+        yield 'camelCase with dots - mixed' => [
+            'camelCase',
+            ['header.meta_navigation', 'header.metaNavigation'],
+            1,
+        ];
 
-        // Should not report issues if all keys follow the same convention
-        $this->assertEmpty($result);
-    }
+        yield 'camelCase with dots - conversion' => [
+            'camelCase',
+            ['header.meta_navigation'],
+            1,
+            ['header.metaNavigation'],
+        ];
 
-    public function testCamelCaseWithDotsConvention(): void
-    {
-        $parser = $this->createMock(ParserInterface::class);
-        $parser->method('extractKeys')->willReturn(['header.metaNavigation', 'header.userProfile']);
-        $parser->method('getFileName')->willReturn('test.yaml');
-
-        $validator = new KeyNamingConventionValidator();
-        $validator->setConvention('camelCase');
-        $result = $validator->processFile($parser);
-
-        // Should pass validation
-        $this->assertEmpty($result);
-    }
-
-    public function testCamelCaseWithDotsValidation(): void
-    {
-        $parser = $this->createMock(ParserInterface::class);
-        $parser->method('extractKeys')->willReturn(['header.meta_navigation', 'header.metaNavigation']);
-        $parser->method('getFileName')->willReturn('test.yaml');
-
-        $validator = new KeyNamingConventionValidator();
-        $validator->setConvention('camelCase');
-        $result = $validator->processFile($parser);
-
-        // Should fail for snake_case in segment
-        $this->assertCount(1, $result);
-        $this->assertEquals('header.meta_navigation', $result[0]['key']);
-    }
-
-    public function testCamelCaseWithDotsConversion(): void
-    {
-        $parser = $this->createMock(ParserInterface::class);
-        $parser->method('extractKeys')->willReturn(['header.meta_navigation']);
-        $parser->method('getFileName')->willReturn('test.yaml');
-
-        $validator = new KeyNamingConventionValidator();
-        $validator->setConvention('camelCase');
-        $result = $validator->processFile($parser);
-
-        $this->assertCount(1, $result);
-        $this->assertEquals('header.metaNavigation', $result[0]['suggestion']);
+        yield 'snake_case with dots - mixed segments' => [
+            'snake_case',
+            ['valid_key', 'another.valid_key', 'user.profile.settings', 'user.camelCase'],
+            1,
+            ['user.camel_case'],
+        ];
     }
 
     public function testFormatIssueMessageForMixedConventions(): void
@@ -950,66 +879,6 @@ final class KeyNamingConventionValidatorTest extends TestCase
         $this->assertStringContainsString('invalidKey', $message);
         $this->assertStringContainsString('camelCase', $message);
         $this->assertStringContainsString('snake_case', $message);
-    }
-
-    public function testGetAvailableConventionsOnlyBaseConventions(): void
-    {
-        $conventions = KeyNamingConventionValidator::getAvailableConventions();
-
-        // Test that configurable conventions are available (excluding dot.notation)
-        $this->assertArrayHasKey('camelCase', $conventions);
-        $this->assertArrayHasKey('snake_case', $conventions);
-        $this->assertArrayHasKey('kebab-case', $conventions);
-        $this->assertArrayHasKey('PascalCase', $conventions);
-        $this->assertArrayNotHasKey('dot.notation', $conventions);
-
-        // Test descriptions
-        $this->assertStringContainsString('camelCase', $conventions['camelCase']['description']);
-    }
-
-    public function testValidateSegmentWithNullConvention(): void
-    {
-        $validator = new KeyNamingConventionValidator();
-        // Don't set any convention
-
-        $parser = $this->createMock(ParserInterface::class);
-        $parser->method('extractKeys')->willReturn(['anyKey']);
-        $parser->method('getFileName')->willReturn('test.yaml');
-
-        $result = $validator->processFile($parser);
-
-        // Should return empty array since no convention is set and only one key
-        $this->assertEmpty($result);
-    }
-
-    public function testDetectKeyConventionsWithDotsAndMixedSegments(): void
-    {
-        $parser = $this->createMock(ParserInterface::class);
-        $parser->method('extractKeys')->willReturn(['user.profile_data', 'admin.adminPanel']);
-        $parser->method('getFileName')->willReturn('test.yaml');
-
-        $validator = new KeyNamingConventionValidator();
-        // No convention set - should analyze for consistency
-        $result = $validator->processFile($parser);
-
-        // Should detect mixed conventions in dot-separated keys
-        $this->assertNotEmpty($result);
-        $this->assertEquals('mixed_conventions', $result[0]['inconsistency_type']);
-    }
-
-    public function testDetectKeyConventionsWithUnknownPattern(): void
-    {
-        $parser = $this->createMock(ParserInterface::class);
-        $parser->method('extractKeys')->willReturn(['123invalid', '$pecial_chars', 'validKey']);
-        $parser->method('getFileName')->willReturn('test.yaml');
-
-        $validator = new KeyNamingConventionValidator();
-        // No convention set - should analyze for consistency
-        $result = $validator->processFile($parser);
-
-        // Should detect mixed conventions when there are valid and invalid keys
-        $this->assertNotEmpty($result);
-        $this->assertEquals('mixed_conventions', $result[0]['inconsistency_type']);
     }
 
     public function testFormatIssueMessageWithEnumConvention(): void

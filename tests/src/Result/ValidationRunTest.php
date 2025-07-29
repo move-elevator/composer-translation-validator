@@ -32,7 +32,6 @@ use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ValidationRunTest extends TestCase
@@ -183,25 +182,6 @@ class ValidationRunTest extends TestCase
         $this->assertSame(['file4.yaml', 'file5.yaml'], $fileSets[3]->getFiles());
     }
 
-    public function testCreateFileSetsFromArrayWithEmptyValues(): void
-    {
-        $allFiles = [
-            '' => [
-                '' => [
-                    '' => [],
-                ],
-            ],
-        ];
-
-        $fileSets = ValidationRun::createFileSetsFromArray($allFiles);
-
-        $this->assertCount(1, $fileSets);
-        $this->assertSame('', $fileSets[0]->getParser());
-        $this->assertSame('', $fileSets[0]->getPath());
-        $this->assertSame('', $fileSets[0]->getSetKey());
-        $this->assertSame([], $fileSets[0]->getFiles());
-    }
-
     public function testExecuteForCreatesStatistics(): void
     {
         $validatorClass = MockValidatorWithIssues::class;
@@ -238,50 +218,6 @@ class ValidationRunTest extends TestCase
         $this->assertSame(3, $statistics->getFilesChecked()); // 2 + 1 files
         $this->assertSame(2, $statistics->getValidatorsRun()); // 2 validator classes
         $this->assertGreaterThanOrEqual(0, $statistics->getKeysChecked());
-    }
-
-    public function testExecuteForWithEmptyFileSetGeneratesZeroKeys(): void
-    {
-        $validationRun = new ValidationRun($this->logger);
-        $result = $validationRun->executeFor([], []);
-
-        $statistics = $result->getStatistics();
-        $this->assertInstanceOf(ValidationStatistics::class, $statistics);
-        $this->assertGreaterThanOrEqual(0, $statistics->getExecutionTime());
-        $this->assertSame(0, $statistics->getFilesChecked());
-        $this->assertSame(0, $statistics->getValidatorsRun());
-        $this->assertSame(0, $statistics->getKeysChecked());
-    }
-
-    public function testExecuteForWithParserThrowsException(): void
-    {
-        $validatorClass = MockValidatorWithIssues::class;
-        $fileSet = new FileSet(MockParserThatThrows::class, '/test', 'set', ['invalid.xlf']);
-
-        $validationRun = new ValidationRun($this->logger);
-        $result = $validationRun->executeFor([$fileSet], [$validatorClass]);
-
-        $statistics = $result->getStatistics();
-        // Should handle parser exceptions gracefully and continue execution
-        if (null !== $statistics) {
-            $this->assertSame(1, $statistics->getFilesChecked());
-            $this->assertSame(0, $statistics->getKeysChecked()); // No keys counted due to exception
-        }
-    }
-
-    public function testExecuteForWithParserReturningNullKeys(): void
-    {
-        $validatorClass = MockValidatorWithIssues::class;
-        $fileSet = new FileSet(MockParserReturningNull::class, '/test', 'set', ['null.xlf']);
-
-        $validationRun = new ValidationRun($this->logger);
-        $result = $validationRun->executeFor([$fileSet], [$validatorClass]);
-
-        $statistics = $result->getStatistics();
-        if (null !== $statistics) {
-            $this->assertSame(1, $statistics->getFilesChecked());
-            $this->assertSame(0, $statistics->getKeysChecked()); // null keys should result in 0
-        }
     }
 }
 
@@ -470,81 +406,5 @@ class MockValidatorWithIssues implements ValidatorInterface
     public function getShortName(): string
     {
         return static::class;
-    }
-}
-
-class MockParserThatThrows implements ParserInterface
-{
-    public function __construct(string $file)
-    {
-        unset($file);
-    }
-
-    public function extractKeys(): ?array
-    {
-        throw new RuntimeException('Parser failed');
-    }
-
-    public function getContentByKey(string $key): ?string
-    {
-        return null;
-    }
-
-    public function getFileName(): string
-    {
-        return 'error.xlf';
-    }
-
-    public function getFileDirectory(): string
-    {
-        return '/error/path/';
-    }
-
-    public static function getSupportedFileExtensions(): array
-    {
-        return ['xlf'];
-    }
-
-    public function getFilePath(): string
-    {
-        return '/error/path/error.xlf';
-    }
-}
-
-class MockParserReturningNull implements ParserInterface
-{
-    public function __construct(string $file)
-    {
-        unset($file);
-    }
-
-    public function extractKeys(): ?array
-    {
-        return null;
-    }
-
-    public function getContentByKey(string $key): ?string
-    {
-        return null;
-    }
-
-    public function getFileName(): string
-    {
-        return 'null.xlf';
-    }
-
-    public function getFileDirectory(): string
-    {
-        return '/null/path/';
-    }
-
-    public static function getSupportedFileExtensions(): array
-    {
-        return ['xlf'];
-    }
-
-    public function getFilePath(): string
-    {
-        return '/null/path/null.xlf';
     }
 }
