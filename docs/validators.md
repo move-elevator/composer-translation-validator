@@ -413,9 +413,9 @@ duplicate: "Dupliquer"  # Extra key not in other files
 Fixtures/examples/mismatch/buttons.de.yaml
 
   MismatchValidator
-    - Warning  the translation key `edit` is missing from other translation files (`buttons.en.yaml`, `buttons.fr.yaml`)
-    - Warning  the translation key `delete` is missing but present in other translation files (`buttons.en.yaml`, `buttons.fr.yaml`)
-    - Warning  the translation key `duplicate` is missing but present in other translation files (`buttons.en.yaml`, `buttons.fr.yaml`)
+    - Error  the translation key `edit` is missing from other translation files (`buttons.en.yaml`, `buttons.fr.yaml`)
+    - Error  the translation key `delete` is missing but present in other translation files (`buttons.en.yaml`, `buttons.fr.yaml`)
+    - Error  the translation key `duplicate` is missing but present in other translation files (`buttons.en.yaml`, `buttons.fr.yaml`)
 
 +-----------------+-----------------+-----------------+-----------------+
 | Translation Key | buttons.de.yaml | buttons.en.yaml | buttons.fr.yaml |
