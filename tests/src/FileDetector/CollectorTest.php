@@ -195,7 +195,7 @@ final class CollectorTest extends TestCase
         $detector = $this->createMock(DetectorInterface::class);
         $detector->expects($this->once())
             ->method('mapTranslationSet')
-            ->with($this->callback(fn($files) => 1 === count($files) && in_array($this->tempDir.'/keep.xlf', $files)))
+            ->with($this->callback(fn ($files) => 1 === count($files) && in_array($this->tempDir.'/keep.xlf', $files)))
             ->willReturn(['filtered_data']);
 
         $collector = new Collector($logger);
