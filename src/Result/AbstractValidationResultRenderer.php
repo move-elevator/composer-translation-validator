@@ -28,9 +28,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class AbstractValidationResultRenderer implements ValidationResultRendererInterface
 {
-    public function __construct(protected OutputInterface $output, protected bool $dryRun = false, protected bool $strict = false)
-    {
-    }
+    public function __construct(protected OutputInterface $output, protected bool $dryRun = false, protected bool $strict = false) {}
 
     protected function generateMessage(ValidationResult $validationResult): string
     {

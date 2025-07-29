@@ -33,9 +33,7 @@ use Throwable;
 
 class ValidationRun
 {
-    public function __construct(private readonly LoggerInterface $logger)
-    {
-    }
+    public function __construct(private readonly LoggerInterface $logger) {}
 
     /**
      * @param array<FileSet>                          $fileSets

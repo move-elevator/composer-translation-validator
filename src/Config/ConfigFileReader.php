@@ -30,9 +30,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class ConfigFileReader
 {
-    public function __construct(private readonly ConfigFactory $factory = new ConfigFactory())
-    {
-    }
+    public function __construct(private readonly ConfigFactory $factory = new ConfigFactory()) {}
 
     /**
      * @return array<string, mixed>

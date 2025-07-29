@@ -27,9 +27,7 @@ use JsonException;
 
 class ConfigFactory
 {
-    public function __construct(private readonly ConfigValidator $validator = new ConfigValidator())
-    {
-    }
+    public function __construct(private readonly ConfigValidator $validator = new ConfigValidator()) {}
 
     /**
      * @param array<string, mixed> $data

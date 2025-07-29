@@ -40,9 +40,7 @@ use Throwable;
  */
 final class ValidationEngine implements ValidationEngineInterface
 {
-    public function __construct(private readonly ValidationOrchestrationService $orchestrationService, private readonly LoggerInterface $logger)
-    {
-    }
+    public function __construct(private readonly ValidationOrchestrationService $orchestrationService, private readonly LoggerInterface $logger) {}
 
     public function validatePaths(array $paths, array $options = []): ?ValidationResult
     {
