@@ -312,10 +312,10 @@ final class MismatchValidatorTest extends TestCase
 
         $result = $validator->formatIssueMessage($issue);
 
-        $this->assertStringContainsString('Warning', $result);
+        $this->assertStringContainsString('Error', $result);
         $this->assertStringContainsString('test_key', $result);
         $this->assertStringContainsString('files', $result);
-        $this->assertStringContainsString('<fg=yellow>', $result);
+        $this->assertStringContainsString('<fg=red>', $result);
     }
 
     public function testGetShortName(): void

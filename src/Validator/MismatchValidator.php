@@ -245,11 +245,6 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
         $this->keyArray = [];
     }
 
-    public function resultTypeOnValidationFailure(): ResultType
-    {
-        return ResultType::WARNING;
-    }
-
     public function shouldShowDetailedOutput(): bool
     {
         return true;
