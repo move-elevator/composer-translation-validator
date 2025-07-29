@@ -378,7 +378,7 @@ validator-settings:
 
 ## [`MismatchValidator`](../src/Validator/MismatchValidator.php)
 
-The breadfinder! Catches translation keys that exist in some language files but are missing from others.
+Catches translation keys that exist in some language files but are missing from others.
 
 **Result:** ![Error](https://img.shields.io/badge/ERROR-red)
 
@@ -426,7 +426,7 @@ Fixtures/examples/mismatch/buttons.de.yaml
 +-----------------+-----------------+-----------------+-----------------+
 
 
- [WARNING] Language validation completed with warnings.
+[ERROR] Language validation failed with errors.
 ```
 
 <details>
