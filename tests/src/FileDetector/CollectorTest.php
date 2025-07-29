@@ -25,6 +25,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\FileDetector;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\Collector;
 use MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface;
+use MoveElevator\ComposerTranslationValidator\Parser\JsonParser;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use PHPUnit\Framework\TestCase;
@@ -180,6 +181,9 @@ final class CollectorTest extends TestCase
         $result = $collector->collectFiles([$this->tempDir], $detector, null);
 
         $this->assertNotEmpty($result);
+        $this->assertArrayHasKey(XliffParser::class, $result);
+        $this->assertArrayHasKey(JsonParser::class, $result);
+        $this->assertArrayHasKey(YamlParser::class, $result);
     }
 
     public function testCollectFilesWithExcludePatterns(): void
@@ -189,7 +193,10 @@ final class CollectorTest extends TestCase
 
         $logger = $this->createMock(LoggerInterface::class);
         $detector = $this->createMock(DetectorInterface::class);
-        $detector->method('mapTranslationSet')->willReturn(['filtered_data']);
+        $detector->expects($this->once())
+            ->method('mapTranslationSet')
+            ->with($this->callback(fn($files) => 1 === count($files) && in_array($this->tempDir.'/keep.xlf', $files)))
+            ->willReturn(['filtered_data']);
 
         $collector = new Collector($logger);
         $result = $collector->collectFiles([$this->tempDir], $detector, ['exclude*']);
