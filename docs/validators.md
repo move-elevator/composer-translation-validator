@@ -240,6 +240,9 @@ composer -d tests validate-translations Fixtures/examples/encoding --only "MoveE
 
 ## [`HtmlTagValidator`](../src/Validator/HtmlTagValidator.php)
 
+> [!NOTE]
+> New in version **1.2.0** (https://github.com/move-elevator/composer-translation-validator/pull/45)
+
 Verifies HTML tags are consistent across all language versions: same tags, proper nesting, matching attributes.
 
 **Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
@@ -291,11 +294,14 @@ composer -d tests validate-translations Fixtures/examples/html-tags --only "Move
 
 ## [`KeyNamingConventionValidator`](../src/Validator/KeyNamingConventionValidator.php)
 
+> [!NOTE]
+> New in version **1.2.0** (https://github.com/move-elevator/composer-translation-validator/pull/46)
+
 Enforces consistent naming patterns for translation keys (requires configuration to activate).
 
 **Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
 
-> [!NOTE]
+> [!TIP]
 > This validator requires a configuration file to specify a desired naming convention (e.g., `snake_case`, `camelCase`, etc.). If not configured, it try to detect the most common pattern used in your files and warns about inconsistencies.
 
 ### Example
@@ -330,8 +336,6 @@ Fixtures/examples/key-naming/mixed.en.yaml
 [WARNING] Language validation completed with warnings.
 ```
 
-**Note:** The current fixture file contains only valid snake_case keys. To see validation errors, you would need to include keys that violate the naming convention (like camelCase or kebab-case).
-
 <details>
 <summary>Test this example locally</summary>
 
@@ -352,7 +356,7 @@ The following naming conventions are supported:
 - `PascalCase` - UserName, FormSubmit
 - `custom_pattern` - Define your own regex pattern
 
-> [!NOTE]
+> [!IMPORTANT]
 > Dot notation (e.g., `user.name`, `form.submit`) is not supported by this validator, as it is typically used for nested structures rather than flat key names.
 
 You can also define your own regex pattern using the `custom_pattern` option in the configuration file.
