@@ -46,6 +46,9 @@ class ConfigReader
         return $this->fileReader->readAsConfig($configPath);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function autoDetect(?string $workingDirectory = null): ?TranslationValidatorConfig
     {
         $workingDirectory ??= getcwd();
