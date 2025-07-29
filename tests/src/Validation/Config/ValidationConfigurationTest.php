@@ -328,4 +328,166 @@ class ValidationConfigurationTest extends TestCase
         $this->assertSame(['/test/path'], $config->paths);
         $this->assertSame([MismatchValidator::class], $config->onlyValidators);
     }
+
+    public function testFromArrayWithMixedKeys(): void
+    {
+        $array = [
+            'paths' => ['/test/path'],
+            'only' => ['ValidatorA'], // legacy key
+            'skipValidators' => ['ValidatorB'], // new key
+            'exclude' => ['*.tmp'], // legacy key
+            'fileDetectors' => ['TestDetector'], // new key
+        ];
+
+        $config = ValidationConfiguration::fromArray($array);
+
+        $this->assertSame(['/test/path'], $config->paths);
+        $this->assertSame(['ValidatorA'], $config->onlyValidators);
+        $this->assertSame(['ValidatorB'], $config->skipValidators);
+        $this->assertSame(['*.tmp'], $config->excludePatterns);
+        $this->assertSame(['TestDetector'], $config->fileDetectors);
+    }
+
+    public function testFromArrayWithInvalidTypes(): void
+    {
+        $array = [
+            'paths' => 'not-an-array',
+            'only' => 'not-an-array',
+            'strict' => 'not-a-boolean',
+            'recursive' => 1, // should be cast to boolean
+        ];
+
+        $config = ValidationConfiguration::fromArray($array);
+
+        $this->assertSame([], $config->paths); // Invalid type fallback
+        $this->assertSame([], $config->onlyValidators); // Invalid type fallback
+        $this->assertTrue($config->strict); // Non-empty string cast to true
+        $this->assertTrue($config->recursive); // 1 cast to true
+    }
+
+    public function testFromArrayEmpty(): void
+    {
+        $config = ValidationConfiguration::fromArray([]);
+
+        $this->assertSame([], $config->paths);
+        $this->assertSame([], $config->onlyValidators);
+        $this->assertSame([], $config->skipValidators);
+        $this->assertSame([], $config->excludePatterns);
+        $this->assertSame([], $config->fileDetectors);
+        $this->assertSame([], $config->parsers);
+        $this->assertFalse($config->strict);
+        $this->assertFalse($config->dryRun);
+        $this->assertSame('cli', $config->format);
+        $this->assertFalse($config->verbose);
+        $this->assertFalse($config->recursive);
+        $this->assertSame([], $config->validatorSettings);
+    }
+
+    public function testFromLegacyConfigWithComplexSettings(): void
+    {
+        $legacy = new TranslationValidatorConfig();
+        $legacy->setPaths(['/test/path1', '/test/path2'])
+            ->setOnly(['ValidatorA', 'ValidatorB'])
+            ->setSkip(['ValidatorC'])
+            ->setExclude(['*.tmp', '*.backup'])
+            ->setFileDetectors(['DetectorA', 'DetectorB'])
+            ->setParsers(['ParserA'])
+            ->setStrict(true)
+            ->setDryRun(true)
+            ->setFormat('json')
+            ->setVerbose(true)
+            ->setValidatorSettings([
+                'ValidatorA' => ['option1' => 'value1', 'option2' => true],
+                'ValidatorB' => ['option3' => 123, 'option4' => ['nested', 'array']],
+            ]);
+
+        $config = ValidationConfiguration::fromLegacyConfig($legacy);
+
+        $this->assertSame(['/test/path1', '/test/path2'], $config->paths);
+        $this->assertSame(['ValidatorA', 'ValidatorB'], $config->onlyValidators);
+        $this->assertSame(['ValidatorC'], $config->skipValidators);
+        $this->assertSame(['*.tmp', '*.backup'], $config->excludePatterns);
+        $this->assertSame(['DetectorA', 'DetectorB'], $config->fileDetectors);
+        $this->assertSame(['ParserA'], $config->parsers);
+        $this->assertTrue($config->strict);
+        $this->assertTrue($config->dryRun);
+        $this->assertSame('json', $config->format);
+        $this->assertTrue($config->verbose);
+        $this->assertFalse($config->recursive); // Not available in legacy
+        $this->assertSame([
+            'ValidatorA' => ['option1' => 'value1', 'option2' => true],
+            'ValidatorB' => ['option3' => 123, 'option4' => ['nested', 'array']],
+        ], $config->validatorSettings);
+    }
+
+    public function testWithMethodChaining(): void
+    {
+        $config = new ValidationConfiguration();
+
+        $final = $config
+            ->withPaths(['/test/path'])
+            ->withOnlyValidators(['ValidatorA'])
+            ->withSkipValidators(['ValidatorB'])
+            ->withStrict(true)
+            ->withRecursive(true);
+
+        // Each step should return a new immutable instance
+        $this->assertSame([], $config->paths);
+        $this->assertSame(['/test/path'], $final->paths);
+        $this->assertSame(['ValidatorA'], $final->onlyValidators);
+        $this->assertSame(['ValidatorB'], $final->skipValidators);
+        $this->assertTrue($final->strict);
+        $this->assertTrue($final->recursive);
+    }
+
+    public function testGetValidatorSettingsEdgeCases(): void
+    {
+        $config = new ValidationConfiguration(
+            validatorSettings: [
+                'ValidatorA' => [],
+                'ValidatorB' => ['key' => 'value'],
+            ],
+        );
+
+        $this->assertSame([], $config->getValidatorSettings('ValidatorA'));
+        $this->assertSame(['key' => 'value'], $config->getValidatorSettings('ValidatorB'));
+        $this->assertSame([], $config->getValidatorSettings('NonExistentValidator'));
+    }
+
+    public function testHasMethodsEdgeCases(): void
+    {
+        // Test with empty arrays (should return false)
+        $emptyConfig = new ValidationConfiguration(
+            onlyValidators: [],
+            skipValidators: [],
+            excludePatterns: [],
+            fileDetectors: [],
+            parsers: [],
+            validatorSettings: [],
+        );
+
+        $this->assertFalse($emptyConfig->hasValidatorsSpecified());
+        $this->assertFalse($emptyConfig->hasValidatorsToSkip());
+        $this->assertFalse($emptyConfig->hasExcludePatterns());
+        $this->assertFalse($emptyConfig->hasCustomFileDetectors());
+        $this->assertFalse($emptyConfig->hasCustomParsers());
+        $this->assertFalse($emptyConfig->hasValidatorSettings());
+
+        // Test with single items (should return true)
+        $singleItemConfig = new ValidationConfiguration(
+            onlyValidators: ['single'],
+            skipValidators: ['single'],
+            excludePatterns: ['single'],
+            fileDetectors: ['single'],
+            parsers: ['single'],
+            validatorSettings: ['single' => []],
+        );
+
+        $this->assertTrue($singleItemConfig->hasValidatorsSpecified());
+        $this->assertTrue($singleItemConfig->hasValidatorsToSkip());
+        $this->assertTrue($singleItemConfig->hasExcludePatterns());
+        $this->assertTrue($singleItemConfig->hasCustomFileDetectors());
+        $this->assertTrue($singleItemConfig->hasCustomParsers());
+        $this->assertTrue($singleItemConfig->hasValidatorSettings());
+    }
 }

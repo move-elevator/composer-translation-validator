@@ -334,4 +334,135 @@ class IssueDataTest extends TestCase
         $this->assertSame($originalIssue->getParser(), $convertedIssue->getParser());
         $this->assertSame($originalIssue->getValidatorType(), $convertedIssue->getValidatorType());
     }
+
+    public function testFromIssueWithComplexDataTypes(): void
+    {
+        $issue = new Issue(
+            '/test/file.xlf',
+            [
+                'Simple message',
+                'line' => 42,
+                'column' => 15,
+                'boolean' => true,
+                'array' => ['nested', 'data'],
+                'null' => null,
+                'number' => 123.45,
+            ],
+            'XliffParser',
+            'MismatchValidator',
+        );
+
+        $issueData = IssueData::fromIssue($issue);
+
+        $this->assertSame(['Simple message'], $issueData->messages);
+        $this->assertSame(42, $issueData->line);
+        $this->assertSame(15, $issueData->column);
+        $this->assertArrayHasKey('boolean', $issueData->context);
+        $this->assertArrayHasKey('array', $issueData->context);
+        $this->assertArrayHasKey('null', $issueData->context);
+        $this->assertArrayHasKey('number', $issueData->context);
+        $this->assertTrue($issueData->context['boolean']);
+        $this->assertSame(['nested', 'data'], $issueData->context['array']);
+        $this->assertNull($issueData->context['null']);
+        $this->assertEqualsWithDelta(123.45, $issueData->context['number'], PHP_FLOAT_EPSILON);
+    }
+
+    public function testFromIssueWithInvalidLineAndColumn(): void
+    {
+        $issue = new Issue(
+            '/test/file.xlf',
+            [
+                'Message',
+                'line' => 'not-a-number',
+                'column' => 'also-not-a-number',
+            ],
+            'XliffParser',
+            'MismatchValidator',
+        );
+
+        $issueData = IssueData::fromIssue($issue);
+
+        $this->assertNull($issueData->line);
+        $this->assertNull($issueData->column);
+        $this->assertArrayHasKey('line', $issueData->context);
+        $this->assertArrayHasKey('column', $issueData->context);
+        $this->assertSame('not-a-number', $issueData->context['line']);
+        $this->assertSame('also-not-a-number', $issueData->context['column']);
+    }
+
+    public function testToLegacyIssueWithoutLocationAndContext(): void
+    {
+        $issueData = new IssueData(
+            file: '/test/file.xlf',
+            messages: ['Simple message'],
+            parser: 'XliffParser',
+            validatorType: 'MismatchValidator',
+            severity: ResultType::ERROR,
+        );
+
+        $legacyIssue = $issueData->toLegacyIssue();
+        $details = $legacyIssue->getDetails();
+
+        $this->assertSame('Simple message', $details[0]);
+        $this->assertArrayNotHasKey('line', $details);
+        $this->assertArrayNotHasKey('column', $details);
+    }
+
+    public function testGetFormattedStringEdgeCases(): void
+    {
+        // Empty message
+        $emptyMessage = new IssueData(
+            file: '/test/file.xlf',
+            messages: [],
+            parser: 'XliffParser',
+            validatorType: 'MismatchValidator',
+            severity: ResultType::ERROR,
+        );
+        $this->assertSame('/test/file.xlf:Unknown issue', $emptyMessage->getFormattedString());
+
+        // Multiple colons in file path
+        $colonFile = new IssueData(
+            file: 'C:\\Users\\test:file\\test.xlf',
+            messages: ['Error'],
+            parser: 'XliffParser',
+            validatorType: 'MismatchValidator',
+            severity: ResultType::ERROR,
+            line: 5,
+        );
+        $this->assertSame('C:\\Users\\test:file\\test.xlf:5:Error', $colonFile->getFormattedString());
+    }
+
+    public function testGetAllMessagesAsStringEmpty(): void
+    {
+        $issueData = new IssueData(
+            file: '/test/file.xlf',
+            messages: [],
+            parser: 'XliffParser',
+            validatorType: 'MismatchValidator',
+            severity: ResultType::ERROR,
+        );
+
+        $this->assertSame('', $issueData->getAllMessagesAsString());
+    }
+
+    public function testFromIssueWithMixedIntKeys(): void
+    {
+        $issue = new Issue(
+            '/test/file.xlf',
+            [
+                0 => 'First message',
+                'custom_key' => 'Custom value',
+                1 => 'Second message',
+                'line' => 42,
+            ],
+            'XliffParser',
+            'MismatchValidator',
+        );
+
+        $issueData = IssueData::fromIssue($issue);
+
+        $this->assertSame(['First message', 'Second message'], $issueData->messages);
+        $this->assertSame(42, $issueData->line);
+        $this->assertSame(['custom_key' => 'Custom value'], $issueData->context);
+    }
 }
