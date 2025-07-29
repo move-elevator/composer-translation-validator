@@ -380,7 +380,7 @@ validator-settings:
 
 The breadfinder! Catches translation keys that exist in some language files but are missing from others.
 
-**Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
+**Result:** ![Error](https://img.shields.io/badge/ERROR-red)
 
 ### Example
 
