@@ -241,7 +241,7 @@ composer -d tests validate-translations Fixtures/examples/encoding --only "MoveE
 ## [`HtmlTagValidator`](../src/Validator/HtmlTagValidator.php)
 
 > [!NOTE]
-> New in version **1.2.0** (https://github.com/move-elevator/composer-translation-validator/pull/45)
+> New in version **1.1.0** (https://github.com/move-elevator/composer-translation-validator/pull/45)
 
 Verifies HTML tags are consistent across all language versions: same tags, proper nesting, matching attributes.
 
@@ -295,7 +295,7 @@ composer -d tests validate-translations Fixtures/examples/html-tags --only "Move
 ## [`KeyNamingConventionValidator`](../src/Validator/KeyNamingConventionValidator.php)
 
 > [!NOTE]
-> New in version **1.2.0** (https://github.com/move-elevator/composer-translation-validator/pull/46)
+> New in version **1.1.0** (https://github.com/move-elevator/composer-translation-validator/pull/46)
 
 Enforces consistent naming patterns for translation keys (requires configuration to activate).
 
