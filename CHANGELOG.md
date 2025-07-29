@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-07-29
+
+- feat: add HtmlTagValidator for HTML tag consistency across translations
+- feat: add KeyNamingConventionValidator with configurable naming conventions
+- chore: replace inline CGL steps with reusable GitHub Actions workflow
+- feat: enhance key naming validation to support mixed conventions and improve file path handling
+- refactor: modernize codebase with PHP 8.1+ features
+- fix: improve error handling in EncodingValidator
+- docs: add console command documentation and improve validator descriptions
+- fix: update XliffSchemaValidator to handle single error arrays and adjust related tests
+- fix: enhance PrefixFileDetector to support common translation file patterns and update validation configuration
+- feat: add GitHub Actions output format
+- refactor: improve validation command orchestration by introducing ValidationOrchestrationService
+- docs: add version hint for KeyNamingConventionValidator
+- fix: improve key naming convention detection for dot notation
+- refactor: clean up tests by removing redundant cases and improving validation logic
+- feat[!!!]: update validation result type from WARNING to ERROR
+
 ## [1.0.3] - 2025-07-24
 
 - build: raise phpstan to level 8
@@ -75,6 +93,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release
 
+[1.1.0]: https://github.com/move-elevator/composer-translation-validator/compare/1.0.3...1.1.0
 [1.0.3]: https://github.com/move-elevator/composer-translation-validator/compare/1.0.2...1.0.3
 [1.0.2]: https://github.com/move-elevator/composer-translation-validator/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/move-elevator/composer-translation-validator/compare/1.0.0...1.0.1

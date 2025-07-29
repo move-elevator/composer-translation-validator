@@ -62,7 +62,19 @@ enum KeyNamingConvention: string
      */
     public static function fromString(string $convention): self
     {
-        return self::tryFrom($convention) ?? throw new InvalidArgumentException(sprintf('Unknown convention "%s". Available conventions: %s', $convention, implode(', ', self::getAvailableConventions())));
+        // Check if it's a valid enum value
+        $enumValue = self::tryFrom($convention);
+
+        if (null === $enumValue) {
+            throw new InvalidArgumentException(sprintf('Unknown convention "%s". Available conventions: %s', $convention, implode(', ', self::getConfigurableConventions())));
+        }
+
+        // Reject dot.notation as it's not configurable
+        if (self::DOT_NOTATION === $enumValue) {
+            throw new InvalidArgumentException(sprintf('Convention "%s" is not configurable. Available conventions: %s', $convention, implode(', ', self::getConfigurableConventions())));
+        }
+
+        return $enumValue;
     }
 
     /**
@@ -72,7 +84,21 @@ enum KeyNamingConvention: string
      */
     public static function getAvailableConventions(): array
     {
-        return array_map(fn (self $case): string => $case->value, self::cases());
+        return array_map(static fn (self $case): string => $case->value, self::cases());
+    }
+
+    /**
+     * Get configurable convention names (excludes dot.notation).
+     * dot.notation is used internally for detection but should not be configured explicitly.
+     *
+     * @return array<string>
+     */
+    public static function getConfigurableConventions(): array
+    {
+        return array_filter(
+            self::getAvailableConventions(),
+            static fn (string $convention): bool => $convention !== self::DOT_NOTATION->value,
+        );
     }
 
     /**

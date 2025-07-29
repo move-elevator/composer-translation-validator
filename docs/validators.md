@@ -241,7 +241,7 @@ composer -d tests validate-translations Fixtures/examples/encoding --only "MoveE
 ## [`HtmlTagValidator`](../src/Validator/HtmlTagValidator.php)
 
 > [!NOTE]
-> New in version **1.2.0** (https://github.com/move-elevator/composer-translation-validator/pull/45)
+> New in version **1.1.0** (https://github.com/move-elevator/composer-translation-validator/pull/45)
 
 Verifies HTML tags are consistent across all language versions: same tags, proper nesting, matching attributes.
 
@@ -295,7 +295,7 @@ composer -d tests validate-translations Fixtures/examples/html-tags --only "Move
 ## [`KeyNamingConventionValidator`](../src/Validator/KeyNamingConventionValidator.php)
 
 > [!NOTE]
-> New in version **1.2.0** (https://github.com/move-elevator/composer-translation-validator/pull/46)
+> New in version **1.1.0** (https://github.com/move-elevator/composer-translation-validator/pull/46)
 
 Enforces consistent naming patterns for translation keys (requires configuration to activate).
 
@@ -378,9 +378,9 @@ validator-settings:
 
 ## [`MismatchValidator`](../src/Validator/MismatchValidator.php)
 
-The breadfinder! Catches translation keys that exist in some language files but are missing from others.
+Catches translation keys that exist in some language files but are missing from others.
 
-**Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
+**Result:** ![Error](https://img.shields.io/badge/ERROR-red)
 
 ### Example
 
@@ -413,9 +413,9 @@ duplicate: "Dupliquer"  # Extra key not in other files
 Fixtures/examples/mismatch/buttons.de.yaml
 
   MismatchValidator
-    - Warning  the translation key `edit` is missing from other translation files (`buttons.en.yaml`, `buttons.fr.yaml`)
-    - Warning  the translation key `delete` is missing but present in other translation files (`buttons.en.yaml`, `buttons.fr.yaml`)
-    - Warning  the translation key `duplicate` is missing but present in other translation files (`buttons.en.yaml`, `buttons.fr.yaml`)
+    - Error  the translation key `edit` is missing from other translation files (`buttons.en.yaml`, `buttons.fr.yaml`)
+    - Error  the translation key `delete` is missing but present in other translation files (`buttons.en.yaml`, `buttons.fr.yaml`)
+    - Error  the translation key `duplicate` is missing but present in other translation files (`buttons.en.yaml`, `buttons.fr.yaml`)
 
 +-----------------+-----------------+-----------------+-----------------+
 | Translation Key | buttons.de.yaml | buttons.en.yaml | buttons.fr.yaml |
@@ -426,7 +426,7 @@ Fixtures/examples/mismatch/buttons.de.yaml
 +-----------------+-----------------+-----------------+-----------------+
 
 
- [WARNING] Language validation completed with warnings.
+[ERROR] Language validation failed with errors.
 ```
 
 <details>

@@ -38,9 +38,9 @@ Validate your translation files by running the command:
 composer validate-translations ./translations
 ```
 
-![console.png](docs/console.png)
+![console.png](docs/images/console.png)
 
-The command `validate-translations` can be used to validate translation files in your project. It will automatically detect the translation files based on the supported formats and run the configured validators. See the [console command documentation](docs/console-command.md) for more details.
+The command `validate-translations` can be used to validate translation files in your project. It will automatically detect the translation files based on the [supported formats](#supported-file-formats) and run the configured [validators]((#translation-validators)). See the [console command documentation](docs/console-command.md) for more details.
 
 ## 📝 Documentation
 
