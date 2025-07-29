@@ -30,7 +30,7 @@ use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
  *
  * This replaces array-based configuration for type-safe external API usage.
  */
-final readonly class ValidationOptions
+final class ValidationOptions
 {
     /**
      * @param array<int, class-string<ValidatorInterface>> $onlyValidators  Specific validators to run (FQCN)
@@ -42,13 +42,13 @@ final readonly class ValidationOptions
      * @param string|null                                  $fileDetector    File detector class to use
      */
     public function __construct(
-        public array $onlyValidators = [],
-        public array $skipValidators = [],
-        public array $excludePatterns = [],
-        public bool $recursive = false,
-        public bool $strict = false,
-        public bool $dryRun = false,
-        public ?string $fileDetector = null,
+        public readonly array $onlyValidators = [],
+        public readonly array $skipValidators = [],
+        public readonly array $excludePatterns = [],
+        public readonly bool $recursive = false,
+        public readonly bool $strict = false,
+        public readonly bool $dryRun = false,
+        public readonly ?string $fileDetector = null,
     ) {}
 
     /**

@@ -32,7 +32,7 @@ use RuntimeException;
  *
  * This wraps ValidationResult for cleaner external API usage.
  */
-final readonly class ValidationSummary
+final class ValidationSummary
 {
     /**
      * @param bool          $success       Whether validation passed
@@ -44,13 +44,13 @@ final readonly class ValidationSummary
      * @param array<string> $issueMessages List of issue messages
      */
     public function __construct(
-        public bool $success,
-        public ResultType $resultType,
-        public int $issuesCount,
-        public int $filesChecked,
-        public int $validatorsRun,
-        public float $executionTime,
-        public array $issueMessages = [],
+        public readonly bool $success,
+        public readonly ResultType $resultType,
+        public readonly int $issuesCount,
+        public readonly int $filesChecked,
+        public readonly int $validatorsRun,
+        public readonly float $executionTime,
+        public readonly array $issueMessages = [],
     ) {}
 
     /**

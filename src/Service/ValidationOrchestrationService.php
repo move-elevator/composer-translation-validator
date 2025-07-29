@@ -36,9 +36,9 @@ use ReflectionException;
 
 class ValidationOrchestrationService
 {
-    public function __construct(
-        private readonly LoggerInterface $logger,
-    ) {}
+    public function __construct(private readonly LoggerInterface $logger)
+    {
+    }
 
     /**
      * @param array<string>                                $paths
