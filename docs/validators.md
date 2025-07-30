@@ -8,6 +8,7 @@ This page provides detailed explanations for each validator available in the Com
 - [EncodingValidator](#encodingvalidator)
 - [HtmlTagValidator](#htmltagvalidator)
 - [KeyCountValidator](#keycountvalidator)
+- [KeyDepthValidator](#keydepthvalidator)
 - [KeyNamingConventionValidator](#keynamingconventionvalidator)
 - [MismatchValidator](#mismatchvalidator)
 - [PlaceholderConsistencyValidator](#placeholderconsistencyvalidator)
@@ -375,6 +376,89 @@ composer validate-translations Fixtures/examples/key-count --only "MoveElevator\
 
 > [!NOTE]
 > Large translation files can become difficult to maintain and navigate. Consider splitting them into smaller, domain-specific files when they grow too large. This validator helps you identify when files might benefit from being split up.
+
+---
+
+## [`KeyDepthValidator`](../src/Validator/KeyDepthValidator.php)
+
+> [!NOTE]
+> New in version **1.2.0** (https://github.com/move-elevator/composer-translation-validator/pull/65)
+
+Warns when translation keys have excessive nesting depth, helping identify overly complex key structures that may be hard to maintain.
+
+**Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
+
+> [!TIP]
+> By default, this validator warns when translation keys exceed 8 nesting levels. This threshold can be customized through configuration to fit your project's needs.
+
+### Example
+
+**File: `deeply-nested.en.yaml`**
+```yaml
+# Acceptable nesting levels (within threshold of 8)
+user:
+  profile:
+    settings:
+      privacy:
+        notifications:
+          email:
+            enabled: "Email notifications enabled"  # 7 levels - OK
+
+# Keys that exceed the default threshold of 8 levels
+application:
+  modules:
+    auth:
+      forms:
+        login:
+          validation:
+            rules:
+              password:
+                complexity:
+                  requirements: "Password requirements"  # 11 levels - EXCEEDS
+
+# Mixed separator styles that also exceed threshold
+deep_underscore_separated_key_with_many_parts_test: "Deep key"  # 9 levels - EXCEEDS
+long-hyphen-separated-key-with-many-parts-limit: "Deep key"    # 9 levels - EXCEEDS
+```
+
+#### Console Output
+```
+Fixtures/examples/key-depth/deeply-nested.en.yaml
+
+  KeyDepthValidator
+    - Warning Found 4 translation keys with nesting depth exceeding threshold of 8
+
+[WARNING] Language validation completed with warnings.
+```
+
+### Configuration
+
+You can configure the threshold through your configuration file:
+
+```yaml
+# translation-validator.yaml
+validator-settings:
+  KeyDepthValidator:
+    threshold: 5  # Warn when keys have more than 5 nesting levels
+```
+
+See the [configuration file documentation](config-file.md) for more details.
+
+<details>
+<summary>Test this example locally</summary>
+
+```bash
+# Run the validator using pre-created fixtures (from project root)
+composer validate-translations -d tests Fixtures/examples/key-depth --only "MoveElevator\\ComposerTranslationValidator\\Validator\\KeyDepthValidator" -v
+
+# Test with custom configuration (threshold: 5)
+composer validate-translations -d tests Fixtures/examples/key-depth --only "MoveElevator\\ComposerTranslationValidator\\Validator\\KeyDepthValidator" -v --config Fixtures/examples/key-depth/translation-validator.yaml
+```
+
+</details>
+
+> [!NOTE]
+> Deeply nested translation keys can become difficult to understand and maintain. The validator recognizes multiple separators (`.`, `_`, `-`, `:`) and calculates the maximum depth for keys using mixed separators. Consider flattening your key structure or organizing translations into separate domain-specific files when keys become too deeply nested.
 
 ---
 
