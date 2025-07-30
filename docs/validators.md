@@ -295,6 +295,9 @@ composer -d tests validate-translations Fixtures/examples/html-tags --only "Move
 
 ## [`KeyCountValidator`](../src/Validator/KeyCountValidator.php)
 
+> [!NOTE]
+> New in version **1.2.0** (https://github.com/move-elevator/composer-translation-validator/pull/64)
+
 Warns when translation files contain more keys than a configurable threshold, helping identify files that might be becoming too large and difficult to manage.
 
 **Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
