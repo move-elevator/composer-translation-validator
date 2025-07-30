@@ -38,6 +38,7 @@ class ValidatorRegistry
             PlaceholderConsistencyValidator::class,
             HtmlTagValidator::class,
             KeyNamingConventionValidator::class,
+            KeyCountValidator::class,
             XliffSchemaValidator::class,
             EncodingValidator::class,
         ];

@@ -1,0 +1,9 @@
+# Configuration file for KeyCountValidator example
+# This sets a lower threshold to demonstrate the validator behavior
+
+paths:
+  - .
+
+validator-settings:
+  KeyCountValidator:
+    threshold: 100  # Lower threshold for demonstration purposes

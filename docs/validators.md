@@ -7,6 +7,7 @@ This page provides detailed explanations for each validator available in the Com
 - [EmptyValuesValidator](#emptyvaluesvalidator)
 - [EncodingValidator](#encodingvalidator)
 - [HtmlTagValidator](#htmltagvalidator)
+- [KeyCountValidator](#keycountvalidator)
 - [KeyNamingConventionValidator](#keynamingconventionvalidator)
 - [MismatchValidator](#mismatchvalidator)
 - [PlaceholderConsistencyValidator](#placeholderconsistencyvalidator)
@@ -289,6 +290,88 @@ composer -d tests validate-translations Fixtures/examples/html-tags --only "Move
 **Example files:** Check `tests/Fixtures/examples/html-tags/` to see the English and German files with mismatched HTML tags.
 
 </details>
+
+---
+
+## [`KeyCountValidator`](../src/Validator/KeyCountValidator.php)
+
+Warns when translation files contain more keys than a configurable threshold, helping identify files that might be becoming too large and difficult to manage.
+
+**Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
+
+> [!TIP]
+> By default, this validator warns when files exceed 300 translation keys. This threshold can be customized through configuration to fit your project's needs.
+
+### Example
+
+**File: `large-file.en.yaml` (with 339 keys)**
+```yaml
+# Example file with more than 300 translation keys to trigger KeyCountValidator warning
+# This file demonstrates what happens when translation files become too large
+
+user:
+  profile:
+    name: "Name"
+    email: "Email"
+    phone: "Phone"
+    # ... continues with many more keys
+  settings:
+    general: "General Settings"
+    privacy: "Privacy Settings"
+    # ... many more settings keys
+  actions:
+    save: "Save"
+    cancel: "Cancel"
+    # ... many more action keys
+
+navigation:
+  home: "Home"
+  dashboard: "Dashboard"
+  # ... many more navigation keys
+
+# The file continues with forms, buttons, messages, tables, datetime,
+# file_operations, search, notifications sections and additional_keys
+# totaling 339 translation keys in this example
+```
+
+#### Console Output
+```
+Fixtures/examples/key-count/large-file.en.yaml
+
+  KeyCountValidator
+    - Warning File contains 339 translation keys, which exceeds the threshold of 300 keys
+
+[WARNING] Language validation completed with warnings.
+```
+
+### Configuration
+
+You can configure the threshold through your configuration file:
+
+```yaml
+# translation-validator.yaml
+validator-settings:
+  KeyCountValidator:
+    threshold: 500  # Warn when files have more than 500 keys
+```
+
+See the [configuration file documentation](config-file.md) for more details.
+
+<details>
+<summary>Test this example locally</summary>
+
+```bash
+# Run the validator using pre-created fixtures (from project root)
+composer validate-translations Fixtures/examples/key-count --only "MoveElevator\\ComposerTranslationValidator\\Validator\\KeyCountValidator" -v
+
+# Test with custom configuration (threshold: 100)
+composer validate-translations Fixtures/examples/key-count --only "MoveElevator\\ComposerTranslationValidator\\Validator\\KeyCountValidator" -v --config Fixtures/examples/key-count/translation-validator.yaml
+```
+
+</details>
+
+> [!NOTE]
+> Large translation files can become difficult to maintain and navigate. Consider splitting them into smaller, domain-specific files when they grow too large. This validator helps you identify when files might benefit from being split up.
 
 ---
 
