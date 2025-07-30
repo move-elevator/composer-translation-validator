@@ -1,0 +1,9 @@
+# Configuration file for KeyDepthValidator example
+# This sets a lower threshold to demonstrate the validator behavior
+
+paths:
+  - .
+
+validator-settings:
+  KeyDepthValidator:
+    threshold: 5  # Lower threshold for demonstration purposes

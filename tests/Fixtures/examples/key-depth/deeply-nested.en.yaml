@@ -1,0 +1,68 @@
+# Example file with deeply nested translation keys to trigger KeyDepthValidator warning
+# This file demonstrates what happens when translation keys become too deeply nested
+
+# Acceptable nesting levels (within threshold of 8)
+app:
+  name: "My Application"
+
+navigation:
+  header:
+    menu:
+      items:
+        home: "Home"
+        about: "About"
+        contact: "Contact"
+
+user:
+  profile:
+    settings:
+      privacy:
+        notifications:
+          email:
+            enabled: "Email notifications enabled"  # 7 levels - OK
+
+# Keys that exceed the default threshold of 8 levels
+application:
+  modules:
+    auth:
+      forms:
+        login:
+          validation:
+            rules:
+              password:
+                complexity:
+                  requirements: "Password must meet complexity requirements"  # 11 levels - EXCEEDS
+
+system:
+  configuration:
+    database:
+      connections:
+        primary:
+          settings:
+            connection:
+              parameters:
+                timeout:
+                  value: "Connection timeout value"  # 11 levels - EXCEEDS
+
+# Mixed separator styles that also exceed threshold
+deep_underscore_separated_key_with_many_parts_that_exceed_threshold_test: "Deep underscore key"  # 9 levels with underscores
+
+long-hyphen-separated-key-with-many-parts-that-exceed-threshold-limit: "Deep hyphen key"  # 9 levels with hyphens
+
+# Reasonable nesting examples
+forms:
+  validation:
+    messages:
+      required: "This field is required"
+      email: "Please enter a valid email"
+
+errors:
+  http:
+    404: "Page not found"
+    500: "Internal server error"
+
+api:
+  responses:
+    success:
+      created: "Resource created successfully"
+      updated: "Resource updated successfully"

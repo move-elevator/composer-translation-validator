@@ -12,6 +12,7 @@ examples/
 ├── encoding/              # EncodingValidator examples
 ├── html-tags/             # HtmlTagValidator examples
 ├── key-count/             # KeyCountValidator examples
+├── key-depth/             # KeyDepthValidator examples
 ├── key-naming/            # KeyNamingConventionValidator examples
 ├── mismatch/              # MismatchValidator examples
 ├── placeholders/          # PlaceholderConsistencyValidator examples
