@@ -68,6 +68,7 @@ The following translation validators are available (and enabled by default):
 | [EmptyValuesValidator](docs/validators.md#emptyvaluesvalidator) | Detects empty or whitespace-only values |
 | [EncodingValidator](docs/validators.md#encodingvalidator) | Validates UTF-8 encoding and Unicode issues |
 | [HtmlTagValidator](docs/validators.md#htmltagvalidator) | Ensures HTML tag consistency across languages |
+| [KeyCountValidator](docs/validators.md#keycountvalidator) | Warns when files exceed a configurable key count threshold |
 | [KeyNamingConventionValidator](docs/validators.md#keynamingconventionvalidator) | Enforces key naming patterns (requires config) |
 | [MismatchValidator](docs/validators.md#mismatchvalidator) | Finds missing translations between files |
 | [PlaceholderConsistencyValidator](docs/validators.md#placeholderconsistencyvalidator) | Validates placeholder patterns |
