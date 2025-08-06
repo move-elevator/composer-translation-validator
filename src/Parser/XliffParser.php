@@ -28,7 +28,7 @@ use SimpleXMLElement;
 
 class XliffParser extends AbstractParser implements ParserInterface
 {
-    private readonly SimpleXMLElement|bool $xml;
+    private readonly SimpleXMLElement $xml;
 
     /**
      * @param string $filePath Path to the XLIFF file
@@ -46,11 +46,13 @@ class XliffParser extends AbstractParser implements ParserInterface
         }
 
         libxml_use_internal_errors(true);
-        $this->xml = simplexml_load_string($xmlContent);
+        $xml = simplexml_load_string($xmlContent);
 
-        if (false === $this->xml) {
+        if (false === $xml) {
             throw new InvalidArgumentException("Failed to parse XML content from file: {$filePath}");
         }
+
+        $this->xml = $xml;
         libxml_clear_errors();
     }
 
