@@ -43,7 +43,6 @@ final class KeyNamingConventionValidatorTest extends TestCase
         $validator = new KeyNamingConventionValidator();
         $reflection = new ReflectionClass($validator);
         $detectKeyConventions = $reflection->getMethod('detectKeyConventions');
-        $detectKeyConventions->setAccessible(true);
 
         // Test the problematic camelCase key with dots
         $camelCaseWithDots = 'teaser.image.cropVariant.slider';
@@ -465,7 +464,6 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $toDotNotationMethod = $reflection->getMethod('toDotNotation');
-        $toDotNotationMethod->setAccessible(true);
 
         // Test various conversions to dot notation
         $this->assertEquals('user.name', $toDotNotationMethod->invoke($validator, 'userName'));
@@ -481,7 +479,6 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $convertMethod = $reflection->getMethod('convertDotSeparatedKey');
-        $convertMethod->setAccessible(true);
 
         // Should return original key when convention is null
         $result = $convertMethod->invoke($validator, 'user.profile', null);
@@ -494,7 +491,6 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $convertMethod = $reflection->getMethod('convertDotSeparatedKey');
-        $convertMethod->setAccessible(true);
 
         // Use the DOT_NOTATION enum directly
         $dotNotationEnum = \MoveElevator\ComposerTranslationValidator\Enum\KeyNamingConvention::DOT_NOTATION;
@@ -522,7 +518,6 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $suggestMethod = $reflection->getMethod('suggestKeyConversion');
-        $suggestMethod->setAccessible(true);
 
         // Test with invalid convention string that would throw exception
         $result = $suggestMethod->invoke($validator, 'testKey', 'invalid_convention');
@@ -535,7 +530,6 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $detectMethod = $reflection->getMethod('detectKeyConventions');
-        $detectMethod->setAccessible(true);
 
         // Test with a key that has dots but no matching conventions
         $result = $detectMethod->invoke($validator, '$pecial.ch@rs.123');
@@ -580,7 +574,6 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $validateSegmentMethod = $reflection->getMethod('validateSegment');
-        $validateSegmentMethod->setAccessible(true);
 
         // With no convention set, should return true for any segment
         $result = $validateSegmentMethod->invoke($validator, 'anySegment');
@@ -593,7 +586,6 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $toCamelCaseMethod = $reflection->getMethod('toCamelCase');
-        $toCamelCaseMethod->setAccessible(true);
 
         // Test with various edge cases that might affect preg_split
         $result = $toCamelCaseMethod->invoke($validator, '');
@@ -609,7 +601,6 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $validateKeyFormatMethod = $reflection->getMethod('validateKeyFormat');
-        $validateKeyFormatMethod->setAccessible(true);
 
         // With no convention and no custom pattern, should return true
         $result = $validateKeyFormatMethod->invoke($validator, 'anyKey');
@@ -622,7 +613,6 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $detectSegmentMethod = $reflection->getMethod('detectSegmentConventions');
-        $detectSegmentMethod->setAccessible(true);
 
         // Test with a segment that matches no convention
         $result = $detectSegmentMethod->invoke($validator, '$pecial@chars123');

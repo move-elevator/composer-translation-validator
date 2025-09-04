@@ -359,7 +359,6 @@ final class KeyDepthValidatorTest extends TestCase
         // Use reflection to test the private method
         $reflection = new ReflectionClass($validator);
         $method = $reflection->getMethod('calculateKeyDepth');
-        $method->setAccessible(true);
 
         // Test cases
         $testCases = [

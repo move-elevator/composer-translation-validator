@@ -143,7 +143,6 @@ final class AbstractValidatorTest extends TestCase
         $validator = new ConcreteValidator($this->loggerMock);
         $reflection = new ReflectionClass($validator);
         $loggerProperty = $reflection->getProperty('logger');
-        $loggerProperty->setAccessible(true);
         $this->assertSame($this->loggerMock, $loggerProperty->getValue($validator));
     }
 
@@ -303,7 +302,6 @@ final class AbstractValidatorTest extends TestCase
         // Access resetState via reflection since it's protected
         $reflection = new ReflectionClass($validator);
         $resetStateMethod = $reflection->getMethod('resetState');
-        $resetStateMethod->setAccessible(true);
         $resetStateMethod->invoke($validator);
 
         $this->assertFalse($validator->hasIssues());
