@@ -30,14 +30,13 @@ use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
+ * ValidationResultTest.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class ValidationResultTest extends TestCase
 {
     public function testConstructWithoutValidatorFileSetPairs(): void

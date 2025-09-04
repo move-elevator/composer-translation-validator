@@ -34,14 +34,13 @@ use Psr\Log\LoggerInterface;
 use ReflectionClass;
 
 /**
+ * DuplicateValuesValidatorTest.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 final class DuplicateValuesValidatorTest extends TestCase
 {
     private LoggerInterface $loggerMock;

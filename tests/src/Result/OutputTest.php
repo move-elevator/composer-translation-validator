@@ -34,14 +34,13 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
+ * OutputTest.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 final class OutputTest extends TestCase
 {
     private LoggerInterface $loggerMock;

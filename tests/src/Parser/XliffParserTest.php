@@ -29,14 +29,13 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 /**
+ * XliffParserTest.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 final class XliffParserTest extends TestCase
 {
     private string $tempDir;
@@ -262,10 +261,7 @@ EOT;
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class {
     public function testFileGetContentsFalse(string $filePath): void
     {

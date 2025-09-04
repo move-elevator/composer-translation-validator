@@ -23,6 +23,13 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Result;
 
+
+/**
+ * ValidationResultRendererInterface.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 interface ValidationResultRendererInterface
 {
     /**

@@ -29,14 +29,13 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 /**
+ * PhpParserTest.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 final class PhpParserTest extends TestCase
 {
     public function testGetSupportedFileExtensions(): void

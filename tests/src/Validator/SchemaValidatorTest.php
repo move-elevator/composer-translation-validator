@@ -30,14 +30,13 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 /**
+ * SchemaValidatorTest.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 final class SchemaValidatorTest extends TestCase
 {
     private string $tempDir;
@@ -276,10 +275,7 @@ EOT
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class($logger) extends XliffSchemaValidator {
     public function processFile(ParserInterface $file): array
     {
@@ -323,10 +319,7 @@ class($logger) extends XliffSchemaValidator {
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class($logger) extends XliffSchemaValidator {
     public function processFile(ParserInterface $file): array
     {
@@ -377,10 +370,7 @@ class($logger) extends XliffSchemaValidator {
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class($logger) extends XliffSchemaValidator {
     public function processFile(ParserInterface $file): array
     {

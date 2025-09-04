@@ -35,14 +35,13 @@ use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
 /**
+ * EncodingValidatorTest.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 final class EncodingValidatorTest extends TestCase
 {
     private EncodingValidator $validator;
@@ -215,10 +214,7 @@ final class EncodingValidatorTest extends TestCase
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class($logger) extends EncodingValidator {
     public function processFile(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface $file): array
     {
@@ -261,10 +257,7 @@ class($logger) extends EncodingValidator {
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class extends EncodingValidator {
     /**
      * @return array<string, mixed>

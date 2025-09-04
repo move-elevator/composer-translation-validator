@@ -25,6 +25,13 @@ namespace MoveElevator\ComposerTranslationValidator\Enum;
 
 use InvalidArgumentException;
 
+
+/**
+ * KeyNamingConvention.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 enum KeyNamingConvention: string
 {
     case SNAKE_CASE = 'snake_case';

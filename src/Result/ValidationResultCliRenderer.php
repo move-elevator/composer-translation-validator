@@ -33,12 +33,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Throwable;
 
 /**
+ * ValidationResultCliRenderer.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
- *
- * @package ComposerTranslationValidator
  */
-
 class ValidationResultCliRenderer extends AbstractValidationResultRenderer
 {
     private readonly SymfonyStyle $io;

@@ -33,14 +33,13 @@ use Throwable;
 
 #[CoversClass(ValidateTranslationCommand::class)]
 /**
+ * ValidateTranslationCommandTest.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class ValidateTranslationCommandTest extends TestCase
 {
     public function testExecuteWithValidArguments(): void

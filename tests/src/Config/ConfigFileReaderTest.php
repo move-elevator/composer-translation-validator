@@ -31,14 +31,13 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 /**
+ * ConfigFileReaderTest.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 final class ConfigFileReaderTest extends TestCase
 {
     private ConfigFileReader $reader;

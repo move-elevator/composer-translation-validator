@@ -36,14 +36,13 @@ use Psr\Log\NullLogger;
 
 #[CoversClass(ValidationOrchestrationService::class)]
 /**
+ * ValidationOrchestrationServiceTest.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class ValidationOrchestrationServiceTest extends TestCase
 {
     private ValidationOrchestrationService $service;

@@ -27,14 +27,13 @@ use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use PHPUnit\Framework\TestCase;
 
 /**
+ * IssueTest.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class IssueTest extends TestCase
 {
     public function testConstruct(): void

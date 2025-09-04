@@ -27,12 +27,11 @@ use Composer\Plugin\Capability\CommandProvider;
 use MoveElevator\ComposerTranslationValidator\Command\ValidateTranslationCommand;
 
 /**
+ * ValidateTranslationCommandProvider.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
- *
- * @package ComposerTranslationValidator
  */
-
 final class ValidateTranslationCommandProvider implements CommandProvider
 {
     public function getCommands(): array

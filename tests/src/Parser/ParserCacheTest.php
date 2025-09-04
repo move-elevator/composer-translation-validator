@@ -31,14 +31,13 @@ use PHPUnit\Framework\TestCase;
 
 #[CoversClass(ParserCache::class)]
 /**
+ * ParserCacheTest.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class ParserCacheTest extends TestCase
 {
     private string $testFile;

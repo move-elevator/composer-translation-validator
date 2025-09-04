@@ -32,14 +32,13 @@ use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use PHPUnit\Framework\TestCase;
 
 /**
+ * ParserRegistryTest.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 final class ParserRegistryTest extends TestCase
 {
     public function testGetAvailableParsers(): void

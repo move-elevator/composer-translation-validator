@@ -27,12 +27,11 @@ use JsonException;
 use RuntimeException;
 
 /**
+ * JsonParser.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
- *
- * @package ComposerTranslationValidator
  */
-
 class JsonParser extends AbstractParser implements ParserInterface
 {
     /** @var array<string, mixed> */

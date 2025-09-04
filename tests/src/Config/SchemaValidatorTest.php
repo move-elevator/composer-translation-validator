@@ -32,14 +32,13 @@ use RuntimeException;
 
 #[CoversClass(SchemaValidator::class)]
 /**
+ * SchemaValidatorTest.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class SchemaValidatorTest extends TestCase
 {
     private SchemaValidator $schemaValidator;
@@ -209,10 +208,7 @@ class SchemaValidatorTest extends TestCase
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class extends SchemaValidator {
     public function validate(array $data): void
     {

@@ -27,12 +27,11 @@ use RuntimeException;
 use Throwable;
 
 /**
+ * PhpParser.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
- *
- * @package ComposerTranslationValidator
  */
-
 class PhpParser extends AbstractParser implements ParserInterface
 {
     /** @var array<string, mixed> */

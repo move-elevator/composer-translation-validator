@@ -29,14 +29,13 @@ use PHPUnit\Framework\TestCase;
 
 #[CoversClass(ValidateTranslationCommand::class)]
 /**
+ * ValidateTranslationCommandConfigTestSimple.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class ValidateTranslationCommandConfigTestSimple extends TestCase
 {
     public function testCommandHasConfigOption(): void

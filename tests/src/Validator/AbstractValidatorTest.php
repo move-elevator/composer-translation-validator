@@ -36,14 +36,13 @@ use ReflectionException;
 // Dummy implementation of AbstractValidator for testing purposes
 
 /**
+ * ConcreteValidator.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class ConcreteValidator extends AbstractValidator implements ValidatorInterface
 {
     public bool $addPostProcessIssue = false;
@@ -100,14 +99,13 @@ class ConcreteValidator extends AbstractValidator implements ValidatorInterface
 // Dummy Parser for testing
 
 /**
+ * TestParser.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class TestParser implements ParserInterface
 {
     public function __construct(private readonly string $filePath) {}
@@ -149,14 +147,13 @@ class TestParser implements ParserInterface
 }
 
 /**
+ * AbstractValidatorTest.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 final class AbstractValidatorTest extends TestCase
 {
     private LoggerInterface $loggerMock;
@@ -383,10 +380,7 @@ final class AbstractValidatorTest extends TestCase
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class($loggerMock) extends AbstractValidator implements ValidatorInterface {
     public function processFile(ParserInterface $file): array
     {

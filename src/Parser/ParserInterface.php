@@ -23,6 +23,13 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Parser;
 
+
+/**
+ * ParserInterface.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 interface ParserInterface
 {
     public function __construct(string $filePath);

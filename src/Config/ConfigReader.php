@@ -26,12 +26,11 @@ namespace MoveElevator\ComposerTranslationValidator\Config;
 use JsonException;
 
 /**
+ * ConfigReader.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
- *
- * @package ComposerTranslationValidator
  */
-
 class ConfigReader
 {
     private const AUTO_DETECTION_FILES = [

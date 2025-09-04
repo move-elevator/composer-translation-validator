@@ -27,12 +27,11 @@ use JsonException;
 use RuntimeException;
 
 /**
+ * SchemaValidator.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
- *
- * @package ComposerTranslationValidator
  */
-
 class SchemaValidator
 {
     private const SCHEMA_PATH = __DIR__.'/../../schema/translation-validator.schema.json';

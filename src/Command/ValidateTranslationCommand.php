@@ -43,12 +43,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
+ * ValidateTranslationCommand.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
- *
- * @package ComposerTranslationValidator
  */
-
 class ValidateTranslationCommand extends BaseCommand
 {
     protected ?SymfonyStyle $io = null;

@@ -24,12 +24,11 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\FileDetector;
 
 /**
+ * DirectoryFileDetector.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
- *
- * @package ComposerTranslationValidator
  */
-
 class DirectoryFileDetector implements DetectorInterface
 {
     /**

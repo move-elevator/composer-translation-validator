@@ -31,14 +31,13 @@ use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Plugin::class)]
 /**
+ * PluginExtendedTest.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class PluginExtendedTest extends TestCase
 {
     private Plugin $plugin;

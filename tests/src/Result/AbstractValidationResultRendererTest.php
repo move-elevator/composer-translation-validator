@@ -31,14 +31,13 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
+ * AbstractValidationResultRendererTest.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 final class AbstractValidationResultRendererTest extends TestCase
 {
     private TestableAbstractValidationResultRenderer $renderer;
@@ -187,14 +186,13 @@ final class AbstractValidationResultRendererTest extends TestCase
 }
 
 /**
+ * TestableAbstractValidationResultRenderer.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 class TestableAbstractValidationResultRenderer extends AbstractValidationResultRenderer
 {
     public function render(ValidationResult $validationResult): int

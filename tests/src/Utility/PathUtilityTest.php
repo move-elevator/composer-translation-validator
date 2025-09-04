@@ -27,14 +27,13 @@ use MoveElevator\ComposerTranslationValidator\Utility\PathUtility;
 use PHPUnit\Framework\TestCase;
 
 /**
+ * PathUtilityTest.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-3.0-or-later
  *
  * @see https://google.de
- *
- * @package ComposerTranslationValidator
  */
-
 final class PathUtilityTest extends TestCase
 {
     private string $originalCwd;
