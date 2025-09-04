@@ -30,8 +30,37 @@ use Stringable;
 
 // Dummy interface and classes for testing
 interface DummyInterface {}
+
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
+
 class ValidClass implements DummyInterface {}
+
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
+
 class InvalidClass {}
+
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
 
 final class ClassUtilityTest extends TestCase
 {

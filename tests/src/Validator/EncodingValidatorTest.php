@@ -34,6 +34,15 @@ use Normalizer;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
+
 final class EncodingValidatorTest extends TestCase
 {
     private EncodingValidator $validator;
@@ -200,22 +209,32 @@ final class EncodingValidatorTest extends TestCase
             ->method('error')
             ->with($this->stringContains('Could not read file content:'));
 
-        $validator = new class($logger) extends EncodingValidator {
-            public function processFile(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface $file): array
-            {
-                // Simulate file_get_contents returning false
-                $content = @file_get_contents($file->getFilePath()); // Suppress warning with @
-                if (false === $content) {
-                    $this->logger?->error(
-                        'Could not read file content: '.$file->getFileName(),
-                    );
+        $validator = new
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
 
-                    return [];
-                }
+class($logger) extends EncodingValidator {
+    public function processFile(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface $file): array
+    {
+        // Simulate file_get_contents returning false
+        $content = @file_get_contents($file->getFilePath()); // Suppress warning with @
+        if (false === $content) {
+            $this->logger?->error(
+                'Could not read file content: '.$file->getFileName(),
+            );
 
-                return parent::processFile($file);
-            }
-        };
+            return [];
+        }
+
+        return parent::processFile($file);
+    }
+};
 
         $filePath = '/non/existent/file.yaml';
         $parser = $this->createMock(YamlParser::class);
@@ -236,20 +255,30 @@ final class EncodingValidatorTest extends TestCase
         $mockParser->method('getFilePath')->willReturn($filePath);
 
         // Manually test the empty file path in the validator
-        $validator = new class extends EncodingValidator {
-            /**
-             * @return array<string, mixed>
-             */
-            public function testEmptyContent(): array
-            {
-                $content = file_get_contents('/dev/null'); // This returns '' (empty string)
-                if ('' === $content) {
-                    return [];
-                }
+        $validator = new
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
 
-                return ['should_not_reach' => 'this'];
-            }
-        };
+class extends EncodingValidator {
+    /**
+     * @return array<string, mixed>
+     */
+    public function testEmptyContent(): array
+    {
+        $content = file_get_contents('/dev/null'); // This returns '' (empty string)
+        if ('' === $content) {
+            return [];
+        }
+
+        return ['should_not_reach' => 'this'];
+    }
+};
 
         $issues = $validator->testEmptyContent();
         $this->assertEmpty($issues);

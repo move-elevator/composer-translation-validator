@@ -30,6 +30,15 @@ use MoveElevator\ComposerTranslationValidator\FileDetector\PrefixFileDetector;
 use MoveElevator\ComposerTranslationValidator\FileDetector\SuffixFileDetector;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
+
 final class FileDetectorRegistryTest extends TestCase
 {
     public function testGetAvailableFileDetectors(): void

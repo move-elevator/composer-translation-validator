@@ -34,6 +34,16 @@ use ReflectionClass;
 use ReflectionException;
 
 // Dummy implementation of AbstractValidator for testing purposes
+
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
+
 class ConcreteValidator extends AbstractValidator implements ValidatorInterface
 {
     public bool $addPostProcessIssue = false;
@@ -88,6 +98,16 @@ class ConcreteValidator extends AbstractValidator implements ValidatorInterface
 }
 
 // Dummy Parser for testing
+
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
+
 class TestParser implements ParserInterface
 {
     public function __construct(private readonly string $filePath) {}
@@ -127,6 +147,15 @@ class TestParser implements ParserInterface
         return '';
     }
 }
+
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
 
 final class AbstractValidatorTest extends TestCase
 {
@@ -348,24 +377,34 @@ final class AbstractValidatorTest extends TestCase
             ));
 
         // Create a custom validator that doesn't support TestParser
-        $validator = new class($loggerMock) extends AbstractValidator implements ValidatorInterface {
-            public function processFile(ParserInterface $file): array
-            {
-                return [];
-            }
+        $validator = new
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
 
-            public function supportsParser(): array
-            {
-                return []; // Empty - doesn't support any parser
-            }
+class($loggerMock) extends AbstractValidator implements ValidatorInterface {
+    public function processFile(ParserInterface $file): array
+    {
+        return [];
+    }
 
-            public function postProcess(): void {}
+    public function supportsParser(): array
+    {
+        return []; // Empty - doesn't support any parser
+    }
 
-            public function getShortName(): string
-            {
-                return 'UnsupportedValidator';
-            }
-        };
+    public function postProcess(): void {}
+
+    public function getShortName(): string
+    {
+        return 'UnsupportedValidator';
+    }
+};
 
         $files = ['/path/to/test.xlf'];
         $result = $validator->validate($files, TestParser::class);

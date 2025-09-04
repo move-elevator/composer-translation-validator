@@ -26,6 +26,15 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Config;
 use MoveElevator\ComposerTranslationValidator\Config\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
+
 class ValidatorSettingsConfigTest extends TestCase
 {
     public function testLoadValidatorSettingsFromYaml(): void

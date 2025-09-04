@@ -26,6 +26,13 @@ namespace MoveElevator\ComposerTranslationValidator\Parser;
 use InvalidArgumentException;
 use SimpleXMLElement;
 
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @package ComposerTranslationValidator
+ */
+
 class XliffParser extends AbstractParser implements ParserInterface
 {
     private readonly SimpleXMLElement|bool $xml;

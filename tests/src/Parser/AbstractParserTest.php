@@ -29,6 +29,16 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 // Concrete test class for testing AbstractParser
+
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
+
 class TestParser extends AbstractParser
 {
     public static function getSupportedFileExtensions(): array
@@ -36,6 +46,15 @@ class TestParser extends AbstractParser
         return ['txt', 'test'];
     }
 }
+
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
 
 final class AbstractParserTest extends TestCase
 {

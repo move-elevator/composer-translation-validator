@@ -32,6 +32,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Throwable;
 
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @package ComposerTranslationValidator
+ */
+
 class ValidationResultCliRenderer extends AbstractValidationResultRenderer
 {
     private readonly SymfonyStyle $io;

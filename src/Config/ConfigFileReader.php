@@ -28,6 +28,13 @@ use JsonException;
 use RuntimeException;
 use Symfony\Component\Yaml\Yaml;
 
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @package ComposerTranslationValidator
+ */
+
 class ConfigFileReader
 {
     public function __construct(

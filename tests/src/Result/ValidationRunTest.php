@@ -34,6 +34,15 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
+
 class ValidationRunTest extends TestCase
 {
     private LoggerInterface $logger;
@@ -222,6 +231,16 @@ class ValidationRunTest extends TestCase
 }
 
 // Mock classes for testing
+
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
+
 class MockParserForTesting implements ParserInterface
 {
     public function __construct(string $file)
@@ -260,6 +279,15 @@ class MockParserForTesting implements ParserInterface
         return '/mock/path/mock.xlf';
     }
 }
+
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
 
 class MockValidatorWithoutIssues implements ValidatorInterface
 {
@@ -329,6 +357,15 @@ class MockValidatorWithoutIssues implements ValidatorInterface
         return static::class;
     }
 }
+
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
 
 class MockValidatorWithIssues implements ValidatorInterface
 {

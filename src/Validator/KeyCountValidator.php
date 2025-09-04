@@ -31,6 +31,13 @@ use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @package ComposerTranslationValidator
+ */
+
 class KeyCountValidator extends AbstractValidator implements ValidatorInterface
 {
     private int $threshold = 300;

@@ -23,6 +23,13 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Utility;
 
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @package ComposerTranslationValidator
+ */
+
 class PathUtility
 {
     public static function normalizeFolderPath(string $path): string

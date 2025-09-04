@@ -28,6 +28,15 @@ use MoveElevator\ComposerTranslationValidator\Capability\ValidateTranslationComm
 use MoveElevator\ComposerTranslationValidator\Plugin;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
+
 final class PluginTest extends TestCase
 {
     public function testGetCapabilities(): void

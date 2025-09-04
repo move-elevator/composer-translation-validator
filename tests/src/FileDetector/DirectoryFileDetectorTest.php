@@ -26,6 +26,15 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\FileDetector;
 use MoveElevator\ComposerTranslationValidator\FileDetector\DirectoryFileDetector;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ *
+ * @package ComposerTranslationValidator
+ */
+
 final class DirectoryFileDetectorTest extends TestCase
 {
     public function testMapTranslationSetWithDirectoryBasedFiles(): void

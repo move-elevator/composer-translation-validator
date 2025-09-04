@@ -30,6 +30,13 @@ use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @package ComposerTranslationValidator
+ */
+
 class DuplicateKeysValidator extends AbstractValidator implements ValidatorInterface
 {
     /**

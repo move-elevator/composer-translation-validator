@@ -31,6 +31,13 @@ use RecursiveIteratorIterator;
 use ReflectionException;
 use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @package ComposerTranslationValidator
+ */
+
 class Collector
 {
     public function __construct(protected ?LoggerInterface $logger = null) {}
