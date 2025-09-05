@@ -25,7 +25,6 @@ namespace MoveElevator\ComposerTranslationValidator\Enum;
 
 use InvalidArgumentException;
 
-
 /**
  * KeyNamingConvention.
  *

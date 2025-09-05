@@ -25,7 +25,6 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use Symfony\Component\Console\Command\Command;
 
-
 /**
  * ResultType.
  *

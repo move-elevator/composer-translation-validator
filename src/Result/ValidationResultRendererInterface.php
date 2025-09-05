@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Result;
 
-
 /**
  * ValidationResultRendererInterface.
  *

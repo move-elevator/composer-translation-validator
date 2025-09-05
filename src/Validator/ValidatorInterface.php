@@ -28,7 +28,6 @@ use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use Symfony\Component\Console\Output\OutputInterface;
 
-
 /**
  * ValidatorInterface.
  *
