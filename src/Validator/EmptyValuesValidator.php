@@ -30,6 +30,12 @@ use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 
+/**
+ * EmptyValuesValidator.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class EmptyValuesValidator extends AbstractValidator implements ValidatorInterface
 {
     /**

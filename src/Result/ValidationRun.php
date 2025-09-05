@@ -31,6 +31,12 @@ use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
+/**
+ * ValidationRun.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class ValidationRun
 {
     public function __construct(

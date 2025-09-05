@@ -25,6 +25,12 @@ namespace MoveElevator\ComposerTranslationValidator\Utility;
 
 use Psr\Log\LoggerInterface;
 
+/**
+ * ClassUtility.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class ClassUtility
 {
     public static function instantiate(

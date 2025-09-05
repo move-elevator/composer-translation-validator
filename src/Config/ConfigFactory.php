@@ -25,6 +25,12 @@ namespace MoveElevator\ComposerTranslationValidator\Config;
 
 use JsonException;
 
+/**
+ * ConfigFactory.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class ConfigFactory
 {
     public function __construct(

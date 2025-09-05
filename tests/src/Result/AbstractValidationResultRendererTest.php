@@ -30,6 +30,14 @@ use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
 
+/**
+ * AbstractValidationResultRendererTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 final class AbstractValidationResultRendererTest extends TestCase
 {
     private TestableAbstractValidationResultRenderer $renderer;
@@ -177,6 +185,14 @@ final class AbstractValidationResultRendererTest extends TestCase
     }
 }
 
+/**
+ * TestableAbstractValidationResultRenderer.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 class TestableAbstractValidationResultRenderer extends AbstractValidationResultRenderer
 {
     public function render(ValidationResult $validationResult): int

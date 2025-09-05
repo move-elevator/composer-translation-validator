@@ -27,6 +27,12 @@ use Exception;
 use RuntimeException;
 use Symfony\Component\Yaml\Yaml;
 
+/**
+ * YamlParser.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class YamlParser extends AbstractParser implements ParserInterface
 {
     /** @var array<string, mixed> */

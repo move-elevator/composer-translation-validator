@@ -25,6 +25,12 @@ namespace MoveElevator\ComposerTranslationValidator\Result;
 
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 
+/**
+ * ValidationResultGitHubRenderer.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class ValidationResultGitHubRenderer extends AbstractValidationResultRenderer
 {
     public function render(ValidationResult $validationResult): int

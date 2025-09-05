@@ -26,6 +26,12 @@ namespace MoveElevator\ComposerTranslationValidator\Parser;
 use InvalidArgumentException;
 use RuntimeException;
 
+/**
+ * AbstractParser.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 abstract class AbstractParser
 {
     protected readonly string $fileName;

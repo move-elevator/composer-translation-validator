@@ -31,6 +31,12 @@ use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * AbstractValidator.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 abstract class AbstractValidator
 {
     /** @var array<Issue> */

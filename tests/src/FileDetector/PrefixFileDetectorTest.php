@@ -26,6 +26,14 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\FileDetector;
 use MoveElevator\ComposerTranslationValidator\FileDetector\PrefixFileDetector;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * PrefixFileDetectorTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 final class PrefixFileDetectorTest extends TestCase
 {
     public function testMapTranslationSetWithPrefixedFiles(): void

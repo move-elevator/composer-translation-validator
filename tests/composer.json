@@ -17,7 +17,7 @@
 		}
 	},
 	"scripts": {
-		"translation:xliff:all": "@composer validate-translations ./src/Fixtures/translations/xliff/fail ./src/Fixtures/translations/xliff/success",
+		"translation:xliff:all": "@composer validate-translations ./src/Fixtures/translations/xliff/fail ./src/Fixtures/translations/xliff/success -v",
 		"translation:xliff:all:check": "@composer validate-translations ./src/Fixtures/translations/xliff/fail ./src/Fixtures/translations/xliff/success --dry-run",
 		"translation:xliff:fail": "@composer validate-translations ./src/Fixtures/translations/xliff/fail",
 		"translation:xliff:fail:check": "@composer validate-translations ./src/Fixtures/translations/xliff/fail --dry-run",

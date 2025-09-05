@@ -30,6 +30,14 @@ use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
+/**
+ * KeyCountValidatorTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 final class KeyCountValidatorTest extends TestCase
 {
     public function testProcessFileWithExceedingKeyCount(): void

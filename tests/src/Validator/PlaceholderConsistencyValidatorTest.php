@@ -37,6 +37,14 @@ use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use Symfony\Component\Console\Output\BufferedOutput;
 
+/**
+ * PlaceholderConsistencyValidatorTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 final class PlaceholderConsistencyValidatorTest extends TestCase
 {
     public function testProcessFileWithValidFile(): void

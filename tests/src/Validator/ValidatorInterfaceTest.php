@@ -30,6 +30,14 @@ use MoveElevator\ComposerTranslationValidator\Validator\AbstractValidator;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * ValidatorInterfaceTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 final class ValidatorInterfaceTest extends TestCase
 {
     public function testFormatIssueMessageDefault(): void
@@ -122,6 +130,15 @@ final class ValidatorInterfaceTest extends TestCase
 }
 
 // Test implementation classes
+
+/**
+ * TestValidatorImplementation.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 class TestValidatorImplementation extends AbstractValidator
 {
     public function processFile(ParserInterface $file): array
@@ -140,6 +157,14 @@ class TestValidatorImplementation extends AbstractValidator
     }
 }
 
+/**
+ * TestValidatorWithWarning.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 class TestValidatorWithWarning extends AbstractValidator
 {
     public function processFile(ParserInterface $file): array

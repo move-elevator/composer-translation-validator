@@ -26,6 +26,12 @@ namespace MoveElevator\ComposerTranslationValidator\Result;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * ValidationResultRendererFactory.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class ValidationResultRendererFactory
 {
     public static function create(

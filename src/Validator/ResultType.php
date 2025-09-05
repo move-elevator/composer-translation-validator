@@ -25,6 +25,12 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use Symfony\Component\Console\Command\Command;
 
+/**
+ * ResultType.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 enum ResultType: int
 {
     case SUCCESS = 0;

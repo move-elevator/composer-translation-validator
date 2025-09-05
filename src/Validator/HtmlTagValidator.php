@@ -34,6 +34,12 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableStyle;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * HtmlTagValidator.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
 {
     /** @var array<string, array<string, array{value: string, html_structure: array<string, mixed>}>> */

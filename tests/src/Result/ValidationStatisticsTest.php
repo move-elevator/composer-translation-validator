@@ -26,6 +26,14 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 use MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * ValidationStatisticsTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 class ValidationStatisticsTest extends TestCase
 {
     public function testConstructorAndGetters(): void

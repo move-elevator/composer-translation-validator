@@ -30,6 +30,12 @@ use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 
+/**
+ * DuplicateValuesValidator.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class DuplicateValuesValidator extends AbstractValidator implements ValidatorInterface
 {
     /** @var array<string, array<string, array<int, string>>> */

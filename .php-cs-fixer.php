@@ -24,6 +24,7 @@ declare(strict_types=1);
 use EliasHaeussler\PhpCsFixerConfig\Config;
 use EliasHaeussler\PhpCsFixerConfig\Package;
 use EliasHaeussler\PhpCsFixerConfig\Rules;
+use EliasHaeussler\PhpCsFixerConfig\Rules\RuleSet;
 use Symfony\Component\Finder;
 
 $header = Rules\Header::create(
@@ -36,5 +37,17 @@ $header = Rules\Header::create(
 
 return Config::create()
     ->withRule($header)
+    ->withRule(
+        RuleSet::fromArray(
+            KonradMichalik\PhpDocBlockHeaderFixer\Generators\DocBlockHeader::create(
+                [
+                    'author' => 'Konrad Michalik <hej@konradmichalik.dev>',
+                    'license' => 'GPL-3.0-or-later',
+                ],
+                addStructureName: true,
+            )->__toArray(),
+        ),
+    )
+     ->registerCustomFixers([new KonradMichalik\PhpDocBlockHeaderFixer\Rules\DocBlockHeaderFixer()]) // Temporarily disabled
     ->withFinder(static fn (Finder\Finder $finder) => $finder->in(__DIR__))
 ;

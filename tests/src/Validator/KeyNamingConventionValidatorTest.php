@@ -33,6 +33,14 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
 
+/**
+ * KeyNamingConventionValidatorTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 final class KeyNamingConventionValidatorTest extends TestCase
 {
     public function testDotNotationNotConfusedWithCamelCaseDottedKeys(): void
