@@ -58,7 +58,6 @@ final class MismatchValidatorTest extends TestCase
         // Accessing protected property for testing purposes
         $reflection = new ReflectionClass($validator);
         $keyArrayProperty = $reflection->getProperty('keyArray');
-        $keyArrayProperty->setAccessible(true);
         $keyArray = $keyArrayProperty->getValue($validator);
 
         $this->assertEquals(
@@ -108,7 +107,6 @@ final class MismatchValidatorTest extends TestCase
         // Accessing protected property for testing purposes
         $reflection = new ReflectionClass($validator);
         $issuesProperty = $reflection->getProperty('issues');
-        $issuesProperty->setAccessible(true);
         $issues = $issuesProperty->getValue($validator);
 
         $expectedIssues = [
@@ -174,7 +172,6 @@ final class MismatchValidatorTest extends TestCase
         // Accessing protected property for testing purposes
         $reflection = new ReflectionClass($validator);
         $issuesProperty = $reflection->getProperty('issues');
-        $issuesProperty->setAccessible(true);
         $issues = $issuesProperty->getValue($validator);
 
         $this->assertEmpty($issues);
@@ -188,7 +185,6 @@ final class MismatchValidatorTest extends TestCase
         // Manually set keyArray to simulate previous validation
         $reflection = new ReflectionClass($validator);
         $keyArrayProperty = $reflection->getProperty('keyArray');
-        $keyArrayProperty->setAccessible(true);
         $keyArrayProperty->setValue($validator, [
             'file1.xlf' => ['key1' => 'value1', 'key2' => 'value2'],
             'file2.xlf' => ['key1' => 'value1'],
@@ -199,7 +195,6 @@ final class MismatchValidatorTest extends TestCase
 
         // Call resetState
         $resetStateMethod = $reflection->getMethod('resetState');
-        $resetStateMethod->setAccessible(true);
         $resetStateMethod->invoke($validator);
 
         // Verify keyArray is reset
