@@ -69,7 +69,6 @@ final class DuplicateValuesValidatorTest extends TestCase
         // Access protected property to check internal state
         $reflection = new ReflectionClass($validator);
         $valuesArrayProperty = $reflection->getProperty('valuesArray');
-        $valuesArrayProperty->setAccessible(true);
         $valuesArray = $valuesArrayProperty->getValue($validator);
 
         $this->assertArrayHasKey('test.xlf', $valuesArray);
@@ -94,7 +93,6 @@ final class DuplicateValuesValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $valuesArrayProperty = $reflection->getProperty('valuesArray');
-        $valuesArrayProperty->setAccessible(true);
         $valuesArray = $valuesArrayProperty->getValue($validator);
 
         $this->assertArrayHasKey('test.xlf', $valuesArray);
@@ -123,7 +121,6 @@ final class DuplicateValuesValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $valuesArrayProperty = $reflection->getProperty('valuesArray');
-        $valuesArrayProperty->setAccessible(true);
         $valuesArray = $valuesArrayProperty->getValue($validator);
 
         $this->assertEmpty($valuesArray);
@@ -136,7 +133,6 @@ final class DuplicateValuesValidatorTest extends TestCase
         // Manually set valuesArray to simulate previous processFile calls
         $reflection = new ReflectionClass($validator);
         $valuesArrayProperty = $reflection->getProperty('valuesArray');
-        $valuesArrayProperty->setAccessible(true);
         $valuesArrayProperty->setValue($validator, [
             'file1.xlf' => [
                 'valueA' => ['key1', 'key3'],
@@ -150,7 +146,6 @@ final class DuplicateValuesValidatorTest extends TestCase
         $validator->postProcess();
 
         $issuesProperty = $reflection->getProperty('issues');
-        $issuesProperty->setAccessible(true);
         $issues = $issuesProperty->getValue($validator);
 
         $expectedIssues = [
@@ -182,7 +177,6 @@ final class DuplicateValuesValidatorTest extends TestCase
         // Manually set valuesArray with no duplicates
         $reflection = new ReflectionClass($validator);
         $valuesArrayProperty = $reflection->getProperty('valuesArray');
-        $valuesArrayProperty->setAccessible(true);
         $valuesArrayProperty->setValue($validator, [
             'file1.xlf' => [
                 'valueA' => ['key1'],
@@ -193,7 +187,6 @@ final class DuplicateValuesValidatorTest extends TestCase
         $validator->postProcess();
 
         $issuesProperty = $reflection->getProperty('issues');
-        $issuesProperty->setAccessible(true);
         $issues = $issuesProperty->getValue($validator);
 
         $this->assertEmpty($issues);
@@ -207,7 +200,6 @@ final class DuplicateValuesValidatorTest extends TestCase
         // Manually set valuesArray to simulate previous validation
         $reflection = new ReflectionClass($validator);
         $valuesArrayProperty = $reflection->getProperty('valuesArray');
-        $valuesArrayProperty->setAccessible(true);
         $valuesArrayProperty->setValue($validator, [
             'file1.xlf' => [
                 'value1' => ['key1', 'key2'],
@@ -223,7 +215,6 @@ final class DuplicateValuesValidatorTest extends TestCase
 
         // Call resetState
         $resetStateMethod = $reflection->getMethod('resetState');
-        $resetStateMethod->setAccessible(true);
         $resetStateMethod->invoke($validator);
 
         // Verify valuesArray is reset
@@ -294,7 +285,6 @@ final class DuplicateValuesValidatorTest extends TestCase
         // Access protected property to check internal state
         $reflection = new ReflectionClass($validator);
         $valuesArrayProperty = $reflection->getProperty('valuesArray');
-        $valuesArrayProperty->setAccessible(true);
         $valuesArray = $valuesArrayProperty->getValue($validator);
 
         $this->assertArrayHasKey('test.xlf', $valuesArray);
