@@ -31,6 +31,14 @@ use ReflectionClass;
 use RuntimeException;
 
 #[CoversClass(SchemaValidator::class)]
+/**
+ * SchemaValidatorTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 class SchemaValidatorTest extends TestCase
 {
     private SchemaValidator $schemaValidator;
@@ -194,22 +202,29 @@ class SchemaValidatorTest extends TestCase
     public function testValidateReturnsEarlyWhenJsonSchemaValidatorNotAvailable(): void
     {
         // Create a mock SchemaValidator that simulates JsonSchema\Validator not being available
-        $validator = new class extends SchemaValidator {
-            public function validate(array $data): void
-            {
-                // Simulate the class_exists check returning false
-                if (!$this->isAvailable()) {
-                    return;
-                }
+        $validator = new
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
+class extends SchemaValidator {
+    public function validate(array $data): void
+    {
+        // Simulate the class_exists check returning false
+        if (!$this->isAvailable()) {
+            return;
+        }
 
-                parent::validate($data);
-            }
+        parent::validate($data);
+    }
 
-            public function isAvailable(): bool
-            {
-                return false; // Simulate JsonSchema\Validator not available
-            }
-        };
+    public function isAvailable(): bool
+    {
+        return false; // Simulate JsonSchema\Validator not available
+    }
+};
 
         // This should return early without throwing an exception
         $validator->validate(['invalid' => 'data']);

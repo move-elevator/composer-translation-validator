@@ -25,6 +25,12 @@ namespace MoveElevator\ComposerTranslationValidator\Utility;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * OutputUtility.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class OutputUtility
 {
     public static function debug(OutputInterface $output, string $message, bool $veryVerbose = false, bool $newLine = true): void

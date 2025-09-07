@@ -28,6 +28,14 @@ use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
+/**
+ * XliffParserTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 final class XliffParserTest extends TestCase
 {
     private string $tempDir;
@@ -247,16 +255,23 @@ EOT;
     public function testConstructorThrowsExceptionWhenFileGetContentsReturnsFalse(): void
     {
         // Create a test to verify the error path for file_get_contents returning false
-        $validator = new class {
-            public function testFileGetContentsFalse(string $filePath): void
-            {
-                // Simulate the exact code path from XliffParser constructor
-                $xmlContent = @file_get_contents($filePath); // Suppress warning with @
-                if (false === $xmlContent) {
-                    throw new InvalidArgumentException("Failed to read file: {$filePath}");
-                }
-            }
-        };
+        $validator = new
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
+class {
+    public function testFileGetContentsFalse(string $filePath): void
+    {
+        // Simulate the exact code path from XliffParser constructor
+        $xmlContent = @file_get_contents($filePath); // Suppress warning with @
+        if (false === $xmlContent) {
+            throw new InvalidArgumentException("Failed to read file: {$filePath}");
+        }
+    }
+};
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Failed to read file:');

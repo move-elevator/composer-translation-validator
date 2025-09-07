@@ -30,6 +30,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(ParserCache::class)]
+/**
+ * ParserCacheTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 class ParserCacheTest extends TestCase
 {
     private string $testFile;

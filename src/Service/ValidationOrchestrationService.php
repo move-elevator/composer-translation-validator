@@ -34,6 +34,12 @@ use MoveElevator\ComposerTranslationValidator\Validator\ValidatorRegistry;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 
+/**
+ * ValidationOrchestrationService.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class ValidationOrchestrationService
 {
     public function __construct(

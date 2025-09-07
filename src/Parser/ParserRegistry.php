@@ -25,6 +25,12 @@ namespace MoveElevator\ComposerTranslationValidator\Parser;
 
 use Psr\Log\LoggerInterface;
 
+/**
+ * ParserRegistry.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class ParserRegistry
 {
     /**

@@ -32,6 +32,14 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 #[CoversClass(ConfigReader::class)]
+/**
+ * ConfigReaderTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 class ConfigReaderTest extends TestCase
 {
     private ConfigReader $configReader;

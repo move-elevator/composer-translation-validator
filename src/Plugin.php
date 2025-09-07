@@ -30,6 +30,12 @@ use Composer\Plugin\Capable;
 use Composer\Plugin\PluginInterface;
 use MoveElevator\ComposerTranslationValidator\Capability\ValidateTranslationCommandProvider;
 
+/**
+ * Plugin.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class Plugin implements PluginInterface, Capable
 {
     public function activate(Composer $composer, IOInterface $io): void {}

@@ -28,6 +28,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(TranslationValidatorConfig::class)]
+/**
+ * TranslationValidatorConfigTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 class TranslationValidatorConfigTest extends TestCase
 {
     private TranslationValidatorConfig $config;

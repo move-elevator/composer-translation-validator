@@ -28,6 +28,14 @@ use MoveElevator\ComposerTranslationValidator\Parser\JsonParser;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
+/**
+ * JsonParserTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 final class JsonParserTest extends TestCase
 {
     private string $tempDir;
@@ -114,16 +122,23 @@ final class JsonParserTest extends TestCase
     {
         // Create a test to verify the error path for file_get_contents returning false
         // We'll create a custom validator to test this specific path
-        $validator = new class {
-            public function testFileGetContentsFalse(string $filePath): void
-            {
-                // Simulate the exact code path from JsonParser constructor
-                $content = @file_get_contents($filePath); // Suppress warning with @
-                if (false === $content) {
-                    throw new RuntimeException("Failed to read file: {$filePath}");
-                }
-            }
-        };
+        $validator = new
+/**
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
+class {
+    public function testFileGetContentsFalse(string $filePath): void
+    {
+        // Simulate the exact code path from JsonParser constructor
+        $content = @file_get_contents($filePath); // Suppress warning with @
+        if (false === $content) {
+            throw new RuntimeException("Failed to read file: {$filePath}");
+        }
+    }
+};
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Failed to read file:');

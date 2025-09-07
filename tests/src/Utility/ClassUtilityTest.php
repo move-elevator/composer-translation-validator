@@ -29,10 +29,43 @@ use Psr\Log\LoggerInterface;
 use Stringable;
 
 // Dummy interface and classes for testing
+
+/**
+ * DummyInterface.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 interface DummyInterface {}
+
+/**
+ * ValidClass.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 class ValidClass implements DummyInterface {}
+
+/**
+ * InvalidClass.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 class InvalidClass {}
 
+/**
+ * ClassUtilityTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 final class ClassUtilityTest extends TestCase
 {
     public function testValidateClassWithNullClass(): void

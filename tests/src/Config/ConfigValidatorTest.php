@@ -27,6 +27,14 @@ use MoveElevator\ComposerTranslationValidator\Config\ConfigValidator;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
+/**
+ * ConfigValidatorTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 final class ConfigValidatorTest extends TestCase
 {
     private ConfigValidator $validator;

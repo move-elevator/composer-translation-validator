@@ -23,6 +23,12 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Parser;
 
+/**
+ * ParserCache.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class ParserCache
 {
     /** @var array<string, ParserInterface> */

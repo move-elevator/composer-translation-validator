@@ -32,6 +32,14 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * ValidationResultRendererFactoryTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 final class ValidationResultRendererFactoryTest extends TestCase
 {
     public function testCreateCliRenderer(): void

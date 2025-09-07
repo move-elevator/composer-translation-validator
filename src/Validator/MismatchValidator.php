@@ -34,6 +34,12 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableStyle;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * MismatchValidator.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class MismatchValidator extends AbstractValidator implements ValidatorInterface
 {
     /** @var array<string, array<string>> */

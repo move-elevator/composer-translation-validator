@@ -27,6 +27,14 @@ use MoveElevator\ComposerTranslationValidator\Result\FormatType;
 use PHPUnit\Framework\TestCase;
 use ValueError;
 
+/**
+ * FormatTypeTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 final class FormatTypeTest extends TestCase
 {
     public function testFromInvalidValueThrowsException(): void

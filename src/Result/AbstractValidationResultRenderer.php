@@ -26,6 +26,12 @@ namespace MoveElevator\ComposerTranslationValidator\Result;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * AbstractValidationResultRenderer.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 abstract class AbstractValidationResultRenderer implements ValidationResultRendererInterface
 {
     public function __construct(

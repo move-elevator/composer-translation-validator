@@ -29,6 +29,14 @@ use MoveElevator\ComposerTranslationValidator\Validator\KeyNamingConventionValid
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
+/**
+ * KeyNamingConventionValidatorConfigTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 final class KeyNamingConventionValidatorConfigTest extends TestCase
 {
     public function testValidatorLoadsConventionFromConfig(): void

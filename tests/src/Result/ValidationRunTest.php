@@ -34,6 +34,14 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * ValidationRunTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 class ValidationRunTest extends TestCase
 {
     private LoggerInterface $logger;
@@ -222,6 +230,15 @@ class ValidationRunTest extends TestCase
 }
 
 // Mock classes for testing
+
+/**
+ * MockParserForTesting.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 class MockParserForTesting implements ParserInterface
 {
     public function __construct(string $file)
@@ -261,6 +278,14 @@ class MockParserForTesting implements ParserInterface
     }
 }
 
+/**
+ * MockValidatorWithoutIssues.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 class MockValidatorWithoutIssues implements ValidatorInterface
 {
     public function __construct(?LoggerInterface $logger = null)
@@ -330,6 +355,14 @@ class MockValidatorWithoutIssues implements ValidatorInterface
     }
 }
 
+/**
+ * MockValidatorWithIssues.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 class MockValidatorWithIssues implements ValidatorInterface
 {
     public function __construct(?LoggerInterface $logger = null)

@@ -30,6 +30,12 @@ use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Translation\Util\XliffUtils;
 
+/**
+ * XliffSchemaValidator.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class XliffSchemaValidator extends AbstractValidator implements ValidatorInterface
 {
     public function processFile(ParserInterface $file): array

@@ -25,6 +25,12 @@ namespace MoveElevator\ComposerTranslationValidator\Result;
 
 use JsonException;
 
+/**
+ * ValidationResultJsonRenderer.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class ValidationResultJsonRenderer extends AbstractValidationResultRenderer
 {
     /**

@@ -23,6 +23,12 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Config;
 
+/**
+ * TranslationValidatorConfig.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class TranslationValidatorConfig
 {
     /** @var string[] */

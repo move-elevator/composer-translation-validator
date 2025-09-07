@@ -27,6 +27,14 @@ use MoveElevator\ComposerTranslationValidator\Capability\ValidateTranslationComm
 use MoveElevator\ComposerTranslationValidator\Command\ValidateTranslationCommand;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * ValidateTranslationCommandProviderTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ *
+ * @see https://google.de
+ */
 final class ValidateTranslationCommandProviderTest extends TestCase
 {
     public function testGetCommands(): void

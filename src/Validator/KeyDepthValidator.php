@@ -31,6 +31,12 @@ use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use Psr\Log\LoggerInterface;
 
+/**
+ * KeyDepthValidator.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-3.0-or-later
+ */
 class KeyDepthValidator extends AbstractValidator implements ValidatorInterface
 {
     private int $threshold = 8;
