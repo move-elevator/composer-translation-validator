@@ -73,7 +73,7 @@ final class ConfigFactoryTest extends TestCase
         $this->assertSame([], $config->getFileDetectors());
         $this->assertSame([], $config->getParsers());
         $this->assertSame([], $config->getOnly());
-        $this->assertSame([], $config->getSkip());
+        $this->assertSame([\MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator::class], $config->getSkip());
         $this->assertSame([], $config->getExclude());
         $this->assertFalse($config->getStrict());
         $this->assertFalse($config->getDryRun());

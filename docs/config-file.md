@@ -8,6 +8,12 @@ to customize validation behavior, specify paths and control which validators are
 >
 > See the [JSON Schema](../schema/translation-validator.schema.json) section for more details.
 
+> [!NOTE]
+> **DuplicateValuesValidator is disabled by default** (opt-in)
+>
+> The `DuplicateValuesValidator` is skipped by default to reduce noise in validation results.
+> You can enable it by explicitly including it in the `only` option or by setting an empty `skip` array.
+
 See the [Configuration Schema](schema.md) for details on available options.
 
 ## Formats
@@ -38,6 +44,37 @@ $config->setPaths(['translations/', 'locale/'])
         'MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator',
     ])
     ->setExclude(['**/backup/**', '**/cache/**']);
+
+return $config;
+```
+
+### Enabling DuplicateValuesValidator
+
+To enable the `DuplicateValuesValidator`, explicitly include it in the `only` option:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
+use MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator;
+
+$config = new TranslationValidatorConfig();
+$config->setPaths(['translations/'])
+    ->setOnly([
+        DuplicateValuesValidator::class,
+    ]);
+
+return $config;
+```
+
+Or remove it from the skip list:
+
+```php
+$config = new TranslationValidatorConfig();
+$config->setPaths(['translations/'])
+    ->setSkip([]); // Empty skip list enables all validators including DuplicateValuesValidator
 
 return $config;
 ```
@@ -79,6 +116,28 @@ Create a JSON file with the following structure:
 }
 ```
 
+### Enabling DuplicateValuesValidator in JSON
+
+To enable the `DuplicateValuesValidator`:
+
+```json
+{
+  "paths": ["translations/"],
+  "skip": []
+}
+```
+
+Or use the `only` option:
+
+```json
+{
+  "paths": ["translations/"],
+  "only": [
+    "MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateValuesValidator"
+  ]
+}
+```
+
 ## Configuration in YAML file
 
 Create a YAML file with the following structure:
@@ -112,6 +171,25 @@ strict: true
 dry-run: false
 format: cli
 verbose: false
+```
+
+### Enabling DuplicateValuesValidator in YAML
+
+To enable the `DuplicateValuesValidator`:
+
+```yaml
+paths:
+  - translations/
+skip: []
+```
+
+Or use the `only` option:
+
+```yaml
+paths:
+  - translations/
+only:
+  - MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator
 ```
 
 ## Configuration in composer.json

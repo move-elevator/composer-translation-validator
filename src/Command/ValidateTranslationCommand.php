@@ -120,7 +120,7 @@ using multiple validators to ensure consistency, correctness and schema complian
 <comment>Available Validators:</comment>
   • <info>MismatchValidator</info>        - Detects mismatches between source and target
   • <info>DuplicateKeysValidator</info>   - Finds duplicate translation keys
-  • <info>DuplicateValuesValidator</info> - Finds duplicate translation values
+  • <info>DuplicateValuesValidator</info> - Finds duplicate translation values (opt-in, disabled by default)
   • <info>EmptyValuesValidator</info>     - Finds empty or whitespace-only translation values
   • <info>EncodingValidator</info>        - Validates file encoding and character issues
   • <info>HtmlTagValidator</info>         - Validates HTML tag consistency across translations
