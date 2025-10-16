@@ -26,14 +26,12 @@ use PHPUnit\Framework\TestCase;
  * @license GPL-3.0-or-later
  */
 #[CoversClass(Plugin::class)]
-
 /**
  * PluginExtendedTest.
  *
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-
 class PluginExtendedTest extends TestCase
 {
     private Plugin $plugin;

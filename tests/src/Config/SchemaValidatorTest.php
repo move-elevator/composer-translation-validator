@@ -27,14 +27,12 @@ use RuntimeException;
  * @license GPL-3.0-or-later
  */
 #[CoversClass(SchemaValidator::class)]
-
 /**
  * SchemaValidatorTest.
  *
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-
 class SchemaValidatorTest extends TestCase
 {
     private SchemaValidator $schemaValidator;

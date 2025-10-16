@@ -24,14 +24,12 @@ use PHPUnit\Framework\TestCase;
  * @license GPL-3.0-or-later
  */
 #[CoversClass(PathUtility::class)]
-
 /**
  * PathUtilityExtendedTest.
  *
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-
 class PathUtilityExtendedTest extends TestCase
 {
     public function testNormalizeFolderPathWithNonExistentPath(): void

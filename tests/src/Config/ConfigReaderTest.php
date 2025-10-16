@@ -27,14 +27,12 @@ use RuntimeException;
  * @license GPL-3.0-or-later
  */
 #[CoversClass(ConfigReader::class)]
-
 /**
  * ConfigReaderTest.
  *
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-
 class ConfigReaderTest extends TestCase
 {
     private ConfigReader $configReader;

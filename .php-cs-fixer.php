@@ -31,4 +31,4 @@ return Config::create()
         ),
     )
     ->withFinder(static fn (Finder $finder) => $finder->in(__DIR__))
-    ;
+;

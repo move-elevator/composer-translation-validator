@@ -31,14 +31,12 @@ use function array_slice;
  * @license GPL-3.0-or-later
  */
 #[CoversClass(ValidationOrchestrationService::class)]
-
 /**
  * ValidationOrchestrationServiceTest.
  *
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-
 class ValidationOrchestrationServiceTest extends TestCase
 {
     private ValidationOrchestrationService $service;

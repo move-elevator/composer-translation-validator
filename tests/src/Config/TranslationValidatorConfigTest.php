@@ -24,14 +24,12 @@ use PHPUnit\Framework\TestCase;
  * @license GPL-3.0-or-later
  */
 #[CoversClass(TranslationValidatorConfig::class)]
-
 /**
  * TranslationValidatorConfigTest.
  *
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-
 class TranslationValidatorConfigTest extends TestCase
 {
     private TranslationValidatorConfig $config;
