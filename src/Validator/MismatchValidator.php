@@ -30,7 +30,6 @@ use function in_array;
  */
 class MismatchValidator extends AbstractValidator implements ValidatorInterface
 {
-    /** @var array<string, array<string>> */
     /**
      * @var array<string, array<string, string|null>>
      */
