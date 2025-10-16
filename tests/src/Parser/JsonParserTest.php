@@ -3,22 +3,12 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Composer plugin "composer-translation-validator".
+ * This file is part of the "composer-translation-validator" Composer plugin.
  *
- * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ * (c) 2025 Konrad Michalik <km@move-elevator.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Parser;
@@ -31,10 +21,8 @@ use RuntimeException;
 /**
  * JsonParserTest.
  *
- * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
- *
- * @see https://google.de
  */
 final class JsonParserTest extends TestCase
 {
@@ -55,7 +43,7 @@ final class JsonParserTest extends TestCase
         file_put_contents($this->validJsonFile, json_encode([
             'key1' => 'value1',
             'key2' => 'value2',
-        ], JSON_PRETTY_PRINT));
+        ], \JSON_PRETTY_PRINT));
 
         $this->invalidJsonFile = $this->tempDir.'/invalid.json';
         file_put_contents($this->invalidJsonFile, '{"key1": "value1", "key2":}'); // Invalid JSON syntax
@@ -66,12 +54,12 @@ final class JsonParserTest extends TestCase
                 'child1' => 'value1',
                 'child2' => 'value2',
             ],
-        ], JSON_PRETTY_PRINT));
+        ], \JSON_PRETTY_PRINT));
 
         $this->languageJsonFile = $this->tempDir.'/messages.de.json';
         file_put_contents($this->languageJsonFile, json_encode([
             'key1' => 'value1',
-        ], JSON_PRETTY_PRINT));
+        ], \JSON_PRETTY_PRINT));
 
         $this->nonObjectJsonFile = $this->tempDir.'/array.json';
         file_put_contents($this->nonObjectJsonFile, '["value1", "value2"]'); // JSON array instead of object
@@ -83,21 +71,6 @@ final class JsonParserTest extends TestCase
         if (is_dir($this->tempDir)) {
             $this->removeDirectory($this->tempDir);
         }
-    }
-
-    private function removeDirectory(string $path): void
-    {
-        $files = glob($path.'/*');
-        if (false === $files) {
-            rmdir($path);
-
-            return;
-        }
-
-        foreach ($files as $file) {
-            is_dir($file) ? $this->removeDirectory($file) : unlink($file);
-        }
-        rmdir($path);
     }
 
     public function testConstructorThrowsExceptionIfFileDoesNotExist(): void
@@ -122,23 +95,16 @@ final class JsonParserTest extends TestCase
     {
         // Create a test to verify the error path for file_get_contents returning false
         // We'll create a custom validator to test this specific path
-        $validator = new
-/**
- * @author Konrad Michalik <hej@konradmichalik.dev>
- * @license GPL-3.0-or-later
- *
- * @see https://google.de
- */
-class {
-    public function testFileGetContentsFalse(string $filePath): void
-    {
-        // Simulate the exact code path from JsonParser constructor
-        $content = @file_get_contents($filePath); // Suppress warning with @
-        if (false === $content) {
-            throw new RuntimeException("Failed to read file: {$filePath}");
-        }
-    }
-};
+        $validator = new class {
+            public function testFileGetContentsFalse(string $filePath): void
+            {
+                // Simulate the exact code path from JsonParser constructor
+                $content = @file_get_contents($filePath); // Suppress warning with @
+                if (false === $content) {
+                    throw new RuntimeException("Failed to read file: {$filePath}");
+                }
+            }
+        };
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Failed to read file:');
@@ -209,7 +175,7 @@ class {
             'key_with_object' => ['nested' => 'value'],
             'key_with_null' => null,
             'key_with_number' => 42,
-        ], JSON_PRETTY_PRINT));
+        ], \JSON_PRETTY_PRINT));
 
         $parser = new JsonParser($arrayValueFile);
         $this->assertNull($parser->getContentByKey('key_with_array'));
@@ -268,7 +234,7 @@ class {
                 'simple' => 'value',
             ],
             'root' => 'root_value',
-        ], JSON_PRETTY_PRINT));
+        ], \JSON_PRETTY_PRINT));
 
         $parser = new JsonParser($complexFile);
         $keys = $parser->extractKeys();
@@ -297,11 +263,26 @@ class {
                     'level3' => 'deep_value',
                 ],
             ],
-        ], JSON_PRETTY_PRINT));
+        ], \JSON_PRETTY_PRINT));
 
         $parser = new JsonParser($complexFile);
         $this->assertSame('deep_value', $parser->getContentByKey('level1.level2.level3'));
         $this->assertNull($parser->getContentByKey('level1.level2.level4'));
         $this->assertNull($parser->getContentByKey('level1.level2.level3.too_deep'));
+    }
+
+    private function removeDirectory(string $path): void
+    {
+        $files = glob($path.'/*');
+        if (false === $files) {
+            rmdir($path);
+
+            return;
+        }
+
+        foreach ($files as $file) {
+            is_dir($file) ? $this->removeDirectory($file) : unlink($file);
+        }
+        rmdir($path);
     }
 }

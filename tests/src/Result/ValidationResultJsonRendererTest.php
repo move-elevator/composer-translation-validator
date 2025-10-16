@@ -3,33 +3,19 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Composer plugin "composer-translation-validator".
+ * This file is part of the "composer-translation-validator" Composer plugin.
  *
- * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ * (c) 2025 Konrad Michalik <km@move-elevator.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
-use MoveElevator\ComposerTranslationValidator\Result\Issue;
-use MoveElevator\ComposerTranslationValidator\Result\ValidationResult;
-use MoveElevator\ComposerTranslationValidator\Result\ValidationResultJsonRenderer;
-use MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics;
-use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
-use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
+use MoveElevator\ComposerTranslationValidator\Result\{Issue, ValidationResult, ValidationResultJsonRenderer, ValidationStatistics};
+use MoveElevator\ComposerTranslationValidator\Validator\{ResultType, ValidatorInterface};
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -37,10 +23,8 @@ use Symfony\Component\Console\Output\BufferedOutput;
 /**
  * ValidationResultJsonRendererTest.
  *
- * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
- *
- * @see https://google.de
  */
 class ValidationResultJsonRendererTest extends TestCase
 {
@@ -232,39 +216,6 @@ class ValidationResultJsonRendererTest extends TestCase
         $this->assertStringContainsString('    ', $jsonOutput); // Indentation
     }
 
-    /**
-     * @return MockObject&ValidatorInterface
-     */
-    private function createMockValidator(): MockObject
-    {
-        /** @var MockObject&ValidatorInterface $validator */
-        $validator = $this->createMock(ValidatorInterface::class);
-        $validator->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
-        $validator->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error");
-        $validator->method('distributeIssuesForDisplay')->willReturnCallback(function (FileSet $fileSet) use ($validator): array {
-            $distribution = [];
-            foreach ($validator->getIssues() as $issue) {
-                $fileName = $issue->getFile();
-                if (!empty($fileName)) {
-                    $basePath = rtrim($fileSet->getPath(), '/');
-                    $filePath = $basePath.'/'.$fileName;
-                    $distribution[$filePath][] = $issue;
-                }
-            }
-
-            return $distribution;
-        });
-        $validator->method('shouldShowDetailedOutput')->willReturn(false);
-        $validator->method('renderDetailedOutput');
-        $validator->method('getShortName')->willReturn('MockValidator');
-        $validator->method('supportsParser')->willReturn(['TestParser']);
-        $validator->method('processFile')->willReturn([]);
-        $validator->method('validate')->willReturn([]);
-        $validator->method('addIssue');
-
-        return $validator;
-    }
-
     public function testRenderWithStatistics(): void
     {
         $statistics = new ValidationStatistics(1.234, 5, 10, 4, 3);
@@ -281,7 +232,7 @@ class ValidationResultJsonRendererTest extends TestCase
         $this->assertArrayHasKey('statistics', $output);
 
         $stats = $output['statistics'];
-        $this->assertEqualsWithDelta(1.234, $stats['execution_time'], PHP_FLOAT_EPSILON);
+        $this->assertEqualsWithDelta(1.234, $stats['execution_time'], \PHP_FLOAT_EPSILON);
         $this->assertSame('1.23s', $stats['execution_time_formatted']);
         $this->assertSame(5, $stats['files_checked']);
         $this->assertSame(10, $stats['keys_checked']);
@@ -465,5 +416,38 @@ class ValidationResultJsonRendererTest extends TestCase
         $this->assertNotNull($output);
         $this->assertArrayHasKey('issues', $output);
         $this->assertEmpty($output['issues']);
+    }
+
+    /**
+     * @return MockObject&ValidatorInterface
+     */
+    private function createMockValidator(): MockObject
+    {
+        /** @var MockObject&ValidatorInterface $validator */
+        $validator = $this->createMock(ValidatorInterface::class);
+        $validator->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
+        $validator->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error");
+        $validator->method('distributeIssuesForDisplay')->willReturnCallback(function (FileSet $fileSet) use ($validator): array {
+            $distribution = [];
+            foreach ($validator->getIssues() as $issue) {
+                $fileName = $issue->getFile();
+                if (!empty($fileName)) {
+                    $basePath = rtrim($fileSet->getPath(), '/');
+                    $filePath = $basePath.'/'.$fileName;
+                    $distribution[$filePath][] = $issue;
+                }
+            }
+
+            return $distribution;
+        });
+        $validator->method('shouldShowDetailedOutput')->willReturn(false);
+        $validator->method('renderDetailedOutput');
+        $validator->method('getShortName')->willReturn('MockValidator');
+        $validator->method('supportsParser')->willReturn(['TestParser']);
+        $validator->method('processFile')->willReturn([]);
+        $validator->method('validate')->willReturn([]);
+        $validator->method('addIssue');
+
+        return $validator;
     }
 }

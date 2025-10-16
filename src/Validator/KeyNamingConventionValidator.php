@@ -3,22 +3,12 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Composer plugin "composer-translation-validator".
+ * This file is part of the "composer-translation-validator" Composer plugin.
  *
- * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ * (c) 2025 Konrad Michalik <km@move-elevator.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace MoveElevator\ComposerTranslationValidator\Validator;
@@ -26,17 +16,17 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 use InvalidArgumentException;
 use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
 use MoveElevator\ComposerTranslationValidator\Enum\KeyNamingConvention;
-use MoveElevator\ComposerTranslationValidator\Parser\JsonParser;
-use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
-use MoveElevator\ComposerTranslationValidator\Parser\PhpParser;
-use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
-use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
+use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
+
+use function count;
+use function in_array;
+use function is_string;
 
 /**
  * KeyNamingConventionValidator.
  *
- * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
 class KeyNamingConventionValidator extends AbstractValidator implements ValidatorInterface
@@ -91,6 +81,113 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
         return $issueData;
     }
 
+    public function setConvention(string $convention): void
+    {
+        if ('dot.notation' === $convention) {
+            throw new InvalidArgumentException('dot.notation cannot be configured explicitly. It is used internally for detection but should not be set as a configuration option.');
+        }
+
+        $this->convention = KeyNamingConvention::fromString($convention);
+    }
+
+    public function setCustomPattern(string $pattern): void
+    {
+        $result = @preg_match($pattern, '');
+        if (false === $result) {
+            throw new InvalidArgumentException('Invalid regex pattern provided');
+        }
+
+        $this->customPattern = $pattern;
+        $this->convention = null; // Custom pattern overrides convention
+    }
+
+    public function formatIssueMessage(Issue $issue, string $prefix = ''): string
+    {
+        $details = $issue->getDetails();
+        $resultType = $this->resultTypeOnValidationFailure();
+
+        $level = $resultType->toString();
+        $color = $resultType->toColorString();
+
+        $key = $details['key'] ?? 'unknown';
+
+        // Handle different issue types
+        if (isset($details['inconsistency_type']) && 'mixed_conventions' === $details['inconsistency_type']) {
+            $detectedConventions = $details['detected_conventions'] ?? [];
+            $dominantConvention = $details['dominant_convention'] ?? 'unknown';
+
+            $detectedStr = implode(', ', $detectedConventions);
+
+            $message = "key naming inconsistency: `{$key}` uses {$detectedStr} convention";
+            $message .= ", but this file predominantly uses {$dominantConvention}";
+
+            if ('unknown' !== $dominantConvention && 'mixed_conventions' !== $dominantConvention) {
+                $suggestion = $this->suggestKeyConversion($key, $dominantConvention);
+                if ($suggestion !== $key) {
+                    $message .= ". Consider: `{$suggestion}`";
+                }
+            } else {
+                $message .= '. Consider standardizing all keys to use the same naming convention';
+            }
+
+            if ($this->isAutoDetectionMode() && !$this->configHintShown) {
+                $message .= $this->getConfigurationHint();
+                $this->configHintShown = true;
+            }
+        } else {
+            $convention = $details['expected_convention'] ?? 'custom pattern';
+            $suggestion = $details['suggestion'] ?? '';
+
+            $message = "key naming convention violation: `{$key}` does not follow the configured {$convention} convention";
+            if (!empty($suggestion) && $suggestion !== $key) {
+                $message .= ". Suggested: `{$suggestion}`";
+            }
+        }
+
+        return "- <fg={$color}>{$level}</> {$prefix}{$message}";
+    }
+
+    /**
+     * @return class-string<ParserInterface>[]
+     */
+    public function supportsParser(): array
+    {
+        return [XliffParser::class, YamlParser::class, JsonParser::class, PhpParser::class];
+    }
+
+    public function resultTypeOnValidationFailure(): ResultType
+    {
+        return ResultType::WARNING;
+    }
+
+    /**
+     * Get available naming conventions.
+     *
+     * @return array<string, array{pattern: string, description: string}>
+     */
+    public static function getAvailableConventions(): array
+    {
+        $conventions = [];
+
+        foreach (KeyNamingConvention::getConfigurableConventions() as $value) {
+            $convention = KeyNamingConvention::from($value);
+            $conventions[$value] = [
+                'pattern' => $convention->getPattern(),
+                'description' => $convention->getDescription(),
+            ];
+        }
+
+        return $conventions;
+    }
+
+    /**
+     * Check if validator should run based on configuration.
+     */
+    public function shouldRun(): bool
+    {
+        return true; // Always run, even without configuration
+    }
+
     private function loadConventionFromConfig(): void
     {
         if (null === $this->config) {
@@ -124,26 +221,6 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
                 );
             }
         }
-    }
-
-    public function setConvention(string $convention): void
-    {
-        if ('dot.notation' === $convention) {
-            throw new InvalidArgumentException('dot.notation cannot be configured explicitly. It is used internally for detection but should not be set as a configuration option.');
-        }
-
-        $this->convention = KeyNamingConvention::fromString($convention);
-    }
-
-    public function setCustomPattern(string $pattern): void
-    {
-        $result = @preg_match($pattern, '');
-        if (false === $result) {
-            throw new InvalidArgumentException('Invalid regex pattern provided');
-        }
-
-        $this->customPattern = $pattern;
-        $this->convention = null; // Custom pattern overrides convention
     }
 
     private function validateKeyFormat(string $key): bool
@@ -323,52 +400,6 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
             ."Available conventions: {$conventionsList}. ";
     }
 
-    public function formatIssueMessage(Issue $issue, string $prefix = ''): string
-    {
-        $details = $issue->getDetails();
-        $resultType = $this->resultTypeOnValidationFailure();
-
-        $level = $resultType->toString();
-        $color = $resultType->toColorString();
-
-        $key = $details['key'] ?? 'unknown';
-
-        // Handle different issue types
-        if (isset($details['inconsistency_type']) && 'mixed_conventions' === $details['inconsistency_type']) {
-            $detectedConventions = $details['detected_conventions'] ?? [];
-            $dominantConvention = $details['dominant_convention'] ?? 'unknown';
-
-            $detectedStr = implode(', ', $detectedConventions);
-
-            $message = "key naming inconsistency: `{$key}` uses {$detectedStr} convention";
-            $message .= ", but this file predominantly uses {$dominantConvention}";
-
-            if ('unknown' !== $dominantConvention && 'mixed_conventions' !== $dominantConvention) {
-                $suggestion = $this->suggestKeyConversion($key, $dominantConvention);
-                if ($suggestion !== $key) {
-                    $message .= ". Consider: `{$suggestion}`";
-                }
-            } else {
-                $message .= '. Consider standardizing all keys to use the same naming convention';
-            }
-
-            if ($this->isAutoDetectionMode() && !$this->configHintShown) {
-                $message .= $this->getConfigurationHint();
-                $this->configHintShown = true;
-            }
-        } else {
-            $convention = $details['expected_convention'] ?? 'custom pattern';
-            $suggestion = $details['suggestion'] ?? '';
-
-            $message = "key naming convention violation: `{$key}` does not follow the configured {$convention} convention";
-            if (!empty($suggestion) && $suggestion !== $key) {
-                $message .= ". Suggested: `{$suggestion}`";
-            }
-        }
-
-        return "- <fg={$color}>{$level}</> {$prefix}{$message}";
-    }
-
     /**
      * Suggest a key conversion to match the dominant convention.
      */
@@ -391,47 +422,6 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
         } catch (InvalidArgumentException) {
             return $key;
         }
-    }
-
-    /**
-     * @return class-string<ParserInterface>[]
-     */
-    public function supportsParser(): array
-    {
-        return [XliffParser::class, YamlParser::class, JsonParser::class, PhpParser::class];
-    }
-
-    public function resultTypeOnValidationFailure(): ResultType
-    {
-        return ResultType::WARNING;
-    }
-
-    /**
-     * Get available naming conventions.
-     *
-     * @return array<string, array{pattern: string, description: string}>
-     */
-    public static function getAvailableConventions(): array
-    {
-        $conventions = [];
-
-        foreach (KeyNamingConvention::getConfigurableConventions() as $value) {
-            $convention = KeyNamingConvention::from($value);
-            $conventions[$value] = [
-                'pattern' => $convention->getPattern(),
-                'description' => $convention->getDescription(),
-            ];
-        }
-
-        return $conventions;
-    }
-
-    /**
-     * Check if validator should run based on configuration.
-     */
-    public function shouldRun(): bool
-    {
-        return true; // Always run, even without configuration
     }
 
     /**

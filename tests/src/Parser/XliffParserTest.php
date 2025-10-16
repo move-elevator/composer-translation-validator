@@ -3,22 +3,12 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Composer plugin "composer-translation-validator".
+ * This file is part of the "composer-translation-validator" Composer plugin.
  *
- * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ * (c) 2025 Konrad Michalik <km@move-elevator.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Parser;
@@ -31,10 +21,8 @@ use RuntimeException;
 /**
  * XliffParserTest.
  *
- * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
- *
- * @see https://google.de
  */
 final class XliffParserTest extends TestCase
 {
@@ -124,21 +112,6 @@ EOT;
         }
     }
 
-    private function removeDirectory(string $path): void
-    {
-        $files = glob($path.'/*');
-        if (false === $files) {
-            rmdir($path);
-
-            return;
-        }
-
-        foreach ($files as $file) {
-            is_dir($file) ? $this->removeDirectory($file) : unlink($file);
-        }
-        rmdir($path);
-    }
-
     public function testConstructorThrowsExceptionIfFileDoesNotExist(): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -210,7 +183,7 @@ EOT;
     public function testGetFileDirectory(): void
     {
         $parser = new XliffParser($this->validXliffFile);
-        $this->assertSame($this->tempDir.DIRECTORY_SEPARATOR, $parser->getFileDirectory());
+        $this->assertSame($this->tempDir.\DIRECTORY_SEPARATOR, $parser->getFileDirectory());
     }
 
     public function testGetFilePath(): void
@@ -255,23 +228,16 @@ EOT;
     public function testConstructorThrowsExceptionWhenFileGetContentsReturnsFalse(): void
     {
         // Create a test to verify the error path for file_get_contents returning false
-        $validator = new
-/**
- * @author Konrad Michalik <hej@konradmichalik.dev>
- * @license GPL-3.0-or-later
- *
- * @see https://google.de
- */
-class {
-    public function testFileGetContentsFalse(string $filePath): void
-    {
-        // Simulate the exact code path from XliffParser constructor
-        $xmlContent = @file_get_contents($filePath); // Suppress warning with @
-        if (false === $xmlContent) {
-            throw new InvalidArgumentException("Failed to read file: {$filePath}");
-        }
-    }
-};
+        $validator = new class {
+            public function testFileGetContentsFalse(string $filePath): void
+            {
+                // Simulate the exact code path from XliffParser constructor
+                $xmlContent = @file_get_contents($filePath); // Suppress warning with @
+                if (false === $xmlContent) {
+                    throw new InvalidArgumentException("Failed to read file: {$filePath}");
+                }
+            }
+        };
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Failed to read file:');
@@ -352,5 +318,20 @@ EOT;
 
         $parser = new XliffParser($emptyFile);
         $this->assertNull($parser->getContentByKey('empty_both'));
+    }
+
+    private function removeDirectory(string $path): void
+    {
+        $files = glob($path.'/*');
+        if (false === $files) {
+            rmdir($path);
+
+            return;
+        }
+
+        foreach ($files as $file) {
+            is_dir($file) ? $this->removeDirectory($file) : unlink($file);
+        }
+        rmdir($path);
     }
 }

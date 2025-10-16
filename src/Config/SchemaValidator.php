@@ -3,22 +3,12 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Composer plugin "composer-translation-validator".
+ * This file is part of the "composer-translation-validator" Composer plugin.
  *
- * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ * (c) 2025 Konrad Michalik <km@move-elevator.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace MoveElevator\ComposerTranslationValidator\Config;
@@ -26,10 +16,12 @@ namespace MoveElevator\ComposerTranslationValidator\Config;
 use JsonException;
 use RuntimeException;
 
+use function sprintf;
+
 /**
  * SchemaValidator.
  *
- * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
 class SchemaValidator
@@ -50,7 +42,7 @@ class SchemaValidator
         $schema = $this->loadSchema();
         $validator = new \JsonSchema\Validator();
 
-        $dataObject = json_decode(json_encode($data, JSON_THROW_ON_ERROR), false, 512, JSON_THROW_ON_ERROR);
+        $dataObject = json_decode(json_encode($data, \JSON_THROW_ON_ERROR), false, 512, \JSON_THROW_ON_ERROR);
         $validator->validate($dataObject, $schema);
 
         if (!$validator->isValid()) {
@@ -59,8 +51,13 @@ class SchemaValidator
                 $errors[] = sprintf('[%s] %s', $error['property'], $error['message']);
             }
 
-            throw new RuntimeException('Configuration validation failed:'.PHP_EOL.implode(PHP_EOL, $errors));
+            throw new RuntimeException('Configuration validation failed:'.\PHP_EOL.implode(\PHP_EOL, $errors));
         }
+    }
+
+    public function isAvailable(): bool
+    {
+        return class_exists(\JsonSchema\Validator::class);
     }
 
     /**
@@ -77,16 +74,11 @@ class SchemaValidator
             throw new RuntimeException('Failed to read JSON Schema file: '.self::SCHEMA_PATH);
         }
 
-        $schema = json_decode($schemaContent, false, 512, JSON_THROW_ON_ERROR);
+        $schema = json_decode($schemaContent, false, 512, \JSON_THROW_ON_ERROR);
         if (null === $schema) {
             throw new RuntimeException('Invalid JSON Schema file: '.self::SCHEMA_PATH);
         }
 
         return $schema;
-    }
-
-    public function isAvailable(): bool
-    {
-        return class_exists(\JsonSchema\Validator::class);
     }
 }

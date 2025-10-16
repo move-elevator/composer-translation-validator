@@ -3,22 +3,12 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Composer plugin "composer-translation-validator".
+ * This file is part of the "composer-translation-validator" Composer plugin.
  *
- * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ * (c) 2025 Konrad Michalik <km@move-elevator.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
@@ -29,13 +19,13 @@ use MoveElevator\ComposerTranslationValidator\Validator\XliffSchemaValidator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
+use function sprintf;
+
 /**
  * SchemaValidatorTest.
  *
- * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
- *
- * @see https://google.de
  */
 final class SchemaValidatorTest extends TestCase
 {
@@ -88,21 +78,6 @@ EOT
         if (is_dir($this->tempDir)) {
             $this->removeDirectory($this->tempDir);
         }
-    }
-
-    private function removeDirectory(string $path): void
-    {
-        $files = glob($path.'/*');
-        if (false === $files) {
-            rmdir($path);
-
-            return;
-        }
-
-        foreach ($files as $file) {
-            is_dir($file) ? $this->removeDirectory($file) : unlink($file);
-        }
-        rmdir($path);
     }
 
     public function testProcessFileWithValidXliff(): void
@@ -269,33 +244,26 @@ EOT
             ->with($this->stringContains('File does not exist:'));
 
         // Create a validator that simulates file_get_contents returning false
-        $validator = new
-/**
- * @author Konrad Michalik <hej@konradmichalik.dev>
- * @license GPL-3.0-or-later
- *
- * @see https://google.de
- */
-class($logger) extends XliffSchemaValidator {
-    public function processFile(ParserInterface $file): array
-    {
-        if (!file_exists($file->getFilePath())) {
-            $this->logger?->error('File does not exist: '.$file->getFileName());
+        $validator = new class($logger) extends XliffSchemaValidator {
+            public function processFile(ParserInterface $file): array
+            {
+                if (!file_exists($file->getFilePath())) {
+                    $this->logger?->error('File does not exist: '.$file->getFileName());
 
-            return [];
-        }
+                    return [];
+                }
 
-        // Simulate file_get_contents returning false
-        $fileContent = file_get_contents($file->getFilePath());
-        if (false === $fileContent) {
-            $this->logger?->error('Failed to read file: '.$file->getFileName());
+                // Simulate file_get_contents returning false
+                $fileContent = file_get_contents($file->getFilePath());
+                if (false === $fileContent) {
+                    $this->logger?->error('Failed to read file: '.$file->getFileName());
 
-            return [];
-        }
+                    return [];
+                }
 
-        return parent::processFile($file);
-    }
-};
+                return parent::processFile($file);
+            }
+        };
 
         $parser = $this->createMock(ParserInterface::class);
         $parser->method('getFilePath')->willReturn('/non/existent/file.xlf');
@@ -313,40 +281,33 @@ class($logger) extends XliffSchemaValidator {
             ->with($this->stringContains('No support implemented for loading XLIFF version'));
 
         // Create a validator that simulates the unsupported version exception
-        $validator = new
-/**
- * @author Konrad Michalik <hej@konradmichalik.dev>
- * @license GPL-3.0-or-later
- *
- * @see https://google.de
- */
-class($logger) extends XliffSchemaValidator {
-    public function processFile(ParserInterface $file): array
-    {
-        if (!file_exists($file->getFilePath())) {
-            $this->logger?->error('File does not exist: '.$file->getFileName());
+        $validator = new class($logger) extends XliffSchemaValidator {
+            public function processFile(ParserInterface $file): array
+            {
+                if (!file_exists($file->getFilePath())) {
+                    $this->logger?->error('File does not exist: '.$file->getFileName());
 
-            return [];
-        }
+                    return [];
+                }
 
-        $fileContent = file_get_contents($file->getFilePath());
-        if (false === $fileContent) {
-            $this->logger?->error('Failed to read file: '.$file->getFileName());
+                $fileContent = file_get_contents($file->getFilePath());
+                if (false === $fileContent) {
+                    $this->logger?->error('Failed to read file: '.$file->getFileName());
 
-            return [];
-        }
+                    return [];
+                }
 
-        // Simulate exception with unsupported version message
-        $e = new Exception('No support implemented for loading XLIFF version 2.0');
-        if (str_contains($e->getMessage(), 'No support implemented for loading XLIFF version')) {
-            $this->logger?->notice(sprintf('Skipping %s: %s', $this->getShortName(), $e->getMessage()));
-        } else {
-            $this->logger?->error('Failed to validate XML schema: '.$e->getMessage());
-        }
+                // Simulate exception with unsupported version message
+                $e = new Exception('No support implemented for loading XLIFF version 2.0');
+                if (str_contains($e->getMessage(), 'No support implemented for loading XLIFF version')) {
+                    $this->logger?->notice(sprintf('Skipping %s: %s', $this->getShortName(), $e->getMessage()));
+                } else {
+                    $this->logger?->error('Failed to validate XML schema: '.$e->getMessage());
+                }
 
-        return [];
-    }
-};
+                return [];
+            }
+        };
 
         $parser = $this->createMock(ParserInterface::class);
         $parser->method('getFilePath')->willReturn($this->validXliffFile);
@@ -364,40 +325,33 @@ class($logger) extends XliffSchemaValidator {
             ->with($this->stringContains('Failed to validate XML schema:'));
 
         // Create a validator that simulates a general validation exception
-        $validator = new
-/**
- * @author Konrad Michalik <hej@konradmichalik.dev>
- * @license GPL-3.0-or-later
- *
- * @see https://google.de
- */
-class($logger) extends XliffSchemaValidator {
-    public function processFile(ParserInterface $file): array
-    {
-        if (!file_exists($file->getFilePath())) {
-            $this->logger?->error('File does not exist: '.$file->getFileName());
+        $validator = new class($logger) extends XliffSchemaValidator {
+            public function processFile(ParserInterface $file): array
+            {
+                if (!file_exists($file->getFilePath())) {
+                    $this->logger?->error('File does not exist: '.$file->getFileName());
 
-            return [];
-        }
+                    return [];
+                }
 
-        $fileContent = file_get_contents($file->getFilePath());
-        if (false === $fileContent) {
-            $this->logger?->error('Failed to read file: '.$file->getFileName());
+                $fileContent = file_get_contents($file->getFilePath());
+                if (false === $fileContent) {
+                    $this->logger?->error('Failed to read file: '.$file->getFileName());
 
-            return [];
-        }
+                    return [];
+                }
 
-        // Simulate general validation exception
-        $e = new Exception('XML parsing error occurred');
-        if (str_contains($e->getMessage(), 'No support implemented for loading XLIFF version')) {
-            $this->logger?->notice(sprintf('Skipping %s: %s', $this->getShortName(), $e->getMessage()));
-        } else {
-            $this->logger?->error('Failed to validate XML schema: '.$e->getMessage());
-        }
+                // Simulate general validation exception
+                $e = new Exception('XML parsing error occurred');
+                if (str_contains($e->getMessage(), 'No support implemented for loading XLIFF version')) {
+                    $this->logger?->notice(sprintf('Skipping %s: %s', $this->getShortName(), $e->getMessage()));
+                } else {
+                    $this->logger?->error('Failed to validate XML schema: '.$e->getMessage());
+                }
 
-        return [];
-    }
-};
+                return [];
+            }
+        };
 
         $parser = $this->createMock(ParserInterface::class);
         $parser->method('getFilePath')->willReturn($this->validXliffFile);
@@ -405,5 +359,20 @@ class($logger) extends XliffSchemaValidator {
 
         $result = $validator->processFile($parser);
         $this->assertEmpty($result);
+    }
+
+    private function removeDirectory(string $path): void
+    {
+        $files = glob($path.'/*');
+        if (false === $files) {
+            rmdir($path);
+
+            return;
+        }
+
+        foreach ($files as $file) {
+            is_dir($file) ? $this->removeDirectory($file) : unlink($file);
+        }
+        rmdir($path);
     }
 }

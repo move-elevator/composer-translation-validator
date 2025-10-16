@@ -3,22 +3,12 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Composer plugin "composer-translation-validator".
+ * This file is part of the "composer-translation-validator" Composer plugin.
  *
- * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ * (c) 2025 Konrad Michalik <km@move-elevator.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
@@ -32,10 +22,8 @@ use ReflectionClass;
 /**
  * MismatchValidatorTest.
  *
- * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
- *
- * @see https://google.de
  */
 final class MismatchValidatorTest extends TestCase
 {
@@ -58,6 +46,7 @@ final class MismatchValidatorTest extends TestCase
         // Accessing protected property for testing purposes
         $reflection = new ReflectionClass($validator);
         $keyArrayProperty = $reflection->getProperty('keyArray');
+        $keyArrayProperty->setAccessible(true);
         $keyArray = $keyArrayProperty->getValue($validator);
 
         $this->assertEquals(
@@ -107,6 +96,7 @@ final class MismatchValidatorTest extends TestCase
         // Accessing protected property for testing purposes
         $reflection = new ReflectionClass($validator);
         $issuesProperty = $reflection->getProperty('issues');
+        $issuesProperty->setAccessible(true);
         $issues = $issuesProperty->getValue($validator);
 
         $expectedIssues = [
@@ -172,6 +162,7 @@ final class MismatchValidatorTest extends TestCase
         // Accessing protected property for testing purposes
         $reflection = new ReflectionClass($validator);
         $issuesProperty = $reflection->getProperty('issues');
+        $issuesProperty->setAccessible(true);
         $issues = $issuesProperty->getValue($validator);
 
         $this->assertEmpty($issues);
@@ -185,6 +176,7 @@ final class MismatchValidatorTest extends TestCase
         // Manually set keyArray to simulate previous validation
         $reflection = new ReflectionClass($validator);
         $keyArrayProperty = $reflection->getProperty('keyArray');
+        $keyArrayProperty->setAccessible(true);
         $keyArrayProperty->setValue($validator, [
             'file1.xlf' => ['key1' => 'value1', 'key2' => 'value2'],
             'file2.xlf' => ['key1' => 'value1'],
@@ -195,6 +187,7 @@ final class MismatchValidatorTest extends TestCase
 
         // Call resetState
         $resetStateMethod = $reflection->getMethod('resetState');
+        $resetStateMethod->setAccessible(true);
         $resetStateMethod->invoke($validator);
 
         // Verify keyArray is reset

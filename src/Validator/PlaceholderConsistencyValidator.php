@@ -3,41 +3,29 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Composer plugin "composer-translation-validator".
+ * This file is part of the "composer-translation-validator" Composer plugin.
  *
- * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ * (c) 2025 Konrad Michalik <km@move-elevator.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
-use MoveElevator\ComposerTranslationValidator\Parser\JsonParser;
-use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
-use MoveElevator\ComposerTranslationValidator\Parser\PhpParser;
-use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
-use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
+use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
-use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Helper\TableStyle;
+use Symfony\Component\Console\Helper\{Table, TableStyle};
 use Symfony\Component\Console\Output\OutputInterface;
+
+use function count;
+use function in_array;
 
 /**
  * PlaceholderConsistencyValidator.
  *
- * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
 class PlaceholderConsistencyValidator extends AbstractValidator implements ValidatorInterface
@@ -94,102 +82,6 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
                 ));
             }
         }
-    }
-
-    /**
-     * Extract placeholders from a translation value
-     * Supports various placeholder syntaxes:
-     * - %parameter% (Symfony style)
-     * - {parameter} (ICU MessageFormat style)
-     * - {{ parameter }} (Twig style)
-     * - %s, %d, %1$s (printf style)
-     * - :parameter (Laravel style).
-     *
-     * @return array<string>
-     */
-    private function extractPlaceholders(string $value): array
-    {
-        $placeholders = [];
-
-        // Symfony style: %parameter%
-        if (preg_match_all('/%([a-zA-Z_][a-zA-Z0-9_]*)%/', $value, $matches)) {
-            foreach ($matches[1] as $match) {
-                $placeholders[] = "%{$match}%";
-            }
-        }
-
-        // ICU MessageFormat style: {parameter}
-        if (preg_match_all('/\{([a-zA-Z_][a-zA-Z0-9_]*)\}/', $value, $matches)) {
-            foreach ($matches[1] as $match) {
-                $placeholders[] = "{{$match}}";
-            }
-        }
-
-        // Twig style: {{ parameter }}
-        if (preg_match_all('/\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/', $value, $matches)) {
-            foreach ($matches[1] as $match) {
-                $placeholders[] = "{{ {$match} }}";
-            }
-        }
-
-        // Printf style: %s, %d, %1$s, etc.
-        if (preg_match_all('/%(?:(\d+)\$)?[sdcoxXeEfFgGaA]/', $value, $matches)) {
-            foreach ($matches[0] as $match) {
-                $placeholders[] = $match;
-            }
-        }
-
-        // Laravel style: :parameter
-        if (preg_match_all('/:([a-zA-Z_][a-zA-Z0-9_]*)/', $value, $matches)) {
-            foreach ($matches[1] as $match) {
-                $placeholders[] = ":{$match}";
-            }
-        }
-
-        return array_unique($placeholders);
-    }
-
-    /**
-     * @param array<string, array{value: string, placeholders: array<string>}> $fileData
-     *
-     * @return array<string>
-     */
-    private function findPlaceholderInconsistencies(array $fileData): array
-    {
-        if (count($fileData) < 2) {
-            return [];
-        }
-
-        $inconsistencies = [];
-        $allPlaceholders = [];
-
-        // Collect all placeholders from all files for this key
-        foreach ($fileData as $fileName => $data) {
-            $allPlaceholders[$fileName] = $data['placeholders'];
-        }
-
-        // Compare placeholders between files
-        $fileNames = array_keys($allPlaceholders);
-        $referenceFile = $fileNames[0];
-        $referencePlaceholders = $allPlaceholders[$referenceFile];
-
-        for ($i = 1, $iMax = count($fileNames); $i < $iMax; ++$i) {
-            $currentFile = basename($fileNames[$i]);
-            $currentPlaceholders = $allPlaceholders[$fileNames[$i]];
-
-            $missing = array_diff($referencePlaceholders, $currentPlaceholders);
-            $extra = array_diff($currentPlaceholders, $referencePlaceholders);
-
-            if (!empty($missing)) {
-                $inconsistencies[] = "File '{$currentFile}' is missing placeholders: ".implode(', ', $missing);
-            }
-
-            if (!empty($extra)) {
-                $inconsistencies[] = "File '{$currentFile}' has extra placeholders: ".implode(', ', $extra);
-            }
-        }
-
-        return $inconsistencies;
     }
 
     public function formatIssueMessage(Issue $issue, string $prefix = ''): string
@@ -293,29 +185,12 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
             ->render();
     }
 
-    private function highlightPlaceholders(string $value): string
-    {
-        $placeholders = $this->extractPlaceholders($value);
-
-        foreach ($placeholders as $placeholder) {
-            $value = str_replace($placeholder, "<fg=yellow>{$placeholder}</>", $value);
-        }
-
-        return $value;
-    }
-
     /**
      * @return class-string<ParserInterface>[]
      */
     public function supportsParser(): array
     {
         return [XliffParser::class, YamlParser::class, JsonParser::class, PhpParser::class];
-    }
-
-    protected function resetState(): void
-    {
-        parent::resetState();
-        $this->keyData = [];
     }
 
     public function resultTypeOnValidationFailure(): ResultType
@@ -326,5 +201,118 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
     public function shouldShowDetailedOutput(): bool
     {
         return true;
+    }
+
+    protected function resetState(): void
+    {
+        parent::resetState();
+        $this->keyData = [];
+    }
+
+    /**
+     * Extract placeholders from a translation value
+     * Supports various placeholder syntaxes:
+     * - %parameter% (Symfony style)
+     * - {parameter} (ICU MessageFormat style)
+     * - {{ parameter }} (Twig style)
+     * - %s, %d, %1$s (printf style)
+     * - :parameter (Laravel style).
+     *
+     * @return array<string>
+     */
+    private function extractPlaceholders(string $value): array
+    {
+        $placeholders = [];
+
+        // Symfony style: %parameter%
+        if (preg_match_all('/%([a-zA-Z_][a-zA-Z0-9_]*)%/', $value, $matches)) {
+            foreach ($matches[1] as $match) {
+                $placeholders[] = "%{$match}%";
+            }
+        }
+
+        // ICU MessageFormat style: {parameter}
+        if (preg_match_all('/\{([a-zA-Z_][a-zA-Z0-9_]*)\}/', $value, $matches)) {
+            foreach ($matches[1] as $match) {
+                $placeholders[] = "{{$match}}";
+            }
+        }
+
+        // Twig style: {{ parameter }}
+        if (preg_match_all('/\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}/', $value, $matches)) {
+            foreach ($matches[1] as $match) {
+                $placeholders[] = "{{ {$match} }}";
+            }
+        }
+
+        // Printf style: %s, %d, %1$s, etc.
+        if (preg_match_all('/%(?:(\d+)\$)?[sdcoxXeEfFgGaA]/', $value, $matches)) {
+            foreach ($matches[0] as $match) {
+                $placeholders[] = $match;
+            }
+        }
+
+        // Laravel style: :parameter
+        if (preg_match_all('/:([a-zA-Z_][a-zA-Z0-9_]*)/', $value, $matches)) {
+            foreach ($matches[1] as $match) {
+                $placeholders[] = ":{$match}";
+            }
+        }
+
+        return array_unique($placeholders);
+    }
+
+    /**
+     * @param array<string, array{value: string, placeholders: array<string>}> $fileData
+     *
+     * @return array<string>
+     */
+    private function findPlaceholderInconsistencies(array $fileData): array
+    {
+        if (count($fileData) < 2) {
+            return [];
+        }
+
+        $inconsistencies = [];
+        $allPlaceholders = [];
+
+        // Collect all placeholders from all files for this key
+        foreach ($fileData as $fileName => $data) {
+            $allPlaceholders[$fileName] = $data['placeholders'];
+        }
+
+        // Compare placeholders between files
+        $fileNames = array_keys($allPlaceholders);
+        $referenceFile = $fileNames[0];
+        $referencePlaceholders = $allPlaceholders[$referenceFile];
+
+        for ($i = 1, $iMax = count($fileNames); $i < $iMax; ++$i) {
+            $currentFile = basename($fileNames[$i]);
+            $currentPlaceholders = $allPlaceholders[$fileNames[$i]];
+
+            $missing = array_diff($referencePlaceholders, $currentPlaceholders);
+            $extra = array_diff($currentPlaceholders, $referencePlaceholders);
+
+            if (!empty($missing)) {
+                $inconsistencies[] = "File '{$currentFile}' is missing placeholders: ".implode(', ', $missing);
+            }
+
+            if (!empty($extra)) {
+                $inconsistencies[] = "File '{$currentFile}' has extra placeholders: ".implode(', ', $extra);
+            }
+        }
+
+        return $inconsistencies;
+    }
+
+    private function highlightPlaceholders(string $value): string
+    {
+        $placeholders = $this->extractPlaceholders($value);
+
+        foreach ($placeholders as $placeholder) {
+            $value = str_replace($placeholder, "<fg=yellow>{$placeholder}</>", $value);
+        }
+
+        return $value;
     }
 }

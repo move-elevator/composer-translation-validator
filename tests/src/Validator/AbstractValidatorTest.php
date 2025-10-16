@@ -3,45 +3,34 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Composer plugin "composer-translation-validator".
+ * This file is part of the "composer-translation-validator" Composer plugin.
  *
- * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ * (c) 2025 Konrad Michalik <km@move-elevator.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
-use MoveElevator\ComposerTranslationValidator\Validator\AbstractValidator;
-use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
+use MoveElevator\ComposerTranslationValidator\Validator\{AbstractValidator, ValidatorInterface};
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionException;
 
+use function dirname;
+
 // Dummy implementation of AbstractValidator for testing purposes
 
 /**
  * ConcreteValidator.
  *
- * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
- *
- * @see https://google.de
  */
 class ConcreteValidator extends AbstractValidator implements ValidatorInterface
 {
@@ -101,10 +90,8 @@ class ConcreteValidator extends AbstractValidator implements ValidatorInterface
 /**
  * TestParser.
  *
- * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
- *
- * @see https://google.de
  */
 class TestParser implements ParserInterface
 {
@@ -149,10 +136,8 @@ class TestParser implements ParserInterface
 /**
  * AbstractValidatorTest.
  *
- * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
- *
- * @see https://google.de
  */
 final class AbstractValidatorTest extends TestCase
 {
@@ -169,6 +154,7 @@ final class AbstractValidatorTest extends TestCase
         $validator = new ConcreteValidator($this->loggerMock);
         $reflection = new ReflectionClass($validator);
         $loggerProperty = $reflection->getProperty('logger');
+        $loggerProperty->setAccessible(true);
         $this->assertSame($this->loggerMock, $loggerProperty->getValue($validator));
     }
 
@@ -328,6 +314,7 @@ final class AbstractValidatorTest extends TestCase
         // Access resetState via reflection since it's protected
         $reflection = new ReflectionClass($validator);
         $resetStateMethod = $reflection->getMethod('resetState');
+        $resetStateMethod->setAccessible(true);
         $resetStateMethod->invoke($validator);
 
         $this->assertFalse($validator->hasIssues());
@@ -372,31 +359,24 @@ final class AbstractValidatorTest extends TestCase
             ));
 
         // Create a custom validator that doesn't support TestParser
-        $validator = new
-/**
- * @author Konrad Michalik <hej@konradmichalik.dev>
- * @license GPL-3.0-or-later
- *
- * @see https://google.de
- */
-class($loggerMock) extends AbstractValidator implements ValidatorInterface {
-    public function processFile(ParserInterface $file): array
-    {
-        return [];
-    }
+        $validator = new class($loggerMock) extends AbstractValidator implements ValidatorInterface {
+            public function processFile(ParserInterface $file): array
+            {
+                return [];
+            }
 
-    public function supportsParser(): array
-    {
-        return []; // Empty - doesn't support any parser
-    }
+            public function supportsParser(): array
+            {
+                return []; // Empty - doesn't support any parser
+            }
 
-    public function postProcess(): void {}
+            public function postProcess(): void {}
 
-    public function getShortName(): string
-    {
-        return 'UnsupportedValidator';
-    }
-};
+            public function getShortName(): string
+            {
+                return 'UnsupportedValidator';
+            }
+        };
 
         $files = ['/path/to/test.xlf'];
         $result = $validator->validate($files, TestParser::class);

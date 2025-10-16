@@ -3,46 +3,33 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Composer plugin "composer-translation-validator".
+ * This file is part of the "composer-translation-validator" Composer plugin.
  *
- * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ * (c) 2025 Konrad Michalik <km@move-elevator.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
-use MoveElevator\ComposerTranslationValidator\Parser\JsonParser;
-use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
-use MoveElevator\ComposerTranslationValidator\Parser\PhpParser;
-use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
-use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
+use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
-use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Helper\TableStyle;
+use Symfony\Component\Console\Helper\{Table, TableStyle};
 use Symfony\Component\Console\Output\OutputInterface;
+
+use function array_key_exists;
+use function in_array;
 
 /**
  * MismatchValidator.
  *
- * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
 class MismatchValidator extends AbstractValidator implements ValidatorInterface
 {
-    /** @var array<string, array<string>> */
     /**
      * @var array<string, array<string, string|null>>
      */
@@ -245,14 +232,14 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
         return [XliffParser::class, YamlParser::class, JsonParser::class, PhpParser::class];
     }
 
+    public function shouldShowDetailedOutput(): bool
+    {
+        return true;
+    }
+
     protected function resetState(): void
     {
         parent::resetState();
         $this->keyArray = [];
-    }
-
-    public function shouldShowDetailedOutput(): bool
-    {
-        return true;
     }
 }

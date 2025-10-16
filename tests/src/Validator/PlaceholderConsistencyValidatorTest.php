@@ -3,47 +3,32 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Composer plugin "composer-translation-validator".
+ * This file is part of the "composer-translation-validator" Composer plugin.
  *
- * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ * (c) 2025 Konrad Michalik <km@move-elevator.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
-use MoveElevator\ComposerTranslationValidator\Parser\JsonParser;
-use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
-use MoveElevator\ComposerTranslationValidator\Parser\PhpParser;
-use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
-use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
+use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
-use MoveElevator\ComposerTranslationValidator\Validator\PlaceholderConsistencyValidator;
-use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
+use MoveElevator\ComposerTranslationValidator\Validator\{PlaceholderConsistencyValidator, ResultType};
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use Symfony\Component\Console\Output\BufferedOutput;
 
+use function is_array;
+
 /**
  * PlaceholderConsistencyValidatorTest.
  *
- * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
- *
- * @see https://google.de
  */
 final class PlaceholderConsistencyValidatorTest extends TestCase
 {
@@ -142,6 +127,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
         $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('extractPlaceholders');
+        $method->setAccessible(true);
 
         $placeholders = $method->invoke($validator, 'Hello %name% and %surname%!');
         $this->assertContains('%name%', $placeholders);
@@ -164,6 +150,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
         $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('extractPlaceholders');
+        $method->setAccessible(true);
 
         $placeholders = $method->invoke($validator, 'Hello {name} and {surname}!');
         $this->assertContains('{name}', $placeholders);
@@ -183,6 +170,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
         $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('extractPlaceholders');
+        $method->setAccessible(true);
 
         $placeholders = $method->invoke($validator, 'Hello {{ name }} and {{ surname }}!');
         $this->assertContains('{{ name }}', $placeholders);
@@ -202,6 +190,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
         $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('extractPlaceholders');
+        $method->setAccessible(true);
 
         $placeholders = $method->invoke($validator, 'Hello %s and %1$s!');
         $this->assertContains('%s', $placeholders);
@@ -221,6 +210,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
         $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('extractPlaceholders');
+        $method->setAccessible(true);
 
         $placeholders = $method->invoke($validator, 'Hello :name and :surname!');
         $this->assertContains(':name', $placeholders);
@@ -240,6 +230,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
         $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('extractPlaceholders');
+        $method->setAccessible(true);
 
         $placeholders = $method->invoke($validator, 'Hello %name% and {user} with %s!');
         $this->assertContains('%name%', $placeholders);
@@ -406,10 +397,12 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
         $reflectionClass = new ReflectionClass($validator);
         $property = $reflectionClass->getProperty('keyData');
+        $property->setAccessible(true);
 
         $this->assertNotEmpty($property->getValue($validator));
 
         $resetMethod = $reflectionClass->getMethod('resetState');
+        $resetMethod->setAccessible(true);
         $resetMethod->invoke($validator);
 
         $this->assertEmpty($property->getValue($validator));
@@ -422,6 +415,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
         $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('findPlaceholderInconsistencies');
+        $method->setAccessible(true);
 
         $fileData = [
             'en.xlf' => ['value' => 'Hello %name%!', 'placeholders' => ['%name%']],

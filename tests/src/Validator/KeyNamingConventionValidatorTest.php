@@ -3,22 +3,12 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Composer plugin "composer-translation-validator".
+ * This file is part of the "composer-translation-validator" Composer plugin.
  *
- * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ * (c) 2025 Konrad Michalik <km@move-elevator.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
@@ -33,13 +23,13 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
 
+use function count;
+
 /**
  * KeyNamingConventionValidatorTest.
  *
- * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
- *
- * @see https://google.de
  */
 final class KeyNamingConventionValidatorTest extends TestCase
 {
@@ -51,6 +41,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
         $validator = new KeyNamingConventionValidator();
         $reflection = new ReflectionClass($validator);
         $detectKeyConventions = $reflection->getMethod('detectKeyConventions');
+        $detectKeyConventions->setAccessible(true);
 
         // Test the problematic camelCase key with dots
         $camelCaseWithDots = 'teaser.image.cropVariant.slider';
@@ -472,6 +463,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $toDotNotationMethod = $reflection->getMethod('toDotNotation');
+        $toDotNotationMethod->setAccessible(true);
 
         // Test various conversions to dot notation
         $this->assertEquals('user.name', $toDotNotationMethod->invoke($validator, 'userName'));
@@ -487,6 +479,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $convertMethod = $reflection->getMethod('convertDotSeparatedKey');
+        $convertMethod->setAccessible(true);
 
         // Should return original key when convention is null
         $result = $convertMethod->invoke($validator, 'user.profile', null);
@@ -499,6 +492,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $convertMethod = $reflection->getMethod('convertDotSeparatedKey');
+        $convertMethod->setAccessible(true);
 
         // Use the DOT_NOTATION enum directly
         $dotNotationEnum = \MoveElevator\ComposerTranslationValidator\Enum\KeyNamingConvention::DOT_NOTATION;
@@ -526,6 +520,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $suggestMethod = $reflection->getMethod('suggestKeyConversion');
+        $suggestMethod->setAccessible(true);
 
         // Test with invalid convention string that would throw exception
         $result = $suggestMethod->invoke($validator, 'testKey', 'invalid_convention');
@@ -538,6 +533,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $detectMethod = $reflection->getMethod('detectKeyConventions');
+        $detectMethod->setAccessible(true);
 
         // Test with a key that has dots but no matching conventions
         $result = $detectMethod->invoke($validator, '$pecial.ch@rs.123');
@@ -582,6 +578,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $validateSegmentMethod = $reflection->getMethod('validateSegment');
+        $validateSegmentMethod->setAccessible(true);
 
         // With no convention set, should return true for any segment
         $result = $validateSegmentMethod->invoke($validator, 'anySegment');
@@ -594,6 +591,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $toCamelCaseMethod = $reflection->getMethod('toCamelCase');
+        $toCamelCaseMethod->setAccessible(true);
 
         // Test with various edge cases that might affect preg_split
         $result = $toCamelCaseMethod->invoke($validator, '');
@@ -609,6 +607,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $validateKeyFormatMethod = $reflection->getMethod('validateKeyFormat');
+        $validateKeyFormatMethod->setAccessible(true);
 
         // With no convention and no custom pattern, should return true
         $result = $validateKeyFormatMethod->invoke($validator, 'anyKey');
@@ -621,6 +620,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $detectSegmentMethod = $reflection->getMethod('detectSegmentConventions');
+        $detectSegmentMethod->setAccessible(true);
 
         // Test with a segment that matches no convention
         $result = $detectSegmentMethod->invoke($validator, '$pecial@chars123');
