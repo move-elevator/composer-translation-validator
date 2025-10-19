@@ -68,7 +68,6 @@ final class HtmlTagValidatorTest extends TestCase
         $validator = new HtmlTagValidator();
         $reflection = new ReflectionClass($validator);
         $method = $reflection->getMethod('analyzeHtmlStructure');
-        $method->setAccessible(true);
 
         // Test with valid HTML
         $structure = $method->invoke($validator, 'Hello <strong class="highlight">world</strong>!');
@@ -272,7 +271,6 @@ final class HtmlTagValidatorTest extends TestCase
         $validator = new HtmlTagValidator();
         $reflection = new ReflectionClass($validator);
         $keyDataProperty = $reflection->getProperty('keyData');
-        $keyDataProperty->setAccessible(true);
 
         // Add some data
         $keyDataProperty->setValue($validator, ['test' => 'data']);
@@ -280,7 +278,6 @@ final class HtmlTagValidatorTest extends TestCase
 
         // Reset state
         $resetMethod = $reflection->getMethod('resetState');
-        $resetMethod->setAccessible(true);
         $resetMethod->invoke($validator);
 
         // Check that data is cleared

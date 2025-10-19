@@ -127,7 +127,6 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
         $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('extractPlaceholders');
-        $method->setAccessible(true);
 
         $placeholders = $method->invoke($validator, 'Hello %name% and %surname%!');
         $this->assertContains('%name%', $placeholders);
@@ -150,7 +149,6 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
         $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('extractPlaceholders');
-        $method->setAccessible(true);
 
         $placeholders = $method->invoke($validator, 'Hello {name} and {surname}!');
         $this->assertContains('{name}', $placeholders);
@@ -170,7 +168,6 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
         $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('extractPlaceholders');
-        $method->setAccessible(true);
 
         $placeholders = $method->invoke($validator, 'Hello {{ name }} and {{ surname }}!');
         $this->assertContains('{{ name }}', $placeholders);
@@ -190,7 +187,6 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
         $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('extractPlaceholders');
-        $method->setAccessible(true);
 
         $placeholders = $method->invoke($validator, 'Hello %s and %1$s!');
         $this->assertContains('%s', $placeholders);
@@ -210,7 +206,6 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
         $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('extractPlaceholders');
-        $method->setAccessible(true);
 
         $placeholders = $method->invoke($validator, 'Hello :name and :surname!');
         $this->assertContains(':name', $placeholders);
@@ -230,7 +225,6 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
         $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('extractPlaceholders');
-        $method->setAccessible(true);
 
         $placeholders = $method->invoke($validator, 'Hello %name% and {user} with %s!');
         $this->assertContains('%name%', $placeholders);
@@ -397,12 +391,10 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
         $reflectionClass = new ReflectionClass($validator);
         $property = $reflectionClass->getProperty('keyData');
-        $property->setAccessible(true);
 
         $this->assertNotEmpty($property->getValue($validator));
 
         $resetMethod = $reflectionClass->getMethod('resetState');
-        $resetMethod->setAccessible(true);
         $resetMethod->invoke($validator);
 
         $this->assertEmpty($property->getValue($validator));
@@ -415,7 +407,6 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
         $reflectionClass = new ReflectionClass($validator);
         $method = $reflectionClass->getMethod('findPlaceholderInconsistencies');
-        $method->setAccessible(true);
 
         $fileData = [
             'en.xlf' => ['value' => 'Hello %name%!', 'placeholders' => ['%name%']],

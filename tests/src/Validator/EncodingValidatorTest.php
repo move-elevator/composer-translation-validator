@@ -340,7 +340,6 @@ final class EncodingValidatorTest extends TestCase
         // Test by calling the method through reflection since it's private
         $reflector = new ReflectionClass(EncodingValidator::class);
         $method = $reflector->getMethod('hasUnicodeNormalizationIssues');
-        $method->setAccessible(true);
 
         $validator = new EncodingValidator();
 
