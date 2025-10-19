@@ -3,22 +3,12 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Composer plugin "composer-translation-validator".
+ * This file is part of the "composer-translation-validator" Composer plugin.
  *
- * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ * (c) 2025 Konrad Michalik <km@move-elevator.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Parser;
@@ -29,6 +19,13 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 // Concrete test class for testing AbstractParser
+
+/**
+ * TestParser.
+ *
+ * @author Konrad Michalik <km@move-elevator.de>
+ * @license GPL-3.0-or-later
+ */
 class TestParser extends AbstractParser
 {
     public static function getSupportedFileExtensions(): array
@@ -37,6 +34,12 @@ class TestParser extends AbstractParser
     }
 }
 
+/**
+ * AbstractParserTest.
+ *
+ * @author Konrad Michalik <km@move-elevator.de>
+ * @license GPL-3.0-or-later
+ */
 final class AbstractParserTest extends TestCase
 {
     private string $tempDir;
@@ -68,7 +71,7 @@ final class AbstractParserTest extends TestCase
 
         $this->assertSame('test.txt', $parser->getFileName());
         $this->assertSame($this->tempFile, $parser->getFilePath());
-        $this->assertSame($this->tempDir.DIRECTORY_SEPARATOR, $parser->getFileDirectory());
+        $this->assertSame($this->tempDir.\DIRECTORY_SEPARATOR, $parser->getFileDirectory());
     }
 
     public function testConstructorWithNonExistentFile(): void
@@ -125,7 +128,7 @@ final class AbstractParserTest extends TestCase
     public function testGetFileDirectory(): void
     {
         $parser = new TestParser($this->tempFile);
-        $this->assertSame($this->tempDir.DIRECTORY_SEPARATOR, $parser->getFileDirectory());
+        $this->assertSame($this->tempDir.\DIRECTORY_SEPARATOR, $parser->getFileDirectory());
     }
 
     public function testGetFilePath(): void

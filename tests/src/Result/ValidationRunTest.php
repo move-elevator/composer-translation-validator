@@ -3,37 +3,30 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Composer plugin "composer-translation-validator".
+ * This file is part of the "composer-translation-validator" Composer plugin.
  *
- * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ * (c) 2025 Konrad Michalik <km@move-elevator.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
-use MoveElevator\ComposerTranslationValidator\Result\Issue;
-use MoveElevator\ComposerTranslationValidator\Result\ValidationRun;
-use MoveElevator\ComposerTranslationValidator\Result\ValidationStatistics;
-use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
-use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
+use MoveElevator\ComposerTranslationValidator\Result\{Issue, ValidationRun, ValidationStatistics};
+use MoveElevator\ComposerTranslationValidator\Validator\{ResultType, ValidatorInterface};
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * ValidationRunTest.
+ *
+ * @author Konrad Michalik <km@move-elevator.de>
+ * @license GPL-3.0-or-later
+ */
 class ValidationRunTest extends TestCase
 {
     private LoggerInterface $logger;
@@ -222,6 +215,13 @@ class ValidationRunTest extends TestCase
 }
 
 // Mock classes for testing
+
+/**
+ * MockParserForTesting.
+ *
+ * @author Konrad Michalik <km@move-elevator.de>
+ * @license GPL-3.0-or-later
+ */
 class MockParserForTesting implements ParserInterface
 {
     public function __construct(string $file)
@@ -261,6 +261,12 @@ class MockParserForTesting implements ParserInterface
     }
 }
 
+/**
+ * MockValidatorWithoutIssues.
+ *
+ * @author Konrad Michalik <km@move-elevator.de>
+ * @license GPL-3.0-or-later
+ */
 class MockValidatorWithoutIssues implements ValidatorInterface
 {
     public function __construct(?LoggerInterface $logger = null)
@@ -330,6 +336,12 @@ class MockValidatorWithoutIssues implements ValidatorInterface
     }
 }
 
+/**
+ * MockValidatorWithIssues.
+ *
+ * @author Konrad Michalik <km@move-elevator.de>
+ * @license GPL-3.0-or-later
+ */
 class MockValidatorWithIssues implements ValidatorInterface
 {
     public function __construct(?LoggerInterface $logger = null)

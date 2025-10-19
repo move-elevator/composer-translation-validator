@@ -3,38 +3,30 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Composer plugin "composer-translation-validator".
+ * This file is part of the "composer-translation-validator" Composer plugin.
  *
- * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ * (c) 2025 Konrad Michalik <km@move-elevator.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
-use MoveElevator\ComposerTranslationValidator\Result\Issue;
-use MoveElevator\ComposerTranslationValidator\Result\ValidationResult;
-use MoveElevator\ComposerTranslationValidator\Result\ValidationResultCliRenderer;
-use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
-use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
+use MoveElevator\ComposerTranslationValidator\Result\{Issue, ValidationResult, ValidationResultCliRenderer};
+use MoveElevator\ComposerTranslationValidator\Validator\{ResultType, ValidatorInterface};
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\{BufferedOutput, OutputInterface};
 
+/**
+ * ValidationResultCliRendererTest.
+ *
+ * @author Konrad Michalik <km@move-elevator.de>
+ * @license GPL-3.0-or-later
+ */
 class ValidationResultCliRendererTest extends TestCase
 {
     private ValidationResultCliRenderer $renderer;
@@ -256,35 +248,6 @@ class ValidationResultCliRendererTest extends TestCase
         $this->assertStringNotContainsString('Files checked:', $output);
     }
 
-    /**
-     * @return MockObject&ValidatorInterface
-     */
-    private function createMockValidator(ResultType $resultType = ResultType::ERROR): MockObject
-    {
-        /** @var MockObject&ValidatorInterface $validator */
-        $validator = $this->createMock(ValidatorInterface::class);
-        $validator->method('resultTypeOnValidationFailure')->willReturn($resultType);
-        $validator->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = '', bool $isVerbose = false): string => $isVerbose ? '- <fg=red>Error</> Validation error' : "- <fg=red>Error</> {$prefix}Validation error");
-        $validator->method('distributeIssuesForDisplay')->willReturnCallback(function (FileSet $fileSet) use ($validator): array {
-            $distribution = [];
-            foreach ($validator->getIssues() as $issue) {
-                $fileName = $issue->getFile();
-                if (!empty($fileName)) {
-                    $basePath = rtrim($fileSet->getPath(), '/');
-                    $filePath = $basePath.'/'.$fileName;
-                    $distribution[$filePath][] = $issue;
-                }
-            }
-
-            return $distribution;
-        });
-        $validator->method('shouldShowDetailedOutput')->willReturn(false);
-        $validator->method('renderDetailedOutput');
-        $validator->method('getShortName')->willReturn('MockObject_ValidatorInterface');
-
-        return $validator;
-    }
-
     public function testRenderWarningInCompactMode(): void
     {
         $validator = $this->createMockValidator(ResultType::WARNING);
@@ -369,5 +332,34 @@ class ValidationResultCliRendererTest extends TestCase
 
         $this->assertStringContainsString('Language validation completed with warnings', $output);
         $this->assertStringContainsString('[WARNING]', $output);
+    }
+
+    /**
+     * @return MockObject&ValidatorInterface
+     */
+    private function createMockValidator(ResultType $resultType = ResultType::ERROR): MockObject
+    {
+        /** @var MockObject&ValidatorInterface $validator */
+        $validator = $this->createMock(ValidatorInterface::class);
+        $validator->method('resultTypeOnValidationFailure')->willReturn($resultType);
+        $validator->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = '', bool $isVerbose = false): string => $isVerbose ? '- <fg=red>Error</> Validation error' : "- <fg=red>Error</> {$prefix}Validation error");
+        $validator->method('distributeIssuesForDisplay')->willReturnCallback(function (FileSet $fileSet) use ($validator): array {
+            $distribution = [];
+            foreach ($validator->getIssues() as $issue) {
+                $fileName = $issue->getFile();
+                if (!empty($fileName)) {
+                    $basePath = rtrim($fileSet->getPath(), '/');
+                    $filePath = $basePath.'/'.$fileName;
+                    $distribution[$filePath][] = $issue;
+                }
+            }
+
+            return $distribution;
+        });
+        $validator->method('shouldShowDetailedOutput')->willReturn(false);
+        $validator->method('renderDetailedOutput');
+        $validator->method('getShortName')->willReturn('MockObject_ValidatorInterface');
+
+        return $validator;
     }
 }

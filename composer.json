@@ -27,9 +27,10 @@
 	"require-dev": {
 		"armin/editorconfig-cli": "^1.0 || ^2.0",
 		"composer/composer": "^2.0",
-		"eliashaeussler/php-cs-fixer-config": "2.3.0",
 		"eliashaeussler/rector-config": "^3.0",
 		"ergebnis/composer-normalize": "^2.44",
+		"konradmichalik/php-cs-fixer-preset": "^0.1.0",
+		"konradmichalik/php-doc-block-header-fixer": "^0.3.0",
 		"phpstan/phpstan": "^2.0",
 		"phpstan/phpstan-phpunit": "^2.0",
 		"phpstan/phpstan-symfony": "^2.0",
@@ -56,7 +57,10 @@
 		"sort-packages": true
 	},
 	"extra": {
-		"class": "MoveElevator\\ComposerTranslationValidator\\Plugin"
+		"class": "MoveElevator\\ComposerTranslationValidator\\Plugin",
+		"konradmichalik/php-cs-fixer-preset": {
+			"copyright": 2025
+		}
 	},
 	"scripts": {
 		"fix": [

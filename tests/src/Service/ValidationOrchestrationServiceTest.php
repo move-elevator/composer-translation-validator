@@ -3,22 +3,12 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the Composer plugin "composer-translation-validator".
+ * This file is part of the "composer-translation-validator" Composer plugin.
  *
- * Copyright (C) 2025 Konrad Michalik <km@move-elevator.de>
+ * (c) 2025 Konrad Michalik <km@move-elevator.de>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Service;
@@ -27,14 +17,26 @@ use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
 use MoveElevator\ComposerTranslationValidator\FileDetector\PrefixFileDetector;
 use MoveElevator\ComposerTranslationValidator\Result\ValidationResult;
 use MoveElevator\ComposerTranslationValidator\Service\ValidationOrchestrationService;
-use MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator;
-use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
-use MoveElevator\ComposerTranslationValidator\Validator\ValidatorRegistry;
+use MoveElevator\ComposerTranslationValidator\Validator\{MismatchValidator, ValidatorInterface, ValidatorRegistry};
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
+use function array_slice;
+
+/**
+ * ValidationOrchestrationServiceTest.
+ *
+ * @author Konrad Michalik <km@move-elevator.de>
+ * @license GPL-3.0-or-later
+ */
 #[CoversClass(ValidationOrchestrationService::class)]
+/**
+ * ValidationOrchestrationServiceTest.
+ *
+ * @author Konrad Michalik <km@move-elevator.de>
+ * @license GPL-3.0-or-later
+ */
 class ValidationOrchestrationServiceTest extends TestCase
 {
     private ValidationOrchestrationService $service;
