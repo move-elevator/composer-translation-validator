@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Config;
 
+use MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator;
+
 /**
  * TranslationValidatorConfig.
  *
@@ -37,7 +39,9 @@ class TranslationValidatorConfig
     private array $only = [];
 
     /** @var string[] */
-    private array $skip = [];
+    private array $skip = [
+        DuplicateValuesValidator::class,
+    ];
 
     /** @var string[] */
     private array $exclude = [];

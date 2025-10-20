@@ -85,6 +85,27 @@ Identifies identical translation values that might indicate copy-paste errors or
 
 **Result:** ![Warning](https://img.shields.io/badge/WARNING-yellow)
 
+> [!NOTE]
+> This validator is disabled by default (opt-in).
+
+The `DuplicateValuesValidator` is skipped by default to reduce noise in validation results, as duplicate values are often intentional (e.g., common button labels like "OK" or "Cancel").
+
+To enable this validator, use one of the following methods:
+
+**Via CLI:**
+```bash
+composer validate-translations translations/ --only "MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateValuesValidator"
+```
+
+**Clear the skip entry via configuration file (YAML):**
+```yaml
+paths:
+  - translations/
+skip: []
+```
+
+See the [configuration documentation](config-file.md) for more details.
+
 ### Example
 
 **File: `errors.en.yaml`**
@@ -121,19 +142,7 @@ composer -d tests validate-translations Fixtures/examples/duplicate-values --onl
 </details>
 
 > [!TIP]
-> While sometimes duplicate values are intentional, they often reveal incomplete translations or copy-paste mistakes.
-> If you want to suppress these warnings, you can skip this validator using the `--skip` option or using the configuration file.
->
-> Example command to skip this validator:
-> ```bash
-> composer validate-translations ./translations --skip "MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateValuesValidator"
-> ```
->
-> or within your configuration file , e.g. `translation-validator.yaml`:
-> ```yaml
-> skip:
->   - MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator
-> ```
+> While sometimes duplicate values are intentional (e.g., common UI elements like "OK", "Cancel", or "Close"), they often reveal incomplete translations or copy-paste mistakes that need attention.
 
 ---
 
