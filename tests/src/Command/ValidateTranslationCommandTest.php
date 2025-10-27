@@ -309,4 +309,61 @@ class ValidateTranslationCommandTest extends TestCase
 
         $this->assertSame(0, $commandTester->getStatusCode());
     }
+
+    public function testExecuteWithExcludeOption(): void
+    {
+        $application = new Application();
+        $application->add(new ValidateTranslationCommand());
+
+        $command = $application->find('validate-translations');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute([
+            'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
+            '--exclude' => '**/nonexistent/**',
+            '--dry-run' => true,
+        ]);
+
+        $output = $commandTester->getDisplay();
+        $this->assertStringContainsString('Language validation', $output);
+        $this->assertSame(0, $commandTester->getStatusCode());
+    }
+
+    public function testExecuteWithMultipleExcludePatterns(): void
+    {
+        $application = new Application();
+        $application->add(new ValidateTranslationCommand());
+
+        $command = $application->find('validate-translations');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute([
+            'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
+            '--exclude' => '**/backup/**,**/*.bak',
+            '--dry-run' => true,
+        ]);
+
+        $output = $commandTester->getDisplay();
+        $this->assertStringContainsString('Language validation', $output);
+        $this->assertSame(0, $commandTester->getStatusCode());
+    }
+
+    public function testExecuteWithExcludeShortOption(): void
+    {
+        $application = new Application();
+        $application->add(new ValidateTranslationCommand());
+
+        $command = $application->find('validate-translations');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute([
+            'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
+            '-e' => '**/temp/**',
+            '--dry-run' => true,
+        ]);
+
+        $output = $commandTester->getDisplay();
+        $this->assertStringContainsString('Language validation', $output);
+        $this->assertSame(0, $commandTester->getStatusCode());
+    }
 }

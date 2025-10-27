@@ -99,6 +99,12 @@ class ValidateTranslationCommand extends BaseCommand
                 InputOption::VALUE_NONE,
                 'Search for translation files recursively in subdirectories',
             )
+            ->addOption(
+                'exclude',
+                'e',
+                InputOption::VALUE_OPTIONAL,
+                'Exclude files matching glob patterns, comma-separated (e.g., "**/backup/**,**/*.bak")',
+            )
             ->setHelp(
                 <<<HELP
 The <info>validate-translations</info> command validates translation files (XLIFF, YAML, JSON and PHP)
@@ -114,6 +120,7 @@ using multiple validators to ensure consistency, correctness and schema complian
   <info>composer validate-translations translations/ --format github</info>
   <info>composer validate-translations translations/ --dry-run</info>
   <info>composer validate-translations translations/ --strict</info>
+  <info>composer validate-translations translations/ --exclude "**/backup/**,**/*.bak"</info>
   <info>composer validate-translations translations/ --only \</info>
     <info>"MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator"</info>
 
@@ -169,7 +176,14 @@ HELP
         $this->dryRun = $config->getDryRun() || $input->getOption('dry-run');
         $this->strict = $config->getStrict() || $input->getOption('strict');
         $recursive = (bool) $input->getOption('recursive');
+
+        // Merge exclude patterns from config and CLI
         $excludePatterns = $config->getExclude();
+        $cliExcludeOption = $input->getOption('exclude');
+        if ($cliExcludeOption) {
+            $cliExcludePatterns = array_map(trim(...), explode(',', $cliExcludeOption));
+            $excludePatterns = array_merge($excludePatterns, $cliExcludePatterns);
+        }
 
         $fileDetector = $this->orchestrationService->resolveFileDetector($config);
 
