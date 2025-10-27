@@ -1,7 +1,7 @@
 # Console command `validate-translations`
 
 ```bash
-composer validate-translations [<path>...] [--dry-run] [--strict] [--format|-f <cli|json>] [--skip|-s <VALIDATOR>...] [--only|-o <VALIDATOR>...] [--recursive|-r] [--verbose|-v] [--config|-c <CONFIG>]
+composer validate-translations [<path>...] [--dry-run] [--strict] [--format|-f <cli|json>] [--skip|-s <VALIDATOR>...] [--only|-o <VALIDATOR>...] [--recursive|-r] [--exclude|-e <PATTERN>] [--verbose|-v] [--config|-c <CONFIG>]
 ```
 
 | Argument / Option | Shortcut | Description                                                                                       |
@@ -11,6 +11,7 @@ composer validate-translations [<path>...] [--dry-run] [--strict] [--format|-f <
 | `--skip`          | `-s`     | Skips specific validators (can be used multiple times).                                           |
 | `--only`          | `-o`     | Runs only the specified validators (can be used multiple times).                                  |
 | `--recursive`     | `-r`     | Search for translation files recursively in subdirectories                                        |
+| `--exclude`       | `-e`     | Exclude files matching glob patterns, comma-separated (e.g., `"**/backup/**,**/*.bak"`).         |
 | `--verbose`       | `-v`     | Shows additional output for detailed information.                                                 |
 | `--strict`        |          | Enables strict mode, treating warnings as errors.                                                 |
 | `--dry-run`       |          | Runs the validation in test mode without saving changes.                                          |
