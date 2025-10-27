@@ -43,7 +43,7 @@ final class ConfigFileReaderTest extends TestCase
         if (is_dir($this->tempDir)) {
             $files = glob($this->tempDir.'/*');
             if (false !== $files) {
-                array_map('unlink', $files);
+                array_map(unlink(...), $files);
             }
             rmdir($this->tempDir);
         }
