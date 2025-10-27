@@ -106,7 +106,7 @@ class TranslationValidatorConfigTest extends TestCase
     {
         $validator = 'SkipValidator';
         $this->config->skip($validator);
-        $this->assertSame([$validator], $this->config->getSkip());
+        $this->assertSame([\MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator::class, $validator], $this->config->getSkip());
     }
 
     public function testSetAndGetSkip(): void
@@ -164,7 +164,7 @@ class TranslationValidatorConfigTest extends TestCase
         $this->assertSame([], $this->config->getFileDetectors());
         $this->assertSame([], $this->config->getParsers());
         $this->assertSame([], $this->config->getOnly());
-        $this->assertSame([], $this->config->getSkip());
+        $this->assertSame([\MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator::class], $this->config->getSkip());
         $this->assertSame([], $this->config->getExclude());
         $this->assertFalse($this->config->getStrict());
         $this->assertFalse($this->config->getDryRun());
@@ -264,7 +264,7 @@ class TranslationValidatorConfigTest extends TestCase
             'file-detectors' => [],
             'parsers' => [],
             'only' => [],
-            'skip' => [],
+            'skip' => [\MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator::class],
             'exclude' => [],
             'strict' => false,
             'dry-run' => false,
