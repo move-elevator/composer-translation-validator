@@ -45,7 +45,7 @@ final class EncodingValidatorTest extends TestCase
     {
         // Clean up test files
         if (is_dir($this->testFilesPath)) {
-            array_map('unlink', glob($this->testFilesPath.'/*') ?: []);
+            array_map(unlink(...), glob($this->testFilesPath.'/*') ?: []);
             rmdir($this->testFilesPath);
         }
     }

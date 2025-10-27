@@ -344,7 +344,7 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
             return ucfirst($key);
         }
 
-        return implode('', array_map('ucfirst', array_map('strtolower', $parts)));
+        return implode('', array_map(ucfirst(...), array_map(strtolower(...), $parts)));
     }
 
     private function toDotNotation(string $key): string
