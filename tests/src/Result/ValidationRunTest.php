@@ -27,7 +27,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-class ValidationRunTest extends TestCase
+final class ValidationRunTest extends TestCase
 {
     private LoggerInterface $logger;
 

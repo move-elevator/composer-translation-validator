@@ -30,7 +30,7 @@ use PHPUnit\Framework\TestCase;
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-class TranslationValidatorConfigTest extends TestCase
+final class TranslationValidatorConfigTest extends TestCase
 {
     private TranslationValidatorConfig $config;
 

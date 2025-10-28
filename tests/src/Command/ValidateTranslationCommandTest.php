@@ -28,7 +28,7 @@ use Throwable;
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-class ValidateTranslationCommandTest extends TestCase
+final class ValidateTranslationCommandTest extends TestCase
 {
     public function testExecuteWithValidArguments(): void
     {

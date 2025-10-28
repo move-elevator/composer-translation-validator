@@ -26,7 +26,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-class ValidationResultJsonRendererTest extends TestCase
+final class ValidationResultJsonRendererTest extends TestCase
 {
     private ValidationResultJsonRenderer $renderer;
     private BufferedOutput $output;

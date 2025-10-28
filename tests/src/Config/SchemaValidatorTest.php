@@ -33,7 +33,7 @@ use RuntimeException;
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-class SchemaValidatorTest extends TestCase
+final class SchemaValidatorTest extends TestCase
 {
     private SchemaValidator $schemaValidator;
 

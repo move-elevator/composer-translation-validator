@@ -22,7 +22,7 @@ use PHPUnit\Framework\TestCase;
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-class ValidationStatisticsTest extends TestCase
+final class ValidationStatisticsTest extends TestCase
 {
     public function testConstructorAndGetters(): void
     {

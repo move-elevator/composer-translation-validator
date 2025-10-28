@@ -27,7 +27,7 @@ use Symfony\Component\Console\Output\{BufferedOutput, OutputInterface};
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-class ValidationResultCliRendererTest extends TestCase
+final class ValidationResultCliRendererTest extends TestCase
 {
     private ValidationResultCliRenderer $renderer;
     private BufferedOutput $output;

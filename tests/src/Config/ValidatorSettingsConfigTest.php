@@ -22,7 +22,7 @@ use PHPUnit\Framework\TestCase;
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-class ValidatorSettingsConfigTest extends TestCase
+final class ValidatorSettingsConfigTest extends TestCase
 {
     public function testLoadValidatorSettingsFromYaml(): void
     {
