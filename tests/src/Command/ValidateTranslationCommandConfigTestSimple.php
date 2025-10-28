@@ -24,7 +24,7 @@ use PHPUnit\Framework\TestCase;
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-class ValidateTranslationCommandConfigTestSimple extends TestCase
+final class ValidateTranslationCommandConfigTestSimple extends TestCase
 {
     public function testCommandHasConfigOption(): void
     {

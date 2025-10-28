@@ -24,7 +24,7 @@ use function count;
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-class FileSetTest extends TestCase
+final class FileSetTest extends TestCase
 {
     public function testConstruct(): void
     {

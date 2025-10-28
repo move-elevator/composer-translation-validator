@@ -24,7 +24,7 @@ use PHPUnit\Framework\TestCase;
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-class ValidationResultTest extends TestCase
+final class ValidationResultTest extends TestCase
 {
     public function testConstructWithoutValidatorFileSetPairs(): void
     {

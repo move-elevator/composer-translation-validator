@@ -32,7 +32,7 @@ use PHPUnit\Framework\TestCase;
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-class PluginExtendedTest extends TestCase
+final class PluginExtendedTest extends TestCase
 {
     private Plugin $plugin;
 

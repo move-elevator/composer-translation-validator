@@ -37,7 +37,7 @@ use function array_slice;
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-class ValidationOrchestrationServiceTest extends TestCase
+final class ValidationOrchestrationServiceTest extends TestCase
 {
     private ValidationOrchestrationService $service;
 
