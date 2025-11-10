@@ -38,15 +38,17 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
     public function processFile(ParserInterface $file): array
     {
         $keys = $file->extractKeys();
+        $fileKey = !empty($this->currentFilePath) ? $this->currentFilePath : $file->getFileName();
 
         if (!$keys) {
-            $this->logger?->error('The source file '.$file->getFileName().' is not valid.');
+            // Track empty files with an empty array to detect missing translations
+            $this->keyArray[$fileKey] = [];
 
             return [];
         }
+
         foreach ($keys as $key) {
             $value = $file->getContentByKey($key);
-            $fileKey = !empty($this->currentFilePath) ? $this->currentFilePath : $file->getFileName();
             $this->keyArray[$fileKey][$key] = $value ?? null;
         }
 
@@ -170,7 +172,7 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
             $files = $details['files'] ?? [];
             $currentFile = basename($issue->getFile());
 
-            if (!in_array($key, $allKeys)) {
+            if (!in_array($key, $allKeys, true)) {
                 $allKeys[] = $key;
             }
 

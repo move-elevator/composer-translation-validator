@@ -57,20 +57,23 @@ final class MismatchValidatorTest extends TestCase
         );
     }
 
-    public function testProcessFileWithInvalidFile(): void
+    public function testProcessFileWithEmptyFile(): void
     {
         $parser = $this->createMock(ParserInterface::class);
-        $parser->method('extractKeys')->willReturn(null);
-        $parser->method('getFileName')->willReturn('invalid.xlf');
+        $parser->method('extractKeys')->willReturn([]);
+        $parser->method('getFileName')->willReturn('empty.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
-            ->method('error')
-            ->with($this->stringContains('The source file invalid.xlf is not valid.'));
-
         $validator = new MismatchValidator($logger);
         $result = $validator->processFile($parser);
 
+        // Empty files should now be tracked with an empty array
+        $reflection = new ReflectionClass($validator);
+        $keyArrayProperty = $reflection->getProperty('keyArray');
+        $keyArray = $keyArrayProperty->getValue($validator);
+
+        $this->assertArrayHasKey('empty.xlf', $keyArray);
+        $this->assertSame([], $keyArray['empty.xlf']);
         $this->assertEmpty($result);
     }
 
@@ -315,5 +318,110 @@ final class MismatchValidatorTest extends TestCase
         $validator = new MismatchValidator($logger);
 
         $this->assertSame('MismatchValidator', $validator->getShortName());
+    }
+
+    public function testPostProcessDetectsEmptyFileWithMissingKeys(): void
+    {
+        $parser1 = $this->createMock(ParserInterface::class);
+        $parser1->method('extractKeys')->willReturn(['key1', 'key2']);
+        $parser1->method('getFileName')->willReturn('source.xlf');
+
+        $parser2 = $this->createMock(ParserInterface::class);
+        $parser2->method('extractKeys')->willReturn([]);
+        $parser2->method('getFileName')->willReturn('empty.xlf');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        $validator->processFile($parser1);
+        $validator->processFile($parser2);
+
+        $validator->postProcess();
+
+        // Accessing protected property for testing purposes
+        $reflection = new ReflectionClass($validator);
+        $issuesProperty = $reflection->getProperty('issues');
+        $issues = $issuesProperty->getValue($validator);
+
+        // Should detect both keys as missing in the empty file
+        $this->assertCount(2, $issues);
+
+        $issueArrays = array_map(fn ($issue) => $issue->toArray(), $issues);
+
+        // Check that both key1 and key2 are reported as mismatches
+        $keys = array_map(fn ($issue) => $issue['issues']['key'], $issueArrays);
+        $this->assertContains('key1', $keys);
+        $this->assertContains('key2', $keys);
+
+        // Verify that the empty file is included in the details
+        foreach ($issueArrays as $issueArray) {
+            $files = $issueArray['issues']['files'];
+            $this->assertCount(2, $files);
+
+            $fileNames = array_map(fn ($file) => $file['file'], $files);
+            $this->assertContains('source.xlf', $fileNames);
+            $this->assertContains('empty.xlf', $fileNames);
+
+            // Empty file should have null value for all keys
+            foreach ($files as $file) {
+                if ('empty.xlf' === $file['file']) {
+                    $this->assertNull($file['value']);
+                }
+            }
+        }
+    }
+
+    public function testPostProcessWithMixedScenario(): void
+    {
+        // Source file with 6 keys
+        $parser1 = $this->createMock(ParserInterface::class);
+        $parser1->method('extractKeys')->willReturn(['key1', 'key2', 'key3', 'key4', 'key5', 'key6']);
+        $parser1->method('getFileName')->willReturn('source.xlf');
+
+        // Partial translation file with 3 keys
+        $parser2 = $this->createMock(ParserInterface::class);
+        $parser2->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
+        $parser2->method('getFileName')->willReturn('partial.xlf');
+
+        // Empty translation file
+        $parser3 = $this->createMock(ParserInterface::class);
+        $parser3->method('extractKeys')->willReturn([]);
+        $parser3->method('getFileName')->willReturn('empty.xlf');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        $validator->processFile($parser1);
+        $validator->processFile($parser2);
+        $validator->processFile($parser3);
+
+        $validator->postProcess();
+
+        // Accessing protected property for testing purposes
+        $reflection = new ReflectionClass($validator);
+        $issuesProperty = $reflection->getProperty('issues');
+        $issues = $issuesProperty->getValue($validator);
+
+        // Should detect all 6 keys as mismatches since:
+        // - key1, key2, key3 are missing from empty.xlf
+        // - key4, key5, key6 are missing from both partial.xlf and empty.xlf
+        $this->assertCount(6, $issues);
+
+        $issueArrays = array_map(fn ($issue) => $issue->toArray(), $issues);
+        $keys = array_map(fn ($issue) => $issue['issues']['key'], $issueArrays);
+
+        // All keys should be reported as missing somewhere
+        $this->assertContains('key1', $keys);
+        $this->assertContains('key2', $keys);
+        $this->assertContains('key3', $keys);
+        $this->assertContains('key4', $keys);
+        $this->assertContains('key5', $keys);
+        $this->assertContains('key6', $keys);
+
+        // Verify that all three files are tracked in each issue
+        foreach ($issueArrays as $issueArray) {
+            $files = $issueArray['issues']['files'];
+            $this->assertCount(3, $files);
+        }
     }
 }
