@@ -1,13 +1,13 @@
 {
-  "paths": ["path1", "path2"],
-  "strict": true,
-  "format": "json",
-  "exclude": ["vendor/*"],
-  "validators": ["SomeValidator"],
-  "file-detectors": ["SomeDetector"],
-  "parsers": ["SomeParser"],
-  "only": ["OnlyValidator"],
-  "skip": ["SkipValidator"],
-  "dry-run": true,
-  "verbose": true
+"paths": ["path1", "path2"],
+"strict": true,
+"format": "json",
+"exclude": ["vendor/*"],
+"validators": ["SomeValidator"],
+"file-detectors": ["SomeDetector"],
+"parsers": ["SomeParser"],
+"only": ["OnlyValidator"],
+"skip": ["SkipValidator"],
+"dry-run": true,
+"verbose": true
 }

@@ -181,7 +181,7 @@ HELP
         $excludePatterns = $config->getExclude();
         $cliExcludeOption = $input->getOption('exclude');
         if ($cliExcludeOption) {
-            $cliExcludePatterns = array_map(trim(...), explode(',', $cliExcludeOption));
+            $cliExcludePatterns = array_map(trim(...), explode(',', (string) $cliExcludeOption));
             $excludePatterns = array_merge($excludePatterns, $cliExcludePatterns);
         }
 
