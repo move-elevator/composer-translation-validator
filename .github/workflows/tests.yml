@@ -61,17 +61,29 @@ jobs:
             composer_version: '2.8'
             name_suffix: ' (PHP 8.3, Symfony 7.x, Composer 2.8)'
 
-          # Highest PHP, Highest Symfony, Lowest Compatible Composer (2.4, since 2.2/2.3 are excluded for PHP 8.4)
+          # PHP 8.4, Highest Symfony, Lowest Compatible Composer (2.4, since 2.2/2.3 are excluded for PHP 8.4)
           - php: '8.4'
             symfony_constraint: '^7.0'
             composer_version: '2.4'
             name_suffix: ' (PHP 8.4, Symfony 7.x, Composer 2.4)'
 
-          # Highest PHP, Highest Symfony, Highest Composer
+          # PHP 8.4, Highest Symfony, Highest Composer
           - php: '8.4'
             symfony_constraint: '^7.0'
             composer_version: '2.8'
             name_suffix: ' (PHP 8.4, Symfony 7.x, Composer 2.8)'
+
+          # Highest PHP, Highest Symfony, Lowest Compatible Composer (2.4, since 2.2/2.3 are excluded for PHP 8.4)
+          - php: '8.5'
+            symfony_constraint: '^7.0'
+            composer_version: '2.4'
+            name_suffix: ' (PHP 8.5, Symfony 7.x, Composer 2.4)'
+
+          # Highest PHP, Highest Symfony, Highest Composer
+          - php: '8.5'
+            symfony_constraint: '^7.0'
+            composer_version: '2.8'
+            name_suffix: ' (PHP 8.5, Symfony 7.x, Composer 2.8)'
 
     name: Test ${{ matrix.name_suffix }}
 
