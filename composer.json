@@ -11,7 +11,7 @@
 		}
 	],
 	"require": {
-		"php": "~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0",
+		"php": "~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
 		"ext-libxml": "*",
 		"ext-mbstring": "*",
 		"ext-simplexml": "*",
@@ -27,7 +27,6 @@
 	"require-dev": {
 		"armin/editorconfig-cli": "^1.0 || ^2.0",
 		"composer/composer": "^2.0",
-		"eliashaeussler/rector-config": "^3.0",
 		"ergebnis/composer-normalize": "^2.44",
 		"konradmichalik/php-cs-fixer-preset": "^0.1.0",
 		"konradmichalik/php-doc-block-header-fixer": "^0.3.0",
@@ -35,7 +34,7 @@
 		"phpstan/phpstan-phpunit": "^2.0",
 		"phpstan/phpstan-symfony": "^2.0",
 		"phpunit/phpunit": "^10.2 || ^11.0 || ^12.0",
-		"roave/security-advisories": "dev-latest"
+		"rector/rector": "^2.2"
 	},
 	"suggest": {
 		"ext-intl": "Required for validating translations regarding unicode normalization issues."
