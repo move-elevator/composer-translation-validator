@@ -2874,16 +2874,16 @@
         },
         {
             "name": "konradmichalik/php-doc-block-header-fixer",
-            "version": "0.3.2",
+            "version": "0.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jackd248/php-doc-block-header-fixer.git",
-                "reference": "9f5067f879e593f679ed07ab61d7c0a59f37e561"
+                "reference": "791ae4adae63d5c06534f31a9462b41064301692"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jackd248/php-doc-block-header-fixer/zipball/9f5067f879e593f679ed07ab61d7c0a59f37e561",
-                "reference": "9f5067f879e593f679ed07ab61d7c0a59f37e561",
+                "url": "https://api.github.com/repos/jackd248/php-doc-block-header-fixer/zipball/791ae4adae63d5c06534f31a9462b41064301692",
+                "reference": "791ae4adae63d5c06534f31a9462b41064301692",
                 "shasum": ""
             },
             "require": {
@@ -2930,9 +2930,9 @@
             ],
             "support": {
                 "issues": "https://github.com/jackd248/php-doc-block-header-fixer/issues",
-                "source": "https://github.com/jackd248/php-doc-block-header-fixer/tree/0.3.2"
+                "source": "https://github.com/jackd248/php-doc-block-header-fixer/tree/0.3.3"
             },
-            "time": "2025-11-24T14:10:46+00:00"
+            "time": "2025-12-03T16:58:20+00:00"
         },
         {
             "name": "localheinz/diff",
