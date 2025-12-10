@@ -29,7 +29,7 @@ final class XliffSchemaValidatorTest extends TestCase
 {
     private XliffSchemaValidator $validator;
 
-    private LoggerInterface&\PHPUnit\Framework\MockObject\Stub $logger;
+    private LoggerInterface $logger;
 
     protected function setUp(): void
     {

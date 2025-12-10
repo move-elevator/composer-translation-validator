@@ -30,7 +30,7 @@ final class ValidationResultCliRendererTest extends TestCase
 {
     private ValidationResultCliRenderer $renderer;
     private BufferedOutput $output;
-    private InputInterface&\PHPUnit\Framework\MockObject\Stub $input;
+    private InputInterface $input;
 
     protected function setUp(): void
     {

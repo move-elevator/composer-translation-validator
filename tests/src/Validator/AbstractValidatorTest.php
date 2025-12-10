@@ -140,7 +140,7 @@ class TestParser implements ParserInterface
  */
 final class AbstractValidatorTest extends TestCase
 {
-    private LoggerInterface&\PHPUnit\Framework\MockObject\Stub $loggerStub;
+    private LoggerInterface $loggerStub;
 
     protected function setUp(): void
     {

@@ -29,7 +29,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 final class ValidationRunTest extends TestCase
 {
-    private LoggerInterface&\PHPUnit\Framework\MockObject\Stub $logger;
+    private LoggerInterface $logger;
 
     protected function setUp(): void
     {

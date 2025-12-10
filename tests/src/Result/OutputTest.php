@@ -29,8 +29,8 @@ use Symfony\Component\Console\Output\BufferedOutput;
  */
 final class OutputTest extends TestCase
 {
-    private LoggerInterface&\PHPUnit\Framework\MockObject\Stub $loggerMock;
-    private InputInterface&\PHPUnit\Framework\MockObject\Stub $inputMock;
+    private LoggerInterface $loggerMock;
+    private InputInterface $inputMock;
     private BufferedOutput $output;
 
     protected function setUp(): void

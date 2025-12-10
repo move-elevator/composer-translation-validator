@@ -27,7 +27,7 @@ use ReflectionClass;
  */
 final class DuplicateValuesValidatorTest extends TestCase
 {
-    private LoggerInterface&\PHPUnit\Framework\MockObject\Stub $loggerStub;
+    private LoggerInterface $loggerStub;
 
     protected function setUp(): void
     {
