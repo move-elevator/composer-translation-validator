@@ -22,8 +22,8 @@ jobs:
           # Lowest PHP, Lowest Compatible Symfony, Highest Composer
           - php: '8.1'
             symfony_constraint: '^5.0'
-            composer_version: '2.8'
-            name_suffix: ' (PHP 8.1, Symfony 5.x, Composer 2.8)'
+            composer_version: '2.9'
+            name_suffix: ' (PHP 8.1, Symfony 5.x, Composer 2.9)'
 
           # Lowest PHP, Symfony 6.x, Lowest Composer
           - php: '8.1'
@@ -34,8 +34,8 @@ jobs:
           # Lowest PHP, Symfony 6.x, Highest Composer
           - php: '8.1'
             symfony_constraint: '^6.0'
-            composer_version: '2.8'
-            name_suffix: ' (PHP 8.1, Symfony 6.x, Composer 2.8)'
+            composer_version: '2.9'
+            name_suffix: ' (PHP 8.1, Symfony 6.x, Composer 2.9)'
 
           # PHP 8.2, Symfony 6.x, Lowest Composer
           - php: '8.2'
@@ -46,8 +46,8 @@ jobs:
           # PHP 8.2, Symfony 6.x, Highest Composer
           - php: '8.2'
             symfony_constraint: '^6.0'
-            composer_version: '2.8'
-            name_suffix: ' (PHP 8.2, Symfony 6.x, Composer 2.8)'
+            composer_version: '2.9'
+            name_suffix: ' (PHP 8.2, Symfony 6.x, Composer 2.9)'
 
           # PHP 8.3, Symfony 6.x, Lowest Composer
           - php: '8.3'
@@ -55,35 +55,47 @@ jobs:
             composer_version: '2.2'
             name_suffix: ' (PHP 8.3, Symfony 6.x, Composer 2.2)'
 
-          # PHP 8.3, Highest Symfony, Highest Composer
+          # PHP 8.3, Symfony 7.x, Highest Composer
           - php: '8.3'
             symfony_constraint: '^7.0'
-            composer_version: '2.8'
-            name_suffix: ' (PHP 8.3, Symfony 7.x, Composer 2.8)'
+            composer_version: '2.9'
+            name_suffix: ' (PHP 8.3, Symfony 7.x, Composer 2.9)'
 
-          # PHP 8.4, Highest Symfony, Lowest Compatible Composer (2.4, since 2.2/2.3 are excluded for PHP 8.4)
+          # PHP 8.4, Symfony 7.x, Lowest Compatible Composer (2.4, since 2.2/2.3 are excluded for PHP 8.4)
           - php: '8.4'
             symfony_constraint: '^7.0'
             composer_version: '2.4'
             name_suffix: ' (PHP 8.4, Symfony 7.x, Composer 2.4)'
 
-          # PHP 8.4, Highest Symfony, Highest Composer
+          # PHP 8.4, Symfony 7.x, Highest Composer
           - php: '8.4'
             symfony_constraint: '^7.0'
-            composer_version: '2.8'
-            name_suffix: ' (PHP 8.4, Symfony 7.x, Composer 2.8)'
+            composer_version: '2.9'
+            name_suffix: ' (PHP 8.4, Symfony 7.x, Composer 2.9)'
 
-          # Highest PHP, Highest Symfony, Lowest Compatible Composer (2.4, since 2.2/2.3 are excluded for PHP 8.4)
+          # Highest PHP, Symfony 7.x, Lowest Compatible Composer (2.4, since 2.2/2.3 are excluded for PHP 8.4)
           - php: '8.5'
             symfony_constraint: '^7.0'
             composer_version: '2.4'
             name_suffix: ' (PHP 8.5, Symfony 7.x, Composer 2.4)'
 
-          # Highest PHP, Highest Symfony, Highest Composer
+          # Highest PHP, Symfony 7.x, Highest Composer
           - php: '8.5'
             symfony_constraint: '^7.0'
-            composer_version: '2.8'
-            name_suffix: ' (PHP 8.5, Symfony 7.x, Composer 2.8)'
+            composer_version: '2.9'
+            name_suffix: ' (PHP 8.5, Symfony 7.x, Composer 2.9)'
+
+          # Highest PHP, Highest Symfony, Lowest Compatible Composer (2.4, since 2.2/2.3 are excluded for PHP 8.4)
+          - php: '8.5'
+            symfony_constraint: '^8.0'
+            composer_version: '2.4'
+            name_suffix: ' (PHP 8.5, Symfony 8.x, Composer 2.4)'
+
+          # Highest PHP, Highest Symfony, Highest Composer
+          - php: '8.5'
+            symfony_constraint: '^8.0'
+            composer_version: '2.9'
+            name_suffix: ' (PHP 8.5, Symfony 8.x, Composer 2.9)'
 
     name: Test ${{ matrix.name_suffix }}
 
@@ -118,7 +130,7 @@ jobs:
         with:
           php-version: '8.4'
           extensions: libxml, simplexml, xdebug
-          tools: composer:'2.8'
+          tools: composer:'2.9'
 
       - name: Install Composer dependencies
         run: composer update --no-interaction --no-progress --no-suggest
