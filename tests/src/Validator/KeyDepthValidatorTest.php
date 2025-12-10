@@ -40,7 +40,7 @@ final class KeyDepthValidatorTest extends TestCase
             'app.modules.auth.forms.login.validation.rules.password.complexity.requirements', // 10 levels
         ];
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
@@ -78,7 +78,7 @@ final class KeyDepthValidatorTest extends TestCase
             'notifications.email.settings.frequency.daily.enabled', // 8 levels - exactly at threshold
         ];
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
@@ -100,11 +100,11 @@ final class KeyDepthValidatorTest extends TestCase
             'mixed.key_with-different:separators.in_one-key', // Should take highest depth
         ];
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
         $result = $validator->processFile($parser);
 
@@ -115,7 +115,7 @@ final class KeyDepthValidatorTest extends TestCase
 
     public function testProcessFileWithInvalidFile(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(null);
         $parser->method('getFileName')->willReturn('invalid.yaml');
 
@@ -132,7 +132,7 @@ final class KeyDepthValidatorTest extends TestCase
 
     public function testProcessFileWithEmptyKeys(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn([]);
         $parser->method('getFileName')->willReturn('empty.yaml');
 
@@ -158,11 +158,11 @@ final class KeyDepthValidatorTest extends TestCase
             'app.navigation.menu.items', // 4 levels - exceeds threshold
         ];
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
         $validator->setConfig($config);
         $result = $validator->processFile($parser);
@@ -186,11 +186,11 @@ final class KeyDepthValidatorTest extends TestCase
             'app.modules.auth.forms.login.validation.rules', // 7 levels
         ];
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
         $validator->setConfig($config);
         $result = $validator->processFile($parser);
@@ -208,11 +208,11 @@ final class KeyDepthValidatorTest extends TestCase
             'very.deep.nested.key.with.many.levels.that.exceed.default.threshold', // 11 levels
         ];
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
         $validator->setConfig($config);
         $result = $validator->processFile($parser);
@@ -229,11 +229,11 @@ final class KeyDepthValidatorTest extends TestCase
             'very.deep.nested.key.with.many.levels.that.exceed.default.threshold', // 11 levels
         ];
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
         $validator->setConfig(null);
         $result = $validator->processFile($parser);
@@ -253,11 +253,11 @@ final class KeyDepthValidatorTest extends TestCase
             'very.deep.nested.key.with.many.levels.that.exceed.default.threshold', // 11 levels
         ];
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
         $validator->setConfig($config);
         $result = $validator->processFile($parser);
@@ -269,7 +269,7 @@ final class KeyDepthValidatorTest extends TestCase
 
     public function testSupportsParser(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
 
         $expectedParsers = [
@@ -283,7 +283,7 @@ final class KeyDepthValidatorTest extends TestCase
 
     public function testGetShortName(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
 
         $this->assertSame('KeyDepthValidator', $validator->getShortName());
@@ -291,7 +291,7 @@ final class KeyDepthValidatorTest extends TestCase
 
     public function testResultTypeOnValidationFailure(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
 
         $this->assertSame(ResultType::WARNING, $validator->resultTypeOnValidationFailure());
@@ -299,7 +299,7 @@ final class KeyDepthValidatorTest extends TestCase
 
     public function testFormatIssueMessage(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
 
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
@@ -325,7 +325,7 @@ final class KeyDepthValidatorTest extends TestCase
 
     public function testFormatIssueMessageWithPrefix(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
 
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
@@ -350,7 +350,7 @@ final class KeyDepthValidatorTest extends TestCase
 
     public function testCalculateKeyDepthWithDifferentPatterns(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
 
         // Use reflection to test the private method

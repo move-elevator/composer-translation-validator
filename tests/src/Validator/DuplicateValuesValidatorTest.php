@@ -15,7 +15,6 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\{ParserInterface, XliffParser, YamlParser};
 use MoveElevator\ComposerTranslationValidator\Validator\{DuplicateValuesValidator, ResultType};
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
@@ -28,17 +27,17 @@ use ReflectionClass;
  */
 final class DuplicateValuesValidatorTest extends TestCase
 {
-    private LoggerInterface $loggerMock;
+    private LoggerInterface&\PHPUnit\Framework\MockObject\Stub $loggerStub;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->loggerMock = $this->createMock(LoggerInterface::class);
+        $this->loggerStub = $this->createStub(LoggerInterface::class);
     }
 
     public function testProcessFileWithDuplicateValues(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser->method('getContentByKey')
             ->willReturnMap([
@@ -48,7 +47,7 @@ final class DuplicateValuesValidatorTest extends TestCase
             ]);
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $validator = new DuplicateValuesValidator($this->loggerMock);
+        $validator = new DuplicateValuesValidator($this->loggerStub);
         $validator->processFile($parser);
 
         // Access protected property to check internal state
@@ -63,7 +62,7 @@ final class DuplicateValuesValidatorTest extends TestCase
 
     public function testProcessFileWithoutDuplicateValues(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser->method('getContentByKey')
             ->willReturnMap([
@@ -73,7 +72,7 @@ final class DuplicateValuesValidatorTest extends TestCase
             ]);
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $validator = new DuplicateValuesValidator($this->loggerMock);
+        $validator = new DuplicateValuesValidator($this->loggerStub);
         $validator->processFile($parser);
 
         $reflection = new ReflectionClass($validator);
@@ -91,17 +90,16 @@ final class DuplicateValuesValidatorTest extends TestCase
 
     public function testProcessFileWithInvalidFile(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(null);
         $parser->method('getFileName')->willReturn('invalid.xlf');
 
-        /** @var MockObject&LoggerInterface $loggerMock */
-        $loggerMock = $this->loggerMock;
+        $loggerMock = $this->createMock(LoggerInterface::class);
         $loggerMock->expects($this->once())
             ->method('error')
             ->with($this->stringContains('The source file invalid.xlf is not valid.'));
 
-        $validator = new DuplicateValuesValidator($this->loggerMock);
+        $validator = new DuplicateValuesValidator($loggerMock);
         $validator->processFile($parser);
 
         $reflection = new ReflectionClass($validator);
@@ -113,7 +111,7 @@ final class DuplicateValuesValidatorTest extends TestCase
 
     public function testPostProcessWithDuplicateValues(): void
     {
-        $validator = new DuplicateValuesValidator($this->loggerMock);
+        $validator = new DuplicateValuesValidator($this->loggerStub);
 
         // Manually set valuesArray to simulate previous processFile calls
         $reflection = new ReflectionClass($validator);
@@ -157,7 +155,7 @@ final class DuplicateValuesValidatorTest extends TestCase
 
     public function testPostProcessWithoutDuplicateValues(): void
     {
-        $validator = new DuplicateValuesValidator($this->loggerMock);
+        $validator = new DuplicateValuesValidator($this->loggerStub);
 
         // Manually set valuesArray with no duplicates
         $reflection = new ReflectionClass($validator);
@@ -179,7 +177,7 @@ final class DuplicateValuesValidatorTest extends TestCase
 
     public function testResetStateResetsValuesArray(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new DuplicateValuesValidator($logger);
 
         // Manually set valuesArray to simulate previous validation
@@ -211,7 +209,7 @@ final class DuplicateValuesValidatorTest extends TestCase
 
     public function testSupportsParser(): void
     {
-        $validator = new DuplicateValuesValidator($this->loggerMock);
+        $validator = new DuplicateValuesValidator($this->loggerStub);
         $supportedParsers = $validator->supportsParser();
 
         $this->assertContains(XliffParser::class, $supportedParsers);
@@ -220,19 +218,19 @@ final class DuplicateValuesValidatorTest extends TestCase
 
     public function testResultTypeOnValidationFailure(): void
     {
-        $validator = new DuplicateValuesValidator($this->loggerMock);
+        $validator = new DuplicateValuesValidator($this->loggerStub);
         $this->assertSame(ResultType::WARNING, $validator->resultTypeOnValidationFailure());
     }
 
     public function testGetShortName(): void
     {
-        $validator = new DuplicateValuesValidator($this->loggerMock);
+        $validator = new DuplicateValuesValidator($this->loggerStub);
         $this->assertSame('DuplicateValuesValidator', $validator->getShortName());
     }
 
     public function testFormatIssueMessage(): void
     {
-        $validator = new DuplicateValuesValidator($this->loggerMock);
+        $validator = new DuplicateValuesValidator($this->loggerStub);
 
         // DuplicateValuesValidator expects details to be value => keys array pairs
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
@@ -254,7 +252,7 @@ final class DuplicateValuesValidatorTest extends TestCase
 
     public function testProcessFileWithNullValues(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser->method('getContentByKey')
             ->willReturnMap([
@@ -264,7 +262,7 @@ final class DuplicateValuesValidatorTest extends TestCase
             ]);
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $validator = new DuplicateValuesValidator($this->loggerMock);
+        $validator = new DuplicateValuesValidator($this->loggerStub);
         $validator->processFile($parser);
 
         // Access protected property to check internal state

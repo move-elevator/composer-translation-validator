@@ -29,15 +29,15 @@ use Symfony\Component\Console\Output\BufferedOutput;
  */
 final class OutputTest extends TestCase
 {
-    private LoggerInterface $loggerMock;
-    private InputInterface $inputMock;
+    private LoggerInterface&\PHPUnit\Framework\MockObject\Stub $loggerMock;
+    private InputInterface&\PHPUnit\Framework\MockObject\Stub $inputMock;
     private BufferedOutput $output;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->loggerMock = $this->createMock(LoggerInterface::class);
-        $this->inputMock = $this->createMock(InputInterface::class);
+        $this->loggerMock = $this->createStub(LoggerInterface::class);
+        $this->inputMock = $this->createStub(InputInterface::class);
         $this->output = new BufferedOutput();
     }
 

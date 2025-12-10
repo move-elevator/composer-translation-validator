@@ -62,7 +62,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
     {
         // This reproduces the exact scenario from the bug report
         // where camelCase keys were incorrectly reported as inconsistent
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn([
             // Simulate a file with mostly snake_case but some camelCase dotted keys
             'some_snake_case_key',
@@ -91,7 +91,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
     public function testRealDotNotationKeysAreDetectedCorrectly(): void
     {
         // Test that real dot.notation keys are still detected correctly
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn([
             'user.profile.settings',     // proper dot.notation
             'teaser.image.variant',      // proper dot.notation
@@ -139,7 +139,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
     public function testConfigurationHintShownOnlyOnce(): void
     {
         // Test that configuration hint appears only once even with multiple issues
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['someKey', 'another_key', 'thirdKey']);
         $parser->method('getFileName')->willReturn('test.yaml');
 
@@ -210,7 +210,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
     public function testProcessFileWithoutConventionConfigured(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['someKey', 'another_key']);
         $parser->method('getFileName')->willReturn('test.yaml');
 
@@ -224,7 +224,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
     public function testProcessFileWithInvalidFile(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(null);
         $parser->method('getFileName')->willReturn('invalid.yaml');
 
@@ -286,7 +286,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
     #[DataProvider('snakeCaseProvider')]
     public function testSnakeCaseValidation(string $key, bool $isValid): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn([$key]);
         $parser->method('getFileName')->willReturn('test.yaml');
 
@@ -325,7 +325,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
     #[DataProvider('camelCaseProvider')]
     public function testCamelCaseValidation(string $key, bool $isValid): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn([$key]);
         $parser->method('getFileName')->willReturn('test.yaml');
 
@@ -360,7 +360,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
     public function testCustomPatternValidation(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['valid123', 'INVALID']);
         $parser->method('getFileName')->willReturn('test.yaml');
 
@@ -374,7 +374,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
     public function testSuggestionGeneration(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['userName', 'user-name', 'userProfile']);
         $parser->method('getFileName')->willReturn('test.yaml');
 
@@ -499,7 +499,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
     public function testAnalyzeKeyConsistencyWithEmptyKeys(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn([]);
         $parser->method('getFileName')->willReturn('test.yaml');
 
@@ -536,7 +536,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
     public function testConfigurationLoadingWithInvalidConvention(): void
     {
-        $config = $this->createMock(\MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig::class);
+        $config = $this->createStub(\MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig::class);
         $config->method('getValidatorSettings')
             ->with('KeyNamingConventionValidator')
             ->willReturn(['convention' => 'invalid_convention']);
@@ -552,7 +552,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
     public function testConfigurationLoadingWithInvalidCustomPattern(): void
     {
-        $config = $this->createMock(\MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig::class);
+        $config = $this->createStub(\MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig::class);
         $config->method('getValidatorSettings')
             ->with('KeyNamingConventionValidator')
             ->willReturn(['custom_pattern' => 'invalid[pattern']);
@@ -619,7 +619,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
     public function testMixedConventionsInDominantConventionLogic(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['valid_key', '$invalid@key', 'another_valid']);
         $parser->method('getFileName')->willReturn('test.yaml');
 
@@ -634,7 +634,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
     #[DataProvider('conversionProvider')]
     public function testKeyConversions(string $original, string $expectedSnake, string $expectedCamel, string $expectedDot, string $expectedKebab, string $expectedPascal): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn([$original]);
         $parser->method('getFileName')->willReturn('test.yaml');
 
@@ -699,7 +699,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
     #[DataProvider('snakeCaseValidationProvider')]
     public function testSnakeCaseValidationEdgeCases(array $keys, array $expectedInvalidKeys): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
@@ -743,7 +743,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
     #[DataProvider('mixedConventionProvider')]
     public function testMixedConventionDetection(array $keys, int $expectedIssues, ?string $expectedDominant = null): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
@@ -794,7 +794,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
     #[DataProvider('dotValidationProvider')]
     public function testValidationWithDots(string $convention, array $keys, int $expectedIssues, array $expectedSuggestions = []): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 

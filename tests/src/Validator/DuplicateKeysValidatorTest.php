@@ -28,7 +28,7 @@ final class DuplicateKeysValidatorTest extends TestCase
 {
     public function testProcessFileWithDuplicates(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key1', 'key3', 'key2']);
         $parser->method('getFileName')->willReturn('test.xlf');
 
@@ -43,7 +43,7 @@ final class DuplicateKeysValidatorTest extends TestCase
 
     public function testProcessFileWithoutDuplicates(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser->method('getFileName')->willReturn('test.xlf');
 
@@ -58,7 +58,7 @@ final class DuplicateKeysValidatorTest extends TestCase
 
     public function testProcessFileWithInvalidFile(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(null);
         $parser->method('getFileName')->willReturn('invalid.xlf');
 
@@ -75,7 +75,7 @@ final class DuplicateKeysValidatorTest extends TestCase
 
     public function testSupportsParser(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new DuplicateKeysValidator($logger);
 
         $expectedParsers = [
@@ -89,7 +89,7 @@ final class DuplicateKeysValidatorTest extends TestCase
 
     public function testGetShortName(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new DuplicateKeysValidator($logger);
 
         $this->assertSame('DuplicateKeysValidator', $validator->getShortName());
@@ -97,7 +97,7 @@ final class DuplicateKeysValidatorTest extends TestCase
 
     public function testResultTypeOnValidationFailure(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new DuplicateKeysValidator($logger);
 
         $this->assertSame(\MoveElevator\ComposerTranslationValidator\Validator\ResultType::ERROR, $validator->resultTypeOnValidationFailure());
@@ -105,7 +105,7 @@ final class DuplicateKeysValidatorTest extends TestCase
 
     public function testFormatIssueMessage(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new DuplicateKeysValidator($logger);
 
         // DuplicateKeysValidator expects details to be key => count pairs

@@ -16,7 +16,6 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use MoveElevator\ComposerTranslationValidator\Validator\{AbstractValidator, ValidatorInterface};
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
@@ -141,25 +140,25 @@ class TestParser implements ParserInterface
  */
 final class AbstractValidatorTest extends TestCase
 {
-    private LoggerInterface $loggerMock;
+    private LoggerInterface&\PHPUnit\Framework\MockObject\Stub $loggerStub;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->loggerMock = $this->createMock(LoggerInterface::class);
+        $this->loggerStub = $this->createStub(LoggerInterface::class);
     }
 
     public function testConstructorSetsLogger(): void
     {
-        $validator = new ConcreteValidator($this->loggerMock);
+        $validator = new ConcreteValidator($this->loggerStub);
         $reflection = new ReflectionClass($validator);
         $loggerProperty = $reflection->getProperty('logger');
-        $this->assertSame($this->loggerMock, $loggerProperty->getValue($validator));
+        $this->assertSame($this->loggerStub, $loggerProperty->getValue($validator));
     }
 
     public function testValidateWithNoIssues(): void
     {
-        $validator = new ConcreteValidator($this->loggerMock);
+        $validator = new ConcreteValidator($this->loggerStub);
         $validator->addPostProcessIssue = false;
         $files = ['/path/to/clean_file.xlf'];
         $parserClass = TestParser::class;
@@ -174,7 +173,7 @@ final class AbstractValidatorTest extends TestCase
      */
     public function testValidateWithIssues(): void
     {
-        $validator = new ConcreteValidator($this->loggerMock);
+        $validator = new ConcreteValidator($this->loggerStub);
         $validator->addPostProcessIssue = false;
         $files = ['file_with_issues.xlf'];
         $parserClass = TestParser::class;
@@ -197,12 +196,11 @@ final class AbstractValidatorTest extends TestCase
 
     public function testValidateWithDebugLogging(): void
     {
-        /** @var MockObject&LoggerInterface $loggerMock */
-        $loggerMock = $this->loggerMock;
+        $loggerMock = $this->createMock(LoggerInterface::class);
         $loggerMock->expects($this->atLeastOnce())
             ->method('debug');
 
-        $validator = new ConcreteValidator($this->loggerMock);
+        $validator = new ConcreteValidator($loggerMock);
         $files = ['/path/to/some_file.xlf'];
         $parserClass = TestParser::class;
 
@@ -211,7 +209,7 @@ final class AbstractValidatorTest extends TestCase
 
     public function testPostProcessAddsIssue(): void
     {
-        $validator = new ConcreteValidator($this->loggerMock);
+        $validator = new ConcreteValidator($this->loggerStub);
         $validator->addPostProcessIssue = true;
         $files = ['/path/to/some_file.xlf'];
         $parserClass = TestParser::class;
@@ -228,14 +226,14 @@ final class AbstractValidatorTest extends TestCase
 
     public function testHasIssuesReturnsFalseWhenNoIssues(): void
     {
-        $validator = new ConcreteValidator($this->loggerMock);
+        $validator = new ConcreteValidator($this->loggerStub);
 
         $this->assertFalse($validator->hasIssues());
     }
 
     public function testHasIssuesReturnsTrueWhenIssuesExist(): void
     {
-        $validator = new ConcreteValidator($this->loggerMock);
+        $validator = new ConcreteValidator($this->loggerStub);
         $issue = new Issue(
             'test.xlf',
             ['error' => 'test'],
@@ -249,14 +247,14 @@ final class AbstractValidatorTest extends TestCase
 
     public function testGetIssuesReturnsEmptyArrayInitially(): void
     {
-        $validator = new ConcreteValidator($this->loggerMock);
+        $validator = new ConcreteValidator($this->loggerStub);
 
         $this->assertSame([], $validator->getIssues());
     }
 
     public function testGetIssuesReturnsAddedIssues(): void
     {
-        $validator = new ConcreteValidator($this->loggerMock);
+        $validator = new ConcreteValidator($this->loggerStub);
         $issue1 = new Issue(
             'file1.xlf',
             ['error1'],
@@ -281,7 +279,7 @@ final class AbstractValidatorTest extends TestCase
 
     public function testAddIssueAddsIssueToCollection(): void
     {
-        $validator = new ConcreteValidator($this->loggerMock);
+        $validator = new ConcreteValidator($this->loggerStub);
         $issue = new Issue(
             'test.xlf',
             ['test_error'],
@@ -299,7 +297,7 @@ final class AbstractValidatorTest extends TestCase
 
     public function testResetStateResetsIssues(): void
     {
-        $validator = new ConcreteValidator($this->loggerMock);
+        $validator = new ConcreteValidator($this->loggerStub);
         $issue = new Issue(
             'test.xlf',
             ['error'],
@@ -321,7 +319,7 @@ final class AbstractValidatorTest extends TestCase
 
     public function testValidateCallsResetStateBeforeProcessing(): void
     {
-        $validator = new ConcreteValidator($this->loggerMock);
+        $validator = new ConcreteValidator($this->loggerStub);
 
         // Add an issue first
         $issue = new Issue(

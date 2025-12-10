@@ -99,7 +99,7 @@ final class ClassUtilityTest extends TestCase
     public function testInstantiateWithNonExistentClass(): void
     {
         $loggedMessages = [];
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $logger->method('error')->willReturnCallback(function (string|Stringable $message) use (&$loggedMessages): void {
             $loggedMessages[] = $message;
         });
@@ -113,7 +113,7 @@ final class ClassUtilityTest extends TestCase
     public function testInstantiateWithClassNotImplementingInterface(): void
     {
         $loggedMessages = [];
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $logger->method('error')->willReturnCallback(function (string|Stringable $message) use (&$loggedMessages): void {
             $loggedMessages[] = $message;
         });

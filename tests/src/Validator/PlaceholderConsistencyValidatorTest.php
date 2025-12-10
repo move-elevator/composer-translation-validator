@@ -34,7 +34,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 {
     public function testProcessFileWithValidFile(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2']);
         $parser->method('getContentByKey')->willReturnMap([
             ['key1', 'Hello %name%!'],
@@ -54,7 +54,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testProcessFileWithInvalidFile(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(null);
         $parser->method('getFileName')->willReturn('invalid.xlf');
 
@@ -71,17 +71,17 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testPostProcessWithConsistentPlaceholders(): void
     {
-        $parser1 = $this->createMock(ParserInterface::class);
+        $parser1 = $this->createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['key1']);
         $parser1->method('getContentByKey')->willReturn('Hello %name%!');
         $parser1->method('getFileName')->willReturn('en.xlf');
 
-        $parser2 = $this->createMock(ParserInterface::class);
+        $parser2 = $this->createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['key1']);
         $parser2->method('getContentByKey')->willReturn('Hallo %name%!');
         $parser2->method('getFileName')->willReturn('de.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
         $validator->processFile($parser1);
@@ -93,17 +93,17 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testPostProcessWithInconsistentPlaceholders(): void
     {
-        $parser1 = $this->createMock(ParserInterface::class);
+        $parser1 = $this->createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['key1']);
         $parser1->method('getContentByKey')->willReturn('Hello %name%!');
         $parser1->method('getFileName')->willReturn('en.xlf');
 
-        $parser2 = $this->createMock(ParserInterface::class);
+        $parser2 = $this->createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['key1']);
         $parser2->method('getContentByKey')->willReturn('Hallo %username%!');
         $parser2->method('getFileName')->willReturn('de.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
         $validator->processFile($parser1);
@@ -117,12 +117,12 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testExtractSymfonyStylePlaceholders(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1']);
         $parser->method('getContentByKey')->willReturn('Hello %name% and %surname%!');
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
         $reflectionClass = new ReflectionClass($validator);
@@ -139,12 +139,12 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testExtractIcuStylePlaceholders(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1']);
         $parser->method('getContentByKey')->willReturn('Hello {name} and {surname}!');
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
         $reflectionClass = new ReflectionClass($validator);
@@ -158,12 +158,12 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testExtractTwigStylePlaceholders(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1']);
         $parser->method('getContentByKey')->willReturn('Hello {{ name }} and {{ surname }}!');
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
         $reflectionClass = new ReflectionClass($validator);
@@ -177,12 +177,12 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testExtractPrintfStylePlaceholders(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1']);
         $parser->method('getContentByKey')->willReturn('Hello %s and %1$s!');
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
         $reflectionClass = new ReflectionClass($validator);
@@ -196,12 +196,12 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testExtractLaravelStylePlaceholders(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1']);
         $parser->method('getContentByKey')->willReturn('Hello :name and :surname!');
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
         $reflectionClass = new ReflectionClass($validator);
@@ -215,12 +215,12 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testExtractMixedStylePlaceholders(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1']);
         $parser->method('getContentByKey')->willReturn('Hello %name% and {user} with %s!');
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
         $reflectionClass = new ReflectionClass($validator);
@@ -235,7 +235,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testSupportsParser(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
         $expectedParsers = [XliffParser::class, YamlParser::class, JsonParser::class, PhpParser::class];
@@ -244,7 +244,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testGetShortName(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
         $this->assertSame('PlaceholderConsistencyValidator', $validator->getShortName());
@@ -252,7 +252,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testResultTypeOnValidationFailure(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
         $this->assertSame(ResultType::WARNING, $validator->resultTypeOnValidationFailure());
@@ -260,7 +260,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testShouldShowDetailedOutput(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
         $this->assertTrue($validator->shouldShowDetailedOutput());
@@ -268,7 +268,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testFormatIssueMessage(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
         $issue = new Issue(
@@ -295,7 +295,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testFormatIssueMessageWithPrefix(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
         $issue = new Issue(
@@ -316,7 +316,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testDistributeIssuesForDisplay(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
         $issue = new Issue(
@@ -345,7 +345,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testRenderDetailedOutput(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
         $issue = new Issue(
@@ -379,10 +379,10 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testResetState(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1']);
         $parser->method('getContentByKey')->willReturn('Hello %name%!');
         $parser->method('getFileName')->willReturn('test.xlf');
@@ -402,7 +402,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testFindPlaceholderInconsistenciesWithSingleFile(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
         $reflectionClass = new ReflectionClass($validator);
@@ -418,7 +418,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
 
     public function testComplexPlaceholderInconsistencyScenario(): void
     {
-        $parser1 = $this->createMock(ParserInterface::class);
+        $parser1 = $this->createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['greeting', 'farewell']);
         $parser1->method('getContentByKey')->willReturnMap([
             ['greeting', 'Hello %name%! Welcome to {site}'],
@@ -426,7 +426,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         ]);
         $parser1->method('getFileName')->willReturn('en.xlf');
 
-        $parser2 = $this->createMock(ParserInterface::class);
+        $parser2 = $this->createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['greeting', 'farewell']);
         $parser2->method('getContentByKey')->willReturnMap([
             ['greeting', 'Hallo %username%! Willkommen bei {site}'],
@@ -434,7 +434,7 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         ]);
         $parser2->method('getFileName')->willReturn('de.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new PlaceholderConsistencyValidator($logger);
 
         $validator->processFile($parser1);

@@ -43,8 +43,8 @@ final class PluginExtendedTest extends TestCase
 
     public function testActivate(): void
     {
-        $composer = $this->createMock(Composer::class);
-        $io = $this->createMock(IOInterface::class);
+        $composer = $this->createStub(Composer::class);
+        $io = $this->createStub(IOInterface::class);
 
         // Should not throw any exception - test passes if no exception is thrown
         $this->plugin->activate($composer, $io);
@@ -53,8 +53,8 @@ final class PluginExtendedTest extends TestCase
 
     public function testDeactivate(): void
     {
-        $composer = $this->createMock(Composer::class);
-        $io = $this->createMock(IOInterface::class);
+        $composer = $this->createStub(Composer::class);
+        $io = $this->createStub(IOInterface::class);
 
         // Should not throw any exception - test passes if no exception is thrown
         $this->plugin->deactivate($composer, $io);
@@ -63,8 +63,8 @@ final class PluginExtendedTest extends TestCase
 
     public function testUninstall(): void
     {
-        $composer = $this->createMock(Composer::class);
-        $io = $this->createMock(IOInterface::class);
+        $composer = $this->createStub(Composer::class);
+        $io = $this->createStub(IOInterface::class);
 
         // Should not throw any exception - test passes if no exception is thrown
         $this->plugin->uninstall($composer, $io);

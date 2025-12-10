@@ -16,7 +16,6 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Result\{Issue, ValidationResult, ValidationResultJsonRenderer, ValidationStatistics};
 use MoveElevator\ComposerTranslationValidator\Validator\{ResultType, ValidatorInterface};
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -278,7 +277,7 @@ final class ValidationResultJsonRendererTest extends TestCase
     public function testGroupIssuesByFileWithMultipleValidators(): void
     {
         // Create first validator with issues
-        $validator1 = $this->createMock(ValidatorInterface::class);
+        $validator1 = $this->createStub(ValidatorInterface::class);
         $validator1->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
         $validator1->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error 1");
         $validator1->method('getShortName')->willReturn('Validator1');
@@ -288,7 +287,7 @@ final class ValidationResultJsonRendererTest extends TestCase
         $validator1->method('distributeIssuesForDisplay')->willReturnCallback(fn (FileSet $fileSet): array => ['/test/path/test.xlf' => [$issue1]]);
 
         // Create second validator with issues
-        $validator2 = $this->createMock(ValidatorInterface::class);
+        $validator2 = $this->createStub(ValidatorInterface::class);
         $validator2->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
         $validator2->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error 2");
         $validator2->method('getShortName')->willReturn('Validator2');
@@ -419,12 +418,12 @@ final class ValidationResultJsonRendererTest extends TestCase
     }
 
     /**
-     * @return MockObject&ValidatorInterface
+     * @return \PHPUnit\Framework\MockObject\Stub&ValidatorInterface
      */
-    private function createMockValidator(): MockObject
+    private function createMockValidator(): \PHPUnit\Framework\MockObject\Stub
     {
-        /** @var MockObject&ValidatorInterface $validator */
-        $validator = $this->createMock(ValidatorInterface::class);
+        /** @var \PHPUnit\Framework\MockObject\Stub&ValidatorInterface $validator */
+        $validator = $this->createStub(ValidatorInterface::class);
         $validator->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
         $validator->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error");
         $validator->method('distributeIssuesForDisplay')->willReturnCallback(function (FileSet $fileSet) use ($validator): array {

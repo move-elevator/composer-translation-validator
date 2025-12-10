@@ -163,7 +163,7 @@ final class EncodingValidatorTest extends TestCase
         file_put_contents($filePath, "\xEF\xBB\xBF{\"key\": \"value\"}"); // Valid JSON with BOM
 
         // Mock parser to avoid BOM parsing issues
-        $mockParser = $this->createMock(JsonParser::class);
+        $mockParser = $this->createStub(JsonParser::class);
         $mockParser->method('getFilePath')->willReturn($filePath);
 
         $issues = $this->validator->processFile($mockParser);
@@ -210,7 +210,7 @@ final class EncodingValidatorTest extends TestCase
         };
 
         $filePath = '/non/existent/file.yaml';
-        $parser = $this->createMock(YamlParser::class);
+        $parser = $this->createStub(YamlParser::class);
         $parser->method('getFilePath')->willReturn($filePath);
         $parser->method('getFileName')->willReturn('file.yaml');
 
@@ -224,7 +224,7 @@ final class EncodingValidatorTest extends TestCase
         file_put_contents($filePath, '{}'); // Empty but valid JSON object
 
         // Create a mock parser that simulates an empty file content
-        $mockParser = $this->createMock(JsonParser::class);
+        $mockParser = $this->createStub(JsonParser::class);
         $mockParser->method('getFilePath')->willReturn($filePath);
 
         // Manually test the empty file path in the validator
@@ -295,7 +295,7 @@ final class EncodingValidatorTest extends TestCase
         file_put_contents($filePath, ''); // Completely empty file
 
         // Create a mock parser that can handle empty files
-        $mockParser = $this->createMock(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface::class);
+        $mockParser = $this->createStub(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface::class);
         $mockParser->method('getFilePath')->willReturn($filePath);
         $mockParser->method('getFileName')->willReturn('just-empty-content.txt');
 
@@ -311,7 +311,7 @@ final class EncodingValidatorTest extends TestCase
         file_put_contents($filePath, 'test content');
 
         // Create mock parser
-        $mockParser = $this->createMock(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface::class);
+        $mockParser = $this->createStub(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface::class);
         $mockParser->method('getFilePath')->willReturn($filePath);
         $mockParser->method('getFileName')->willReturn('temp-file.yaml');
 

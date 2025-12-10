@@ -16,7 +16,6 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Result\{Issue, ValidationResult, ValidationResultCliRenderer};
 use MoveElevator\ComposerTranslationValidator\Validator\{ResultType, ValidatorInterface};
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\{BufferedOutput, OutputInterface};
@@ -31,17 +30,15 @@ final class ValidationResultCliRendererTest extends TestCase
 {
     private ValidationResultCliRenderer $renderer;
     private BufferedOutput $output;
-    private MockObject $input;
+    private InputInterface&\PHPUnit\Framework\MockObject\Stub $input;
 
     protected function setUp(): void
     {
         $this->output = new BufferedOutput();
-        /** @var MockObject&InputInterface $input */
-        $input = $this->createMock(InputInterface::class);
-        $this->input = $input;
+        $this->input = $this->createStub(InputInterface::class);
         $this->renderer = new ValidationResultCliRenderer(
             $this->output,
-            $input,
+            $this->input,
         );
     }
 
@@ -86,11 +83,9 @@ final class ValidationResultCliRendererTest extends TestCase
 
     public function testRenderWithDryRun(): void
     {
-        /** @var MockObject&InputInterface $input */
-        $input = $this->input;
         $renderer = new ValidationResultCliRenderer(
             $this->output,
-            $input,
+            $this->input,
             true,  // dry run
         );
 
@@ -113,11 +108,9 @@ final class ValidationResultCliRendererTest extends TestCase
 
     public function testRenderWithStrictMode(): void
     {
-        /** @var MockObject&InputInterface $input */
-        $input = $this->input;
         $renderer = new ValidationResultCliRenderer(
             $this->output,
-            $input,
+            $this->input,
             false, // dry run
             true,   // strict
         );
@@ -297,11 +290,9 @@ final class ValidationResultCliRendererTest extends TestCase
     {
         $validationResult = new ValidationResult([], ResultType::WARNING);
 
-        /** @var MockObject&InputInterface $input */
-        $input = $this->input;
         $renderer = new ValidationResultCliRenderer(
             $this->output,
-            $input,
+            $this->input,
             false, // not dry run
             false,  // not strict
         );
@@ -317,11 +308,9 @@ final class ValidationResultCliRendererTest extends TestCase
     {
         $validationResult = new ValidationResult([], ResultType::WARNING);
 
-        /** @var MockObject&InputInterface $input */
-        $input = $this->input;
         $renderer = new ValidationResultCliRenderer(
             $this->output,
-            $input,
+            $this->input,
             false, // not dry run
             false,  // not strict
         );
@@ -335,12 +324,12 @@ final class ValidationResultCliRendererTest extends TestCase
     }
 
     /**
-     * @return MockObject&ValidatorInterface
+     * @return \PHPUnit\Framework\MockObject\Stub&ValidatorInterface
      */
-    private function createMockValidator(ResultType $resultType = ResultType::ERROR): MockObject
+    private function createMockValidator(ResultType $resultType = ResultType::ERROR): \PHPUnit\Framework\MockObject\Stub
     {
-        /** @var MockObject&ValidatorInterface $validator */
-        $validator = $this->createMock(ValidatorInterface::class);
+        /** @var \PHPUnit\Framework\MockObject\Stub&ValidatorInterface $validator */
+        $validator = $this->createStub(ValidatorInterface::class);
         $validator->method('resultTypeOnValidationFailure')->willReturn($resultType);
         $validator->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = '', bool $isVerbose = false): string => $isVerbose ? '- <fg=red>Error</> Validation error' : "- <fg=red>Error</> {$prefix}Validation error");
         $validator->method('distributeIssuesForDisplay')->willReturnCallback(function (FileSet $fileSet) use ($validator): array {
