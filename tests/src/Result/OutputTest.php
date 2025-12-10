@@ -36,8 +36,8 @@ final class OutputTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->loggerMock = $this->createMock(LoggerInterface::class);
-        $this->inputMock = $this->createMock(InputInterface::class);
+        $this->loggerMock = $this->createStub(LoggerInterface::class);
+        $this->inputMock = $this->createStub(InputInterface::class);
         $this->output = new BufferedOutput();
     }
 

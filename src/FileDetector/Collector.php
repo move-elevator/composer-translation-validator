@@ -121,7 +121,7 @@ class Collector
             return array_filter(
                 $globFiles,
                 static fn ($file) => in_array(
-                    pathinfo($file, \PATHINFO_EXTENSION),
+                    pathinfo((string) $file, \PATHINFO_EXTENSION),
                     $supportedExtensions,
                     true,
                 ),

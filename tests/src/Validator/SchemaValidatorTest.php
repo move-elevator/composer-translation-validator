@@ -82,7 +82,7 @@ EOT
 
     public function testProcessFileWithValidXliff(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('getFilePath')->willReturn($this->validXliffFile);
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -96,10 +96,10 @@ EOT
 
     public function testProcessFileWithInvalidXliff(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('getFilePath')->willReturn($this->invalidXliffFile);
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new XliffSchemaValidator($logger);
         $result = $validator->processFile($parser);
 
@@ -110,7 +110,7 @@ EOT
 
     public function testProcessFileWithNonExistentFile(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('getFilePath')->willReturn('/non/existent/file.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -126,7 +126,7 @@ EOT
 
     public function testSupportsParser(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new XliffSchemaValidator($logger);
 
         $this->assertSame([\MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class], $validator->supportsParser());
@@ -134,7 +134,7 @@ EOT
 
     public function testFormatIssueMessage(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new XliffSchemaValidator($logger);
 
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
@@ -160,7 +160,7 @@ EOT
 
     public function testFormatIssueMessageWithWarning(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new XliffSchemaValidator($logger);
 
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
@@ -185,7 +185,7 @@ EOT
 
     public function testFormatIssueMessageSingleError(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new XliffSchemaValidator($logger);
 
         // With the new behavior, each error is a separate Issue
@@ -211,7 +211,7 @@ EOT
 
     public function testFormatIssueMessageEmptyDetails(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new XliffSchemaValidator($logger);
 
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
@@ -230,7 +230,7 @@ EOT
 
     public function testGetShortName(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new XliffSchemaValidator($logger);
 
         $this->assertSame('XliffSchemaValidator', $validator->getShortName());
@@ -265,7 +265,7 @@ EOT
             }
         };
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('getFilePath')->willReturn('/non/existent/file.xlf');
         $parser->method('getFileName')->willReturn('nonexistent.xlf');
 
@@ -309,7 +309,7 @@ EOT
             }
         };
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('getFilePath')->willReturn($this->validXliffFile);
         $parser->method('getFileName')->willReturn('valid.xlf');
 
@@ -353,7 +353,7 @@ EOT
             }
         };
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('getFilePath')->willReturn($this->validXliffFile);
         $parser->method('getFileName')->willReturn('valid.xlf');
 

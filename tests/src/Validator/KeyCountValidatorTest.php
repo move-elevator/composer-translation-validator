@@ -31,7 +31,7 @@ final class KeyCountValidatorTest extends TestCase
     {
         $keys = array_map(fn ($i) => "key$i", range(1, 350));
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.xlf');
 
@@ -54,7 +54,7 @@ final class KeyCountValidatorTest extends TestCase
     {
         $keys = array_map(fn ($i) => "key$i", range(1, 250));
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.xlf');
 
@@ -71,7 +71,7 @@ final class KeyCountValidatorTest extends TestCase
     {
         $keys = array_map(fn ($i) => "key$i", range(1, 300));
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.xlf');
 
@@ -86,7 +86,7 @@ final class KeyCountValidatorTest extends TestCase
 
     public function testProcessFileWithInvalidFile(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(null);
         $parser->method('getFileName')->willReturn('invalid.xlf');
 
@@ -103,7 +103,7 @@ final class KeyCountValidatorTest extends TestCase
 
     public function testProcessFileWithEmptyKeys(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn([]);
         $parser->method('getFileName')->willReturn('empty.xlf');
 
@@ -124,11 +124,11 @@ final class KeyCountValidatorTest extends TestCase
 
         $keys = array_map(fn ($i) => "key$i", range(1, 200));
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyCountValidator($logger);
         $validator->setConfig($config);
         $result = $validator->processFile($parser);
@@ -150,11 +150,11 @@ final class KeyCountValidatorTest extends TestCase
 
         $keys = array_map(fn ($i) => "key$i", range(1, 200));
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyCountValidator($logger);
         $validator->setConfig($config);
         $result = $validator->processFile($parser);
@@ -170,11 +170,11 @@ final class KeyCountValidatorTest extends TestCase
 
         $keys = array_map(fn ($i) => "key$i", range(1, 350));
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyCountValidator($logger);
         $validator->setConfig($config);
         $result = $validator->processFile($parser);
@@ -188,11 +188,11 @@ final class KeyCountValidatorTest extends TestCase
     {
         $keys = array_map(fn ($i) => "key$i", range(1, 350));
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyCountValidator($logger);
         $validator->setConfig(null);
         $result = $validator->processFile($parser);
@@ -210,11 +210,11 @@ final class KeyCountValidatorTest extends TestCase
 
         $keys = array_map(fn ($i) => "key$i", range(1, 350));
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyCountValidator($logger);
         $validator->setConfig($config);
         $result = $validator->processFile($parser);
@@ -226,7 +226,7 @@ final class KeyCountValidatorTest extends TestCase
 
     public function testSupportsParser(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyCountValidator($logger);
 
         $expectedParsers = [
@@ -240,7 +240,7 @@ final class KeyCountValidatorTest extends TestCase
 
     public function testGetShortName(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyCountValidator($logger);
 
         $this->assertSame('KeyCountValidator', $validator->getShortName());
@@ -248,7 +248,7 @@ final class KeyCountValidatorTest extends TestCase
 
     public function testResultTypeOnValidationFailure(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyCountValidator($logger);
 
         $this->assertSame(ResultType::WARNING, $validator->resultTypeOnValidationFailure());
@@ -256,7 +256,7 @@ final class KeyCountValidatorTest extends TestCase
 
     public function testFormatIssueMessage(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyCountValidator($logger);
 
         // KeyCountValidator expects details to contain message, key_count, and threshold
@@ -281,7 +281,7 @@ final class KeyCountValidatorTest extends TestCase
 
     public function testFormatIssueMessageWithPrefix(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new KeyCountValidator($logger);
 
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(

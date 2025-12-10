@@ -28,8 +28,8 @@ final class ValidationResultRendererFactoryTest extends TestCase
 {
     public function testCreateCliRenderer(): void
     {
-        $output = $this->createMock(OutputInterface::class);
-        $input = $this->createMock(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
+        $input = $this->createStub(InputInterface::class);
 
         $renderer = ValidationResultRendererFactory::create(
             FormatType::CLI,
@@ -44,8 +44,8 @@ final class ValidationResultRendererFactoryTest extends TestCase
 
     public function testCreateCliRendererWithDryRun(): void
     {
-        $output = $this->createMock(OutputInterface::class);
-        $input = $this->createMock(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
+        $input = $this->createStub(InputInterface::class);
 
         $renderer = ValidationResultRendererFactory::create(
             FormatType::CLI,
@@ -60,8 +60,8 @@ final class ValidationResultRendererFactoryTest extends TestCase
 
     public function testCreateCliRendererWithStrictMode(): void
     {
-        $output = $this->createMock(OutputInterface::class);
-        $input = $this->createMock(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
+        $input = $this->createStub(InputInterface::class);
 
         $renderer = ValidationResultRendererFactory::create(
             FormatType::CLI,
@@ -76,8 +76,8 @@ final class ValidationResultRendererFactoryTest extends TestCase
 
     public function testCreateJsonRenderer(): void
     {
-        $output = $this->createMock(OutputInterface::class);
-        $input = $this->createMock(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
+        $input = $this->createStub(InputInterface::class);
 
         $renderer = ValidationResultRendererFactory::create(
             FormatType::JSON,
@@ -92,8 +92,8 @@ final class ValidationResultRendererFactoryTest extends TestCase
 
     public function testCreateJsonRendererWithDryRun(): void
     {
-        $output = $this->createMock(OutputInterface::class);
-        $input = $this->createMock(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
+        $input = $this->createStub(InputInterface::class);
 
         $renderer = ValidationResultRendererFactory::create(
             FormatType::JSON,
@@ -108,8 +108,8 @@ final class ValidationResultRendererFactoryTest extends TestCase
 
     public function testCreateJsonRendererWithStrictMode(): void
     {
-        $output = $this->createMock(OutputInterface::class);
-        $input = $this->createMock(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
+        $input = $this->createStub(InputInterface::class);
 
         $renderer = ValidationResultRendererFactory::create(
             FormatType::JSON,
@@ -124,8 +124,8 @@ final class ValidationResultRendererFactoryTest extends TestCase
 
     public function testCreateGitHubRenderer(): void
     {
-        $output = $this->createMock(OutputInterface::class);
-        $input = $this->createMock(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
+        $input = $this->createStub(InputInterface::class);
 
         $renderer = ValidationResultRendererFactory::create(
             FormatType::GITHUB,
@@ -140,8 +140,8 @@ final class ValidationResultRendererFactoryTest extends TestCase
 
     public function testCreateGitHubRendererWithDryRun(): void
     {
-        $output = $this->createMock(OutputInterface::class);
-        $input = $this->createMock(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
+        $input = $this->createStub(InputInterface::class);
 
         $renderer = ValidationResultRendererFactory::create(
             FormatType::GITHUB,
@@ -156,8 +156,8 @@ final class ValidationResultRendererFactoryTest extends TestCase
 
     public function testCreateGitHubRendererWithStrictMode(): void
     {
-        $output = $this->createMock(OutputInterface::class);
-        $input = $this->createMock(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
+        $input = $this->createStub(InputInterface::class);
 
         $renderer = ValidationResultRendererFactory::create(
             FormatType::GITHUB,

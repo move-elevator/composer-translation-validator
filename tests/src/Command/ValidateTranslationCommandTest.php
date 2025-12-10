@@ -17,6 +17,7 @@ use Composer\Console\Application;
 use MoveElevator\ComposerTranslationValidator\Command\ValidateTranslationCommand;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 use Throwable;
@@ -33,7 +34,7 @@ final class ValidateTranslationCommandTest extends TestCase
     public function testExecuteWithValidArguments(): void
     {
         $application = new Application();
-        $application->add(new ValidateTranslationCommand());
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
@@ -51,7 +52,7 @@ final class ValidateTranslationCommandTest extends TestCase
     public function testExecuteWithNoPaths(): void
     {
         $application = new Application();
-        $application->add(new ValidateTranslationCommand());
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
@@ -67,7 +68,7 @@ final class ValidateTranslationCommandTest extends TestCase
     public function testExecuteWithNoFilesFound(): void
     {
         $application = new Application();
-        $application->add(new ValidateTranslationCommand());
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
@@ -83,7 +84,7 @@ final class ValidateTranslationCommandTest extends TestCase
     public function testExecuteWithInvalidValidator(): void
     {
         $application = new Application();
-        $application->add(new ValidateTranslationCommand());
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
@@ -105,7 +106,7 @@ final class ValidateTranslationCommandTest extends TestCase
     public function testExecuteWithErrors(): void
     {
         $application = new Application();
-        $application->add(new ValidateTranslationCommand());
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
@@ -121,7 +122,7 @@ final class ValidateTranslationCommandTest extends TestCase
     public function testExecuteWithErrorsAndDryRun(): void
     {
         $application = new Application();
-        $application->add(new ValidateTranslationCommand());
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
@@ -138,7 +139,7 @@ final class ValidateTranslationCommandTest extends TestCase
     public function testExecuteWithJsonFormat(): void
     {
         $application = new Application();
-        $application->add(new ValidateTranslationCommand());
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
@@ -162,7 +163,7 @@ final class ValidateTranslationCommandTest extends TestCase
     public function testExecuteWithErrorsAndVerboseOutput(): void
     {
         $application = new Application();
-        $application->add(new ValidateTranslationCommand());
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
@@ -180,7 +181,7 @@ final class ValidateTranslationCommandTest extends TestCase
     public function testExecuteWithJsonFormatAndErrors(): void
     {
         $application = new Application();
-        $application->add(new ValidateTranslationCommand());
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
@@ -204,7 +205,7 @@ final class ValidateTranslationCommandTest extends TestCase
     public function testExecuteWithInvalidFormat(): void
     {
         $application = new Application();
-        $application->add(new ValidateTranslationCommand());
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
@@ -221,7 +222,7 @@ final class ValidateTranslationCommandTest extends TestCase
     public function testExecuteWithNullValidator(): void
     {
         $application = new Application();
-        $application->add(new ValidateTranslationCommand());
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
@@ -238,7 +239,7 @@ final class ValidateTranslationCommandTest extends TestCase
     public function testExecuteWithRecursiveOption(): void
     {
         $application = new Application();
-        $application->add(new ValidateTranslationCommand());
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
@@ -257,7 +258,7 @@ final class ValidateTranslationCommandTest extends TestCase
     public function testExecuteWithRecursiveShortOption(): void
     {
         $application = new Application();
-        $application->add(new ValidateTranslationCommand());
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
@@ -276,7 +277,7 @@ final class ValidateTranslationCommandTest extends TestCase
     public function testExecuteWithRecursiveAndJsonFormat(): void
     {
         $application = new Application();
-        $application->add(new ValidateTranslationCommand());
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
@@ -295,7 +296,7 @@ final class ValidateTranslationCommandTest extends TestCase
     public function testRecursiveOptionCanBeUsedWithOtherOptions(): void
     {
         $application = new Application();
-        $application->add(new ValidateTranslationCommand());
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
@@ -313,7 +314,7 @@ final class ValidateTranslationCommandTest extends TestCase
     public function testExecuteWithExcludeOption(): void
     {
         $application = new Application();
-        $application->add(new ValidateTranslationCommand());
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
@@ -332,7 +333,7 @@ final class ValidateTranslationCommandTest extends TestCase
     public function testExecuteWithMultipleExcludePatterns(): void
     {
         $application = new Application();
-        $application->add(new ValidateTranslationCommand());
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
@@ -351,7 +352,7 @@ final class ValidateTranslationCommandTest extends TestCase
     public function testExecuteWithExcludeShortOption(): void
     {
         $application = new Application();
-        $application->add(new ValidateTranslationCommand());
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
@@ -365,5 +366,19 @@ final class ValidateTranslationCommandTest extends TestCase
         $output = $commandTester->getDisplay();
         $this->assertStringContainsString('Language validation', $output);
         $this->assertSame(0, $commandTester->getStatusCode());
+    }
+
+    /**
+     * Adds a command to the application in a way compatible with both Symfony Console 5-7 and 8+.
+     */
+    private function addCommandToApplication(Application $application, Command $command): void
+    {
+        // @phpstan-ignore function.alreadyNarrowedType (method only exists in Symfony Console 8+)
+        if (method_exists($application, 'addCommand')) {
+            $application->addCommand($command);
+        } else {
+            // @phpstan-ignore method.notFound (Symfony Console < 8)
+            $application->add($command);
+        }
     }
 }

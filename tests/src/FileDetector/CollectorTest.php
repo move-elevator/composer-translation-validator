@@ -50,8 +50,8 @@ final class CollectorTest extends TestCase
     {
         file_put_contents($this->tempDir.'/test.xlf', 'content');
 
-        $logger = $this->createMock(LoggerInterface::class);
-        $detector = $this->createMock(DetectorInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
+        $detector = $this->createStub(DetectorInterface::class);
         $detector->method('mapTranslationSet')->willReturn(['mapped_data']);
 
         $collector = new Collector($logger);
@@ -70,7 +70,7 @@ final class CollectorTest extends TestCase
             ->method('error')
             ->with($this->stringContains('The provided path'));
 
-        $detector = $this->createMock(DetectorInterface::class);
+        $detector = $this->createStub(DetectorInterface::class);
         $collector = new Collector($logger);
 
         $result = $collector->collectFiles(['/non/existent/path'], $detector, null);
@@ -87,7 +87,7 @@ final class CollectorTest extends TestCase
             ->method('debug')
             ->with($this->stringContains('No files found for parser class'));
 
-        $detector = $this->createMock(DetectorInterface::class);
+        $detector = $this->createStub(DetectorInterface::class);
         $collector = new Collector($logger);
 
         $result = $collector->collectFiles([$this->tempDir], $detector, null);
@@ -105,7 +105,7 @@ final class CollectorTest extends TestCase
             ->method('debug')
             ->with($this->stringContains('No files found for parser class'));
 
-        $detector = $this->createMock(DetectorInterface::class);
+        $detector = $this->createStub(DetectorInterface::class);
         $collector = new Collector($logger);
 
         $result = $collector->collectFiles([$this->tempDir], $detector, null);
@@ -118,8 +118,8 @@ final class CollectorTest extends TestCase
         file_put_contents($this->tempDir.'/test.yaml', 'content');
         file_put_contents($this->tempDir.'/test.yml', 'content');
 
-        $logger = $this->createMock(LoggerInterface::class);
-        $detector = $this->createMock(DetectorInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
+        $detector = $this->createStub(DetectorInterface::class);
         $detector->method('mapTranslationSet')->willReturn(['mapped_yaml_data']);
 
         $collector = new Collector($logger);
@@ -137,8 +137,8 @@ final class CollectorTest extends TestCase
         file_put_contents($this->tempDir.'/root.xlf', 'root content');
         file_put_contents($this->tempDir.'/level1/nested.xlf', 'nested content');
 
-        $logger = $this->createMock(LoggerInterface::class);
-        $detector = $this->createMock(DetectorInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
+        $detector = $this->createStub(DetectorInterface::class);
         $detector->method('mapTranslationSet')->willReturn(['recursive_data']);
 
         $collector = new Collector($logger);
@@ -154,8 +154,8 @@ final class CollectorTest extends TestCase
         file_put_contents($this->tempDir.'/test.json', '{"key": "value"}');
         file_put_contents($this->tempDir.'/test.yaml', 'key: value');
 
-        $logger = $this->createMock(LoggerInterface::class);
-        $detector = $this->createMock(DetectorInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
+        $detector = $this->createStub(DetectorInterface::class);
         $detector->method('mapTranslationSet')->willReturn(['mixed_data']);
 
         $collector = new Collector($logger);
@@ -172,7 +172,7 @@ final class CollectorTest extends TestCase
         file_put_contents($this->tempDir.'/keep.xlf', 'keep content');
         file_put_contents($this->tempDir.'/exclude.xlf', 'exclude content');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $detector = $this->createMock(DetectorInterface::class);
         $detector->expects($this->once())
             ->method('mapTranslationSet')
@@ -190,7 +190,7 @@ final class CollectorTest extends TestCase
     {
         file_put_contents($this->tempDir.'/test.xlf', 'xliff content');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $collector = new Collector($logger);
 
         $result = $collector->collectFiles([$this->tempDir], null, null, false);
@@ -207,7 +207,7 @@ final class CollectorTest extends TestCase
             ->method('debug')
             ->with($this->stringContains('No files found for parser class'));
 
-        $detector = $this->createMock(DetectorInterface::class);
+        $detector = $this->createStub(DetectorInterface::class);
         $collector = new Collector($logger);
 
         $result = $collector->collectFiles([$this->tempDir], $detector, null);

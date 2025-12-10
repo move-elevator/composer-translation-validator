@@ -180,7 +180,7 @@ final class ValidationResultGitHubRendererTest extends TestCase
         ResultType $resultType = ResultType::SUCCESS,
         ?ValidationStatistics $statistics = null,
     ): ValidationResult {
-        $validator = $this->createMock(AbstractValidator::class);
+        $validator = $this->createStub(AbstractValidator::class);
         $validator->method('hasIssues')->willReturn(!empty($issues));
         $validator->method('getIssues')->willReturn($issues);
         $validator->method('resultTypeOnValidationFailure')->willReturn($resultType);
@@ -193,7 +193,7 @@ final class ValidationResultGitHubRendererTest extends TestCase
             }, []),
         );
 
-        $fileSet = $this->createMock(FileSet::class);
+        $fileSet = $this->createStub(FileSet::class);
 
         /** @var array<ValidatorInterface> $validators */
         $validators = [$validator];

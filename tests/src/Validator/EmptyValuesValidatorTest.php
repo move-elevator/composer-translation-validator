@@ -29,7 +29,7 @@ final class EmptyValuesValidatorTest extends TestCase
 {
     public function testProcessFileWithEmptyValues(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser->method('getContentByKey')->willReturnMap([
             ['key1', 'Valid content'],
@@ -49,7 +49,7 @@ final class EmptyValuesValidatorTest extends TestCase
 
     public function testProcessFileWithoutEmptyValues(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser->method('getContentByKey')->willReturnMap([
             ['key1', 'Valid content'],
@@ -69,7 +69,7 @@ final class EmptyValuesValidatorTest extends TestCase
 
     public function testProcessFileWithNullValues(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2']);
         $parser->method('getContentByKey')->willReturnMap([
             ['key1', 'Valid content'],
@@ -88,7 +88,7 @@ final class EmptyValuesValidatorTest extends TestCase
 
     public function testProcessFileWithMixedWhitespaceValues(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3', 'key4']);
         $parser->method('getContentByKey')->willReturnMap([
             ['key1', 'Valid content'],
@@ -114,7 +114,7 @@ final class EmptyValuesValidatorTest extends TestCase
 
     public function testProcessFileWithInvalidFile(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(null);
         $parser->method('getFileName')->willReturn('invalid.xlf');
 
@@ -131,7 +131,7 @@ final class EmptyValuesValidatorTest extends TestCase
 
     public function testSupportsParser(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new EmptyValuesValidator($logger);
 
         $expectedParsers = [XliffParser::class, YamlParser::class, JsonParser::class, PhpParser::class];
@@ -140,7 +140,7 @@ final class EmptyValuesValidatorTest extends TestCase
 
     public function testGetShortName(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new EmptyValuesValidator($logger);
 
         $this->assertSame('EmptyValuesValidator', $validator->getShortName());
@@ -148,7 +148,7 @@ final class EmptyValuesValidatorTest extends TestCase
 
     public function testResultTypeOnValidationFailure(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new EmptyValuesValidator($logger);
 
         $this->assertSame(ResultType::WARNING, $validator->resultTypeOnValidationFailure());
@@ -156,7 +156,7 @@ final class EmptyValuesValidatorTest extends TestCase
 
     public function testFormatIssueMessageWithEmptyValue(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new EmptyValuesValidator($logger);
 
         $issue = new Issue(
@@ -176,7 +176,7 @@ final class EmptyValuesValidatorTest extends TestCase
 
     public function testFormatIssueMessageWithWhitespaceValue(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new EmptyValuesValidator($logger);
 
         $issue = new Issue(
@@ -196,7 +196,7 @@ final class EmptyValuesValidatorTest extends TestCase
 
     public function testFormatIssueMessageWithMultipleEmptyValues(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new EmptyValuesValidator($logger);
 
         $issue = new Issue(
@@ -216,7 +216,7 @@ final class EmptyValuesValidatorTest extends TestCase
 
     public function testFormatIssueMessageWithPrefix(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new EmptyValuesValidator($logger);
 
         $issue = new Issue(
@@ -234,7 +234,7 @@ final class EmptyValuesValidatorTest extends TestCase
 
     public function testProcessFileWithEmptyKeysArray(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn([]);
         $parser->method('getFileName')->willReturn('test.xlf');
 
@@ -249,7 +249,7 @@ final class EmptyValuesValidatorTest extends TestCase
 
     public function testProcessFileWithPartiallyEmptyValues(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3', 'key4', 'key5']);
         $parser->method('getContentByKey')->willReturnMap([
             ['key1', 'Valid content'],

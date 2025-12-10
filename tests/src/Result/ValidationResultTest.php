@@ -60,7 +60,7 @@ final class ValidationResultTest extends TestCase
 
     public function testHasIssuesWithValidatorsWithoutIssues(): void
     {
-        $validator = $this->createMock(ValidatorInterface::class);
+        $validator = $this->createStub(ValidatorInterface::class);
         $validator->method('hasIssues')->willReturn(false);
 
         $result = new ValidationResult([$validator], ResultType::SUCCESS);
@@ -70,10 +70,10 @@ final class ValidationResultTest extends TestCase
 
     public function testHasIssuesWithValidatorsWithIssues(): void
     {
-        $validator1 = $this->createMock(ValidatorInterface::class);
+        $validator1 = $this->createStub(ValidatorInterface::class);
         $validator1->method('hasIssues')->willReturn(false);
 
-        $validator2 = $this->createMock(ValidatorInterface::class);
+        $validator2 = $this->createStub(ValidatorInterface::class);
         $validator2->method('hasIssues')->willReturn(true);
 
         $result = new ValidationResult([$validator1, $validator2], ResultType::ERROR);
@@ -83,13 +83,13 @@ final class ValidationResultTest extends TestCase
 
     public function testGetValidatorsWithIssues(): void
     {
-        $validator1 = $this->createMock(ValidatorInterface::class);
+        $validator1 = $this->createStub(ValidatorInterface::class);
         $validator1->method('hasIssues')->willReturn(false);
 
-        $validator2 = $this->createMock(ValidatorInterface::class);
+        $validator2 = $this->createStub(ValidatorInterface::class);
         $validator2->method('hasIssues')->willReturn(true);
 
-        $validator3 = $this->createMock(ValidatorInterface::class);
+        $validator3 = $this->createStub(ValidatorInterface::class);
         $validator3->method('hasIssues')->willReturn(true);
 
         $result = new ValidationResult([$validator1, $validator2, $validator3], ResultType::WARNING);
@@ -104,8 +104,8 @@ final class ValidationResultTest extends TestCase
 
     public function testGetAllValidators(): void
     {
-        $validator1 = $this->createMock(ValidatorInterface::class);
-        $validator2 = $this->createMock(ValidatorInterface::class);
+        $validator1 = $this->createStub(ValidatorInterface::class);
+        $validator2 = $this->createStub(ValidatorInterface::class);
 
         $validators = [$validator1, $validator2];
         $result = new ValidationResult($validators, ResultType::SUCCESS);
@@ -123,7 +123,7 @@ final class ValidationResultTest extends TestCase
 
     public function testGetValidatorFileSetPairs(): void
     {
-        $validator = $this->createMock(ValidatorInterface::class);
+        $validator = $this->createStub(ValidatorInterface::class);
         $fileSet = new FileSet('TestParser', '/test/path', 'testSet', ['test.xlf']);
 
         $pairs = [

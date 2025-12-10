@@ -32,7 +32,7 @@ final class HtmlTagValidatorTest extends TestCase
 {
     public function testProcessFileWithValidFile(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2']);
         $parser->method('getContentByKey')->willReturnMap([
             ['key1', 'Hello <strong>world</strong>!'],
@@ -48,7 +48,7 @@ final class HtmlTagValidatorTest extends TestCase
 
     public function testProcessFileWithInvalidFile(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(null);
         $parser->method('getFileName')->willReturn('invalid.xlf');
 
@@ -95,12 +95,12 @@ final class HtmlTagValidatorTest extends TestCase
 
     public function testPostProcessWithConsistentHtml(): void
     {
-        $parser1 = $this->createMock(ParserInterface::class);
+        $parser1 = $this->createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['greeting']);
         $parser1->method('getContentByKey')->willReturn('Hello <strong>world</strong>!');
         $parser1->method('getFileName')->willReturn('en.xlf');
 
-        $parser2 = $this->createMock(ParserInterface::class);
+        $parser2 = $this->createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['greeting']);
         $parser2->method('getContentByKey')->willReturn('Hallo <strong>Welt</strong>!');
         $parser2->method('getFileName')->willReturn('de.xlf');
@@ -115,12 +115,12 @@ final class HtmlTagValidatorTest extends TestCase
 
     public function testPostProcessWithInconsistentHtml(): void
     {
-        $parser1 = $this->createMock(ParserInterface::class);
+        $parser1 = $this->createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['greeting']);
         $parser1->method('getContentByKey')->willReturn('Hello <strong>world</strong>!');
         $parser1->method('getFileName')->willReturn('en.xlf');
 
-        $parser2 = $this->createMock(ParserInterface::class);
+        $parser2 = $this->createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['greeting']);
         $parser2->method('getContentByKey')->willReturn('Hallo <b>Welt</b>!');
         $parser2->method('getFileName')->willReturn('de.xlf');
@@ -142,12 +142,12 @@ final class HtmlTagValidatorTest extends TestCase
 
     public function testPostProcessWithHtmlErrors(): void
     {
-        $parser1 = $this->createMock(ParserInterface::class);
+        $parser1 = $this->createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['greeting']);
         $parser1->method('getContentByKey')->willReturn('Hello <strong>world</strong>!');
         $parser1->method('getFileName')->willReturn('en.xlf');
 
-        $parser2 = $this->createMock(ParserInterface::class);
+        $parser2 = $this->createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['greeting']);
         $parser2->method('getContentByKey')->willReturn('Hallo <strong>Welt!');
         $parser2->method('getFileName')->willReturn('de.xlf');

@@ -29,15 +29,15 @@ final class MismatchValidatorTest extends TestCase
 {
     public function testProcessFile(): void
     {
-        $parser1 = $this->createMock(ParserInterface::class);
+        $parser1 = $this->createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['key1', 'key2']);
         $parser1->method('getFileName')->willReturn('file1.xlf');
 
-        $parser2 = $this->createMock(ParserInterface::class);
+        $parser2 = $this->createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['key2', 'key3']);
         $parser2->method('getFileName')->willReturn('file2.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $validator->processFile($parser1);
@@ -59,11 +59,11 @@ final class MismatchValidatorTest extends TestCase
 
     public function testProcessFileWithEmptyFile(): void
     {
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn([]);
         $parser->method('getFileName')->willReturn('empty.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
         $result = $validator->processFile($parser);
 
@@ -79,15 +79,15 @@ final class MismatchValidatorTest extends TestCase
 
     public function testPostProcessWithMismatches(): void
     {
-        $parser1 = $this->createMock(ParserInterface::class);
+        $parser1 = $this->createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['key1', 'key2']);
         $parser1->method('getFileName')->willReturn('file1.xlf');
 
-        $parser2 = $this->createMock(ParserInterface::class);
+        $parser2 = $this->createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['key2', 'key3']);
         $parser2->method('getFileName')->willReturn('file2.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $validator->processFile($parser1);
@@ -144,15 +144,15 @@ final class MismatchValidatorTest extends TestCase
 
     public function testPostProcessWithoutMismatches(): void
     {
-        $parser1 = $this->createMock(ParserInterface::class);
+        $parser1 = $this->createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['key1', 'key2']);
         $parser1->method('getFileName')->willReturn('file1.xlf');
 
-        $parser2 = $this->createMock(ParserInterface::class);
+        $parser2 = $this->createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['key1', 'key2']);
         $parser2->method('getFileName')->willReturn('file2.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $validator->processFile($parser1);
@@ -170,7 +170,7 @@ final class MismatchValidatorTest extends TestCase
 
     public function testResetStateResetsKeyArray(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         // Manually set keyArray to simulate previous validation
@@ -197,7 +197,7 @@ final class MismatchValidatorTest extends TestCase
 
     public function testSupportsParser(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $this->assertSame([
@@ -210,7 +210,7 @@ final class MismatchValidatorTest extends TestCase
 
     public function testDistributeIssuesForDisplay(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         // Create a mismatch issue
@@ -246,7 +246,7 @@ final class MismatchValidatorTest extends TestCase
 
     public function testShouldShowDetailedOutput(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $this->assertTrue($validator->shouldShowDetailedOutput());
@@ -254,7 +254,7 @@ final class MismatchValidatorTest extends TestCase
 
     public function testRenderDetailedOutput(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $output = new \Symfony\Component\Console\Output\BufferedOutput();
@@ -288,7 +288,7 @@ final class MismatchValidatorTest extends TestCase
 
     public function testFormatIssueMessage(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
@@ -314,7 +314,7 @@ final class MismatchValidatorTest extends TestCase
 
     public function testGetShortName(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $this->assertSame('MismatchValidator', $validator->getShortName());
@@ -322,15 +322,15 @@ final class MismatchValidatorTest extends TestCase
 
     public function testPostProcessDetectsEmptyFileWithMissingKeys(): void
     {
-        $parser1 = $this->createMock(ParserInterface::class);
+        $parser1 = $this->createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['key1', 'key2']);
         $parser1->method('getFileName')->willReturn('source.xlf');
 
-        $parser2 = $this->createMock(ParserInterface::class);
+        $parser2 = $this->createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn([]);
         $parser2->method('getFileName')->willReturn('empty.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $validator->processFile($parser1);
@@ -374,21 +374,21 @@ final class MismatchValidatorTest extends TestCase
     public function testPostProcessWithMixedScenario(): void
     {
         // Source file with 6 keys
-        $parser1 = $this->createMock(ParserInterface::class);
+        $parser1 = $this->createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['key1', 'key2', 'key3', 'key4', 'key5', 'key6']);
         $parser1->method('getFileName')->willReturn('source.xlf');
 
         // Partial translation file with 3 keys
-        $parser2 = $this->createMock(ParserInterface::class);
+        $parser2 = $this->createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser2->method('getFileName')->willReturn('partial.xlf');
 
         // Empty translation file
-        $parser3 = $this->createMock(ParserInterface::class);
+        $parser3 = $this->createStub(ParserInterface::class);
         $parser3->method('extractKeys')->willReturn([]);
         $parser3->method('getFileName')->willReturn('empty.xlf');
 
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $validator->processFile($parser1);

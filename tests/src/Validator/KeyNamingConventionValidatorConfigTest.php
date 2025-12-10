@@ -36,7 +36,7 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
             'convention' => 'snake_case',
         ]);
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['userName', 'valid_key']);
         $parser->method('getContentByKey')->willReturnMap([
             ['userName', 'User Name'],
@@ -66,7 +66,7 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
             'custom_pattern' => '/^[a-z]+$/', // Only lowercase letters
         ]);
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['validkey', 'invalidKey123']);
         $parser->method('getContentByKey')->willReturnMap([
             ['validkey', 'Valid Key'],
@@ -152,7 +152,7 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
             'custom_pattern' => '/^[A-Z][a-z]*$/', // PascalCase pattern
         ]);
 
-        $parser = $this->createMock(ParserInterface::class);
+        $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['Valid', 'invalid']);
         $parser->method('getContentByKey')->willReturnMap([
             ['Valid', 'Valid Key'],

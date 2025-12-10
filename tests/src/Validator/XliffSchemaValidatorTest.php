@@ -16,7 +16,6 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 use MoveElevator\ComposerTranslationValidator\Parser\XliffParser;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use MoveElevator\ComposerTranslationValidator\Validator\XliffSchemaValidator;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -30,11 +29,11 @@ final class XliffSchemaValidatorTest extends TestCase
 {
     private XliffSchemaValidator $validator;
 
-    private LoggerInterface&MockObject $logger;
+    private LoggerInterface $logger;
 
     protected function setUp(): void
     {
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->logger = $this->createStub(LoggerInterface::class);
         $this->validator = new XliffSchemaValidator($this->logger);
     }
 
@@ -70,7 +69,7 @@ XML;
         $tempFile = tempnam(sys_get_temp_dir(), 'xliff_test_');
         file_put_contents($tempFile, $validXliff);
 
-        $parser = $this->createMock(XliffParser::class);
+        $parser = $this->createStub(XliffParser::class);
         $parser->method('getFilePath')->willReturn($tempFile);
         $parser->method('getFileName')->willReturn('test.xlf');
 
@@ -83,15 +82,17 @@ XML;
 
     public function testProcessFileWithNonExistentFile(): void
     {
-        $parser = $this->createMock(XliffParser::class);
+        $parser = $this->createStub(XliffParser::class);
         $parser->method('getFilePath')->willReturn('/non/existent/file.xlf');
         $parser->method('getFileName')->willReturn('non_existent.xlf');
 
-        $this->logger->expects($this->once())
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
             ->method('error')
             ->with('File does not exist: non_existent.xlf');
 
-        $result = $this->validator->processFile($parser);
+        $validator = new XliffSchemaValidator($logger);
+        $result = $validator->processFile($parser);
 
         $this->assertSame([], $result);
     }
@@ -103,15 +104,17 @@ XML;
         $tempFile = tempnam(sys_get_temp_dir(), 'xliff_test_');
         file_put_contents($tempFile, $invalidXml);
 
-        $parser = $this->createMock(XliffParser::class);
+        $parser = $this->createStub(XliffParser::class);
         $parser->method('getFilePath')->willReturn($tempFile);
         $parser->method('getFileName')->willReturn('invalid.xlf');
 
-        $this->logger->expects($this->once())
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
             ->method('error')
             ->with($this->stringContains('Failed to validate XML schema:'));
 
-        $result = $this->validator->processFile($parser);
+        $validator = new XliffSchemaValidator($logger);
+        $result = $validator->processFile($parser);
 
         unlink($tempFile);
 
@@ -137,15 +140,17 @@ XML;
         $tempFile = tempnam(sys_get_temp_dir(), 'xliff_test_');
         file_put_contents($tempFile, $unsupportedXliff);
 
-        $parser = $this->createMock(XliffParser::class);
+        $parser = $this->createStub(XliffParser::class);
         $parser->method('getFilePath')->willReturn($tempFile);
         $parser->method('getFileName')->willReturn('unsupported.xlf');
 
-        $this->logger->expects($this->once())
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
             ->method('notice')
             ->with($this->stringContains('Skipping XliffSchemaValidator: No support implemented for loading XLIFF version'));
 
-        $result = $this->validator->processFile($parser);
+        $validator = new XliffSchemaValidator($logger);
+        $result = $validator->processFile($parser);
 
         unlink($tempFile);
 
