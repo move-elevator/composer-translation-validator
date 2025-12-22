@@ -2803,12 +2803,12 @@
             "version": "0.1.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/jackd248/php-cs-fixer-preset.git",
+                "url": "https://github.com/konradmichalik/php-cs-fixer-preset.git",
                 "reference": "600fc181ae51e8262afc122ee9f743e75193dbcb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jackd248/php-cs-fixer-preset/zipball/600fc181ae51e8262afc122ee9f743e75193dbcb",
+                "url": "https://api.github.com/repos/konradmichalik/php-cs-fixer-preset/zipball/600fc181ae51e8262afc122ee9f743e75193dbcb",
                 "reference": "600fc181ae51e8262afc122ee9f743e75193dbcb",
                 "shasum": ""
             },
@@ -2851,8 +2851,8 @@
             ],
             "description": "Preset configuration for PHP-CS-Fixer",
             "support": {
-                "issues": "https://github.com/jackd248/php-cs-fixer-preset/issues",
-                "source": "https://github.com/jackd248/php-cs-fixer-preset/tree/0.1.1"
+                "issues": "https://github.com/konradmichalik/php-cs-fixer-preset/issues",
+                "source": "https://github.com/konradmichalik/php-cs-fixer-preset/tree/0.1.1"
             },
             "time": "2025-11-24T14:15:10+00:00"
         },
@@ -2861,12 +2861,12 @@
             "version": "0.3.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/jackd248/php-doc-block-header-fixer.git",
+                "url": "https://github.com/konradmichalik/php-doc-block-header-fixer.git",
                 "reference": "791ae4adae63d5c06534f31a9462b41064301692"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jackd248/php-doc-block-header-fixer/zipball/791ae4adae63d5c06534f31a9462b41064301692",
+                "url": "https://api.github.com/repos/konradmichalik/php-doc-block-header-fixer/zipball/791ae4adae63d5c06534f31a9462b41064301692",
                 "reference": "791ae4adae63d5c06534f31a9462b41064301692",
                 "shasum": ""
             },
@@ -2913,8 +2913,8 @@
                 "phpdoc"
             ],
             "support": {
-                "issues": "https://github.com/jackd248/php-doc-block-header-fixer/issues",
-                "source": "https://github.com/jackd248/php-doc-block-header-fixer/tree/0.3.3"
+                "issues": "https://github.com/konradmichalik/php-doc-block-header-fixer/issues",
+                "source": "https://github.com/konradmichalik/php-doc-block-header-fixer/tree/0.3.3"
             },
             "time": "2025-12-03T16:58:20+00:00"
         },
