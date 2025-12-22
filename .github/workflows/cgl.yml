@@ -6,6 +6,6 @@ on:
 
 jobs:
   cgl:
-    uses: jackd248/reusable-github-actions/.github/workflows/cgl.yml@main
+    uses: konradmichalik/reusable-github-actions/.github/workflows/cgl.yml@main
     with:
       php-version: '8.4'
