@@ -9,3 +9,9 @@
 /site
 /tests/composer.lock
 /tests/vendor
+
+# Node.js / VitePress
+node_modules/
+docs/.vitepress/cache/
+docs/.vitepress/dist/
+package-lock.json
