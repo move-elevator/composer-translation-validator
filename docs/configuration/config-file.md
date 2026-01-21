@@ -1,30 +1,20 @@
-# Config file
+# Configuration File
 
-The Composer Translation Validator can be configured using various configuration file formats
-to customize validation behavior, specify paths and control which validators are used.
+The Composer Translation Validator can be configured using various configuration file formats to customize validation behavior, specify paths and control which validators are used.
 
-> [!TIP]
-> The configuration schema is validated automatically when using JSON or YAML format files.
->
-> See the [JSON Schema](../schema/translation-validator.schema.json) section for more details.
+::: tip
+The configuration schema is validated automatically when using JSON or YAML format files.
+:::
 
-> [!NOTE]
-> **DuplicateValuesValidator is disabled by default** (opt-in)
->
-> The `DuplicateValuesValidator` is skipped by default to reduce noise in validation results.
-> You can enable it by explicitly including it in the `only` option or by setting an empty `skip` array.
-
-See the [Configuration Schema](schema.md) for details on available options.
-
-## Formats
+## Supported Formats
 
 The configuration can be specified in the following formats:
 
-* **JSON** (`.json`)
-* **PHP** (`.php`)
-* **YAML** (`.yaml` or `.yml`)
+- **PHP** (`.php`) - Full programmatic control
+- **JSON** (`.json`) - Simple structured format
+- **YAML** (`.yaml` or `.yml`) - Human-readable format
 
-## Configuration in PHP file
+## PHP Configuration
 
 Create a PHP file that returns a configured `TranslationValidatorConfig` instance:
 
@@ -48,9 +38,9 @@ $config->setPaths(['translations/', 'locale/'])
 return $config;
 ```
 
-### Enabling DuplicateValuesValidator
+### Enabling DuplicateValuesValidator in PHP
 
-To enable the `DuplicateValuesValidator`, explicitly include it in the `only` option:
+Explicitly include it in the `only` option:
 
 ```php
 <?php
@@ -74,12 +64,12 @@ Or remove it from the skip list:
 ```php
 $config = new TranslationValidatorConfig();
 $config->setPaths(['translations/'])
-    ->setSkip([]); // Empty skip list enables all validators including DuplicateValuesValidator
+    ->setSkip([]); // Empty skip list enables all validators
 
 return $config;
 ```
 
-## Configuration in JSON file
+## JSON Configuration
 
 Create a JSON file with the following structure:
 
@@ -92,7 +82,6 @@ Create a JSON file with the following structure:
   "validators": [
     "MoveElevator\\ComposerTranslationValidator\\Validator\\MismatchValidator",
     "MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator",
-    "MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateValuesValidator",
     "MoveElevator\\ComposerTranslationValidator\\Validator\\XliffSchemaValidator"
   ],
   "file-detectors": [
@@ -118,7 +107,7 @@ Create a JSON file with the following structure:
 
 ### Enabling DuplicateValuesValidator in JSON
 
-To enable the `DuplicateValuesValidator`:
+Set an empty skip array:
 
 ```json
 {
@@ -138,7 +127,7 @@ Or use the `only` option:
 }
 ```
 
-## Configuration in YAML file
+## YAML Configuration
 
 Create a YAML file with the following structure:
 
@@ -150,7 +139,6 @@ paths:
 validators:
   - MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator
   - MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator
-  - MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator
   - MoveElevator\ComposerTranslationValidator\Validator\XliffSchemaValidator
 
 file-detectors:
@@ -175,7 +163,7 @@ verbose: false
 
 ### Enabling DuplicateValuesValidator in YAML
 
-To enable the `DuplicateValuesValidator`:
+Set an empty skip array:
 
 ```yaml
 paths:
@@ -192,6 +180,22 @@ only:
   - MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator
 ```
 
+## Validator Settings
+
+Some validators accept additional configuration options:
+
+```yaml
+validator-settings:
+  KeyCountValidator:
+    threshold: 500  # Warn when files have more than 500 keys
+  KeyDepthValidator:
+    threshold: 5    # Warn when keys have more than 5 nesting levels
+  KeyNamingConventionValidator:
+    convention: snake_case  # Enforce snake_case naming
+```
+
+See the [Validators Reference](/reference/validators) for validator-specific options.
+
 ## Configuration in composer.json
 
 You can also specify the path to a configuration file in your `composer.json`:
@@ -206,9 +210,9 @@ You can also specify the path to a configuration file in your `composer.json`:
 }
 ```
 
-## Auto-detection
+## Auto-Detection Order
 
-The plugin automatically searches for configuration files in the following order:
+The plugin automatically searches for configuration files in this order:
 
 1. `translation-validator.php`
 2. `translation-validator.json`

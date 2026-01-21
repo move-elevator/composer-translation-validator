@@ -1,0 +1,67 @@
+/* Adjust nav bar title to accommodate longer site titles */
+.VPNavBarTitle {
+  flex-shrink: 0;
+  padding-right: 4px;
+}
+
+.VPNavBarTitle .title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+/* Reduce search bar width to make room for title */
+.VPNavBarSearch {
+  padding-left: 4px !important;
+}
+
+.VPNavBarSearch .DocSearch-Button {
+  width: 110px !important;
+  min-width: 110px !important;
+}
+
+.VPNavBarSearch .DocSearch-Button-Placeholder {
+  display: none !important;
+}
+
+/* Reduce spacing in nav menu */
+.VPNavBar .VPNavBarMenu {
+  padding-left: 8px;
+}
+
+/* Tighter nav items */
+.VPNavBarMenuLink {
+  padding: 0 8px !important;
+  font-size: 13px !important;
+}
+
+/* On smaller screens */
+@media (max-width: 1100px) {
+  .VPNavBarTitle .title {
+    font-size: 12px;
+  }
+
+  .VPNavBarSearch .DocSearch-Button {
+    width: 90px !important;
+    min-width: 90px !important;
+  }
+
+  .VPNavBarMenuLink {
+    padding: 0 6px !important;
+  }
+}
+
+@media (max-width: 960px) {
+  .VPNavBarTitle .title {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 768px) {
+  .VPNavBarTitle .title {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

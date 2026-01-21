@@ -2,8 +2,7 @@
 /.github                  export-ignore
 /bin                      export-ignore
 /docker                   export-ignore
-/docs/build               export-ignore
-/docs/hooks.py            export-ignore
+/docs                     export-ignore
 /tests                    export-ignore
 /.dockerignore            export-ignore
 /.editorconfig            export-ignore
@@ -13,7 +12,7 @@
 /codecov.yml              export-ignore
 /composer.lock            export-ignore
 /Dockerfile               export-ignore
-/mkdocs.yml               export-ignore
+/package.json             export-ignore
 /phpstan.neon             export-ignore
 /phpunit.xml              export-ignore
 /phpunit.coverage.xml     export-ignore
