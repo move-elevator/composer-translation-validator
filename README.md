@@ -15,14 +15,14 @@ Supports XLIFF, YAML, JSON and PHP translation files.
 
 **[View Documentation](https://move-elevator.github.io/composer-translation-validator/)**
 
-## Features
+## ✨ Features
 
 * Autodetect coherent language files
 * Supports various [translation file formats](https://move-elevator.github.io/composer-translation-validator/reference/file-formats)
 * Provides multiple [validators](https://move-elevator.github.io/composer-translation-validator/reference/validators)
 * Configurable via separate [configuration files](https://move-elevator.github.io/composer-translation-validator/configuration/)
 
-## Installation
+## 🔥 Installation
 
 [![Packagist](https://img.shields.io/packagist/v/move-elevator/composer-translation-validator?label=version&logo=packagist)](https://packagist.org/packages/move-elevator/composer-translation-validator)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/move-elevator/composer-translation-validator?color=brightgreen)](https://packagist.org/packages/move-elevator/composer-translation-validator)
@@ -32,7 +32,7 @@ Supports XLIFF, YAML, JSON and PHP translation files.
 composer require --dev move-elevator/composer-translation-validator
 ```
 
-## Usage
+## 📊 Usage
 
 Validate your translation files by running the command:
 
@@ -44,7 +44,7 @@ composer validate-translations ./translations
 
 The command `validate-translations` can be used to validate translation files in your project. It will automatically detect the translation files based on the [supported formats](https://move-elevator.github.io/composer-translation-validator/reference/file-formats) and run the configured [validators](https://move-elevator.github.io/composer-translation-validator/reference/validators). See the [CLI documentation](https://move-elevator.github.io/composer-translation-validator/reference/cli) for more details.
 
-## Documentation
+## 📝 Documentation
 
 Full documentation is available at **[move-elevator.github.io/composer-translation-validator](https://move-elevator.github.io/composer-translation-validator/)**.
 
@@ -57,10 +57,10 @@ Full documentation is available at **[move-elevator.github.io/composer-translati
 - [File Formats](https://move-elevator.github.io/composer-translation-validator/reference/file-formats)
 - [File Detection](https://move-elevator.github.io/composer-translation-validator/reference/file-detection)
 
-## Contributing
+## 🧑‍💻 Contributing
 
 Please have a look at [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-## License
+## ⭐ License
 
 This project is licensed under [GNU General Public License 3.0 (or later)](LICENSE).
