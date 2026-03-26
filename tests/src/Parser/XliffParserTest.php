@@ -88,6 +88,57 @@ EOT;
 </xliff>
 EOT;
 
+    private string $xliff2File;
+    private string $xliff2Content = <<<'EOT'
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:2.0" version="2.0" srcLang="en">
+  <file id="messages">
+    <unit id="key1">
+      <segment>
+        <source>Source 1</source>
+      </segment>
+    </unit>
+    <unit id="key2">
+      <segment>
+        <source>Source 2</source>
+      </segment>
+    </unit>
+    <unit id="key3">
+      <segment>
+        <source>Source 3</source>
+      </segment>
+    </unit>
+  </file>
+</xliff>
+EOT;
+
+    private string $xliff2TargetFile;
+    private string $xliff2TargetContent = <<<'EOT'
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:2.0" version="2.0" srcLang="en" trgLang="de">
+  <file id="messages">
+    <unit id="key1">
+      <segment>
+        <source>Source 1</source>
+        <target>Target 1</target>
+      </segment>
+    </unit>
+    <unit id="key2">
+      <segment>
+        <source>Source 2</source>
+        <target>Target 2</target>
+      </segment>
+    </unit>
+    <unit id="key3">
+      <segment>
+        <source>Source 3</source>
+        <target></target>
+      </segment>
+    </unit>
+  </file>
+</xliff>
+EOT;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -102,6 +153,12 @@ EOT;
 
         $this->targetLanguageXliffFile = $this->tempDir.'/messages.de.xlf';
         file_put_contents($this->targetLanguageXliffFile, $this->targetLanguageXliffContent);
+
+        $this->xliff2File = $this->tempDir.'/messages_v2.xlf';
+        file_put_contents($this->xliff2File, $this->xliff2Content);
+
+        $this->xliff2TargetFile = $this->tempDir.'/messages_v2.de.xlf';
+        file_put_contents($this->xliff2TargetFile, $this->xliff2TargetContent);
     }
 
     protected function tearDown(): void
@@ -318,6 +375,108 @@ EOT;
 
         $parser = new XliffParser($emptyFile);
         $this->assertNull($parser->getContentByKey('empty_both'));
+    }
+
+    public function testExtractKeysXliff2(): void
+    {
+        $parser = new XliffParser($this->xliff2File);
+        $keys = $parser->extractKeys();
+
+        $this->assertSame(['key1', 'key2', 'key3'], $keys);
+    }
+
+    public function testGetContentByKeySourceXliff2(): void
+    {
+        $parser = new XliffParser($this->xliff2File);
+
+        $this->assertSame('Source 1', $parser->getContentByKey('key1'));
+        $this->assertSame('Source 2', $parser->getContentByKey('key2'));
+        $this->assertSame('Source 3', $parser->getContentByKey('key3'));
+        $this->assertNull($parser->getContentByKey('nonexistent_key'));
+    }
+
+    public function testGetContentByKeyWithTargetLanguageXliff2(): void
+    {
+        $parser = new XliffParser($this->xliff2TargetFile);
+
+        $this->assertSame('Target 1', $parser->getContentByKey('key1'));
+        $this->assertSame('Target 2', $parser->getContentByKey('key2'));
+        $this->assertSame('Source 3', $parser->getContentByKey('key3'));
+        $this->assertNull($parser->getContentByKey('nonexistent_key'));
+    }
+
+    public function testGetLanguageFromSrcLangAttributeXliff2(): void
+    {
+        $parser = new XliffParser($this->xliff2File);
+        $this->assertSame('en', $parser->getLanguage());
+    }
+
+    public function testGetContentByKeyFallsBackToSourceWhenTargetIsEmptyXliff2(): void
+    {
+        $fallbackFile = $this->tempDir.'/v2_fallback.xlf';
+        $fallbackContent = <<<'EOT'
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:2.0" version="2.0" srcLang="en" trgLang="de">
+  <file id="messages">
+    <unit id="empty_target">
+      <segment>
+        <source>Fallback Source</source>
+        <target></target>
+      </segment>
+    </unit>
+  </file>
+</xliff>
+EOT;
+        file_put_contents($fallbackFile, $fallbackContent);
+
+        $parser = new XliffParser($fallbackFile);
+        $this->assertSame('Fallback Source', $parser->getContentByKey('empty_target'));
+    }
+
+    public function testGetContentByKeyFallsBackToTargetWhenSourceIsEmptyXliff2(): void
+    {
+        $fallbackFile = $this->tempDir.'/v2_source_fallback.xlf';
+        $fallbackContent = <<<'EOT'
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:2.0" version="2.0" srcLang="en">
+  <file id="messages">
+    <unit id="empty_source">
+      <segment>
+        <source></source>
+        <target>Fallback Target</target>
+      </segment>
+    </unit>
+  </file>
+</xliff>
+EOT;
+        file_put_contents($fallbackFile, $fallbackContent);
+
+        $parser = new XliffParser($fallbackFile);
+        $this->assertSame('Fallback Target', $parser->getContentByKey('empty_source'));
+    }
+
+    public function testExtractKeysXliff22(): void
+    {
+        $xliff22File = $this->tempDir.'/messages_v22.xlf';
+        $xliff22Content = <<<'EOT'
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:2.0" version="2.2" srcLang="en" trgLang="de">
+  <file id="messages">
+    <unit id="key1">
+      <segment>
+        <source>Source 1</source>
+        <target>Target 1</target>
+      </segment>
+    </unit>
+  </file>
+</xliff>
+EOT;
+        file_put_contents($xliff22File, $xliff22Content);
+
+        $parser = new XliffParser($xliff22File);
+        $this->assertSame(['key1'], $parser->extractKeys());
+        $this->assertSame('Target 1', $parser->getContentByKey('key1'));
+        $this->assertSame('en', $parser->getLanguage());
     }
 
     private function removeDirectory(string $path): void

@@ -25,6 +25,7 @@ use SimpleXMLElement;
 class XliffParser extends AbstractParser implements ParserInterface
 {
     private readonly SimpleXMLElement|bool $xml;
+    private readonly bool $isVersion2;
 
     /**
      * @param string $filePath Path to the XLIFF file
@@ -48,6 +49,8 @@ class XliffParser extends AbstractParser implements ParserInterface
             throw new InvalidArgumentException("Failed to parse XML content from file: {$filePath}");
         }
         libxml_clear_errors();
+
+        $this->isVersion2 = version_compare((string) ($this->xml['version'] ?? ''), '2.0', '>=');
     }
 
     /**
@@ -55,8 +58,13 @@ class XliffParser extends AbstractParser implements ParserInterface
      */
     public function extractKeys(): ?array
     {
+        $units = $this->getTranslationUnits();
+        if (null === $units) {
+            return [];
+        }
+
         $keys = [];
-        foreach ($this->xml->file->body->{'trans-unit'} as $unit) {
+        foreach ($units as $unit) {
             $keys[] = (string) $unit['id'];
         }
 
@@ -65,27 +73,29 @@ class XliffParser extends AbstractParser implements ParserInterface
 
     public function getContentByKey(string $key): ?string
     {
+        $units = $this->getTranslationUnits();
+        if (null === $units) {
+            return null;
+        }
+
         $attribute = $this->hasTargetLanguage() ? 'target' : 'source';
 
-        foreach ($this->xml->file->body->{'trans-unit'} as $unit) {
-            if ((string) $unit['id'] === $key) {
-                if ('' !== (string) $unit->{$attribute}) {
-                    return (string) $unit->{$attribute};
-                }
+        foreach ($units as $unit) {
+            if ((string) $unit['id'] !== $key) {
+                continue;
+            }
 
-                if ('target' === $attribute && $this->hasTargetLanguage()) {
-                    $fallbackContent = (string) $unit->source;
-                    if ('' !== $fallbackContent) {
-                        return $fallbackContent;
-                    }
-                }
+            $source = $this->getUnitContent($unit, 'source');
+            $target = $this->getUnitContent($unit, 'target');
 
-                if ('source' === $attribute && !$this->hasTargetLanguage()) {
-                    $fallbackContent = (string) $unit->target;
-                    if ('' !== $fallbackContent) {
-                        return $fallbackContent;
-                    }
-                }
+            $primary = 'target' === $attribute ? $target : $source;
+            if ('' !== $primary) {
+                return $primary;
+            }
+
+            $fallback = 'target' === $attribute ? $source : $target;
+            if ('' !== $fallback) {
+                return $fallback;
             }
         }
 
@@ -107,16 +117,40 @@ class XliffParser extends AbstractParser implements ParserInterface
             $this->getFileName(),
             $matches,
         )) {
-            $language = $matches[1];
-        } else {
-            $language = (string) ($this->xml->file['source-language'] ?? '');
+            return $matches[1];
         }
 
-        return $language;
+        if ($this->isVersion2) {
+            return (string) ($this->xml['srcLang'] ?? '');
+        }
+
+        return (string) ($this->xml->file['source-language'] ?? '');
+    }
+
+    private function getTranslationUnits(): ?SimpleXMLElement
+    {
+        if ($this->isVersion2) {
+            return $this->xml->file->unit;
+        }
+
+        return $this->xml->file->body->{'trans-unit'};
+    }
+
+    private function getUnitContent(SimpleXMLElement $unit, string $element): string
+    {
+        if ($this->isVersion2) {
+            return (string) ($unit->segment->{$element} ?? '');
+        }
+
+        return (string) ($unit->{$element} ?? '');
     }
 
     private function hasTargetLanguage(): bool
     {
+        if ($this->isVersion2) {
+            return !empty((string) ($this->xml['trgLang'] ?? ''));
+        }
+
         return !empty((string) $this->xml->file['target-language']);
     }
 }
