@@ -130,10 +130,14 @@ class XliffParser extends AbstractParser implements ParserInterface
     private function getTranslationUnits(): ?SimpleXMLElement
     {
         if ($this->isVersion2) {
-            return $this->xml->file->unit;
+            $units = $this->xml->file->unit;
+
+            return $units->count() > 0 ? $units : null;
         }
 
-        return $this->xml->file->body->{'trans-unit'};
+        $units = $this->xml->file->body->{'trans-unit'};
+
+        return $units->count() > 0 ? $units : null;
     }
 
     private function getUnitContent(SimpleXMLElement $unit, string $element): string
