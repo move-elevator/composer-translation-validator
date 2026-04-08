@@ -19,9 +19,6 @@ use Symfony\Component\Console\Input\InputInterface;
 /**
  * CommandConfigResolver.
  *
- * Resolves the final TranslationValidatorConfig by loading configuration
- * from files and merging CLI option overrides.
- *
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
@@ -78,7 +75,7 @@ class CommandConfigResolver
         $workingDirectory ??= (string) getcwd();
 
         // Try to load from composer.json
-        $composerJsonPath = $workingDirectory . '/composer.json';
+        $composerJsonPath = $workingDirectory.'/composer.json';
         $config = $this->configReader->readFromComposerJson($composerJsonPath);
         if ($config) {
             return $config;

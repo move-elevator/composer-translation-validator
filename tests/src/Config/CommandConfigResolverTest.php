@@ -16,9 +16,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Config;
 use MoveElevator\ComposerTranslationValidator\Config\CommandConfigResolver;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputDefinition;
-use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\{ArrayInput, InputDefinition, InputOption};
 
 #[CoversClass(CommandConfigResolver::class)]
 /**
@@ -39,7 +37,7 @@ final class CommandConfigResolverTest extends TestCase
     public function testResolveReturnsDefaultConfigWhenNoCliOptions(): void
     {
         $input = $this->createInput([]);
-        $emptyDir = sys_get_temp_dir() . '/translation-validator-resolver-' . uniqid('', true);
+        $emptyDir = sys_get_temp_dir().'/translation-validator-resolver-'.uniqid('', true);
         mkdir($emptyDir, 0777, true);
 
         $config = $this->resolver->resolve($input, $emptyDir);
@@ -55,7 +53,7 @@ final class CommandConfigResolverTest extends TestCase
     public function testResolveAppliesDryRunCliOption(): void
     {
         $input = $this->createInput(['--dry-run' => true]);
-        $emptyDir = sys_get_temp_dir() . '/translation-validator-resolver-' . uniqid('', true);
+        $emptyDir = sys_get_temp_dir().'/translation-validator-resolver-'.uniqid('', true);
         mkdir($emptyDir, 0777, true);
 
         $config = $this->resolver->resolve($input, $emptyDir);
@@ -68,7 +66,7 @@ final class CommandConfigResolverTest extends TestCase
     public function testResolveAppliesStrictCliOption(): void
     {
         $input = $this->createInput(['--strict' => true]);
-        $emptyDir = sys_get_temp_dir() . '/translation-validator-resolver-' . uniqid('', true);
+        $emptyDir = sys_get_temp_dir().'/translation-validator-resolver-'.uniqid('', true);
         mkdir($emptyDir, 0777, true);
 
         $config = $this->resolver->resolve($input, $emptyDir);
@@ -81,7 +79,7 @@ final class CommandConfigResolverTest extends TestCase
     public function testResolveAppliesFormatCliOption(): void
     {
         $input = $this->createInput(['--format' => 'json']);
-        $emptyDir = sys_get_temp_dir() . '/translation-validator-resolver-' . uniqid('', true);
+        $emptyDir = sys_get_temp_dir().'/translation-validator-resolver-'.uniqid('', true);
         mkdir($emptyDir, 0777, true);
 
         $config = $this->resolver->resolve($input, $emptyDir);
@@ -94,7 +92,7 @@ final class CommandConfigResolverTest extends TestCase
     public function testResolveAppliesExcludeCliOption(): void
     {
         $input = $this->createInput(['--exclude' => '**/backup/**, **/*.bak']);
-        $emptyDir = sys_get_temp_dir() . '/translation-validator-resolver-' . uniqid('', true);
+        $emptyDir = sys_get_temp_dir().'/translation-validator-resolver-'.uniqid('', true);
         mkdir($emptyDir, 0777, true);
 
         $config = $this->resolver->resolve($input, $emptyDir);
@@ -106,10 +104,10 @@ final class CommandConfigResolverTest extends TestCase
 
     public function testResolveMergesExcludePatternsFromConfigAndCli(): void
     {
-        $tempDir = sys_get_temp_dir() . '/translation-validator-resolver-merge-' . uniqid('', true);
+        $tempDir = sys_get_temp_dir().'/translation-validator-resolver-merge-'.uniqid('', true);
         mkdir($tempDir, 0777, true);
 
-        $configFile = $tempDir . '/translation-validator.json';
+        $configFile = $tempDir.'/translation-validator.json';
         file_put_contents($configFile, json_encode(['paths' => ['src'], 'exclude' => ['vendor/*']]));
 
         $input = $this->createInput(['--exclude' => '**/backup/**']);
@@ -124,10 +122,10 @@ final class CommandConfigResolverTest extends TestCase
 
     public function testResolveLoadsConfigFromFile(): void
     {
-        $tempDir = sys_get_temp_dir() . '/translation-validator-resolver-file-' . uniqid('', true);
+        $tempDir = sys_get_temp_dir().'/translation-validator-resolver-file-'.uniqid('', true);
         mkdir($tempDir, 0777, true);
 
-        $configFile = $tempDir . '/custom-config.json';
+        $configFile = $tempDir.'/custom-config.json';
         file_put_contents($configFile, json_encode([
             'paths' => ['custom-path'],
             'strict' => true,
@@ -146,10 +144,10 @@ final class CommandConfigResolverTest extends TestCase
 
     public function testResolveAutoDetectsConfigFile(): void
     {
-        $tempDir = sys_get_temp_dir() . '/translation-validator-resolver-auto-' . uniqid('', true);
+        $tempDir = sys_get_temp_dir().'/translation-validator-resolver-auto-'.uniqid('', true);
         mkdir($tempDir, 0777, true);
 
-        $configFile = $tempDir . '/translation-validator.json';
+        $configFile = $tempDir.'/translation-validator.json';
         file_put_contents($configFile, json_encode(['paths' => ['auto-detected']]));
 
         $input = $this->createInput([]);
@@ -164,10 +162,10 @@ final class CommandConfigResolverTest extends TestCase
 
     public function testResolveCliOptionOverridesConfigFileDryRun(): void
     {
-        $tempDir = sys_get_temp_dir() . '/translation-validator-resolver-override-' . uniqid('', true);
+        $tempDir = sys_get_temp_dir().'/translation-validator-resolver-override-'.uniqid('', true);
         mkdir($tempDir, 0777, true);
 
-        $configFile = $tempDir . '/translation-validator.json';
+        $configFile = $tempDir.'/translation-validator.json';
         file_put_contents($configFile, json_encode(['paths' => ['src'], 'dry-run' => false]));
 
         $input = $this->createInput(['--dry-run' => true]);
