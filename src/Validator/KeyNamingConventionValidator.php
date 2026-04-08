@@ -33,8 +33,8 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
     private ?string $customPattern = null;
     private ?TranslationValidatorConfig $config = null;
     private bool $configHintShown = false;
-    private KeyConverter $keyConverter;
-    private ConventionDetector $conventionDetector;
+    private readonly KeyConverter $keyConverter;
+    private readonly ConventionDetector $conventionDetector;
 
     public function __construct(?\Psr\Log\LoggerInterface $logger = null)
     {

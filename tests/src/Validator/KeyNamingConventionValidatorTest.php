@@ -574,7 +574,6 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $validateSegmentMethod = $reflection->getMethod('validateSegment');
-        $validateSegmentMethod->setAccessible(true);
 
         // With no convention set, should return true for any segment
         $result = $validateSegmentMethod->invoke($validator, 'anySegment');
