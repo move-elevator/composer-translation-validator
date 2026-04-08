@@ -17,7 +17,7 @@ use InvalidArgumentException;
 use Iterator;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
-use MoveElevator\ComposerTranslationValidator\Validator\KeyNamingConventionValidator;
+use MoveElevator\ComposerTranslationValidator\Validator\{ConventionDetector, KeyConverter, KeyNamingConventionValidator};
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -38,13 +38,11 @@ final class KeyNamingConventionValidatorTest extends TestCase
         // Test for the bug fix: camelCase keys with dots should not be confused with dot.notation
         // This simulates the reported issue where keys like 'teaser.image.cropVariant.slider'
         // were incorrectly classified as dot.notation
-        $validator = new KeyNamingConventionValidator();
-        $reflection = new ReflectionClass($validator);
-        $detectKeyConventions = $reflection->getMethod('detectKeyConventions');
+        $detector = new ConventionDetector();
 
         // Test the problematic camelCase key with dots
         $camelCaseWithDots = 'teaser.image.cropVariant.slider';
-        $conventions = $detectKeyConventions->invoke($validator, $camelCaseWithDots);
+        $conventions = $detector->detectKeyConventions($camelCaseWithDots);
 
         // Should be detected as camelCase, NOT as dot.notation
         $this->assertContains('camelCase', $conventions);
@@ -52,7 +50,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         // Test a real dot.notation key for comparison
         $realDotNotation = 'teaser.image.variant.slider';
-        $conventions2 = $detectKeyConventions->invoke($validator, $realDotNotation);
+        $conventions2 = $detector->detectKeyConventions($realDotNotation);
 
         // Should be detected as dot.notation (among others)
         $this->assertContains('dot.notation', $conventions2);
@@ -458,42 +456,33 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
     public function testToDotNotationConversion(): void
     {
-        $validator = new KeyNamingConventionValidator();
-
-        $reflection = new ReflectionClass($validator);
-        $toDotNotationMethod = $reflection->getMethod('toDotNotation');
+        $converter = new KeyConverter();
 
         // Test various conversions to dot notation
-        $this->assertEquals('user.name', $toDotNotationMethod->invoke($validator, 'userName'));
-        $this->assertEquals('user.name', $toDotNotationMethod->invoke($validator, 'user_name'));
-        $this->assertEquals('user.name', $toDotNotationMethod->invoke($validator, 'user-name'));
-        $this->assertEquals('xmlhttp.request', $toDotNotationMethod->invoke($validator, 'XMLHttpRequest'));
-        $this->assertEquals('user.profile.settings', $toDotNotationMethod->invoke($validator, 'userProfileSettings'));
+        $this->assertEquals('user.name', $converter->toDotNotation('userName'));
+        $this->assertEquals('user.name', $converter->toDotNotation('user_name'));
+        $this->assertEquals('user.name', $converter->toDotNotation('user-name'));
+        $this->assertEquals('xmlhttp.request', $converter->toDotNotation('XMLHttpRequest'));
+        $this->assertEquals('user.profile.settings', $converter->toDotNotation('userProfileSettings'));
     }
 
     public function testConvertDotSeparatedKeyWithNullConvention(): void
     {
-        $validator = new KeyNamingConventionValidator();
-
-        $reflection = new ReflectionClass($validator);
-        $convertMethod = $reflection->getMethod('convertDotSeparatedKey');
+        $converter = new KeyConverter();
 
         // Should return original key when convention is null
-        $result = $convertMethod->invoke($validator, 'user.profile', null);
+        $result = $converter->convertDotSeparatedKey('user.profile', null);
         $this->assertEquals('user.profile', $result);
     }
 
     public function testConvertDotSeparatedKeyWithDotNotationEnum(): void
     {
-        $validator = new KeyNamingConventionValidator();
-
-        $reflection = new ReflectionClass($validator);
-        $convertMethod = $reflection->getMethod('convertDotSeparatedKey');
+        $converter = new KeyConverter();
 
         // Use the DOT_NOTATION enum directly
         $dotNotationEnum = \MoveElevator\ComposerTranslationValidator\Enum\KeyNamingConvention::DOT_NOTATION;
 
-        $result = $convertMethod->invoke($validator, 'user.profileSettings', $dotNotationEnum);
+        $result = $converter->convertDotSeparatedKey('user.profileSettings', $dotNotationEnum);
         $this->assertEquals('user.profile.settings', $result);
     }
 
@@ -512,25 +501,38 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
     public function testSuggestKeyConversionWithInvalidConvention(): void
     {
+        // Test via processFile with auto-detection mode where an invalid dominant convention
+        // would be encountered. The suggestKeyConversion is now private and called internally.
+        // We test this behavior through the formatIssueMessage path instead.
         $validator = new KeyNamingConventionValidator();
 
-        $reflection = new ReflectionClass($validator);
-        $suggestMethod = $reflection->getMethod('suggestKeyConversion');
+        $issueData = [
+            'key' => 'testKey',
+            'file' => 'test.yaml',
+            'detected_conventions' => ['camelCase'],
+            'dominant_convention' => 'unknown',
+            'all_conventions_found' => ['camelCase', 'unknown'],
+            'inconsistency_type' => 'mixed_conventions',
+        ];
 
-        // Test with invalid convention string that would throw exception
-        $result = $suggestMethod->invoke($validator, 'testKey', 'invalid_convention');
-        $this->assertEquals('testKey', $result); // Should return original key on exception
+        $issue = new Issue(
+            $issueData['file'],
+            $issueData,
+            'TestParser',
+            'KeyNamingConventionValidator',
+        );
+
+        $message = $validator->formatIssueMessage($issue);
+        // When dominant convention is 'unknown', should suggest standardizing
+        $this->assertStringContainsString('Consider standardizing', $message);
     }
 
     public function testDetectKeyConventionsReturnsMixedConventions(): void
     {
-        $validator = new KeyNamingConventionValidator();
-
-        $reflection = new ReflectionClass($validator);
-        $detectMethod = $reflection->getMethod('detectKeyConventions');
+        $detector = new ConventionDetector();
 
         // Test with a key that has dots but no matching conventions
-        $result = $detectMethod->invoke($validator, '$pecial.ch@rs.123');
+        $result = $detector->detectKeyConventions('$pecial.ch@rs.123');
         $this->assertContains('mixed_conventions', $result);
     }
 
@@ -572,6 +574,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
         $reflection = new ReflectionClass($validator);
         $validateSegmentMethod = $reflection->getMethod('validateSegment');
+        $validateSegmentMethod->setAccessible(true);
 
         // With no convention set, should return true for any segment
         $result = $validateSegmentMethod->invoke($validator, 'anySegment');
@@ -580,40 +583,35 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
     public function testToCamelCaseHandlesPregSplitFailure(): void
     {
-        $validator = new KeyNamingConventionValidator();
-
-        $reflection = new ReflectionClass($validator);
-        $toCamelCaseMethod = $reflection->getMethod('toCamelCase');
+        $converter = new KeyConverter();
 
         // Test with various edge cases that might affect preg_split
-        $result = $toCamelCaseMethod->invoke($validator, '');
+        $result = $converter->toCamelCase('');
         $this->assertEquals('', $result);
 
-        $result = $toCamelCaseMethod->invoke($validator, 'single');
+        $result = $converter->toCamelCase('single');
         $this->assertEquals('single', $result);
     }
 
     public function testValidateKeyFormatReturnsTrue(): void
     {
+        // With no convention and no custom pattern, processFile should not flag any keys
+        $parser = $this->createStub(ParserInterface::class);
+        $parser->method('extractKeys')->willReturn(['anyKey']);
+        $parser->method('getFileName')->willReturn('test.yaml');
+
         $validator = new KeyNamingConventionValidator();
-
-        $reflection = new ReflectionClass($validator);
-        $validateKeyFormatMethod = $reflection->getMethod('validateKeyFormat');
-
-        // With no convention and no custom pattern, should return true
-        $result = $validateKeyFormatMethod->invoke($validator, 'anyKey');
-        $this->assertTrue($result);
+        // No convention set - single key should not trigger inconsistency
+        $result = $validator->processFile($parser);
+        $this->assertEmpty($result);
     }
 
     public function testDetectSegmentConventionsWithUnknownPattern(): void
     {
-        $validator = new KeyNamingConventionValidator();
-
-        $reflection = new ReflectionClass($validator);
-        $detectSegmentMethod = $reflection->getMethod('detectSegmentConventions');
+        $detector = new ConventionDetector();
 
         // Test with a segment that matches no convention
-        $result = $detectSegmentMethod->invoke($validator, '$pecial@chars123');
+        $result = $detector->detectSegmentConventions('$pecial@chars123');
         $this->assertContains('unknown', $result);
     }
 
