@@ -780,7 +780,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
         yield 'mixed dot separated' => [
             ['user.profile_data', 'admin.adminPanel'],
             1,
-            'snake_case',
+            'camelCase',
         ];
     }
 

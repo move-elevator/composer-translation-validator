@@ -69,6 +69,8 @@ final class KeyConverterTest extends TestCase
         yield 'kebab-case' => ['user-name', 'userName'];
         yield 'PascalCase' => ['UserName', 'userName'];
         yield 'already camelCase' => ['userName', 'userName'];
+        yield 'mixed case with underscore User_Name' => ['User_Name', 'userName'];
+        yield 'mixed case with underscore user_Name' => ['user_Name', 'userName'];
         yield 'single word' => ['single', 'single'];
         yield 'empty string' => ['', ''];
     }
@@ -106,6 +108,8 @@ final class KeyConverterTest extends TestCase
         yield 'snake_case' => ['user_name', 'UserName'];
         yield 'kebab-case' => ['user-name', 'UserName'];
         yield 'already PascalCase' => ['UserName', 'UserName'];
+        yield 'mixed case with underscore user_Name' => ['user_Name', 'UserName'];
+        yield 'mixed case with underscore User_Name' => ['User_Name', 'UserName'];
     }
 
     #[DataProvider('toDotNotationProvider')]

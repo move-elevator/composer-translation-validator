@@ -15,7 +15,6 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Enum\KeyNamingConvention;
 
-use function count;
 use function in_array;
 
 /**
@@ -129,21 +128,26 @@ final class ConventionDetector
             }
         }
 
-        // If all keys follow the same convention(s), no issues
-        if (count($conventionCounts) <= 1) {
+        // If all keys share at least one common convention, no inconsistency
+        $commonConventions = null;
+        foreach ($keyConventions as $conventions) {
+            if (null === $commonConventions) {
+                $commonConventions = $conventions;
+            } else {
+                $commonConventions = array_intersect($commonConventions, $conventions);
+            }
+        }
+
+        if (!empty($commonConventions)) {
             return [];
         }
 
-        // Find the most common convention
-        $dominantConvention = array_key_first($conventionCounts);
-        $maxCount = $conventionCounts[$dominantConvention];
-
-        foreach ($conventionCounts as $convention => $count) {
-            if ($count > $maxCount) {
-                $dominantConvention = $convention;
-                $maxCount = $count;
-            }
-        }
+        // Find the most common convention (deterministic tie-breaking)
+        arsort($conventionCounts);
+        $maxCount = reset($conventionCounts);
+        $topConventions = array_filter($conventionCounts, fn ($c) => $c === $maxCount);
+        ksort($topConventions);
+        $dominantConvention = array_key_first($topConventions);
 
         $issues = [];
         $conventionNames = array_keys($conventionCounts);

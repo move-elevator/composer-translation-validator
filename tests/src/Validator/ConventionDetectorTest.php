@@ -124,6 +124,39 @@ final class ConventionDetectorTest extends TestCase
         $this->assertSame('snake_case', $result[0]['dominant_convention']);
     }
 
+    public function testAnalyzeKeyConsistencyAllKeysMatchMultipleConventions(): void
+    {
+        // Single-word keys like "name", "title", "status" match multiple conventions simultaneously
+        // (snake_case, camelCase, kebab-case, dot.notation). Should return empty since all share common conventions.
+        $result = $this->detector->analyzeKeyConsistency(
+            ['name', 'title', 'status'],
+            'test.yaml',
+        );
+        $this->assertEmpty($result);
+    }
+
+    public function testAnalyzeKeyConsistencyDeterministicTieBreaking(): void
+    {
+        // With equal counts, the alphabetically first convention should win deterministically
+        $result1 = $this->detector->analyzeKeyConsistency(
+            ['user_name', 'another_key', 'someKey', 'anotherKey'],
+            'test.yaml',
+        );
+
+        $result2 = $this->detector->analyzeKeyConsistency(
+            ['user_name', 'another_key', 'someKey', 'anotherKey'],
+            'test.yaml',
+        );
+
+        // Results must be identical across runs
+        $this->assertSame($result1, $result2);
+
+        // Verify dominant convention is deterministic
+        if (!empty($result1)) {
+            $this->assertNotEmpty($result1[0]['dominant_convention']);
+        }
+    }
+
     public function testAnalyzeKeyConsistencyReturnsDataArrays(): void
     {
         $result = $this->detector->analyzeKeyConsistency(

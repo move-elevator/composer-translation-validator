@@ -38,8 +38,8 @@ final class KeyConverter
 
     public function toCamelCase(string $key): string
     {
-        // Handle camelCase/PascalCase first
-        if (preg_match('/[A-Z]/', $key)) {
+        // Handle camelCase/PascalCase first (only if no delimiters are present)
+        if (preg_match('/[A-Z]/', $key) && !preg_match('/[_\-.]/', $key)) {
             // Convert PascalCase to camelCase
             return lcfirst($key);
         }
@@ -70,8 +70,8 @@ final class KeyConverter
 
     public function toPascalCase(string $key): string
     {
-        // Handle camelCase/PascalCase first
-        if (preg_match('/[A-Z]/', $key)) {
+        // Handle camelCase/PascalCase first (only if no delimiters are present)
+        if (preg_match('/[A-Z]/', $key) && !preg_match('/[_\-.]/', $key)) {
             // Already in PascalCase or camelCase, just ensure first letter is uppercase
             return ucfirst($key);
         }
