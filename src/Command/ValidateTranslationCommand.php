@@ -15,7 +15,7 @@ namespace MoveElevator\ComposerTranslationValidator\Command;
 
 use Composer\Command\BaseCommand;
 use JsonException;
-use MoveElevator\ComposerTranslationValidator\Config\{ConfigReader, TranslationValidatorConfig};
+use MoveElevator\ComposerTranslationValidator\Config\CommandConfigResolver;
 use MoveElevator\ComposerTranslationValidator\Result\{FormatType, Output};
 use MoveElevator\ComposerTranslationValidator\Service\ValidationOrchestrationService;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
@@ -42,6 +42,7 @@ class ValidateTranslationCommand extends BaseCommand
 
     protected LoggerInterface $logger;
     protected ValidationOrchestrationService $orchestrationService;
+    protected CommandConfigResolver $configResolver;
 
     protected bool $dryRun = false;
     protected bool $strict = false;
@@ -161,6 +162,7 @@ HELP
         $this->io = new SymfonyStyle($input, $output);
         $this->logger = new ConsoleLogger($output);
         $this->orchestrationService = new ValidationOrchestrationService($this->logger);
+        $this->configResolver = new CommandConfigResolver();
     }
 
     /**
@@ -168,22 +170,16 @@ HELP
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $config = $this->loadConfiguration($input);
+        $config = $this->configResolver->resolve($input);
 
         $inputPaths = $input->getArgument('path') ?: [];
         $paths = $this->orchestrationService->resolvePaths($inputPaths, $config);
 
-        $this->dryRun = $config->getDryRun() || $input->getOption('dry-run');
-        $this->strict = $config->getStrict() || $input->getOption('strict');
+        $this->dryRun = $config->getDryRun();
+        $this->strict = $config->getStrict();
         $recursive = (bool) $input->getOption('recursive');
 
-        // Merge exclude patterns from config and CLI
         $excludePatterns = $config->getExclude();
-        $cliExcludeOption = $input->getOption('exclude');
-        if ($cliExcludeOption) {
-            $cliExcludePatterns = array_map(trim(...), explode(',', (string) $cliExcludeOption));
-            $excludePatterns = array_merge($excludePatterns, $cliExcludePatterns);
-        }
 
         $fileDetector = $this->orchestrationService->resolveFileDetector($config);
 
@@ -221,7 +217,7 @@ HELP
             return Command::SUCCESS;
         }
 
-        $format = FormatType::tryFrom($input->getOption('format') ?: $config->getFormat());
+        $format = FormatType::tryFrom($config->getFormat());
 
         if (null === $format) {
             $this->io?->error('Invalid output format specified. Use "cli", "json" or "github".');
@@ -242,34 +238,5 @@ HELP
             $this->dryRun,
             $this->strict,
         ))->summarize();
-    }
-
-    /**
-     * @throws JsonException
-     */
-    private function loadConfiguration(InputInterface $input): TranslationValidatorConfig
-    {
-        $configReader = new ConfigReader();
-        $configPath = $input->getOption('config');
-
-        if ($configPath) {
-            return $configReader->read($configPath);
-        }
-
-        // Try to load from composer.json
-        $composerJsonPath = getcwd().'/composer.json';
-        $config = $configReader->readFromComposerJson($composerJsonPath);
-        if ($config) {
-            return $config;
-        }
-
-        // Try auto-detection
-        $config = $configReader->autoDetect();
-        if ($config) {
-            return $config;
-        }
-
-        // Return default configuration
-        return new TranslationValidatorConfig();
     }
 }
