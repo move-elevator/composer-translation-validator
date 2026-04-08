@@ -31,14 +31,7 @@ use function is_array;
  */
 class ValidationRun
 {
-    private ParserCache $parserCache;
-
-    public function __construct(
-        private readonly LoggerInterface $logger,
-        ?ParserCache $parserCache = null,
-    ) {
-        $this->parserCache = $parserCache ?? new ParserCache();
-    }
+    public function __construct(private readonly LoggerInterface $logger, private readonly ?ParserCache $parserCache = new ParserCache()) {}
 
     /**
      * @param array<FileSet>                          $fileSets
