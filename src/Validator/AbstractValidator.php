@@ -36,14 +36,10 @@ abstract class AbstractValidator
 
     protected string $currentFilePath = '';
 
-    private ParserCache $parserCache;
-
     public function __construct(
         protected ?LoggerInterface $logger = null,
-        ?ParserCache $parserCache = null,
-    ) {
-        $this->parserCache = $parserCache ?? new ParserCache();
-    }
+        private ParserCache $parserCache = new ParserCache(),
+    ) {}
 
     public function setParserCache(ParserCache $parserCache): void
     {
