@@ -36,7 +36,19 @@ abstract class AbstractValidator
 
     protected string $currentFilePath = '';
 
-    public function __construct(protected ?LoggerInterface $logger = null) {}
+    private ParserCache $parserCache;
+
+    public function __construct(
+        protected ?LoggerInterface $logger = null,
+        ?ParserCache $parserCache = null,
+    ) {
+        $this->parserCache = $parserCache ?? new ParserCache();
+    }
+
+    public function setParserCache(ParserCache $parserCache): void
+    {
+        $this->parserCache = $parserCache;
+    }
 
     /**
      * @param string[]                           $files
@@ -60,7 +72,7 @@ abstract class AbstractValidator
         foreach ($files as $filePath) {
             $this->currentFilePath = $filePath;
 
-            $file = ParserCache::get(
+            $file = $this->parserCache->get(
                 $filePath,
                 $parserClass ?: ParserRegistry::resolveParserClass(
                     $filePath,

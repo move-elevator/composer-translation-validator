@@ -31,9 +31,14 @@ use function is_array;
  */
 class ValidationRun
 {
+    private ParserCache $parserCache;
+
     public function __construct(
         private readonly LoggerInterface $logger,
-    ) {}
+        ?ParserCache $parserCache = null,
+    ) {
+        $this->parserCache = $parserCache ?? new ParserCache();
+    }
 
     /**
      * @param array<FileSet>                          $fileSets
@@ -52,6 +57,11 @@ class ValidationRun
             foreach ($validatorClasses as $validatorClass) {
                 // Create a new validator instance for each FileSet to ensure isolation
                 $validatorInstance = new $validatorClass($this->logger);
+
+                // Share the ParserCache instance across all validators
+                if (method_exists($validatorInstance, 'setParserCache')) {
+                    $validatorInstance->setParserCache($this->parserCache);
+                }
 
                 // Pass config to validator if it supports it
                 if (null !== $config && method_exists($validatorInstance, 'setConfig')) {
@@ -77,7 +87,7 @@ class ValidationRun
         $validatorsRun = count($validatorClasses);
 
         // Get cache statistics before clearing cache
-        $cacheStats = ParserCache::getCacheStats();
+        $cacheStats = $this->parserCache->getCacheStats();
         $parsersCached = $cacheStats['cached_parsers'];
 
         $executionTime = microtime(true) - $startTime;
@@ -90,7 +100,7 @@ class ValidationRun
         );
 
         $validationResult = new ValidationResult($validatorInstances, $overallResult, $validatorFileSetPairs, $statistics);
-        ParserCache::clear();
+        $this->parserCache->clear();
 
         return $validationResult;
     }
@@ -127,7 +137,7 @@ class ValidationRun
 
             foreach ($fileSet->getFiles() as $file) {
                 try {
-                    $parser = ParserCache::get($file, $parserClass);
+                    $parser = $this->parserCache->get($file, $parserClass);
                     if (false === $parser) {
                         continue;
                     }
