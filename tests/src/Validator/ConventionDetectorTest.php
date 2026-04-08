@@ -151,10 +151,9 @@ final class ConventionDetectorTest extends TestCase
         // Results must be identical across runs
         $this->assertSame($result1, $result2);
 
-        // Verify dominant convention is deterministic
-        if (!empty($result1)) {
-            $this->assertNotEmpty($result1[0]['dominant_convention']);
-        }
+        // Verify the alphabetically first convention wins the tie
+        $this->assertNotEmpty($result1);
+        $this->assertSame('camelCase', $result1[0]['dominant_convention']);
     }
 
     public function testAnalyzeKeyConsistencyReturnsDataArrays(): void
