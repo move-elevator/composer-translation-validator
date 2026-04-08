@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
+use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
+use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -214,7 +216,7 @@ final class MismatchValidatorTest extends TestCase
         $validator = new MismatchValidator($logger);
 
         // Create a mismatch issue
-        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+        $issue = new Issue(
             '',
             [
                 'key' => 'test_key',
@@ -228,7 +230,7 @@ final class MismatchValidatorTest extends TestCase
         );
         $validator->addIssue($issue);
 
-        $fileSet = new \MoveElevator\ComposerTranslationValidator\FileDetector\FileSet(
+        $fileSet = new FileSet(
             'TestParser',
             '/test/path',
             'setKey',
@@ -260,7 +262,7 @@ final class MismatchValidatorTest extends TestCase
         $output = new \Symfony\Component\Console\Output\BufferedOutput();
 
         // Create a test issue for detailed output
-        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+        $issue = new Issue(
             '',
             [
                 'key' => 'test_key',
@@ -291,7 +293,7 @@ final class MismatchValidatorTest extends TestCase
         $logger = $this->createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
-        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
+        $issue = new Issue(
             'test.xlf',
             [
                 'key' => 'test_key',
@@ -423,5 +425,95 @@ final class MismatchValidatorTest extends TestCase
             $files = $issueArray['issues']['files'];
             $this->assertCount(3, $files);
         }
+    }
+
+    public function testDistributeIssuesForDisplayWithNoIssues(): void
+    {
+        $logger = $this->createStub(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['file1.xlf', 'file2.xlf']);
+        $distribution = $validator->distributeIssuesForDisplay($fileSet);
+
+        $this->assertSame([], $distribution);
+    }
+
+    public function testDistributeIssuesForDisplaySkipsEmptyFilePaths(): void
+    {
+        $logger = $this->createStub(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        // Create an issue where one file entry has an empty path
+        $issue = new Issue(
+            '',
+            [
+                'key' => 'test_key',
+                'files' => [
+                    ['file' => '/test/path/file1.xlf', 'value' => 'value1'],
+                    ['file' => '', 'value' => null],
+                ],
+            ],
+            '',
+            'MismatchValidator',
+        );
+        $validator->addIssue($issue);
+
+        $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['file1.xlf']);
+        $distribution = $validator->distributeIssuesForDisplay($fileSet);
+
+        // Only the non-empty file path should appear in the distribution
+        $this->assertCount(1, $distribution);
+        $this->assertArrayHasKey('/test/path/file1.xlf', $distribution);
+        $this->assertArrayNotHasKey('', $distribution);
+    }
+
+    public function testDistributeIssuesForDisplayDistributesMultipleIssuesAcrossFiles(): void
+    {
+        $logger = $this->createStub(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        $issue1 = new Issue(
+            '',
+            [
+                'key' => 'key1',
+                'files' => [
+                    ['file' => '/test/path/en.xlf', 'value' => 'Hello'],
+                    ['file' => '/test/path/de.xlf', 'value' => null],
+                ],
+            ],
+            '',
+            'MismatchValidator',
+        );
+
+        $issue2 = new Issue(
+            '',
+            [
+                'key' => 'key2',
+                'files' => [
+                    ['file' => '/test/path/en.xlf', 'value' => null],
+                    ['file' => '/test/path/de.xlf', 'value' => 'Welt'],
+                ],
+            ],
+            '',
+            'MismatchValidator',
+        );
+
+        $validator->addIssue($issue1);
+        $validator->addIssue($issue2);
+
+        $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['en.xlf', 'de.xlf']);
+        $distribution = $validator->distributeIssuesForDisplay($fileSet);
+
+        // Both files should have 2 issues each
+        $this->assertCount(2, $distribution);
+        $this->assertCount(2, $distribution['/test/path/en.xlf']);
+        $this->assertCount(2, $distribution['/test/path/de.xlf']);
+
+        // Verify the distributed issues have file-specific paths
+        $enIssue = $distribution['/test/path/en.xlf'][0];
+        $this->assertSame('/test/path/en.xlf', $enIssue->getFile());
+
+        $deIssue = $distribution['/test/path/de.xlf'][0];
+        $this->assertSame('/test/path/de.xlf', $deIssue->getFile());
     }
 }
