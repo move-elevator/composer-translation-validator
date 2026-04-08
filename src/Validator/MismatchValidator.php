@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
-use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
+use MoveElevator\ComposerTranslationValidator\Validator\Trait\DistributesIssuesForDisplayTrait;
 use Symfony\Component\Console\Helper\{Table, TableStyle};
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -30,6 +30,8 @@ use function in_array;
  */
 class MismatchValidator extends AbstractValidator implements ValidatorInterface
 {
+    use DistributesIssuesForDisplayTrait;
+
     /**
      * @var array<string, array<string, string|null>>
      */
@@ -126,36 +128,6 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
         return "- <fg=$color>$level</> {$prefix} the translation key `$key` is $action other translation files (`$otherFilesList`)";
     }
 
-    public function distributeIssuesForDisplay(FileSet $fileSet): array
-    {
-        $distribution = [];
-
-        foreach ($this->issues as $issue) {
-            $details = $issue->getDetails();
-            $files = $details['files'] ?? [];
-
-            foreach ($files as $fileInfo) {
-                $filePath = $fileInfo['file'] ?? '';
-                if (!empty($filePath)) {
-                    $fileSpecificIssue = new Issue(
-                        $filePath,
-                        $details,
-                        $issue->getParser(),
-                        $issue->getValidatorType(),
-                    );
-
-                    if (!isset($distribution[$filePath])) {
-                        $distribution[$filePath] = [];
-                    }
-
-                    $distribution[$filePath][] = $fileSpecificIssue;
-                }
-            }
-        }
-
-        return $distribution;
-    }
-
     public function renderDetailedOutput(OutputInterface $output, array $issues): void
     {
         if (empty($issues)) {
@@ -237,6 +209,22 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
     public function shouldShowDetailedOutput(): bool
     {
         return true;
+    }
+
+    protected function extractFilePathsFromIssue(Issue $issue): array
+    {
+        $details = $issue->getDetails();
+        $files = $details['files'] ?? [];
+        $paths = [];
+
+        foreach ($files as $fileInfo) {
+            $filePath = $fileInfo['file'] ?? '';
+            if (!empty($filePath)) {
+                $paths[] = $filePath;
+            }
+        }
+
+        return $paths;
     }
 
     protected function resetState(): void
