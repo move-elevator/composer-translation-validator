@@ -77,13 +77,8 @@ final class KeyNamingConventionValidatorTest extends TestCase
         $camelCaseIssues = array_filter($result, fn ($issue) => 'teaser.image.cropVariant.slider' === $issue['key'],
         );
 
-        // If there is an issue, it should correctly identify the key as camelCase
-        if (!empty($camelCaseIssues)) {
-            $issue = array_values($camelCaseIssues)[0];
-            $this->assertContains('camelCase', $issue['detected_conventions']);
-            // The key should NOT be confused with dot.notation
-            $this->assertNotContains('dot.notation', $issue['detected_conventions']);
-        }
+        // The bug is fixed: camelCase dotted keys should NOT be flagged as inconsistent
+        $this->assertEmpty($camelCaseIssues, 'camelCase dotted keys should not be incorrectly flagged');
     }
 
     public function testRealDotNotationKeysAreDetectedCorrectly(): void
