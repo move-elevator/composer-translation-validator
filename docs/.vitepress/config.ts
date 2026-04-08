@@ -53,7 +53,8 @@ export default defineConfig({
             { text: 'CLI Reference', link: '/reference/cli' },
             { text: 'Validators', link: '/reference/validators' },
             { text: 'File Formats', link: '/reference/file-formats' },
-            { text: 'File Detection', link: '/reference/file-detection' }
+            { text: 'File Detection', link: '/reference/file-detection' },
+            { text: 'Programmatic Usage', link: '/reference/programmatic-usage' }
           ]
         }
       ]

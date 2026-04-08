@@ -56,6 +56,7 @@ Full documentation is available at **[move-elevator.github.io/composer-translati
 - [Validators](https://move-elevator.github.io/composer-translation-validator/reference/validators)
 - [File Formats](https://move-elevator.github.io/composer-translation-validator/reference/file-formats)
 - [File Detection](https://move-elevator.github.io/composer-translation-validator/reference/file-detection)
+- [Programmatic Usage](https://move-elevator.github.io/composer-translation-validator/reference/programmatic-usage)
 
 ## 🧑‍💻 Contributing
 
