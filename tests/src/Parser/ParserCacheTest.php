@@ -28,10 +28,11 @@ final class ParserCacheTest extends TestCase
 {
     private string $testFile;
 
+    private ParserCache $parserCache;
+
     protected function setUp(): void
     {
-        // Clear cache before each test
-        ParserCache::clear();
+        $this->parserCache = new ParserCache();
 
         // Create a test YAML file
         $this->testFile = tempnam(sys_get_temp_dir(), 'test_').'.yaml';
@@ -44,12 +45,11 @@ final class ParserCacheTest extends TestCase
         if (file_exists($this->testFile)) {
             unlink($this->testFile);
         }
-        ParserCache::clear();
     }
 
     public function testGetCreatesNewParserInstance(): void
     {
-        $parser = ParserCache::get($this->testFile, YamlParser::class);
+        $parser = $this->parserCache->get($this->testFile, YamlParser::class);
         $this->assertNotFalse($parser);
 
         $this->assertInstanceOf(YamlParser::class, $parser);
@@ -58,8 +58,8 @@ final class ParserCacheTest extends TestCase
 
     public function testGetReturnsSameInstanceOnSecondCall(): void
     {
-        $parser1 = ParserCache::get($this->testFile, YamlParser::class);
-        $parser2 = ParserCache::get($this->testFile, YamlParser::class);
+        $parser1 = $this->parserCache->get($this->testFile, YamlParser::class);
+        $parser2 = $this->parserCache->get($this->testFile, YamlParser::class);
 
         $this->assertSame($parser1, $parser2);
     }
@@ -70,8 +70,8 @@ final class ParserCacheTest extends TestCase
         file_put_contents($testFile2, "key3: value3\n");
 
         try {
-            $parser1 = ParserCache::get($this->testFile, YamlParser::class);
-            $parser2 = ParserCache::get($testFile2, YamlParser::class);
+            $parser1 = $this->parserCache->get($this->testFile, YamlParser::class);
+            $parser2 = $this->parserCache->get($testFile2, YamlParser::class);
             $this->assertNotFalse($parser1);
             $this->assertNotFalse($parser2);
 
@@ -102,8 +102,8 @@ final class ParserCacheTest extends TestCase
 </xliff>');
 
         try {
-            $yamlParser = ParserCache::get($this->testFile, YamlParser::class);
-            $xliffParser = ParserCache::get($xliffFile, XliffParser::class);
+            $yamlParser = $this->parserCache->get($this->testFile, YamlParser::class);
+            $xliffParser = $this->parserCache->get($xliffFile, XliffParser::class);
 
             $this->assertNotSame($yamlParser, $xliffParser);
             $this->assertInstanceOf(YamlParser::class, $yamlParser);
@@ -118,30 +118,30 @@ final class ParserCacheTest extends TestCase
     public function testClearEmptiesCache(): void
     {
         // Add something to cache
-        ParserCache::get($this->testFile, YamlParser::class);
+        $this->parserCache->get($this->testFile, YamlParser::class);
 
-        $statsBefore = ParserCache::getCacheStats();
+        $statsBefore = $this->parserCache->getCacheStats();
         $this->assertSame(1, $statsBefore['cached_parsers']);
 
-        ParserCache::clear();
+        $this->parserCache->clear();
 
-        $statsAfter = ParserCache::getCacheStats();
+        $statsAfter = $this->parserCache->getCacheStats();
         $this->assertSame(0, $statsAfter['cached_parsers']);
         $this->assertEmpty($statsAfter['cache_keys']);
     }
 
     public function testGetCacheStatsReturnsCorrectData(): void
     {
-        $stats = ParserCache::getCacheStats();
+        $stats = $this->parserCache->getCacheStats();
         $this->assertArrayHasKey('cached_parsers', $stats);
         $this->assertArrayHasKey('cache_keys', $stats);
         $this->assertSame(0, $stats['cached_parsers']);
         $this->assertEmpty($stats['cache_keys']);
 
         // Add parser to cache
-        ParserCache::get($this->testFile, YamlParser::class);
+        $this->parserCache->get($this->testFile, YamlParser::class);
 
-        $statsAfter = ParserCache::getCacheStats();
+        $statsAfter = $this->parserCache->getCacheStats();
         $this->assertSame(1, $statsAfter['cached_parsers']);
         $this->assertCount(1, $statsAfter['cache_keys']);
         $this->assertStringContainsString($this->testFile, (string) $statsAfter['cache_keys'][0]);
@@ -150,9 +150,9 @@ final class ParserCacheTest extends TestCase
 
     public function testCacheKeyFormat(): void
     {
-        ParserCache::get($this->testFile, YamlParser::class);
+        $this->parserCache->get($this->testFile, YamlParser::class);
 
-        $stats = ParserCache::getCacheStats();
+        $stats = $this->parserCache->getCacheStats();
         $expectedKey = $this->testFile.'::'.YamlParser::class;
 
         $this->assertContains($expectedKey, $stats['cache_keys']);
@@ -160,7 +160,18 @@ final class ParserCacheTest extends TestCase
 
     public function testGetWithNullParserClassReturnsFalse(): void
     {
-        $result = ParserCache::get($this->testFile, null);
+        $result = $this->parserCache->get($this->testFile, null);
         $this->assertFalse($result);
+    }
+
+    public function testSeparateInstancesHaveIndependentCaches(): void
+    {
+        $cache1 = new ParserCache();
+        $cache2 = new ParserCache();
+
+        $cache1->get($this->testFile, YamlParser::class);
+
+        $this->assertSame(1, $cache1->getCacheStats()['cached_parsers']);
+        $this->assertSame(0, $cache2->getCacheStats()['cached_parsers']);
     }
 }

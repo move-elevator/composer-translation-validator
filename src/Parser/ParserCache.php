@@ -24,9 +24,9 @@ use function count;
 class ParserCache
 {
     /** @var array<string, ParserInterface> */
-    private static array $cache = [];
+    private array $cache = [];
 
-    public static function get(string $filePath, ?string $parserClass): ParserInterface|false
+    public function get(string $filePath, ?string $parserClass): ParserInterface|false
     {
         if (null === $parserClass) {
             return false;
@@ -34,26 +34,26 @@ class ParserCache
 
         $cacheKey = $filePath.'::'.$parserClass;
 
-        if (!isset(self::$cache[$cacheKey])) {
+        if (!isset($this->cache[$cacheKey])) {
             /** @var ParserInterface $parser */
             $parser = new $parserClass($filePath);
-            self::$cache[$cacheKey] = $parser;
+            $this->cache[$cacheKey] = $parser;
         }
 
-        return self::$cache[$cacheKey];
+        return $this->cache[$cacheKey];
     }
 
-    public static function clear(): void
+    public function clear(): void
     {
-        self::$cache = [];
+        $this->cache = [];
     }
 
     /** @return array<string, mixed> */
-    public static function getCacheStats(): array
+    public function getCacheStats(): array
     {
         return [
-            'cached_parsers' => count(self::$cache),
-            'cache_keys' => array_keys(self::$cache),
+            'cached_parsers' => count($this->cache),
+            'cache_keys' => array_keys($this->cache),
         ];
     }
 }
