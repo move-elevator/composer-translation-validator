@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
-use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
+use MoveElevator\ComposerTranslationValidator\Validator\Trait\DistributesIssuesForDisplayTrait;
 use Symfony\Component\Console\Helper\{Table, TableStyle};
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -30,6 +30,8 @@ use function in_array;
  */
 class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
 {
+    use DistributesIssuesForDisplayTrait;
+
     /** @var array<string, array<string, array{value: string, html_structure: array<string, mixed>}>> */
     protected array $keyData = [];
 
@@ -98,32 +100,6 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
         $inconsistencyText = implode('; ', $inconsistencies);
 
         return "- <fg={$color}>{$level}</> {$prefix}HTML tag inconsistency in translation key `{$key}` - {$inconsistencyText}";
-    }
-
-    public function distributeIssuesForDisplay(FileSet $fileSet): array
-    {
-        $distribution = [];
-
-        foreach ($this->issues as $issue) {
-            $details = $issue->getDetails();
-            $files = $details['files'] ?? [];
-
-            foreach ($files as $filePath => $_) {
-                if (!empty($filePath)) {
-                    $fileSpecificIssue = new Issue(
-                        $filePath,
-                        $details,
-                        $issue->getParser(),
-                        $issue->getValidatorType(),
-                    );
-
-                    $distribution[$filePath] ??= [];
-                    $distribution[$filePath][] = $fileSpecificIssue;
-                }
-            }
-        }
-
-        return $distribution;
     }
 
     public function renderDetailedOutput(OutputInterface $output, array $issues): void
@@ -201,6 +177,17 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
     public function shouldShowDetailedOutput(): bool
     {
         return true;
+    }
+
+    /**
+     * @return array<string>
+     */
+    protected function extractFilePathsFromIssue(Issue $issue): array
+    {
+        $details = $issue->getDetails();
+        $files = $details['files'] ?? [];
+
+        return array_map(static fn (int|string $key): string => (string) $key, array_keys($files));
     }
 
     protected function resetState(): void
