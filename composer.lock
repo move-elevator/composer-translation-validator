@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8eb12562018b4ef99f0c9ee93f189539",
+    "content-hash": "a19885d27415f3a3d0b4a4701c61a84f",
     "packages": [
         {
             "name": "justinrainbow/json-schema",
@@ -2800,22 +2800,22 @@
         },
         {
             "name": "konradmichalik/php-cs-fixer-preset",
-            "version": "0.1.1",
+            "version": "0.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/konradmichalik/php-cs-fixer-preset.git",
-                "reference": "600fc181ae51e8262afc122ee9f743e75193dbcb"
+                "reference": "9c9c6cf5314b9374e60f3651fc9570793cf74154"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/konradmichalik/php-cs-fixer-preset/zipball/600fc181ae51e8262afc122ee9f743e75193dbcb",
-                "reference": "600fc181ae51e8262afc122ee9f743e75193dbcb",
+                "url": "https://api.github.com/repos/konradmichalik/php-cs-fixer-preset/zipball/9c9c6cf5314b9374e60f3651fc9570793cf74154",
+                "reference": "9c9c6cf5314b9374e60f3651fc9570793cf74154",
                 "shasum": ""
             },
             "require": {
-                "friendsofphp/php-cs-fixer": "^3.14",
+                "friendsofphp/php-cs-fixer": "^3.76",
                 "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
-                "symfony/finder": "^5.4 || ^6.0 || ^7.0"
+                "symfony/finder": "^5.4 || ^6.0 || ^7.0 || ^8.0"
             },
             "require-dev": {
                 "armin/editorconfig-cli": "^2.0",
@@ -2824,8 +2824,11 @@
                 "phpstan/phpstan": "^2.0",
                 "phpstan/phpstan-phpunit": "^2.0",
                 "phpstan/phpstan-symfony": "^2.0",
-                "phpunit/phpunit": "^11.0 || ^12.0",
+                "phpunit/phpunit": "^11.0 || ^12.0 || ^13.0",
                 "rector/rector": "^2.2"
+            },
+            "suggest": {
+                "typo3/coding-standards": "Shipped PHP-CS-Fixer rules for TYPO3 projects and extensions can be included automatically"
             },
             "type": "library",
             "extra": {
@@ -2852,9 +2855,9 @@
             "description": "Preset configuration for PHP-CS-Fixer",
             "support": {
                 "issues": "https://github.com/konradmichalik/php-cs-fixer-preset/issues",
-                "source": "https://github.com/konradmichalik/php-cs-fixer-preset/tree/0.1.1"
+                "source": "https://github.com/konradmichalik/php-cs-fixer-preset/tree/0.2.1"
             },
-            "time": "2025-11-24T14:15:10+00:00"
+            "time": "2026-04-20T12:41:44+00:00"
         },
         {
             "name": "konradmichalik/php-doc-block-header-fixer",
