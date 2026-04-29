@@ -238,4 +238,137 @@ XML;
         $expected = '- <fg=red>Error</> Schema validation error';
         $this->assertSame($expected, $result);
     }
+
+    public function testProcessFileWithMissingTargetLanguage(): void
+    {
+        $xliff = <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" original="messages" datatype="plaintext">
+        <body>
+            <trans-unit id="test">
+                <source>Hello</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
+XML;
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'xliff_test_');
+        file_put_contents($tempFile, $xliff);
+
+        $parser = $this->createStub(XliffParser::class);
+        $parser->method('getFilePath')->willReturn($tempFile);
+        $parser->method('getFileName')->willReturn('de.locallang.xlf');
+
+        $result = $this->validator->processFile($parser);
+
+        unlink($tempFile);
+
+        $targetLangErrors = array_filter(
+            $result,
+            static fn ($e) => isset($e['message']) && str_contains($e['message'], 'target-language'),
+        );
+        $this->assertCount(1, $targetLangErrors);
+        $error = array_values($targetLangErrors)[0];
+        $this->assertStringContainsString('Missing "target-language"', $error['message']);
+        $this->assertStringContainsString('"de"', $error['message']);
+    }
+
+    public function testProcessFileWithMismatchedTargetLanguage(): void
+    {
+        $xliff = <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="fr" original="messages" datatype="plaintext">
+        <body>
+            <trans-unit id="test">
+                <source>Hello</source>
+                <target>Hallo</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
+XML;
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'xliff_test_');
+        file_put_contents($tempFile, $xliff);
+
+        $parser = $this->createStub(XliffParser::class);
+        $parser->method('getFilePath')->willReturn($tempFile);
+        $parser->method('getFileName')->willReturn('de.locallang.xlf');
+
+        $result = $this->validator->processFile($parser);
+
+        unlink($tempFile);
+
+        $this->assertCount(1, $result);
+        $this->assertStringContainsString('"fr"', $result[0]['message']);
+        $this->assertStringContainsString('"de"', $result[0]['message']);
+    }
+
+    public function testProcessFileWithoutLanguagePrefixSkipsTargetLanguageCheck(): void
+    {
+        $xliff = <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" original="messages" datatype="plaintext">
+        <body>
+            <trans-unit id="test">
+                <source>Hello</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
+XML;
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'xliff_test_');
+        file_put_contents($tempFile, $xliff);
+
+        $parser = $this->createStub(XliffParser::class);
+        $parser->method('getFilePath')->willReturn($tempFile);
+        $parser->method('getFileName')->willReturn('locallang.xlf');
+
+        $result = $this->validator->processFile($parser);
+
+        unlink($tempFile);
+
+        $this->assertSame([], $result);
+    }
+
+    public function testProcessFileXliff2WithMissingTrgLang(): void
+    {
+        $xliff = <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en">
+    <file id="messages">
+        <unit id="test">
+            <segment>
+                <source>Hello</source>
+            </segment>
+        </unit>
+    </file>
+</xliff>
+XML;
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'xliff_test_');
+        file_put_contents($tempFile, $xliff);
+
+        $parser = $this->createStub(XliffParser::class);
+        $parser->method('getFilePath')->willReturn($tempFile);
+        $parser->method('getFileName')->willReturn('de.locallang.xlf');
+
+        $result = $this->validator->processFile($parser);
+
+        unlink($tempFile);
+
+        $hasTargetLangError = false;
+        foreach ($result as $error) {
+            if (isset($error['message']) && str_contains($error['message'], 'target-language')) {
+                $hasTargetLangError = true;
+                break;
+            }
+        }
+        $this->assertTrue($hasTargetLangError, 'Expected a target-language error for XLIFF 2.x without trgLang');
+    }
 }

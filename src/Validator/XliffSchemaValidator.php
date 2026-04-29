@@ -19,7 +19,10 @@ use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Translation\Util\XliffUtils;
 
+use function preg_match;
 use function sprintf;
+use function strtolower;
+use function version_compare;
 
 /**
  * XliffSchemaValidator.
@@ -31,40 +34,79 @@ class XliffSchemaValidator extends AbstractValidator implements ValidatorInterfa
 {
     public function processFile(ParserInterface $file): array
     {
+        /*
+         * With XmlUtils::loadFile() we always get a strange symfony error related to global composer autoloading issue.
+         *      Call to undefined method Symfony\Component\Filesystem\Filesystem::readFile()
+         */
+        if (!file_exists($file->getFilePath())) {
+            $this->logger?->error('File does not exist: '.$file->getFileName());
+
+            return [];
+        }
+
+        $fileContent = file_get_contents($file->getFilePath());
+        if (false === $fileContent) {
+            $this->logger?->error('Failed to read file: '.$file->getFileName());
+
+            return [];
+        }
+
         try {
-            /*
-             * With XmlUtils::loadFile() we always get a strange symfony error related to global composer autoloading issue.
-             *      Call to undefined method Symfony\Component\Filesystem\Filesystem::readFile()
-             */
-            if (!file_exists($file->getFilePath())) {
-                $this->logger?->error('File does not exist: '.$file->getFileName());
-
-                return [];
-            }
-
-            $fileContent = file_get_contents($file->getFilePath());
-            if (false === $fileContent) {
-                $this->logger?->error('Failed to read file: '.$file->getFileName());
-
-                return [];
-            }
             $dom = XmlUtils::parse($fileContent);
-            $errors = XliffUtils::validateSchema($dom);
+        } catch (Exception $e) {
+            $this->logger?->error('Failed to validate XML schema: '.$e->getMessage());
+
+            return [];
+        }
+
+        // Schema validation — may throw for unsupported XLIFF versions (e.g. 2.x)
+        $errors = [];
+        try {
+            $errors = array_values(XliffUtils::validateSchema($dom));
         } catch (Exception $e) {
             if (str_contains($e->getMessage(), 'No support implemented for loading XLIFF version')) {
                 $this->logger?->notice(sprintf('Skipping %s: %s', $this->getShortName(), $e->getMessage()));
             } else {
                 $this->logger?->error('Failed to validate XML schema: '.$e->getMessage());
             }
-
-            return [];
         }
 
-        if (!empty($errors)) {
-            return $errors;
+        // Additional check: if filename starts with language code, verify it matches target-language in file header
+        $fileName = $file->getFileName();
+        if (preg_match('/^([a-z]{2})\./i', $fileName, $matches)) {
+            $expectedLanguage = strtolower($matches[1]);
+
+            $xliffRoot = $dom->documentElement;
+            $version = $xliffRoot?->getAttribute('version') ?? '';
+            $isVersion2 = version_compare($version, '2.0', '>=');
+
+            if ($isVersion2) {
+                $targetLang = $xliffRoot?->getAttribute('trgLang') ?? '';
+            } else {
+                $targetLang = $dom->documentElement?->firstElementChild?->getAttribute('target-language') ?? '';
+            }
+
+            if ('' === $targetLang) {
+                $errors[] = [
+                    'message' => sprintf(
+                        'Missing "target-language" attribute on <file> node; expected "%s" based on filename',
+                        $expectedLanguage,
+                    ),
+                    'level' => 'ERROR',
+                ];
+            } elseif (strtolower($targetLang) !== $expectedLanguage) {
+                $errors[] = [
+                    'message' => sprintf(
+                        '"target-language" attribute "%s" does not match filename language "%s"',
+                        $targetLang,
+                        $expectedLanguage,
+                    ),
+                    'level' => 'ERROR',
+                ];
+            }
         }
 
-        return [];
+        return $errors;
     }
 
     public function formatIssueMessage(Issue $issue, string $prefix = ''): string
