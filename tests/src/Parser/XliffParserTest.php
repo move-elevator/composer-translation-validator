@@ -423,6 +423,24 @@ EOT;
         $this->assertSame('de', $parser->getLanguageFromFileName());
     }
 
+    public function testGetLanguageFromFileNamePrefixConventionWithRegion(): void
+    {
+        $file = $this->tempDir.'/de_DE.locallang.xlf';
+        file_put_contents($file, $this->prefixedXliffContent);
+
+        $parser = new XliffParser($file);
+        $this->assertSame('de', $parser->getLanguageFromFileName());
+    }
+
+    public function testGetLanguageFromFileNameSuffixConventionWithRegion(): void
+    {
+        $file = $this->tempDir.'/messages.de_DE.xlf';
+        file_put_contents($file, $this->targetLanguageXliffContent);
+
+        $parser = new XliffParser($file);
+        $this->assertSame('de', $parser->getLanguageFromFileName());
+    }
+
     public function testGetLanguageFromFileNameReturnsNullForSourceFile(): void
     {
         $parser = new XliffParser($this->validXliffFile); // messages.xlf — no locale

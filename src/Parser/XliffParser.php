@@ -133,13 +133,13 @@ class XliffParser extends AbstractParser implements ParserInterface
     {
         $fileName = $this->getFileName();
 
-        // Prefix convention: de.locallang.xlf, de_AT.locallang.xlf
-        if (preg_match('/^([a-z]{2}(?:[-_][A-Z]{2})?)\./i', $fileName, $matches)) {
+        // Prefix convention: de.locallang.xlf, de_AT.locallang.xlf, de_DE.locallang.xlf
+        if (preg_match('/^([a-z]{2})(?:[-_][A-Z]{2})?\./i', $fileName, $matches)) {
             return strtolower($matches[1]);
         }
 
-        // Suffix convention: messages.de.xlf, messages.de_AT.xlf
-        if (preg_match('/\.([a-z]{2}(?:[-_][A-Z]{2})?)\.(?:xlf|xliff)$/i', $fileName, $matches)) {
+        // Suffix convention: messages.de.xlf, messages.de_AT.xlf, messages.de_DE.xlf
+        if (preg_match('/\.([a-z]{2})(?:[-_][A-Z]{2})?\.(?:xlf|xliff)$/i', $fileName, $matches)) {
             return strtolower($matches[1]);
         }
 
