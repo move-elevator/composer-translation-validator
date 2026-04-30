@@ -411,6 +411,54 @@ EOT;
         $this->assertSame('en', $parser->getLanguage());
     }
 
+    public function testGetLanguageFromFileNamePrefixConvention(): void
+    {
+        $parser = new XliffParser($this->prefixedXliffFile); // de.messages.xlf
+        $this->assertSame('de', $parser->getLanguageFromFileName());
+    }
+
+    public function testGetLanguageFromFileNameSuffixConvention(): void
+    {
+        $parser = new XliffParser($this->targetLanguageXliffFile); // messages.de.xlf
+        $this->assertSame('de', $parser->getLanguageFromFileName());
+    }
+
+    public function testGetLanguageFromFileNameReturnsNullForSourceFile(): void
+    {
+        $parser = new XliffParser($this->validXliffFile); // messages.xlf — no locale
+        $this->assertNull($parser->getLanguageFromFileName());
+    }
+
+    public function testGetLanguageFromFileNameReturnsNullForXliff2SourceFile(): void
+    {
+        $parser = new XliffParser($this->xliff2File); // messages_v2.xlf — no locale
+        $this->assertNull($parser->getLanguageFromFileName());
+    }
+
+    public function testGetTargetLanguageReturnsValueWhenSet(): void
+    {
+        $parser = new XliffParser($this->targetLanguageXliffFile); // target-language="de"
+        $this->assertSame('de', $parser->getTargetLanguage());
+    }
+
+    public function testGetTargetLanguageReturnsNullWhenNotSet(): void
+    {
+        $parser = new XliffParser($this->validXliffFile); // no target-language attribute
+        $this->assertNull($parser->getTargetLanguage());
+    }
+
+    public function testGetTargetLanguageXliff2ReturnsValueWhenSet(): void
+    {
+        $parser = new XliffParser($this->xliff2TargetFile); // trgLang="de"
+        $this->assertSame('de', $parser->getTargetLanguage());
+    }
+
+    public function testGetTargetLanguageXliff2ReturnsNullWhenNotSet(): void
+    {
+        $parser = new XliffParser($this->xliff2File); // no trgLang
+        $this->assertNull($parser->getTargetLanguage());
+    }
+
     public function testGetContentByKeyFallsBackToSourceWhenTargetIsEmptyXliff2(): void
     {
         $fallbackFile = $this->tempDir.'/v2_fallback.xlf';

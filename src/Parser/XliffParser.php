@@ -16,6 +16,9 @@ namespace MoveElevator\ComposerTranslationValidator\Parser;
 use InvalidArgumentException;
 use SimpleXMLElement;
 
+use function preg_match;
+use function strtolower;
+
 /**
  * XliffParser.
  *
@@ -112,14 +115,48 @@ class XliffParser extends AbstractParser implements ParserInterface
 
     public function getLanguage(): string
     {
-        if (preg_match(
-            '/^([a-z]{2})\./i',
-            $this->getFileName(),
-            $matches,
-        )) {
-            return $matches[1];
+        return $this->getLanguageFromFileName() ?? $this->getSourceLanguage();
+    }
+
+    /**
+     * Extracts the expected locale from the filename, supporting both
+     * prefix convention (de.locallang.xlf, TYPO3 style) and
+     * suffix convention (messages.de.xlf, Symfony/Laravel style).
+     * Returns null if the filename carries no locale.
+     */
+    public function getLanguageFromFileName(): ?string
+    {
+        $fileName = $this->getFileName();
+
+        // Prefix convention: de.locallang.xlf, de_AT.locallang.xlf
+        if (preg_match('/^([a-z]{2}(?:[-_][A-Z]{2})?)\./i', $fileName, $matches)) {
+            return strtolower($matches[1]);
         }
 
+        // Suffix convention: messages.de.xlf, messages.de_AT.xlf
+        if (preg_match('/\.([a-z]{2}(?:[-_][A-Z]{2})?)\.(?:xlf|xliff)$/i', $fileName, $matches)) {
+            return strtolower($matches[1]);
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the target language declared in the XLIFF file, or null if not set.
+     * XLIFF 1.x: target-language attribute on <file>.
+     * XLIFF 2.x: trgLang attribute on <xliff>.
+     */
+    public function getTargetLanguage(): ?string
+    {
+        $lang = $this->isVersion2
+            ? (string) ($this->xml['trgLang'] ?? '')
+            : (string) ($this->xml->file['target-language'] ?? '');
+
+        return '' !== $lang ? $lang : null;
+    }
+
+    private function getSourceLanguage(): string
+    {
         if ($this->isVersion2) {
             return (string) ($this->xml['srcLang'] ?? '');
         }
