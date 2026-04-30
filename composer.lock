@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1a7e595119ece9231dd246f2b51b4d00",
+    "content-hash": "af504518eb1b3749d572b238726b12b2",
     "packages": [
         {
             "name": "justinrainbow/json-schema",
@@ -2868,22 +2868,22 @@
         },
         {
             "name": "konradmichalik/php-cs-fixer-preset",
-            "version": "0.1.1",
+            "version": "0.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/konradmichalik/php-cs-fixer-preset.git",
-                "reference": "600fc181ae51e8262afc122ee9f743e75193dbcb"
+                "reference": "9c9c6cf5314b9374e60f3651fc9570793cf74154"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/konradmichalik/php-cs-fixer-preset/zipball/600fc181ae51e8262afc122ee9f743e75193dbcb",
-                "reference": "600fc181ae51e8262afc122ee9f743e75193dbcb",
+                "url": "https://api.github.com/repos/konradmichalik/php-cs-fixer-preset/zipball/9c9c6cf5314b9374e60f3651fc9570793cf74154",
+                "reference": "9c9c6cf5314b9374e60f3651fc9570793cf74154",
                 "shasum": ""
             },
             "require": {
-                "friendsofphp/php-cs-fixer": "^3.14",
+                "friendsofphp/php-cs-fixer": "^3.76",
                 "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
-                "symfony/finder": "^5.4 || ^6.0 || ^7.0"
+                "symfony/finder": "^5.4 || ^6.0 || ^7.0 || ^8.0"
             },
             "require-dev": {
                 "armin/editorconfig-cli": "^2.0",
@@ -2892,8 +2892,11 @@
                 "phpstan/phpstan": "^2.0",
                 "phpstan/phpstan-phpunit": "^2.0",
                 "phpstan/phpstan-symfony": "^2.0",
-                "phpunit/phpunit": "^11.0 || ^12.0",
+                "phpunit/phpunit": "^11.0 || ^12.0 || ^13.0",
                 "rector/rector": "^2.2"
+            },
+            "suggest": {
+                "typo3/coding-standards": "Shipped PHP-CS-Fixer rules for TYPO3 projects and extensions can be included automatically"
             },
             "type": "library",
             "extra": {
@@ -2920,9 +2923,9 @@
             "description": "Preset configuration for PHP-CS-Fixer",
             "support": {
                 "issues": "https://github.com/konradmichalik/php-cs-fixer-preset/issues",
-                "source": "https://github.com/konradmichalik/php-cs-fixer-preset/tree/0.1.1"
+                "source": "https://github.com/konradmichalik/php-cs-fixer-preset/tree/0.2.1"
             },
-            "time": "2025-11-24T14:15:10+00:00"
+            "time": "2026-04-20T12:41:44+00:00"
         },
         {
             "name": "konradmichalik/php-doc-block-header-fixer",
@@ -5816,23 +5819,23 @@
         },
         {
             "name": "symfony/finder",
-            "version": "v7.4.8",
+            "version": "v8.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/finder.git",
-                "reference": "e0be088d22278583a82da281886e8c3592fbf149"
+                "reference": "8da41214757b87d97f181e3d14a4179286151007"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/finder/zipball/e0be088d22278583a82da281886e8c3592fbf149",
-                "reference": "e0be088d22278583a82da281886e8c3592fbf149",
+                "url": "https://api.github.com/repos/symfony/finder/zipball/8da41214757b87d97f181e3d14a4179286151007",
+                "reference": "8da41214757b87d97f181e3d14a4179286151007",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.2"
+                "php": ">=8.4"
             },
             "require-dev": {
-                "symfony/filesystem": "^6.4|^7.0|^8.0"
+                "symfony/filesystem": "^7.4|^8.0"
             },
             "type": "library",
             "autoload": {
@@ -5860,7 +5863,7 @@
             "description": "Finds files and directories via an intuitive fluent interface",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/finder/tree/v7.4.8"
+                "source": "https://github.com/symfony/finder/tree/v8.0.8"
             },
             "funding": [
                 {
@@ -5880,7 +5883,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-03-24T13:12:05+00:00"
+            "time": "2026-03-30T15:14:47+00:00"
         },
         {
             "name": "symfony/mime",
