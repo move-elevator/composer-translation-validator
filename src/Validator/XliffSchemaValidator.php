@@ -77,11 +77,16 @@ class XliffSchemaValidator extends AbstractValidator implements ValidatorInterfa
         $expectedLanguage = $file->getLanguageFromFileName();
         if (null !== $expectedLanguage) {
             $targetLang = $file->getTargetLanguage();
+            $isVersion2 = $file->isVersion2();
+            $attribute = $isVersion2 ? 'trgLang' : 'target-language';
+            $element = $isVersion2 ? '<xliff>' : '<file>';
 
             if (null === $targetLang) {
                 $errors[] = [
                     'message' => sprintf(
-                        'Missing "target-language" attribute on <file> node; expected "%s" based on filename',
+                        'Missing "%s" attribute on %s node; expected "%s" based on filename',
+                        $attribute,
+                        $element,
                         $expectedLanguage,
                     ),
                     'level' => 'ERROR',
@@ -89,7 +94,8 @@ class XliffSchemaValidator extends AbstractValidator implements ValidatorInterfa
             } elseif (strtolower($targetLang) !== $expectedLanguage) {
                 $errors[] = [
                     'message' => sprintf(
-                        '"target-language" attribute "%s" does not match filename language "%s"',
+                        '"%s" attribute "%s" does not match filename language "%s"',
+                        $attribute,
                         $targetLang,
                         $expectedLanguage,
                     ),

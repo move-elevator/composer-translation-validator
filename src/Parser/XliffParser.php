@@ -118,6 +118,11 @@ class XliffParser extends AbstractParser implements ParserInterface
         return $this->getLanguageFromFileName() ?? $this->getSourceLanguage();
     }
 
+    public function isVersion2(): bool
+    {
+        return $this->isVersion2;
+    }
+
     /**
      * Extracts the expected locale from the filename, supporting both
      * prefix convention (de.locallang.xlf, TYPO3 style) and

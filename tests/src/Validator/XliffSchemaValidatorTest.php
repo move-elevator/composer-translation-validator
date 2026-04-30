@@ -356,12 +356,12 @@ XML;
 
         $hasTargetLangError = false;
         foreach ($result as $error) {
-            if (isset($error['message']) && str_contains($error['message'], 'target-language')) {
+            if (isset($error['message']) && str_contains($error['message'], 'trgLang')) {
                 $hasTargetLangError = true;
                 break;
             }
         }
-        $this->assertTrue($hasTargetLangError, 'Expected a target-language error for XLIFF 2.x without trgLang');
+        $this->assertTrue($hasTargetLangError, 'Expected a trgLang error for XLIFF 2.x without trgLang');
     }
 
     public function testProcessFileXliff2WithMismatchedTrgLang(): void
@@ -391,7 +391,7 @@ XML;
 
         $mismatchErrors = array_filter(
             $result,
-            static fn ($e) => isset($e['message']) && str_contains($e['message'], 'target-language'),
+            static fn ($e) => isset($e['message']) && str_contains($e['message'], 'trgLang'),
         );
         $this->assertCount(1, $mismatchErrors);
         $error = array_values($mismatchErrors)[0];
