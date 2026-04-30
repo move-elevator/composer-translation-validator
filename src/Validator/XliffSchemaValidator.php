@@ -19,10 +19,8 @@ use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Translation\Util\XliffUtils;
 
-use function preg_match;
 use function sprintf;
 use function strtolower;
-use function version_compare;
 
 /**
  * XliffSchemaValidator.
@@ -62,7 +60,7 @@ class XliffSchemaValidator extends AbstractValidator implements ValidatorInterfa
         // Schema validation — may throw for unsupported XLIFF versions (e.g. 2.x)
         $errors = [];
         try {
-            $errors = array_values(XliffUtils::validateSchema($dom));
+            $errors = XliffUtils::validateSchema($dom);
         } catch (Exception $e) {
             if (str_contains($e->getMessage(), 'No support implemented for loading XLIFF version')) {
                 $this->logger?->notice(sprintf('Skipping %s: %s', $this->getShortName(), $e->getMessage()));
@@ -71,22 +69,16 @@ class XliffSchemaValidator extends AbstractValidator implements ValidatorInterfa
             }
         }
 
-        // Additional check: if filename starts with language code, verify it matches target-language in file header
-        $fileName = $file->getFileName();
-        if (preg_match('/^([a-z]{2})\./i', $fileName, $matches)) {
-            $expectedLanguage = strtolower($matches[1]);
+        // Additional check: if filename encodes a locale, verify it matches target-language in the file header
+        if (!$file instanceof XliffParser) {
+            return $errors;
+        }
 
-            $xliffRoot = $dom->documentElement;
-            $version = $xliffRoot?->getAttribute('version') ?? '';
-            $isVersion2 = version_compare($version, '2.0', '>=');
+        $expectedLanguage = $file->getLanguageFromFileName();
+        if (null !== $expectedLanguage) {
+            $targetLang = $file->getTargetLanguage();
 
-            if ($isVersion2) {
-                $targetLang = $xliffRoot?->getAttribute('trgLang') ?? '';
-            } else {
-                $targetLang = $dom->documentElement?->firstElementChild?->getAttribute('target-language') ?? '';
-            }
-
-            if ('' === $targetLang) {
+            if (null === $targetLang) {
                 $errors[] = [
                     'message' => sprintf(
                         'Missing "target-language" attribute on <file> node; expected "%s" based on filename',

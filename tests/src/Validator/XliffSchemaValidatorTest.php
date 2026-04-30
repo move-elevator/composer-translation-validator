@@ -254,13 +254,11 @@ XML;
 </xliff>
 XML;
 
-        $tempFile = tempnam(sys_get_temp_dir(), 'xliff_test_');
+        $tempDir = sys_get_temp_dir();
+        $tempFile = $tempDir.'/de.locallang.xlf';
         file_put_contents($tempFile, $xliff);
 
-        $parser = $this->createStub(XliffParser::class);
-        $parser->method('getFilePath')->willReturn($tempFile);
-        $parser->method('getFileName')->willReturn('de.locallang.xlf');
-
+        $parser = new XliffParser($tempFile);
         $result = $this->validator->processFile($parser);
 
         unlink($tempFile);
@@ -291,13 +289,11 @@ XML;
 </xliff>
 XML;
 
-        $tempFile = tempnam(sys_get_temp_dir(), 'xliff_test_');
+        $tempDir = sys_get_temp_dir();
+        $tempFile = $tempDir.'/de.locallang.xlf';
         file_put_contents($tempFile, $xliff);
 
-        $parser = $this->createStub(XliffParser::class);
-        $parser->method('getFilePath')->willReturn($tempFile);
-        $parser->method('getFileName')->willReturn('de.locallang.xlf');
-
+        $parser = new XliffParser($tempFile);
         $result = $this->validator->processFile($parser);
 
         unlink($tempFile);
@@ -322,13 +318,11 @@ XML;
 </xliff>
 XML;
 
-        $tempFile = tempnam(sys_get_temp_dir(), 'xliff_test_');
+        $tempDir = sys_get_temp_dir();
+        $tempFile = $tempDir.'/locallang.xlf';
         file_put_contents($tempFile, $xliff);
 
-        $parser = $this->createStub(XliffParser::class);
-        $parser->method('getFilePath')->willReturn($tempFile);
-        $parser->method('getFileName')->willReturn('locallang.xlf');
-
+        $parser = new XliffParser($tempFile);
         $result = $this->validator->processFile($parser);
 
         unlink($tempFile);
@@ -351,13 +345,11 @@ XML;
 </xliff>
 XML;
 
-        $tempFile = tempnam(sys_get_temp_dir(), 'xliff_test_');
+        $tempDir = sys_get_temp_dir();
+        $tempFile = $tempDir.'/de.locallang.xlf';
         file_put_contents($tempFile, $xliff);
 
-        $parser = $this->createStub(XliffParser::class);
-        $parser->method('getFilePath')->willReturn($tempFile);
-        $parser->method('getFileName')->willReturn('de.locallang.xlf');
-
+        $parser = new XliffParser($tempFile);
         $result = $this->validator->processFile($parser);
 
         unlink($tempFile);
@@ -370,5 +362,40 @@ XML;
             }
         }
         $this->assertTrue($hasTargetLangError, 'Expected a target-language error for XLIFF 2.x without trgLang');
+    }
+
+    public function testProcessFileXliff2WithMismatchedTrgLang(): void
+    {
+        $xliff = <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en" trgLang="fr">
+    <file id="messages">
+        <unit id="test">
+            <segment>
+                <source>Hello</source>
+                <target>Bonjour</target>
+            </segment>
+        </unit>
+    </file>
+</xliff>
+XML;
+
+        $tempDir = sys_get_temp_dir();
+        $tempFile = $tempDir.'/de.locallang.xlf';
+        file_put_contents($tempFile, $xliff);
+
+        $parser = new XliffParser($tempFile);
+        $result = $this->validator->processFile($parser);
+
+        unlink($tempFile);
+
+        $mismatchErrors = array_filter(
+            $result,
+            static fn ($e) => isset($e['message']) && str_contains($e['message'], 'target-language'),
+        );
+        $this->assertCount(1, $mismatchErrors);
+        $error = array_values($mismatchErrors)[0];
+        $this->assertStringContainsString('"fr"', $error['message']);
+        $this->assertStringContainsString('"de"', $error['message']);
     }
 }
