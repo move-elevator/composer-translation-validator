@@ -111,7 +111,7 @@ XML;
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
             ->method('error')
-            ->with($this->stringContains('Failed to validate XML schema:'));
+            ->with($this->stringContains('Failed to parse XML:'));
 
         $validator = new XliffSchemaValidator($logger);
         $result = $validator->processFile($parser);

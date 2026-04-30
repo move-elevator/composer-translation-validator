@@ -54,7 +54,7 @@ class XliffSchemaValidator extends AbstractValidator implements ValidatorInterfa
         try {
             $dom = XmlUtils::parse($fileContent);
         } catch (Exception $e) {
-            $this->logger?->error('Failed to validate XML schema: '.$e->getMessage());
+            $this->logger?->error('Failed to parse XML: '.$e->getMessage());
 
             return [];
         }
