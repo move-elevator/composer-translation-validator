@@ -21,9 +21,9 @@ return RectorConfig::configure()
         __DIR__.'/src',
         __DIR__.'/tests/src',
     ])
-    ->withPhpVersion(PhpVersion::PHP_81)
+    ->withPhpVersion(PhpVersion::PHP_82)
     ->withSets([
-        LevelSetList::UP_TO_PHP_81,
+        LevelSetList::UP_TO_PHP_82,
     ])
     ->withComposerBased(symfony: true)
     ->withRules([

@@ -141,7 +141,7 @@ final class MismatchValidatorTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($expectedIssues, array_map(fn ($issue) => $issue->toArray(), $issues));
+        $this->assertEquals($expectedIssues, array_map(static fn ($issue) => $issue->toArray(), $issues));
     }
 
     public function testPostProcessWithoutMismatches(): void
@@ -348,10 +348,10 @@ final class MismatchValidatorTest extends TestCase
         // Should detect both keys as missing in the empty file
         $this->assertCount(2, $issues);
 
-        $issueArrays = array_map(fn ($issue) => $issue->toArray(), $issues);
+        $issueArrays = array_map(static fn ($issue) => $issue->toArray(), $issues);
 
         // Check that both key1 and key2 are reported as mismatches
-        $keys = array_map(fn ($issue) => $issue['issues']['key'], $issueArrays);
+        $keys = array_map(static fn ($issue) => $issue['issues']['key'], $issueArrays);
         $this->assertContains('key1', $keys);
         $this->assertContains('key2', $keys);
 
@@ -360,7 +360,7 @@ final class MismatchValidatorTest extends TestCase
             $files = $issueArray['issues']['files'];
             $this->assertCount(2, $files);
 
-            $fileNames = array_map(fn ($file) => $file['file'], $files);
+            $fileNames = array_map(static fn ($file) => $file['file'], $files);
             $this->assertContains('source.xlf', $fileNames);
             $this->assertContains('empty.xlf', $fileNames);
 
@@ -409,8 +409,8 @@ final class MismatchValidatorTest extends TestCase
         // - key4, key5, key6 are missing from both partial.xlf and empty.xlf
         $this->assertCount(6, $issues);
 
-        $issueArrays = array_map(fn ($issue) => $issue->toArray(), $issues);
-        $keys = array_map(fn ($issue) => $issue['issues']['key'], $issueArrays);
+        $issueArrays = array_map(static fn ($issue) => $issue->toArray(), $issues);
+        $keys = array_map(static fn ($issue) => $issue['issues']['key'], $issueArrays);
 
         // All keys should be reported as missing somewhere
         $this->assertContains('key1', $keys);

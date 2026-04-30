@@ -307,11 +307,11 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
                 $extraTags = array_diff($currentTags, $referenceTags);
 
                 if (!empty($missingTags)) {
-                    $inconsistencies[] = "File '{$currentFile}' is missing HTML tags: ".implode(', ', array_map(fn ($tag) => "<{$tag}>", $missingTags));
+                    $inconsistencies[] = "File '{$currentFile}' is missing HTML tags: ".implode(', ', array_map(static fn ($tag) => "<{$tag}>", $missingTags));
                 }
 
                 if (!empty($extraTags)) {
-                    $inconsistencies[] = "File '{$currentFile}' has extra HTML tags: ".implode(', ', array_map(fn ($tag) => "<{$tag}>", $extraTags));
+                    $inconsistencies[] = "File '{$currentFile}' has extra HTML tags: ".implode(', ', array_map(static fn ($tag) => "<{$tag}>", $extraTags));
                 }
             }
 
