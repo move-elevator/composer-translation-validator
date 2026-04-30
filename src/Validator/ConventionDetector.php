@@ -49,7 +49,7 @@ final class ConventionDetector
             foreach ($segments as $segment) {
                 $segmentMatches = $this->detectSegmentConventions($segment);
                 // Remove dot.notation from segment matches as it doesn't apply to individual segments
-                $segmentMatches = array_filter($segmentMatches, fn ($conv) => $conv !== KeyNamingConvention::DOT_NOTATION->value);
+                $segmentMatches = array_filter($segmentMatches, static fn ($conv) => $conv !== KeyNamingConvention::DOT_NOTATION->value);
 
                 if (null === $consistentConventions) {
                     // First segment - initialize with its conventions
@@ -71,10 +71,10 @@ final class ConventionDetector
             }
 
             return array_unique($matchingConventions);
-        } else {
-            // No dots, check regular conventions
-            return $this->detectSegmentConventions($key);
         }
+
+        // No dots, check regular conventions
+        return $this->detectSegmentConventions($key);
     }
 
     /**
@@ -145,7 +145,7 @@ final class ConventionDetector
         // Find the most common convention (deterministic tie-breaking)
         arsort($conventionCounts);
         $maxCount = reset($conventionCounts);
-        $topConventions = array_filter($conventionCounts, fn ($c) => $c === $maxCount);
+        $topConventions = array_filter($conventionCounts, static fn ($c) => $c === $maxCount);
         ksort($topConventions);
         $dominantConvention = array_key_first($topConventions);
 

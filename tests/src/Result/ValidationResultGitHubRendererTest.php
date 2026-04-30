@@ -186,7 +186,7 @@ final class ValidationResultGitHubRendererTest extends TestCase
         $validator->method('resultTypeOnValidationFailure')->willReturn($resultType);
         $validator->method('getShortName')->willReturn('TestValidator');
         $validator->method('distributeIssuesForDisplay')->willReturn(
-            array_reduce($issues, function (array $acc, Issue $issue) {
+            array_reduce($issues, static function (array $acc, Issue $issue) {
                 $acc[$issue->getFile()][] = $issue;
 
                 return $acc;

@@ -279,22 +279,22 @@ final class ValidationResultJsonRendererTest extends TestCase
         // Create first validator with issues
         $validator1 = $this->createStub(ValidatorInterface::class);
         $validator1->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
-        $validator1->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error 1");
+        $validator1->method('formatIssueMessage')->willReturnCallback(static fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error 1");
         $validator1->method('getShortName')->willReturn('Validator1');
         $issue1 = new Issue('test.xlf', ['error1'], 'TestParser', 'TestValidator1');
         $validator1->method('hasIssues')->willReturn(true);
         $validator1->method('getIssues')->willReturn([$issue1]);
-        $validator1->method('distributeIssuesForDisplay')->willReturnCallback(fn (FileSet $fileSet): array => ['/test/path/test.xlf' => [$issue1]]);
+        $validator1->method('distributeIssuesForDisplay')->willReturnCallback(static fn (FileSet $fileSet): array => ['/test/path/test.xlf' => [$issue1]]);
 
         // Create second validator with issues
         $validator2 = $this->createStub(ValidatorInterface::class);
         $validator2->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
-        $validator2->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error 2");
+        $validator2->method('formatIssueMessage')->willReturnCallback(static fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error 2");
         $validator2->method('getShortName')->willReturn('Validator2');
         $issue2 = new Issue('test.xlf', ['error2'], 'TestParser', 'TestValidator2');
         $validator2->method('hasIssues')->willReturn(true);
         $validator2->method('getIssues')->willReturn([$issue2]);
-        $validator2->method('distributeIssuesForDisplay')->willReturnCallback(fn (FileSet $fileSet): array => ['/test/path/test.xlf' => [$issue2]]);
+        $validator2->method('distributeIssuesForDisplay')->willReturnCallback(static fn (FileSet $fileSet): array => ['/test/path/test.xlf' => [$issue2]]);
 
         $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
         $validationResult = new ValidationResult(
@@ -345,7 +345,7 @@ final class ValidationResultJsonRendererTest extends TestCase
 
         $validator->method('hasIssues')->willReturn(true);
         $validator->method('getIssues')->willReturn([$issue1, $issue2]);
-        $validator->method('distributeIssuesForDisplay')->willReturnCallback(fn (FileSet $fileSet): array => [
+        $validator->method('distributeIssuesForDisplay')->willReturnCallback(static fn (FileSet $fileSet): array => [
             '/test/path/file1.xlf' => [new Issue('file1.xlf', ['error1'], 'TestParser', 'TestValidator')],
             '/test/path/file2.xlf' => [new Issue('file2.xlf', ['error2'], 'TestParser', 'TestValidator')],
         ]);
@@ -425,8 +425,8 @@ final class ValidationResultJsonRendererTest extends TestCase
         /** @var \PHPUnit\Framework\MockObject\Stub&ValidatorInterface $validator */
         $validator = $this->createStub(ValidatorInterface::class);
         $validator->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
-        $validator->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error");
-        $validator->method('distributeIssuesForDisplay')->willReturnCallback(function (FileSet $fileSet) use ($validator): array {
+        $validator->method('formatIssueMessage')->willReturnCallback(static fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error");
+        $validator->method('distributeIssuesForDisplay')->willReturnCallback(static function (FileSet $fileSet) use ($validator): array {
             $distribution = [];
             foreach ($validator->getIssues() as $issue) {
                 $fileName = $issue->getFile();

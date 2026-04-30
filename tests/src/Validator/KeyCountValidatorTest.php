@@ -29,7 +29,7 @@ final class KeyCountValidatorTest extends TestCase
 {
     public function testProcessFileWithExceedingKeyCount(): void
     {
-        $keys = array_map(fn ($i) => "key$i", range(1, 350));
+        $keys = array_map(static fn ($i) => "key$i", range(1, 350));
 
         $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
@@ -52,7 +52,7 @@ final class KeyCountValidatorTest extends TestCase
 
     public function testProcessFileWithAcceptableKeyCount(): void
     {
-        $keys = array_map(fn ($i) => "key$i", range(1, 250));
+        $keys = array_map(static fn ($i) => "key$i", range(1, 250));
 
         $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
@@ -69,7 +69,7 @@ final class KeyCountValidatorTest extends TestCase
 
     public function testProcessFileWithExactThresholdKeyCount(): void
     {
-        $keys = array_map(fn ($i) => "key$i", range(1, 300));
+        $keys = array_map(static fn ($i) => "key$i", range(1, 300));
 
         $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
@@ -122,7 +122,7 @@ final class KeyCountValidatorTest extends TestCase
         $config = $factory->createFromArray(['paths' => ['test/']]);
         $config->setValidatorSetting('KeyCountValidator', ['threshold' => 150]);
 
-        $keys = array_map(fn ($i) => "key$i", range(1, 200));
+        $keys = array_map(static fn ($i) => "key$i", range(1, 200));
 
         $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
@@ -148,7 +148,7 @@ final class KeyCountValidatorTest extends TestCase
         $config = $factory->createFromArray(['paths' => ['test/']]);
         $config->setValidatorSetting('KeyCountValidator', ['threshold' => 500]);
 
-        $keys = array_map(fn ($i) => "key$i", range(1, 200));
+        $keys = array_map(static fn ($i) => "key$i", range(1, 200));
 
         $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
@@ -168,7 +168,7 @@ final class KeyCountValidatorTest extends TestCase
         $config = $factory->createFromArray(['paths' => ['test/']]);
         $config->setValidatorSetting('KeyCountValidator', ['threshold' => 'invalid']);
 
-        $keys = array_map(fn ($i) => "key$i", range(1, 350));
+        $keys = array_map(static fn ($i) => "key$i", range(1, 350));
 
         $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
@@ -186,7 +186,7 @@ final class KeyCountValidatorTest extends TestCase
 
     public function testValidatorWithoutConfig(): void
     {
-        $keys = array_map(fn ($i) => "key$i", range(1, 350));
+        $keys = array_map(static fn ($i) => "key$i", range(1, 350));
 
         $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
@@ -208,7 +208,7 @@ final class KeyCountValidatorTest extends TestCase
         $config = $factory->createFromArray(['paths' => ['test/']]);
         // No validator-specific settings
 
-        $keys = array_map(fn ($i) => "key$i", range(1, 350));
+        $keys = array_map(static fn ($i) => "key$i", range(1, 350));
 
         $parser = $this->createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);

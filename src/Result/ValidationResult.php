@@ -51,7 +51,7 @@ class ValidationResult
      */
     public function getValidatorsWithIssues(): array
     {
-        return array_filter($this->validatorInstances, fn ($validator) => $validator->hasIssues());
+        return array_filter($this->validatorInstances, static fn ($validator) => $validator->hasIssues());
     }
 
     /**
