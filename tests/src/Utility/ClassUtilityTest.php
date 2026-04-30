@@ -100,7 +100,7 @@ final class ClassUtilityTest extends TestCase
     {
         $loggedMessages = [];
         $logger = $this->createStub(LoggerInterface::class);
-        $logger->method('error')->willReturnCallback(function (string|Stringable $message) use (&$loggedMessages): void {
+        $logger->method('error')->willReturnCallback(static function (string|Stringable $message) use (&$loggedMessages): void {
             $loggedMessages[] = $message;
         });
 
@@ -114,7 +114,7 @@ final class ClassUtilityTest extends TestCase
     {
         $loggedMessages = [];
         $logger = $this->createStub(LoggerInterface::class);
-        $logger->method('error')->willReturnCallback(function (string|Stringable $message) use (&$loggedMessages): void {
+        $logger->method('error')->willReturnCallback(static function (string|Stringable $message) use (&$loggedMessages): void {
             $loggedMessages[] = $message;
         });
 

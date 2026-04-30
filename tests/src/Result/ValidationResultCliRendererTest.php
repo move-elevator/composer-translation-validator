@@ -331,8 +331,8 @@ final class ValidationResultCliRendererTest extends TestCase
         /** @var \PHPUnit\Framework\MockObject\Stub&ValidatorInterface $validator */
         $validator = $this->createStub(ValidatorInterface::class);
         $validator->method('resultTypeOnValidationFailure')->willReturn($resultType);
-        $validator->method('formatIssueMessage')->willReturnCallback(fn (Issue $issue, string $prefix = '', bool $isVerbose = false): string => $isVerbose ? '- <fg=red>Error</> Validation error' : "- <fg=red>Error</> {$prefix}Validation error");
-        $validator->method('distributeIssuesForDisplay')->willReturnCallback(function (FileSet $fileSet) use ($validator): array {
+        $validator->method('formatIssueMessage')->willReturnCallback(static fn (Issue $issue, string $prefix = '', bool $isVerbose = false): string => $isVerbose ? '- <fg=red>Error</> Validation error' : "- <fg=red>Error</> {$prefix}Validation error");
+        $validator->method('distributeIssuesForDisplay')->willReturnCallback(static function (FileSet $fileSet) use ($validator): array {
             $distribution = [];
             foreach ($validator->getIssues() as $issue) {
                 $fileName = $issue->getFile();

@@ -74,7 +74,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
         $result = $validator->processFile($parser);
 
         // Find any issue for the camelCase dotted key
-        $camelCaseIssues = array_filter($result, fn ($issue) => 'teaser.image.cropVariant.slider' === $issue['key'],
+        $camelCaseIssues = array_filter($result, static fn ($issue) => 'teaser.image.cropVariant.slider' === $issue['key'],
         );
 
         // The bug is fixed: camelCase dotted keys should NOT be flagged as inconsistent

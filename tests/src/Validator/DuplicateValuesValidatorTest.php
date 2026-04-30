@@ -150,7 +150,7 @@ final class DuplicateValuesValidatorTest extends TestCase
             ],
         ];
 
-        $this->assertSame($expectedIssues, array_map(fn ($issue) => $issue->toArray(), $issues));
+        $this->assertSame($expectedIssues, array_map(static fn ($issue) => $issue->toArray(), $issues));
     }
 
     public function testPostProcessWithoutDuplicateValues(): void

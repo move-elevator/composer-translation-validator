@@ -14,30 +14,6 @@ jobs:
       matrix:
         include:
           # Lowest PHP, Lowest Compatible Symfony, Lowest Composer
-          - php: '8.1'
-            symfony_constraint: '^5.0'
-            composer_version: '2.2'
-            name_suffix: ' (PHP 8.1, Symfony 5.x, Composer 2.2)'
-
-          # Lowest PHP, Lowest Compatible Symfony, Highest Composer
-          - php: '8.1'
-            symfony_constraint: '^5.0'
-            composer_version: '2.9'
-            name_suffix: ' (PHP 8.1, Symfony 5.x, Composer 2.9)'
-
-          # Lowest PHP, Symfony 6.x, Lowest Composer
-          - php: '8.1'
-            symfony_constraint: '^6.0' #
-            composer_version: '2.2'
-            name_suffix: ' (PHP 8.1, Symfony 6.x, Composer 2.2)'
-
-          # Lowest PHP, Symfony 6.x, Highest Composer
-          - php: '8.1'
-            symfony_constraint: '^6.0'
-            composer_version: '2.9'
-            name_suffix: ' (PHP 8.1, Symfony 6.x, Composer 2.9)'
-
-          # PHP 8.2, Symfony 6.x, Lowest Composer
           - php: '8.2'
             symfony_constraint: '^6.0'
             composer_version: '2.2'

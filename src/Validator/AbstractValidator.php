@@ -137,7 +137,7 @@ abstract class AbstractValidator
 
         $this->postProcess();
 
-        return array_map(fn ($issue) => $issue->toArray(), $this->issues);
+        return array_map(static fn ($issue) => $issue->toArray(), $this->issues);
     }
 
     /**
