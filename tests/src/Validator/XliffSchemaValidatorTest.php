@@ -273,6 +273,34 @@ XML;
         $this->assertStringContainsString('"de"', $error['message']);
     }
 
+    public function testProcessFileWithRegionInFilenameAndAttributeIsNotAFalsePositive(): void
+    {
+        $xliff = <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="de-AT" original="messages" datatype="plaintext">
+        <body>
+            <trans-unit id="test">
+                <source>Hello</source>
+                <target>Hallo</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
+XML;
+
+        $tempDir = sys_get_temp_dir();
+        $tempFile = $tempDir.'/de_AT.locallang.xlf';
+        file_put_contents($tempFile, $xliff);
+
+        $parser = new XliffParser($tempFile);
+        $result = $this->validator->processFile($parser);
+
+        unlink($tempFile);
+
+        $this->assertSame([], $result);
+    }
+
     public function testProcessFileWithMismatchedTargetLanguage(): void
     {
         $xliff = <<<'XML'

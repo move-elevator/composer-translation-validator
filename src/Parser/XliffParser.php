@@ -147,7 +147,8 @@ class XliffParser extends AbstractParser implements ParserInterface
     }
 
     /**
-     * Returns the target language declared in the XLIFF file, or null if not set.
+     * Returns the normalized target language declared in the XLIFF file, or null if not set.
+     * Region suffix is stripped to match getLanguageFromFileName() behavior (e.g. "de-AT" → "de").
      * XLIFF 1.x: target-language attribute on <file>.
      * XLIFF 2.x: trgLang attribute on <xliff>.
      */
@@ -157,7 +158,11 @@ class XliffParser extends AbstractParser implements ParserInterface
             ? (string) ($this->xml['trgLang'] ?? '')
             : (string) ($this->xml->file['target-language'] ?? '');
 
-        return '' !== $lang ? $lang : null;
+        if ('' === $lang) {
+            return null;
+        }
+
+        return strtolower((string) preg_replace('/[-_][^-_]+$/', '', $lang));
     }
 
     private function getSourceLanguage(): string
