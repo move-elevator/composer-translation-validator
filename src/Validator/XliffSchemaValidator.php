@@ -20,6 +20,7 @@ use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Translation\Util\XliffUtils;
 
 use function sprintf;
+use function strtolower;
 
 /**
  * XliffSchemaValidator.
@@ -31,24 +32,34 @@ class XliffSchemaValidator extends AbstractValidator implements ValidatorInterfa
 {
     public function processFile(ParserInterface $file): array
     {
+        /*
+         * With XmlUtils::loadFile() we always get a strange symfony error related to global composer autoloading issue.
+         *      Call to undefined method Symfony\Component\Filesystem\Filesystem::readFile()
+         */
+        if (!file_exists($file->getFilePath())) {
+            $this->logger?->error('File does not exist: '.$file->getFileName());
+
+            return [];
+        }
+
+        $fileContent = file_get_contents($file->getFilePath());
+        if (false === $fileContent) {
+            $this->logger?->error('Failed to read file: '.$file->getFileName());
+
+            return [];
+        }
+
         try {
-            /*
-             * With XmlUtils::loadFile() we always get a strange symfony error related to global composer autoloading issue.
-             *      Call to undefined method Symfony\Component\Filesystem\Filesystem::readFile()
-             */
-            if (!file_exists($file->getFilePath())) {
-                $this->logger?->error('File does not exist: '.$file->getFileName());
-
-                return [];
-            }
-
-            $fileContent = file_get_contents($file->getFilePath());
-            if (false === $fileContent) {
-                $this->logger?->error('Failed to read file: '.$file->getFileName());
-
-                return [];
-            }
             $dom = XmlUtils::parse($fileContent);
+        } catch (Exception $e) {
+            $this->logger?->error('Failed to parse XML: '.$e->getMessage());
+
+            return [];
+        }
+
+        // Schema validation — may throw for unsupported XLIFF versions (e.g. 2.x)
+        $errors = [];
+        try {
             $errors = XliffUtils::validateSchema($dom);
         } catch (Exception $e) {
             if (str_contains($e->getMessage(), 'No support implemented for loading XLIFF version')) {
@@ -56,15 +67,44 @@ class XliffSchemaValidator extends AbstractValidator implements ValidatorInterfa
             } else {
                 $this->logger?->error('Failed to validate XML schema: '.$e->getMessage());
             }
-
-            return [];
         }
 
-        if (!empty($errors)) {
+        // Additional check: if filename encodes a locale, verify it matches target-language in the file header
+        if (!$file instanceof XliffParser) {
             return $errors;
         }
 
-        return [];
+        $expectedLanguage = $file->getLanguageFromFileName();
+        if (null !== $expectedLanguage) {
+            $targetLang = $file->getTargetLanguage();
+            $isVersion2 = $file->isVersion2();
+            $attribute = $isVersion2 ? 'trgLang' : 'target-language';
+            $element = $isVersion2 ? '<xliff>' : '<file>';
+
+            if (null === $targetLang) {
+                $errors[] = [
+                    'message' => sprintf(
+                        'Missing "%s" attribute on %s node; expected "%s" based on filename',
+                        $attribute,
+                        $element,
+                        $expectedLanguage,
+                    ),
+                    'level' => 'ERROR',
+                ];
+            } elseif (strtolower($targetLang) !== $expectedLanguage) {
+                $errors[] = [
+                    'message' => sprintf(
+                        '"%s" attribute "%s" does not match filename language "%s"',
+                        $attribute,
+                        $targetLang,
+                        $expectedLanguage,
+                    ),
+                    'level' => 'ERROR',
+                ];
+            }
+        }
+
+        return $errors;
     }
 
     public function formatIssueMessage(Issue $issue, string $prefix = ''): string

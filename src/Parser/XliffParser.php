@@ -16,6 +16,9 @@ namespace MoveElevator\ComposerTranslationValidator\Parser;
 use InvalidArgumentException;
 use SimpleXMLElement;
 
+use function preg_match;
+use function strtolower;
+
 /**
  * XliffParser.
  *
@@ -112,14 +115,58 @@ class XliffParser extends AbstractParser implements ParserInterface
 
     public function getLanguage(): string
     {
-        if (preg_match(
-            '/^([a-z]{2})\./i',
-            $this->getFileName(),
-            $matches,
-        )) {
-            return $matches[1];
+        return $this->getLanguageFromFileName() ?? $this->getSourceLanguage();
+    }
+
+    public function isVersion2(): bool
+    {
+        return $this->isVersion2;
+    }
+
+    /**
+     * Extracts the expected locale from the filename, supporting both
+     * prefix convention (de.locallang.xlf, TYPO3 style) and
+     * suffix convention (messages.de.xlf, Symfony/Laravel style).
+     * Returns null if the filename carries no locale.
+     */
+    public function getLanguageFromFileName(): ?string
+    {
+        $fileName = $this->getFileName();
+
+        // Prefix convention: de.locallang.xlf, de_AT.locallang.xlf, de_DE.locallang.xlf
+        if (preg_match('/^([a-z]{2})(?:[-_][A-Z]{2})?\./i', $fileName, $matches)) {
+            return strtolower($matches[1]);
         }
 
+        // Suffix convention: messages.de.xlf, messages.de_AT.xlf, messages.de_DE.xlf
+        if (preg_match('/\.([a-z]{2})(?:[-_][A-Z]{2})?\.(?:xlf|xliff)$/i', $fileName, $matches)) {
+            return strtolower($matches[1]);
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the normalized target language declared in the XLIFF file, or null if not set.
+     * Region suffix is stripped to match getLanguageFromFileName() behavior (e.g. "de-AT" → "de").
+     * XLIFF 1.x: target-language attribute on <file>.
+     * XLIFF 2.x: trgLang attribute on <xliff>.
+     */
+    public function getTargetLanguage(): ?string
+    {
+        $lang = $this->isVersion2
+            ? (string) ($this->xml['trgLang'] ?? '')
+            : (string) ($this->xml->file['target-language'] ?? '');
+
+        if ('' === $lang) {
+            return null;
+        }
+
+        return strtolower((string) preg_replace('/[-_][^-_]+$/', '', $lang));
+    }
+
+    private function getSourceLanguage(): string
+    {
         if ($this->isVersion2) {
             return (string) ($this->xml['srcLang'] ?? '');
         }
