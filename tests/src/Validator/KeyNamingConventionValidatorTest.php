@@ -533,8 +533,9 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
     public function testConfigurationLoadingWithInvalidConvention(): void
     {
-        $config = $this->createStub(\MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig::class);
-        $config->method('getValidatorSettings')
+        $config = $this->createMock(\MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig::class);
+        $config->expects($this->any())
+            ->method('getValidatorSettings')
             ->with('KeyNamingConventionValidator')
             ->willReturn(['convention' => 'invalid_convention']);
 
@@ -549,8 +550,9 @@ final class KeyNamingConventionValidatorTest extends TestCase
 
     public function testConfigurationLoadingWithInvalidCustomPattern(): void
     {
-        $config = $this->createStub(\MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig::class);
-        $config->method('getValidatorSettings')
+        $config = $this->createMock(\MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig::class);
+        $config->expects($this->any())
+            ->method('getValidatorSettings')
             ->with('KeyNamingConventionValidator')
             ->willReturn(['custom_pattern' => 'invalid[pattern']);
 

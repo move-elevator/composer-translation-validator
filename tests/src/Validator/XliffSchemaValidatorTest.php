@@ -125,7 +125,7 @@ XML;
     {
         $unsupportedXliff = <<<'XML'
 <?xml version="1.0" encoding="UTF-8"?>
-<xliff version="2.1" xmlns="urn:oasis:names:tc:xliff:document:2.1">
+<xliff version="3.0" xmlns="urn:oasis:names:tc:xliff:document:3.0">
     <file id="test">
         <unit id="test">
             <segment>
@@ -265,7 +265,7 @@ XML;
 
         $targetLangErrors = array_filter(
             $result,
-            static fn ($e) => isset($e['message']) && str_contains($e['message'], 'target-language'),
+            static fn ($e) => isset($e['message']) && str_contains((string) $e['message'], 'target-language'),
         );
         $this->assertCount(1, $targetLangErrors);
         $error = array_values($targetLangErrors)[0];
@@ -419,7 +419,7 @@ XML;
 
         $mismatchErrors = array_filter(
             $result,
-            static fn ($e) => isset($e['message']) && str_contains($e['message'], 'trgLang'),
+            static fn ($e) => isset($e['message']) && str_contains((string) $e['message'], 'trgLang'),
         );
         $this->assertCount(1, $mismatchErrors);
         $error = array_values($mismatchErrors)[0];
