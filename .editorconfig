@@ -20,6 +20,10 @@ indent_size = 2
 [*.json]
 indent_style = tab
 
+[package-lock.json]
+indent_style = space
+indent_size = 2
+
 # YAML-Files
 [*.{yaml,yml}]
 indent_size = 2
