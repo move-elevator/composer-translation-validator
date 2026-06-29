@@ -722,10 +722,11 @@ composer validate-translations ./translations \
 
 ### Run Multiple Validators
 
+Pass several validators as a single comma-separated value:
+
 ```bash
 composer validate-translations ./translations \
-  --only "MoveElevator\\ComposerTranslationValidator\\Validator\\MismatchValidator" \
-  --only "MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator"
+  --only "MoveElevator\\ComposerTranslationValidator\\Validator\\MismatchValidator,MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator"
 ```
 
 ### Skip Validators
@@ -739,7 +740,5 @@ composer validate-translations ./translations \
 
 ```bash
 composer validate-translations ./translations \
-  --only "MoveElevator\\ComposerTranslationValidator\\Validator\\MismatchValidator" \
-  --only "MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator" \
-  --only "MoveElevator\\ComposerTranslationValidator\\Validator\\XliffSchemaValidator"
+  --only "MoveElevator\\ComposerTranslationValidator\\Validator\\MismatchValidator,MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator,MoveElevator\\ComposerTranslationValidator\\Validator\\XliffSchemaValidator"
 ```

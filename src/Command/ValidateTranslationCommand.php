@@ -133,6 +133,8 @@ using multiple validators to ensure consistency, correctness and schema complian
   • <info>EncodingValidator</info>        - Validates file encoding and character issues
   • <info>HtmlTagValidator</info>         - Validates HTML tag consistency across translations
   • <info>KeyNamingConventionValidator</info> - Validates translation key naming conventions
+  • <info>KeyCountValidator</info>        - Warns when a file exceeds the key count threshold
+  • <info>KeyDepthValidator</info>        - Warns when keys exceed the nesting depth threshold
   • <info>PlaceholderConsistencyValidator</info> - Validates placeholder consistency across files
   • <info>XliffSchemaValidator</info>     - Validates XLIFF schema compliance
 

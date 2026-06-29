@@ -8,6 +8,8 @@ The `validate-translations` command is the main interface for the Composer Trans
 composer validate-translations [<path>...] [options]
 ```
 
+The command is also available under the alias `vt`.
+
 ## Arguments
 
 | Argument | Description |
@@ -19,8 +21,8 @@ composer validate-translations [<path>...] [options]
 | Option | Shortcut | Description |
 |--------|----------|-------------|
 | `--format` | `-f` | Sets the output format: `cli`, `json`, or `github` |
-| `--skip` | `-s` | Skips specific validators (can be used multiple times) |
-| `--only` | `-o` | Runs only the specified validators (can be used multiple times) |
+| `--skip` | `-s` | Skips specific validators (FQCN, comma-separated) |
+| `--only` | `-o` | Runs only the specified validators (FQCN, comma-separated) |
 | `--recursive` | `-r` | Search for translation files recursively in subdirectories |
 | `--exclude` | `-e` | Exclude files matching glob patterns, comma-separated |
 | `--verbose` | `-v` | Shows additional output for detailed information |
@@ -98,10 +100,11 @@ composer validate-translations ./translations \
 
 ### Multiple Validators
 
+Pass several validators as a single comma-separated value:
+
 ```bash
 composer validate-translations ./translations \
-  --only "MoveElevator\\ComposerTranslationValidator\\Validator\\MismatchValidator" \
-  --only "MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator"
+  --only "MoveElevator\\ComposerTranslationValidator\\Validator\\MismatchValidator,MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator"
 ```
 
 ### Using a Configuration File
