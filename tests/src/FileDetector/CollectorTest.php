@@ -215,6 +215,38 @@ final class CollectorTest extends TestCase
         $this->assertEmpty($result);
     }
 
+    public function testCollectFilesWhenExcludePatternsFilterAllFiles(): void
+    {
+        file_put_contents($this->tempDir.'/messages.xlf', 'content');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->atLeastOnce())
+            ->method('debug')
+            ->with($this->stringContains('No files found for parser class'));
+
+        $detector = $this->createStub(DetectorInterface::class);
+        $collector = new Collector($logger);
+
+        $result = $collector->collectFiles([$this->tempDir], $detector, ['*']);
+
+        $this->assertEmpty($result);
+    }
+
+    public function testCollectFilesSkipsUnsafePathOnRecursiveSearch(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->atLeastOnce())
+            ->method('warning')
+            ->with($this->stringContains('Skipping potentially unsafe path'));
+
+        $detector = $this->createStub(DetectorInterface::class);
+        $collector = new Collector($logger);
+
+        $result = $collector->collectFiles(['/etc'], $detector, null, true);
+
+        $this->assertSame([], $result);
+    }
+
     private function removeDirectory(string $path): void
     {
         $files = glob($path.'/*');

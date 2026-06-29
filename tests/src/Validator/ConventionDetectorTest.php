@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
+use Iterator;
 use MoveElevator\ComposerTranslationValidator\Validator\ConventionDetector;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -31,74 +33,83 @@ final class ConventionDetectorTest extends TestCase
         $this->detector = new ConventionDetector();
     }
 
-    public function testDetectKeyConventionsSnakeCase(): void
+    /**
+     * @param array<string> $expectedContains
+     * @param array<string> $expectedNotContains
+     */
+    #[DataProvider('detectKeyConventionsProvider')]
+    public function testDetectKeyConventions(string $key, array $expectedContains, array $expectedNotContains = []): void
     {
-        $result = $this->detector->detectKeyConventions('user_name');
-        $this->assertContains('snake_case', $result);
+        $result = $this->detector->detectKeyConventions($key);
+
+        foreach ($expectedContains as $convention) {
+            $this->assertContains($convention, $result);
+        }
+
+        foreach ($expectedNotContains as $convention) {
+            $this->assertNotContains($convention, $result);
+        }
     }
 
-    public function testDetectKeyConventionsCamelCase(): void
+    /**
+     * @return Iterator<string, array{0: string, 1: array<string>, 2?: array<string>}>
+     */
+    public static function detectKeyConventionsProvider(): Iterator
     {
-        $result = $this->detector->detectKeyConventions('userName');
-        $this->assertContains('camelCase', $result);
+        yield 'snake_case' => ['user_name', ['snake_case']];
+        yield 'camelCase' => ['userName', ['camelCase']];
+        yield 'kebab-case' => ['user-name', ['kebab-case']];
+        yield 'PascalCase' => ['UserName', ['PascalCase']];
+        yield 'dot.notation' => ['user.profile.settings', ['dot.notation']];
+        yield 'camelCase with dots is not dot.notation' => [
+            'teaser.image.cropVariant.slider',
+            ['camelCase'],
+            ['dot.notation'],
+        ];
+        yield 'mixed conventions' => ['$pecial.ch@rs.123', ['mixed_conventions']];
     }
 
-    public function testDetectKeyConventionsKebabCase(): void
+    /**
+     * @param array<string> $expectedContains
+     */
+    #[DataProvider('detectSegmentConventionsProvider')]
+    public function testDetectSegmentConventions(string $segment, array $expectedContains): void
     {
-        $result = $this->detector->detectKeyConventions('user-name');
-        $this->assertContains('kebab-case', $result);
+        $result = $this->detector->detectSegmentConventions($segment);
+
+        foreach ($expectedContains as $convention) {
+            $this->assertContains($convention, $result);
+        }
     }
 
-    public function testDetectKeyConventionsPascalCase(): void
+    /**
+     * @return Iterator<string, array{string, array<string>}>
+     */
+    public static function detectSegmentConventionsProvider(): Iterator
     {
-        $result = $this->detector->detectKeyConventions('UserName');
-        $this->assertContains('PascalCase', $result);
+        yield 'unknown' => ['$pecial@chars123', ['unknown']];
+        yield 'snake_case' => ['user_name', ['snake_case']];
     }
 
-    public function testDetectKeyConventionsDotNotation(): void
+    /**
+     * @param array<string> $keys
+     */
+    #[DataProvider('analyzeKeyConsistencyEmptyProvider')]
+    public function testAnalyzeKeyConsistencyReturnsEmpty(array $keys): void
     {
-        $result = $this->detector->detectKeyConventions('user.profile.settings');
-        $this->assertContains('dot.notation', $result);
-    }
-
-    public function testDetectKeyConventionsCamelCaseWithDots(): void
-    {
-        $result = $this->detector->detectKeyConventions('teaser.image.cropVariant.slider');
-        $this->assertContains('camelCase', $result);
-        $this->assertNotContains('dot.notation', $result);
-    }
-
-    public function testDetectKeyConventionsMixedConventions(): void
-    {
-        $result = $this->detector->detectKeyConventions('$pecial.ch@rs.123');
-        $this->assertContains('mixed_conventions', $result);
-    }
-
-    public function testDetectSegmentConventionsUnknown(): void
-    {
-        $result = $this->detector->detectSegmentConventions('$pecial@chars123');
-        $this->assertContains('unknown', $result);
-    }
-
-    public function testDetectSegmentConventionsSnakeCase(): void
-    {
-        $result = $this->detector->detectSegmentConventions('user_name');
-        $this->assertContains('snake_case', $result);
-    }
-
-    public function testAnalyzeKeyConsistencyEmptyKeys(): void
-    {
-        $result = $this->detector->analyzeKeyConsistency([], 'test.yaml');
+        $result = $this->detector->analyzeKeyConsistency($keys, 'test.yaml');
         $this->assertEmpty($result);
     }
 
-    public function testAnalyzeKeyConsistencyConsistentKeys(): void
+    /**
+     * @return Iterator<string, array{array<string>}>
+     */
+    public static function analyzeKeyConsistencyEmptyProvider(): Iterator
     {
-        $result = $this->detector->analyzeKeyConsistency(
-            ['user_name', 'user_profile', 'user_settings'],
-            'test.yaml',
-        );
-        $this->assertEmpty($result);
+        yield 'no keys' => [[]];
+        yield 'consistent snake_case keys' => [['user_name', 'user_profile', 'user_settings']];
+        // Single-word keys match multiple conventions simultaneously and share common ones.
+        yield 'single-word keys matching multiple conventions' => [['name', 'title', 'status']];
     }
 
     public function testAnalyzeKeyConsistencyMixedKeys(): void
@@ -122,17 +133,6 @@ final class ConventionDetectorTest extends TestCase
 
         $this->assertNotEmpty($result);
         $this->assertSame('snake_case', $result[0]['dominant_convention']);
-    }
-
-    public function testAnalyzeKeyConsistencyAllKeysMatchMultipleConventions(): void
-    {
-        // Single-word keys like "name", "title", "status" match multiple conventions simultaneously
-        // (snake_case, camelCase, kebab-case, dot.notation). Should return empty since all share common conventions.
-        $result = $this->detector->analyzeKeyConsistency(
-            ['name', 'title', 'status'],
-            'test.yaml',
-        );
-        $this->assertEmpty($result);
     }
 
     public function testAnalyzeKeyConsistencyDeterministicTieBreaking(): void

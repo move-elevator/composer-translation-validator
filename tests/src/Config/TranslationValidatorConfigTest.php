@@ -14,7 +14,8 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\Config;
 
 use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
-use PHPUnit\Framework\Attributes\CoversClass;
+use MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator;
+use PHPUnit\Framework\Attributes\{CoversClass, DataProvider};
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,12 +25,6 @@ use PHPUnit\Framework\TestCase;
  * @license GPL-3.0-or-later
  */
 #[CoversClass(TranslationValidatorConfig::class)]
-/**
- * TranslationValidatorConfigTest.
- *
- * @author Konrad Michalik <km@move-elevator.de>
- * @license GPL-3.0-or-later
- */
 final class TranslationValidatorConfigTest extends TestCase
 {
     private TranslationValidatorConfig $config;
@@ -39,122 +34,57 @@ final class TranslationValidatorConfigTest extends TestCase
         $this->config = new TranslationValidatorConfig();
     }
 
-    public function testSetAndGetPaths(): void
+    /**
+     * @param array<int, string>|bool|string $value
+     */
+    #[DataProvider('setterGetterProvider')]
+    public function testSetterAndGetter(string $setter, string $getter, array|bool|string $value): void
     {
-        $paths = ['path1', 'path2'];
-        $this->config->setPaths($paths);
-        $this->assertSame($paths, $this->config->getPaths());
+        $this->config->{$setter}($value);
+        $this->assertSame($value, $this->config->{$getter}());
     }
 
-    public function testAddAndGetValidator(): void
+    /**
+     * @return iterable<string, array{string, string, array<int, string>|bool|string}>
+     */
+    public static function setterGetterProvider(): iterable
     {
-        $validator = 'SomeValidator';
-        $this->config->addValidator($validator);
-        $this->assertSame([$validator], $this->config->getValidators());
+        yield 'paths' => ['setPaths', 'getPaths', ['path1', 'path2']];
+        yield 'validators' => ['setValidators', 'getValidators', ['Validator1', 'Validator2']];
+        yield 'file-detectors' => ['setFileDetectors', 'getFileDetectors', ['Detector1', 'Detector2']];
+        yield 'parsers' => ['setParsers', 'getParsers', ['Parser1', 'Parser2']];
+        yield 'only' => ['setOnly', 'getOnly', ['Only1', 'Only2']];
+        yield 'skip' => ['setSkip', 'getSkip', ['Skip1', 'Skip2']];
+        yield 'exclude' => ['setExclude', 'getExclude', ['vendor/*', 'node_modules/*']];
+        yield 'strict true' => ['setStrict', 'getStrict', true];
+        yield 'strict false' => ['setStrict', 'getStrict', false];
+        yield 'dry-run true' => ['setDryRun', 'getDryRun', true];
+        yield 'dry-run false' => ['setDryRun', 'getDryRun', false];
+        yield 'format' => ['setFormat', 'getFormat', 'json'];
+        yield 'verbose true' => ['setVerbose', 'getVerbose', true];
+        yield 'verbose false' => ['setVerbose', 'getVerbose', false];
     }
 
-    public function testSetAndGetValidators(): void
+    /**
+     * @param array<int, string> $expected
+     */
+    #[DataProvider('adderProvider')]
+    public function testAdder(string $adder, string $getter, string $value, array $expected): void
     {
-        $validators = ['Validator1', 'Validator2'];
-        $this->config->setValidators($validators);
-        $this->assertSame($validators, $this->config->getValidators());
+        $this->config->{$adder}($value);
+        $this->assertSame($expected, $this->config->{$getter}());
     }
 
-    public function testAddAndGetFileDetector(): void
+    /**
+     * @return iterable<string, array{string, string, string, array<int, string>}>
+     */
+    public static function adderProvider(): iterable
     {
-        $fileDetector = 'SomeFileDetector';
-        $this->config->addFileDetector($fileDetector);
-        $this->assertSame([$fileDetector], $this->config->getFileDetectors());
-    }
-
-    public function testSetAndGetFileDetectors(): void
-    {
-        $fileDetectors = ['Detector1', 'Detector2'];
-        $this->config->setFileDetectors($fileDetectors);
-        $this->assertSame($fileDetectors, $this->config->getFileDetectors());
-    }
-
-    public function testAddAndGetParser(): void
-    {
-        $parser = 'SomeParser';
-        $this->config->addParser($parser);
-        $this->assertSame([$parser], $this->config->getParsers());
-    }
-
-    public function testSetAndGetParsers(): void
-    {
-        $parsers = ['Parser1', 'Parser2'];
-        $this->config->setParsers($parsers);
-        $this->assertSame($parsers, $this->config->getParsers());
-    }
-
-    public function testOnlyAndGetOnly(): void
-    {
-        $validator = 'OnlyValidator';
-        $this->config->only($validator);
-        $this->assertSame([$validator], $this->config->getOnly());
-    }
-
-    public function testSetAndGetOnly(): void
-    {
-        $only = ['Only1', 'Only2'];
-        $this->config->setOnly($only);
-        $this->assertSame($only, $this->config->getOnly());
-    }
-
-    public function testSkipAndGetSkip(): void
-    {
-        $validator = 'SkipValidator';
-        $this->config->skip($validator);
-        $this->assertSame([\MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator::class, $validator], $this->config->getSkip());
-    }
-
-    public function testSetAndGetSkip(): void
-    {
-        $skip = ['Skip1', 'Skip2'];
-        $this->config->setSkip($skip);
-        $this->assertSame($skip, $this->config->getSkip());
-    }
-
-    public function testSetAndGetExclude(): void
-    {
-        $exclude = ['vendor/*', 'node_modules/*'];
-        $this->config->setExclude($exclude);
-        $this->assertSame($exclude, $this->config->getExclude());
-    }
-
-    public function testSetAndGetStrict(): void
-    {
-        $this->config->setStrict(true);
-        $this->assertTrue($this->config->getStrict());
-
-        $this->config->setStrict(false);
-        $this->assertFalse($this->config->getStrict());
-    }
-
-    public function testSetAndGetDryRun(): void
-    {
-        $this->config->setDryRun(true);
-        $this->assertTrue($this->config->getDryRun());
-
-        $this->config->setDryRun(false);
-        $this->assertFalse($this->config->getDryRun());
-    }
-
-    public function testSetAndGetFormat(): void
-    {
-        $format = 'json';
-        $this->config->setFormat($format);
-        $this->assertSame($format, $this->config->getFormat());
-    }
-
-    public function testSetAndGetVerbose(): void
-    {
-        $this->config->setVerbose(true);
-        $this->assertTrue($this->config->getVerbose());
-
-        $this->config->setVerbose(false);
-        $this->assertFalse($this->config->getVerbose());
+        yield 'addValidator' => ['addValidator', 'getValidators', 'SomeValidator', ['SomeValidator']];
+        yield 'addFileDetector' => ['addFileDetector', 'getFileDetectors', 'SomeFileDetector', ['SomeFileDetector']];
+        yield 'addParser' => ['addParser', 'getParsers', 'SomeParser', ['SomeParser']];
+        yield 'only' => ['only', 'getOnly', 'OnlyValidator', ['OnlyValidator']];
+        yield 'skip' => ['skip', 'getSkip', 'SkipValidator', [DuplicateValuesValidator::class, 'SkipValidator']];
     }
 
     public function testDefaultValues(): void
@@ -164,7 +94,7 @@ final class TranslationValidatorConfigTest extends TestCase
         $this->assertSame([], $this->config->getFileDetectors());
         $this->assertSame([], $this->config->getParsers());
         $this->assertSame([], $this->config->getOnly());
-        $this->assertSame([\MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator::class], $this->config->getSkip());
+        $this->assertSame([DuplicateValuesValidator::class], $this->config->getSkip());
         $this->assertSame([], $this->config->getExclude());
         $this->assertFalse($this->config->getStrict());
         $this->assertFalse($this->config->getDryRun());
@@ -172,22 +102,36 @@ final class TranslationValidatorConfigTest extends TestCase
         $this->assertFalse($this->config->getVerbose());
     }
 
-    public function testToArray(): void
+    /**
+     * @param array<string, mixed> $expected
+     */
+    #[DataProvider('toArrayProvider')]
+    public function testToArray(bool $configured, array $expected): void
     {
-        $this->config
-            ->setPaths(['path1', 'path2'])
-            ->setValidators(['Validator1'])
-            ->setFileDetectors(['Detector1'])
-            ->setParsers(['Parser1'])
-            ->setOnly(['Only1'])
-            ->setSkip(['Skip1'])
-            ->setExclude(['vendor/*'])
-            ->setStrict(true)
-            ->setDryRun(true)
-            ->setFormat('json')
-            ->setVerbose(true);
+        if ($configured) {
+            $this->config
+                ->setPaths(['path1', 'path2'])
+                ->setValidators(['Validator1'])
+                ->setFileDetectors(['Detector1'])
+                ->setParsers(['Parser1'])
+                ->setOnly(['Only1'])
+                ->setSkip(['Skip1'])
+                ->setExclude(['vendor/*'])
+                ->setStrict(true)
+                ->setDryRun(true)
+                ->setFormat('json')
+                ->setVerbose(true);
+        }
 
-        $expected = [
+        $this->assertSame($expected, $this->config->toArray());
+    }
+
+    /**
+     * @return iterable<string, array{bool, array<string, mixed>}>
+     */
+    public static function toArrayProvider(): iterable
+    {
+        yield 'all values' => [true, [
             'paths' => ['path1', 'path2'],
             'validators' => ['Validator1'],
             'file-detectors' => ['Detector1'],
@@ -200,86 +144,33 @@ final class TranslationValidatorConfigTest extends TestCase
             'format' => 'json',
             'verbose' => true,
             'validator-settings' => [],
-        ];
+        ]];
 
-        $this->assertSame($expected, $this->config->toArray());
-    }
-
-    public function testFluentInterface(): void
-    {
-        $result = $this->config
-            ->setPaths(['path1'])
-            ->addValidator('Validator1')
-            ->addFileDetector('Detector1')
-            ->addParser('Parser1')
-            ->only('Only1')
-            ->skip('Skip1')
-            ->setExclude(['vendor/*'])
-            ->setStrict(true)
-            ->setDryRun(true)
-            ->setFormat('json')
-            ->setVerbose(true);
-
-        $this->assertSame($this->config, $result);
-    }
-
-    public function testToArrayWithAllValues(): void
-    {
-        $this->config
-            ->setPaths(['path1', 'path2'])
-            ->setValidators(['validator1', 'validator2'])
-            ->setFileDetectors(['detector1'])
-            ->setParsers(['parser1'])
-            ->setOnly(['only1'])
-            ->setSkip(['skip1'])
-            ->setExclude(['exclude1'])
-            ->setStrict(true)
-            ->setDryRun(true)
-            ->setFormat('json')
-            ->setVerbose(true);
-
-        $expected = [
-            'paths' => ['path1', 'path2'],
-            'validators' => ['validator1', 'validator2'],
-            'file-detectors' => ['detector1'],
-            'parsers' => ['parser1'],
-            'only' => ['only1'],
-            'skip' => ['skip1'],
-            'exclude' => ['exclude1'],
-            'strict' => true,
-            'dry-run' => true,
-            'format' => 'json',
-            'verbose' => true,
-            'validator-settings' => [],
-        ];
-
-        $this->assertSame($expected, $this->config->toArray());
-    }
-
-    public function testToArrayWithDefaultValues(): void
-    {
-        $expected = [
+        yield 'default values' => [false, [
             'paths' => [],
             'validators' => [],
             'file-detectors' => [],
             'parsers' => [],
             'only' => [],
-            'skip' => [\MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator::class],
+            'skip' => [DuplicateValuesValidator::class],
             'exclude' => [],
             'strict' => false,
             'dry-run' => false,
             'format' => 'cli',
             'verbose' => false,
             'validator-settings' => [],
-        ];
-
-        $this->assertSame($expected, $this->config->toArray());
+        ]];
     }
 
-    public function testMethodChaining(): void
+    public function testFluentInterface(): void
     {
         $result = $this->config
             ->setPaths(['test'])
+            ->addValidator('Validator1')
+            ->addFileDetector('Detector1')
+            ->addParser('Parser1')
+            ->only('Only1')
+            ->skip('Skip1')
             ->setValidators(['test'])
             ->setFileDetectors(['test'])
             ->setParsers(['test'])
@@ -294,14 +185,7 @@ final class TranslationValidatorConfigTest extends TestCase
         $this->assertSame($this->config, $result);
         $this->assertSame(['test'], $this->config->getPaths());
         $this->assertSame(['test'], $this->config->getValidators());
-        $this->assertSame(['test'], $this->config->getFileDetectors());
-        $this->assertSame(['test'], $this->config->getParsers());
-        $this->assertSame(['test'], $this->config->getOnly());
-        $this->assertSame(['test'], $this->config->getSkip());
-        $this->assertSame(['test'], $this->config->getExclude());
         $this->assertTrue($this->config->getStrict());
-        $this->assertTrue($this->config->getDryRun());
         $this->assertSame('json', $this->config->getFormat());
-        $this->assertTrue($this->config->getVerbose());
     }
 }

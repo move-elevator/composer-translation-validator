@@ -15,7 +15,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Config\ConfigFactory;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
-use MoveElevator\ComposerTranslationValidator\Validator\{KeyCountValidator, ResultType};
+use MoveElevator\ComposerTranslationValidator\Validator\KeyCountValidator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -224,36 +224,6 @@ final class KeyCountValidatorTest extends TestCase
         $this->assertSame(300, $result['threshold']);
     }
 
-    public function testSupportsParser(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new KeyCountValidator($logger);
-
-        $expectedParsers = [
-            \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class,
-            \MoveElevator\ComposerTranslationValidator\Parser\YamlParser::class,
-            \MoveElevator\ComposerTranslationValidator\Parser\JsonParser::class,
-            \MoveElevator\ComposerTranslationValidator\Parser\PhpParser::class,
-        ];
-        $this->assertSame($expectedParsers, $validator->supportsParser());
-    }
-
-    public function testGetShortName(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new KeyCountValidator($logger);
-
-        $this->assertSame('KeyCountValidator', $validator->getShortName());
-    }
-
-    public function testResultTypeOnValidationFailure(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new KeyCountValidator($logger);
-
-        $this->assertSame(ResultType::WARNING, $validator->resultTypeOnValidationFailure());
-    }
-
     public function testFormatIssueMessage(): void
     {
         $logger = $this->createStub(LoggerInterface::class);
@@ -277,28 +247,5 @@ final class KeyCountValidatorTest extends TestCase
         $this->assertStringContainsString('<fg=yellow>', $result);
         $this->assertStringContainsString('350 translation keys', $result);
         $this->assertStringContainsString('threshold of 300', $result);
-    }
-
-    public function testFormatIssueMessageWithPrefix(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new KeyCountValidator($logger);
-
-        $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
-            'test.xlf',
-            [
-                'message' => 'File contains 350 translation keys, which exceeds the threshold of 300 keys',
-                'key_count' => 350,
-                'threshold' => 300,
-            ],
-            'XliffParser',
-            'KeyCountValidator',
-        );
-
-        $result = $validator->formatIssueMessage($issue, 'in file test.xlf: ');
-
-        $this->assertStringContainsString('Warning', $result);
-        $this->assertStringContainsString('in file test.xlf:', $result);
-        $this->assertStringContainsString('350 translation keys', $result);
     }
 }

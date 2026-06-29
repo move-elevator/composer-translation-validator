@@ -16,7 +16,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Config;
 use InvalidArgumentException;
 use JsonException;
 use MoveElevator\ComposerTranslationValidator\Config\{ConfigReader, TranslationValidatorConfig};
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\{CoversClass, DataProvider};
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -27,12 +27,6 @@ use RuntimeException;
  * @license GPL-3.0-or-later
  */
 #[CoversClass(ConfigReader::class)]
-/**
- * ConfigReaderTest.
- *
- * @author Konrad Michalik <km@move-elevator.de>
- * @license GPL-3.0-or-later
- */
 final class ConfigReaderTest extends TestCase
 {
     private ConfigReader $configReader;
@@ -66,14 +60,42 @@ final class ConfigReaderTest extends TestCase
         unlink($configFile);
     }
 
-    public function testReadPhpConfig(): void
+    /**
+     * @param array<int, string> $expectedPaths
+     */
+    #[DataProvider('validConfigProvider')]
+    public function testReadValidConfig(string $fixture, array $expectedPaths, ?string $expectedFormat, bool $expectedStrict): void
     {
-        $configFile = $this->fixturesDir.'/valid.php';
-        $config = $this->configReader->read($configFile);
+        $config = $this->configReader->read($this->fixturesDir.'/'.$fixture);
 
-        $this->assertSame(['path1', 'path2'], $config->getPaths());
-        $this->assertTrue($config->getStrict());
-        $this->assertSame('json', $config->getFormat());
+        $this->assertSame($expectedPaths, $config->getPaths());
+        $this->assertSame($expectedStrict, $config->getStrict());
+        if (null !== $expectedFormat) {
+            $this->assertSame($expectedFormat, $config->getFormat());
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string, array<int, string>, ?string, bool}>
+     */
+    public static function validConfigProvider(): iterable
+    {
+        yield 'php' => ['valid.php', ['path1', 'path2'], 'json', true];
+        yield 'json' => ['valid.json', ['path1', 'path2'], 'json', true];
+        yield 'yaml' => ['valid.yaml', ['path1', 'path2'], 'yaml', true];
+        yield 'yml' => ['valid.yml', ['path1'], null, false];
+    }
+
+    public function testReadJsonConfigParsesExclude(): void
+    {
+        $config = $this->configReader->read($this->fixturesDir.'/valid.json');
+        $this->assertSame(['vendor/*'], $config->getExclude());
+    }
+
+    public function testReadYmlConfigParsesVerbose(): void
+    {
+        $config = $this->configReader->read($this->fixturesDir.'/valid.yml');
+        $this->assertTrue($config->getVerbose());
     }
 
     public function testReadInvalidPhpConfig(): void
@@ -86,17 +108,6 @@ final class ConfigReaderTest extends TestCase
         $this->configReader->read($configFile);
     }
 
-    public function testReadJsonConfig(): void
-    {
-        $configFile = $this->fixturesDir.'/valid.json';
-        $config = $this->configReader->read($configFile);
-
-        $this->assertSame(['path1', 'path2'], $config->getPaths());
-        $this->assertTrue($config->getStrict());
-        $this->assertSame('json', $config->getFormat());
-        $this->assertSame(['vendor/*'], $config->getExclude());
-    }
-
     public function testReadInvalidJsonConfig(): void
     {
         $configFile = $this->fixturesDir.'/invalid.json';
@@ -105,26 +116,6 @@ final class ConfigReaderTest extends TestCase
         $this->expectExceptionMessage('Syntax error');
 
         $this->configReader->read($configFile);
-    }
-
-    public function testReadYamlConfig(): void
-    {
-        $configFile = $this->fixturesDir.'/valid.yaml';
-        $config = $this->configReader->read($configFile);
-
-        $this->assertSame(['path1', 'path2'], $config->getPaths());
-        $this->assertTrue($config->getStrict());
-        $this->assertSame('yaml', $config->getFormat());
-    }
-
-    public function testReadYmlConfig(): void
-    {
-        $configFile = $this->fixturesDir.'/valid.yml';
-        $config = $this->configReader->read($configFile);
-
-        $this->assertSame(['path1'], $config->getPaths());
-        $this->assertTrue($config->getVerbose());
-        $this->assertFalse($config->getStrict());
     }
 
     public function testAutoDetectWithNoFiles(): void
@@ -271,6 +262,29 @@ final class ConfigReaderTest extends TestCase
         $this->assertNotInstanceOf(TranslationValidatorConfig::class, $config);
     }
 
+    public function testAutoDetectWithEmptyStringWorkingDirectory(): void
+    {
+        $config = $this->configReader->autoDetect('');
+        $this->assertNotInstanceOf(TranslationValidatorConfig::class, $config);
+    }
+
+    public function testReadFromComposerJsonWithNonArrayJson(): void
+    {
+        $tempDir = sys_get_temp_dir().'/translation-validator-non-array-'.uniqid('', true);
+        mkdir($tempDir, 0777, true);
+
+        $composerJson = $tempDir.'/composer.json';
+        file_put_contents($composerJson, '"just a string"');
+
+        try {
+            $config = $this->configReader->readFromComposerJson($composerJson);
+            $this->assertNotInstanceOf(TranslationValidatorConfig::class, $config);
+        } finally {
+            unlink($composerJson);
+            rmdir($tempDir);
+        }
+    }
+
     public function testReadJsonConfigWithFileGetContentsFailure(): void
     {
         $configFile = $this->fixturesDir.'/unreadable.json';
@@ -388,10 +402,14 @@ final class ConfigReaderTest extends TestCase
         }
     }
 
-    public function testCreateConfigFromArrayWithInvalidValidatorsType(): void
+    /**
+     * @param array<string, mixed> $invalidConfig
+     */
+    #[DataProvider('invalidTypeConfigProvider')]
+    public function testCreateConfigFromArrayWithInvalidType(string $fixtureName, array $invalidConfig): void
     {
-        $configFile = $this->fixturesDir.'/invalid-validators.json';
-        file_put_contents($configFile, json_encode(['validators' => 'not-array']));
+        $configFile = $this->fixturesDir.'/'.$fixtureName;
+        file_put_contents($configFile, json_encode($invalidConfig));
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Configuration validation failed:');
@@ -403,78 +421,16 @@ final class ConfigReaderTest extends TestCase
         }
     }
 
-    public function testCreateConfigFromArrayWithInvalidParsersType(): void
+    /**
+     * @return iterable<string, array{string, array<string, mixed>}>
+     */
+    public static function invalidTypeConfigProvider(): iterable
     {
-        $configFile = $this->fixturesDir.'/invalid-parsers.json';
-        file_put_contents($configFile, json_encode(['parsers' => 'not-array']));
-
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Configuration validation failed:');
-
-        try {
-            $this->configReader->read($configFile);
-        } finally {
-            unlink($configFile);
-        }
-    }
-
-    public function testCreateConfigFromArrayWithInvalidStrictType(): void
-    {
-        $configFile = $this->fixturesDir.'/invalid-strict.json';
-        file_put_contents($configFile, json_encode(['strict' => 'not-bool']));
-
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Configuration validation failed:');
-
-        try {
-            $this->configReader->read($configFile);
-        } finally {
-            unlink($configFile);
-        }
-    }
-
-    public function testCreateConfigFromArrayWithInvalidDryRunType(): void
-    {
-        $configFile = $this->fixturesDir.'/invalid-dry-run.json';
-        file_put_contents($configFile, json_encode(['dry-run' => 'not-bool']));
-
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Configuration validation failed:');
-
-        try {
-            $this->configReader->read($configFile);
-        } finally {
-            unlink($configFile);
-        }
-    }
-
-    public function testCreateConfigFromArrayWithInvalidVerboseType(): void
-    {
-        $configFile = $this->fixturesDir.'/invalid-verbose.json';
-        file_put_contents($configFile, json_encode(['verbose' => 'not-bool']));
-
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Configuration validation failed:');
-
-        try {
-            $this->configReader->read($configFile);
-        } finally {
-            unlink($configFile);
-        }
-    }
-
-    public function testCreateConfigFromArrayWithInvalidFormatType(): void
-    {
-        $configFile = $this->fixturesDir.'/invalid-format-type.json';
-        file_put_contents($configFile, json_encode(['format' => 123]));
-
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Configuration validation failed:');
-
-        try {
-            $this->configReader->read($configFile);
-        } finally {
-            unlink($configFile);
-        }
+        yield 'validators' => ['invalid-validators.json', ['validators' => 'not-array']];
+        yield 'parsers' => ['invalid-parsers.json', ['parsers' => 'not-array']];
+        yield 'strict' => ['invalid-strict.json', ['strict' => 'not-bool']];
+        yield 'dry-run' => ['invalid-dry-run.json', ['dry-run' => 'not-bool']];
+        yield 'verbose' => ['invalid-verbose.json', ['verbose' => 'not-bool']];
+        yield 'format type' => ['invalid-format-type.json', ['format' => 123]];
     }
 }

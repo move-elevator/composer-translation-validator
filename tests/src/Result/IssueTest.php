@@ -39,35 +39,6 @@ final class IssueTest extends TestCase
         $this->assertSame($validatorType, $issue->getValidatorType());
     }
 
-    public function testGetFile(): void
-    {
-        $issue = new Issue('test.xlf', [], 'TestParser', 'TestValidator');
-
-        $this->assertSame('test.xlf', $issue->getFile());
-    }
-
-    public function testGetDetails(): void
-    {
-        $details = ['error' => 'Something went wrong'];
-        $issue = new Issue('test.xlf', $details, 'TestParser', 'TestValidator');
-
-        $this->assertSame($details, $issue->getDetails());
-    }
-
-    public function testGetParser(): void
-    {
-        $issue = new Issue('test.xlf', [], 'XliffParser', 'TestValidator');
-
-        $this->assertSame('XliffParser', $issue->getParser());
-    }
-
-    public function testGetValidatorType(): void
-    {
-        $issue = new Issue('test.xlf', [], 'TestParser', 'MismatchValidator');
-
-        $this->assertSame('MismatchValidator', $issue->getValidatorType());
-    }
-
     public function testToArray(): void
     {
         $file = 'messages.yaml';
@@ -140,13 +111,5 @@ final class IssueTest extends TestCase
 
         $this->assertSame($details, $issue->getDetails());
         $this->assertSame($details, $issue->toArray()['issues']);
-    }
-
-    public function testWithLongFilePath(): void
-    {
-        $longPath = str_repeat('very/long/path/', 10).'test.xlf';
-        $issue = new Issue($longPath, [], 'TestParser', 'TestValidator');
-
-        $this->assertSame($longPath, $issue->getFile());
     }
 }

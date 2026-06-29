@@ -13,8 +13,10 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 
-use MoveElevator\ComposerTranslationValidator\Result\{AbstractValidationResultRenderer, ValidationResult, ValidationStatistics};
-use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
+use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
+use MoveElevator\ComposerTranslationValidator\Result\{AbstractValidationResultRenderer, Issue, ValidationResult, ValidationStatistics};
+use MoveElevator\ComposerTranslationValidator\Validator\{ResultType, ValidatorInterface};
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -35,97 +37,47 @@ final class AbstractValidationResultRendererTest extends TestCase
         $this->renderer = new TestableAbstractValidationResultRenderer($this->output);
     }
 
-    public function testGenerateMessageForSuccess(): void
+    /**
+     * @return iterable<string, array{bool, bool, ResultType, string}>
+     */
+    public static function generateMessageProvider(): iterable
     {
-        $result = new ValidationResult([], ResultType::SUCCESS);
-        $message = $this->renderer->testGenerateMessage($result);
-
-        $this->assertSame('Language validation succeeded.', $message);
+        yield 'success' => [false, false, ResultType::SUCCESS, 'Language validation succeeded.'];
+        yield 'error' => [false, false, ResultType::ERROR, 'Language validation failed with errors.'];
+        yield 'warning' => [false, false, ResultType::WARNING, 'Language validation completed with warnings.'];
+        yield 'error dry-run' => [true, false, ResultType::ERROR, 'Language validation failed with errors in dry-run mode.'];
+        yield 'warning dry-run' => [true, false, ResultType::WARNING, 'Language validation completed with warnings in dry-run mode.'];
+        yield 'warning strict' => [false, true, ResultType::WARNING, 'Language validation failed with warnings in strict mode.'];
     }
 
-    public function testGenerateMessageForError(): void
+    #[DataProvider('generateMessageProvider')]
+    public function testGenerateMessage(bool $dryRun, bool $strict, ResultType $resultType, string $expected): void
     {
-        $result = new ValidationResult([], ResultType::ERROR);
-        $message = $this->renderer->testGenerateMessage($result);
+        $renderer = new TestableAbstractValidationResultRenderer($this->output, $dryRun, $strict);
+        $message = $renderer->testGenerateMessage(new ValidationResult([], $resultType));
 
-        $this->assertSame('Language validation failed with errors.', $message);
+        $this->assertSame($expected, $message);
     }
 
-    public function testGenerateMessageForWarning(): void
+    /**
+     * @return iterable<string, array{bool, bool, ResultType, int}>
+     */
+    public static function calculateExitCodeProvider(): iterable
     {
-        $result = new ValidationResult([], ResultType::WARNING);
-        $message = $this->renderer->testGenerateMessage($result);
-
-        $this->assertSame('Language validation completed with warnings.', $message);
+        yield 'success' => [false, false, ResultType::SUCCESS, 0];
+        yield 'error' => [false, false, ResultType::ERROR, 1];
+        yield 'warning' => [false, false, ResultType::WARNING, 0];
+        yield 'warning strict' => [false, true, ResultType::WARNING, 1];
+        yield 'error dry-run' => [true, false, ResultType::ERROR, 0];
     }
 
-    public function testGenerateMessageForErrorInDryRun(): void
+    #[DataProvider('calculateExitCodeProvider')]
+    public function testCalculateExitCode(bool $dryRun, bool $strict, ResultType $resultType, int $expected): void
     {
-        $renderer = new TestableAbstractValidationResultRenderer($this->output, true);
-        $result = new ValidationResult([], ResultType::ERROR);
-        $message = $renderer->testGenerateMessage($result);
+        $renderer = new TestableAbstractValidationResultRenderer($this->output, $dryRun, $strict);
+        $exitCode = $renderer->testCalculateExitCode(new ValidationResult([], $resultType));
 
-        $this->assertSame('Language validation failed with errors in dry-run mode.', $message);
-    }
-
-    public function testGenerateMessageForWarningInDryRun(): void
-    {
-        $renderer = new TestableAbstractValidationResultRenderer($this->output, true);
-        $result = new ValidationResult([], ResultType::WARNING);
-        $message = $renderer->testGenerateMessage($result);
-
-        $this->assertSame('Language validation completed with warnings in dry-run mode.', $message);
-    }
-
-    public function testGenerateMessageForWarningInStrictMode(): void
-    {
-        $renderer = new TestableAbstractValidationResultRenderer($this->output, false, true);
-        $result = new ValidationResult([], ResultType::WARNING);
-        $message = $renderer->testGenerateMessage($result);
-
-        $this->assertSame('Language validation failed with warnings in strict mode.', $message);
-    }
-
-    public function testCalculateExitCodeForSuccess(): void
-    {
-        $result = new ValidationResult([], ResultType::SUCCESS);
-        $exitCode = $this->renderer->testCalculateExitCode($result);
-
-        $this->assertSame(0, $exitCode);
-    }
-
-    public function testCalculateExitCodeForError(): void
-    {
-        $result = new ValidationResult([], ResultType::ERROR);
-        $exitCode = $this->renderer->testCalculateExitCode($result);
-
-        $this->assertSame(1, $exitCode);
-    }
-
-    public function testCalculateExitCodeForWarning(): void
-    {
-        $result = new ValidationResult([], ResultType::WARNING);
-        $exitCode = $this->renderer->testCalculateExitCode($result);
-
-        $this->assertSame(0, $exitCode);
-    }
-
-    public function testCalculateExitCodeForWarningInStrictMode(): void
-    {
-        $renderer = new TestableAbstractValidationResultRenderer($this->output, false, true);
-        $result = new ValidationResult([], ResultType::WARNING);
-        $exitCode = $renderer->testCalculateExitCode($result);
-
-        $this->assertSame(1, $exitCode);
-    }
-
-    public function testCalculateExitCodeForErrorInDryRun(): void
-    {
-        $renderer = new TestableAbstractValidationResultRenderer($this->output, true);
-        $result = new ValidationResult([], ResultType::ERROR);
-        $exitCode = $renderer->testCalculateExitCode($result);
-
-        $this->assertSame(0, $exitCode);
+        $this->assertSame($expected, $exitCode);
     }
 
     public function testNormalizePathWithRealPath(): void
@@ -145,6 +97,56 @@ final class AbstractValidationResultRendererTest extends TestCase
     {
         $normalized = $this->renderer->testNormalizePath('./some/non/existent/path');
         $this->assertSame('some/non/existent/path', $normalized);
+    }
+
+    public function testNormalizePathWithExistingPathOutsideCwd(): void
+    {
+        $outsidePath = realpath(sys_get_temp_dir());
+        $this->assertNotFalse($outsidePath, 'System temp directory must resolve');
+
+        $normalized = $this->renderer->testNormalizePath($outsidePath);
+
+        // Path is real but not below cwd, so it is returned unshortened.
+        $this->assertSame(rtrim($outsidePath, \DIRECTORY_SEPARATOR), $normalized);
+    }
+
+    public function testGroupIssuesByFileSkipsValidatorsWithoutIssues(): void
+    {
+        $withoutIssues = $this->createStub(ValidatorInterface::class);
+        $withoutIssues->method('hasIssues')->willReturn(false);
+
+        $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
+        $result = new ValidationResult(
+            [$withoutIssues],
+            ResultType::SUCCESS,
+            [['validator' => $withoutIssues, 'fileSet' => $fileSet]],
+        );
+
+        $this->assertSame([], $this->renderer->testGroupIssuesByFile($result));
+    }
+
+    public function testGroupIssuesByFileGroupsDistributedIssues(): void
+    {
+        $issue = new Issue('test.xlf', ['key' => 'value'], 'TestParser', 'TestValidator');
+        $validator = $this->createStub(ValidatorInterface::class);
+        $validator->method('hasIssues')->willReturn(true);
+        $validator->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
+        $validator->method('getShortName')->willReturn('TestValidator');
+        $validator->method('distributeIssuesForDisplay')->willReturn([
+            '/test/path/test.xlf' => [$issue],
+        ]);
+
+        $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
+        $result = new ValidationResult(
+            [$validator],
+            ResultType::ERROR,
+            [['validator' => $validator, 'fileSet' => $fileSet]],
+        );
+
+        $grouped = $this->renderer->testGroupIssuesByFile($result);
+
+        $this->assertArrayHasKey('/test/path/test.xlf', $grouped);
+        $this->assertArrayHasKey('TestValidator', $grouped['/test/path/test.xlf']);
     }
 
     public function testFormatStatisticsForOutput(): void

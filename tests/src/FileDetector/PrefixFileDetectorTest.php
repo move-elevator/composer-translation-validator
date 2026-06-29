@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\FileDetector;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\PrefixFileDetector;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,77 +25,77 @@ use PHPUnit\Framework\TestCase;
  */
 final class PrefixFileDetectorTest extends TestCase
 {
-    public function testMapTranslationSetWithPrefixedFiles(): void
+    /**
+     * @param array<int, string>                $files
+     * @param array<string, array<int, string>> $expected
+     */
+    #[DataProvider('mapTranslationSetProvider')]
+    public function testMapTranslationSet(array $files, array $expected): void
     {
-        $detector = new PrefixFileDetector();
-        $files = [
-            '/path/to/de.locallang.xlf',
-            '/path/to/fr.locallang.xlf',
-            '/path/to/locallang.xlf',
-        ];
+        $this->assertSame($expected, (new PrefixFileDetector())->mapTranslationSet($files));
+    }
 
-        $expected = [
-            'locallang.xlf' => [
+    /**
+     * @return iterable<string, array{array<int, string>, array<string, array<int, string>>}>
+     */
+    public static function mapTranslationSetProvider(): iterable
+    {
+        yield 'prefixed files' => [
+            [
                 '/path/to/de.locallang.xlf',
                 '/path/to/fr.locallang.xlf',
                 '/path/to/locallang.xlf',
             ],
+            [
+                'locallang.xlf' => [
+                    '/path/to/de.locallang.xlf',
+                    '/path/to/fr.locallang.xlf',
+                    '/path/to/locallang.xlf',
+                ],
+            ],
         ];
 
-        $this->assertSame($expected, $detector->mapTranslationSet($files));
-    }
-
-    public function testMapTranslationSetWithMixedFiles(): void
-    {
-        $detector = new PrefixFileDetector();
-        $files = [
-            '/path/to/de.messages.xlf',
-            '/path/to/messages.xlf',
-            '/path/to/en.validation.xlf',
-            '/path/to/validation.xlf',
-        ];
-
-        $expected = [
-            'messages.xlf' => [
+        yield 'mixed files' => [
+            [
                 '/path/to/de.messages.xlf',
                 '/path/to/messages.xlf',
-            ],
-            'validation.xlf' => [
                 '/path/to/en.validation.xlf',
                 '/path/to/validation.xlf',
             ],
-        ];
-
-        $this->assertSame($expected, $detector->mapTranslationSet($files));
-    }
-
-    public function testMapTranslationSetWithNoPrefixedFiles(): void
-    {
-        $detector = new PrefixFileDetector();
-        $files = [
-            '/path/to/locallang.xlf',
-            '/path/to/messages.xlf',
-        ];
-
-        $expected = [
-            'locallang.xlf' => [
-                '/path/to/locallang.xlf',
+            [
+                'messages.xlf' => [
+                    '/path/to/de.messages.xlf',
+                    '/path/to/messages.xlf',
+                ],
+                'validation.xlf' => [
+                    '/path/to/en.validation.xlf',
+                    '/path/to/validation.xlf',
+                ],
             ],
-            'messages.xlf' => [
+        ];
+
+        yield 'no prefixed files' => [
+            [
+                '/path/to/locallang.xlf',
                 '/path/to/messages.xlf',
             ],
+            [
+                'locallang.xlf' => ['/path/to/locallang.xlf'],
+                'messages.xlf' => ['/path/to/messages.xlf'],
+            ],
         ];
 
-        $this->assertSame($expected, $detector->mapTranslationSet($files));
-    }
+        yield 'generic translation files' => [
+            [
+                '/path/to/foo.xlf',
+                '/path/to/homepage.json',
+            ],
+            [
+                'foo.xlf' => ['/path/to/foo.xlf'],
+                'homepage.json' => ['/path/to/homepage.json'],
+            ],
+        ];
 
-    public function testMapTranslationSetWithEmptyArray(): void
-    {
-        $detector = new PrefixFileDetector();
-        $files = [];
-
-        $expected = [];
-
-        $this->assertSame($expected, $detector->mapTranslationSet($files));
+        yield 'empty array' => [[], []];
     }
 }

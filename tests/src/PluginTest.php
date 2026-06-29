@@ -16,6 +16,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests;
 use Composer\Plugin\Capability\CommandProvider;
 use MoveElevator\ComposerTranslationValidator\Capability\ValidateTranslationCommandProvider;
 use MoveElevator\ComposerTranslationValidator\Plugin;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,6 +25,7 @@ use PHPUnit\Framework\TestCase;
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
+#[CoversClass(Plugin::class)]
 final class PluginTest extends TestCase
 {
     public function testGetCapabilities(): void

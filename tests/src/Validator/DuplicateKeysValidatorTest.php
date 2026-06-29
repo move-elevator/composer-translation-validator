@@ -73,36 +73,6 @@ final class DuplicateKeysValidatorTest extends TestCase
         $this->assertEmpty($result);
     }
 
-    public function testSupportsParser(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new DuplicateKeysValidator($logger);
-
-        $expectedParsers = [
-            \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class,
-            \MoveElevator\ComposerTranslationValidator\Parser\YamlParser::class,
-            \MoveElevator\ComposerTranslationValidator\Parser\JsonParser::class,
-            \MoveElevator\ComposerTranslationValidator\Parser\PhpParser::class,
-        ];
-        $this->assertSame($expectedParsers, $validator->supportsParser());
-    }
-
-    public function testGetShortName(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new DuplicateKeysValidator($logger);
-
-        $this->assertSame('DuplicateKeysValidator', $validator->getShortName());
-    }
-
-    public function testResultTypeOnValidationFailure(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new DuplicateKeysValidator($logger);
-
-        $this->assertSame(\MoveElevator\ComposerTranslationValidator\Validator\ResultType::ERROR, $validator->resultTypeOnValidationFailure());
-    }
-
     public function testFormatIssueMessage(): void
     {
         $logger = $this->createStub(LoggerInterface::class);

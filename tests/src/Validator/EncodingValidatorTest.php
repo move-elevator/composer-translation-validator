@@ -127,6 +127,20 @@ final class EncodingValidatorTest extends TestCase
         $this->assertStringContainsString('Control characters', $issues['invisible_chars']);
     }
 
+    public function testFileWithControlCharactersInNonAsciiContent(): void
+    {
+        $filePath = $this->testFilesPath.'/control-chars-non-ascii.yaml';
+        // Non-ASCII content (ümlaut) bypasses the ASCII early-exit and the
+        // \x01 control character must still be reported.
+        file_put_contents($filePath, "key: ümlaut\x01value");
+
+        $parser = new YamlParser($filePath);
+        $issues = $this->validator->processFile($parser);
+
+        $this->assertArrayHasKey('invisible_chars', $issues);
+        $this->assertStringContainsString('Control characters', $issues['invisible_chars']);
+    }
+
     public function testFileWithUnicodeNormalizationIssues(): void
     {
         if (!class_exists('Normalizer')) {

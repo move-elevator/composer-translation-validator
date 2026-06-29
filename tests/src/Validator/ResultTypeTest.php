@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
+use Iterator;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 
@@ -80,18 +82,21 @@ final class ResultTypeTest extends TestCase
         $this->assertSame(Command::SUCCESS, ResultType::SUCCESS->resolveErrorToCommandExitCode(true, true));
     }
 
-    public function testToString(): void
+    #[DataProvider('stringRepresentationProvider')]
+    public function testStringRepresentations(ResultType $type, string $expectedLabel, string $expectedColor): void
     {
-        $this->assertSame('Success', ResultType::SUCCESS->toString());
-        $this->assertSame('Warning', ResultType::WARNING->toString());
-        $this->assertSame('Error', ResultType::ERROR->toString());
+        $this->assertSame($expectedLabel, $type->toString());
+        $this->assertSame($expectedColor, $type->toColorString());
     }
 
-    public function testToColorString(): void
+    /**
+     * @return Iterator<string, array{ResultType, string, string}>
+     */
+    public static function stringRepresentationProvider(): Iterator
     {
-        $this->assertSame('green', ResultType::SUCCESS->toColorString());
-        $this->assertSame('yellow', ResultType::WARNING->toColorString());
-        $this->assertSame('red', ResultType::ERROR->toColorString());
+        yield 'success' => [ResultType::SUCCESS, 'Success', 'green'];
+        yield 'warning' => [ResultType::WARNING, 'Warning', 'yellow'];
+        yield 'error' => [ResultType::ERROR, 'Error', 'red'];
     }
 
     public function testMaxWithSameValues(): void

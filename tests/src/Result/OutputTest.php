@@ -15,6 +15,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 
 use MoveElevator\ComposerTranslationValidator\Result\{FormatType, Output, ValidationResult};
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -41,179 +42,91 @@ final class OutputTest extends TestCase
         $this->output = new BufferedOutput();
     }
 
-    public function testSummarizeCliFormat(): void
+    /**
+     * @return iterable<string, array{ResultType, int, string}>
+     */
+    public static function cliSummaryProvider(): iterable
     {
-        /** @var array<\MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface> $validators */
-        $validators = [];
-        $validationResult = new ValidationResult($validators, ResultType::SUCCESS);
-
-        $output = new Output(
-            $this->loggerMock,
-            $this->output,
-            $this->inputMock,
-            FormatType::CLI,
-            $validationResult,
-        );
-
-        $exitCode = $output->summarize();
-
-        $this->assertSame(Command::SUCCESS, $exitCode);
-        $this->assertStringContainsString('Language validation succeeded.', $this->output->fetch());
+        yield 'success' => [ResultType::SUCCESS, Command::SUCCESS, 'Language validation succeeded.'];
+        yield 'error' => [ResultType::ERROR, Command::FAILURE, 'Language validation failed with errors.'];
+        yield 'warning' => [ResultType::WARNING, Command::SUCCESS, 'Language validation completed with warnings.'];
     }
 
-    public function testSummarizeJsonFormat(): void
+    #[DataProvider('cliSummaryProvider')]
+    public function testSummarizeCliFormat(ResultType $resultType, int $expectedExitCode, string $expectedMessage): void
     {
-        /** @var array<\MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface> $validators */
-        $validators = [];
-        $validationResult = new ValidationResult($validators, ResultType::SUCCESS);
-
-        $output = new Output(
-            $this->loggerMock,
-            $this->output,
-            $this->inputMock,
-            FormatType::JSON,
-            $validationResult,
-        );
+        $output = $this->createOutput(FormatType::CLI, new ValidationResult([], $resultType));
 
         $exitCode = $output->summarize();
 
-        $this->assertSame(Command::SUCCESS, $exitCode);
+        $this->assertSame($expectedExitCode, $exitCode);
+        $this->assertStringContainsString($expectedMessage, $this->output->fetch());
+    }
+
+    /**
+     * @return iterable<string, array{ResultType, int, string}>
+     */
+    public static function jsonSummaryProvider(): iterable
+    {
+        yield 'success' => [ResultType::SUCCESS, Command::SUCCESS, 'Language validation succeeded.'];
+        yield 'error' => [ResultType::ERROR, Command::FAILURE, 'Language validation failed with errors.'];
+        yield 'warning' => [ResultType::WARNING, Command::SUCCESS, 'Language validation completed with warnings.'];
+    }
+
+    #[DataProvider('jsonSummaryProvider')]
+    public function testSummarizeJsonFormat(ResultType $resultType, int $expectedStatus, string $expectedMessage): void
+    {
+        $output = $this->createOutput(FormatType::JSON, new ValidationResult([], $resultType));
+
+        $exitCode = $output->summarize();
+
+        $this->assertSame($expectedStatus, $exitCode);
         $rawOutput = $this->output->fetch();
+        $this->assertJson($rawOutput, 'Output should be valid JSON');
         $jsonOutput = json_decode($rawOutput, true);
         $this->assertNotNull($jsonOutput, 'JSON output should be valid');
-        $this->assertJson($rawOutput, 'Output should be valid JSON');
-        $this->assertSame(Command::SUCCESS, $jsonOutput['status']);
-        $this->assertSame('Language validation succeeded.', $jsonOutput['message']);
-    }
-
-    public function testSummarizeCliFormatFailure(): void
-    {
-        /** @var array<\MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface> $validators */
-        $validators = [];
-        $validationResult = new ValidationResult($validators, ResultType::ERROR);
-
-        $output = new Output(
-            $this->loggerMock,
-            $this->output,
-            $this->inputMock,
-            FormatType::CLI,
-            $validationResult,
-        );
-
-        $exitCode = $output->summarize();
-
-        $this->assertSame(Command::FAILURE, $exitCode);
-        $this->assertStringContainsString('Language validation failed with errors.', $this->output->fetch());
-    }
-
-    public function testSummarizeWithWarnings(): void
-    {
-        /** @var array<\MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface> $validators */
-        $validators = [];
-        $validationResult = new ValidationResult($validators, ResultType::WARNING);
-
-        $output = new Output(
-            $this->loggerMock,
-            $this->output,
-            $this->inputMock,
-            FormatType::CLI,
-            $validationResult,
-        );
-
-        $exitCode = $output->summarize();
-
-        $this->assertSame(Command::SUCCESS, $exitCode);
-        $this->assertStringContainsString('Language validation completed with warnings.', $this->output->fetch());
-    }
-
-    public function testSummarizeJsonFormatWithFailure(): void
-    {
-        /** @var array<\MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface> $validators */
-        $validators = [];
-        $validationResult = new ValidationResult($validators, ResultType::ERROR);
-
-        $output = new Output(
-            $this->loggerMock,
-            $this->output,
-            $this->inputMock,
-            FormatType::JSON,
-            $validationResult,
-        );
-
-        $exitCode = $output->summarize();
-
-        $this->assertSame(Command::FAILURE, $exitCode);
-        $rawOutput = $this->output->fetch();
-        $jsonOutput = json_decode($rawOutput, true);
-        $this->assertNotNull($jsonOutput);
-        $this->assertSame(Command::FAILURE, $jsonOutput['status']);
-        $this->assertSame('Language validation failed with errors.', $jsonOutput['message']);
-    }
-
-    public function testSummarizeJsonFormatWithWarnings(): void
-    {
-        /** @var array<\MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface> $validators */
-        $validators = [];
-        $validationResult = new ValidationResult($validators, ResultType::WARNING);
-
-        $output = new Output(
-            $this->loggerMock,
-            $this->output,
-            $this->inputMock,
-            FormatType::JSON,
-            $validationResult,
-        );
-
-        $exitCode = $output->summarize();
-
-        $this->assertSame(Command::SUCCESS, $exitCode);
-        $rawOutput = $this->output->fetch();
-        $jsonOutput = json_decode($rawOutput, true);
-        $this->assertNotNull($jsonOutput);
-        $this->assertSame(Command::SUCCESS, $jsonOutput['status']);
-        $this->assertSame('Language validation completed with warnings.', $jsonOutput['message']);
+        $this->assertSame($expectedStatus, $jsonOutput['status']);
+        $this->assertSame($expectedMessage, $jsonOutput['message']);
     }
 
     public function testOutputWithDryRunMode(): void
     {
-        /** @var array<\MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface> $validators */
-        $validators = [];
-        $validationResult = new ValidationResult($validators, ResultType::ERROR);
-
-        $output = new Output(
-            $this->loggerMock,
-            $this->output,
-            $this->inputMock,
+        $output = $this->createOutput(
             FormatType::CLI,
-            $validationResult,
-            true, // dry run
+            new ValidationResult([], ResultType::ERROR),
+            dryRun: true,
         );
 
-        $exitCode = $output->summarize();
-
         // In dry run mode, should return SUCCESS even with errors
-        $this->assertSame(Command::SUCCESS, $exitCode);
+        $this->assertSame(Command::SUCCESS, $output->summarize());
     }
 
     public function testOutputWithStrictMode(): void
     {
-        /** @var array<\MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface> $validators */
-        $validators = [];
-        $validationResult = new ValidationResult($validators, ResultType::WARNING);
+        $output = $this->createOutput(
+            FormatType::CLI,
+            new ValidationResult([], ResultType::WARNING),
+            strict: true,
+        );
 
-        $output = new Output(
+        // In strict mode, warnings should return FAILURE
+        $this->assertSame(Command::FAILURE, $output->summarize());
+    }
+
+    private function createOutput(
+        FormatType $format,
+        ValidationResult $validationResult,
+        bool $dryRun = false,
+        bool $strict = false,
+    ): Output {
+        return new Output(
             $this->loggerMock,
             $this->output,
             $this->inputMock,
-            FormatType::CLI,
+            $format,
             $validationResult,
-            false, // not dry run
-            true,   // strict mode
+            $dryRun,
+            $strict,
         );
-
-        $exitCode = $output->summarize();
-
-        // In strict mode, warnings should return FAILURE
-        $this->assertSame(Command::FAILURE, $exitCode);
     }
 }
