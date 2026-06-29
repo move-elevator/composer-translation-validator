@@ -14,10 +14,10 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Parser;
 
 use InvalidArgumentException;
+use MoveElevator\ComposerTranslationValidator\Utility\LocaleUtility;
 use SimpleXMLElement;
 
 use function preg_match;
-use function strtolower;
 
 /**
  * XliffParser.
@@ -41,9 +41,11 @@ class XliffParser extends AbstractParser implements ParserInterface
         parent::__construct($filePath);
 
         $xmlContent = file_get_contents($filePath);
+        // @codeCoverageIgnoreStart
         if (false === $xmlContent) {
             throw new InvalidArgumentException("Failed to read file: {$filePath}");
         }
+        // @codeCoverageIgnoreEnd
 
         libxml_use_internal_errors(true);
         $this->xml = simplexml_load_string($xmlContent);
@@ -124,45 +126,63 @@ class XliffParser extends AbstractParser implements ParserInterface
     }
 
     /**
-     * Extracts the expected locale from the filename, supporting both
-     * prefix convention (de.locallang.xlf, TYPO3 style) and
-     * suffix convention (messages.de.xlf, Symfony/Laravel style).
-     * Returns null if the filename carries no locale.
+     * Returns the base language extracted from the filename, or null if none.
+     * Region is stripped (e.g. "de_DE.locallang.xlf" → "de").
      */
     public function getLanguageFromFileName(): ?string
     {
+        $locale = $this->getLocaleFromFileName();
+
+        return null === $locale ? null : LocaleUtility::parse($locale)['base'];
+    }
+
+    /**
+     * Extracts the full locale from the filename, preserving the region, supporting both
+     * prefix convention (de.locallang.xlf, TYPO3 style) and
+     * suffix convention (messages.de.xlf, Symfony/Laravel style).
+     * Returns null if the filename carries no locale (e.g. "de_DE" or "de").
+     */
+    public function getLocaleFromFileName(): ?string
+    {
         $fileName = $this->getFileName();
 
-        // Prefix convention: de.locallang.xlf, de_AT.locallang.xlf, de_DE.locallang.xlf
-        if (preg_match('/^([a-z]{2})(?:[-_][A-Z]{2})?\./i', $fileName, $matches)) {
-            return strtolower($matches[1]);
+        // Prefix convention: de.locallang.xlf, de_AT.locallang.xlf, es_419.locallang.xlf
+        if (preg_match('/^([a-z]{2}(?:[-_](?:[a-z]{2}|[0-9]{3}))?)\./i', $fileName, $matches)) {
+            return $matches[1];
         }
 
-        // Suffix convention: messages.de.xlf, messages.de_AT.xlf, messages.de_DE.xlf
-        if (preg_match('/\.([a-z]{2})(?:[-_][A-Z]{2})?\.(?:xlf|xliff)$/i', $fileName, $matches)) {
-            return strtolower($matches[1]);
+        // Suffix convention: messages.de.xlf, messages.de_AT.xlf, messages.es_419.xlf
+        if (preg_match('/\.([a-z]{2}(?:[-_](?:[a-z]{2}|[0-9]{3}))?)\.(?:xlf|xliff)$/i', $fileName, $matches)) {
+            return $matches[1];
         }
 
         return null;
     }
 
     /**
-     * Returns the normalized target language declared in the XLIFF file, or null if not set.
-     * Region suffix is stripped to match getLanguageFromFileName() behavior (e.g. "de-AT" → "de").
+     * Returns the base target language declared in the XLIFF file, or null if not set.
+     * Region is stripped (e.g. "de-AT" → "de").
+     */
+    public function getTargetLanguage(): ?string
+    {
+        $locale = $this->getTargetLocale();
+
+        return null === $locale ? null : LocaleUtility::parse($locale)['base'];
+    }
+
+    /**
+     * Returns the full target locale declared in the XLIFF file, preserving the region,
+     * or null if not set.
      * XLIFF 1.x: target-language attribute on <file>.
      * XLIFF 2.x: trgLang attribute on <xliff>.
      */
-    public function getTargetLanguage(): ?string
+    public function getTargetLocale(): ?string
     {
         $lang = $this->isVersion2
             ? (string) ($this->xml['trgLang'] ?? '')
             : (string) ($this->xml->file['target-language'] ?? '');
 
-        if ('' === $lang) {
-            return null;
-        }
-
-        return strtolower((string) preg_replace('/[-_][^-_]+$/', '', $lang));
+        return '' === $lang ? null : $lang;
     }
 
     private function getSourceLanguage(): string

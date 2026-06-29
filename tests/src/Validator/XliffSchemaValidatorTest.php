@@ -301,6 +301,106 @@ XML;
         $this->assertSame([], $result);
     }
 
+    public function testProcessFileWithRegionMismatchEmitsWarning(): void
+    {
+        $xliff = <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="de-AT" original="messages" datatype="plaintext">
+        <body>
+            <trans-unit id="test">
+                <source>Hello</source>
+                <target>Hallo</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
+XML;
+
+        $tempDir = sys_get_temp_dir().'/xliff_schema_'.uniqid('', true);
+        mkdir($tempDir);
+        $tempFile = $tempDir.'/de_DE.locallang.xlf';
+        file_put_contents($tempFile, $xliff);
+
+        try {
+            $result = $this->validator->processFile(new XliffParser($tempFile));
+        } finally {
+            unlink($tempFile);
+            rmdir($tempDir);
+        }
+
+        $this->assertCount(1, $result);
+        $this->assertSame('WARNING', $result[0]['level']);
+        $this->assertStringContainsString('different region', $result[0]['message']);
+        $this->assertStringContainsString('de-AT', $result[0]['message']);
+        $this->assertStringContainsString('de_DE', $result[0]['message']);
+    }
+
+    public function testProcessFileWithRegionMismatchSuffixConventionEmitsWarning(): void
+    {
+        $xliff = <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="de-AT" original="messages" datatype="plaintext">
+        <body>
+            <trans-unit id="test">
+                <source>Hello</source>
+                <target>Hallo</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
+XML;
+
+        $tempDir = sys_get_temp_dir().'/xliff_schema_'.uniqid('', true);
+        mkdir($tempDir);
+        $tempFile = $tempDir.'/messages.de_DE.xlf';
+        file_put_contents($tempFile, $xliff);
+
+        try {
+            $result = $this->validator->processFile(new XliffParser($tempFile));
+        } finally {
+            unlink($tempFile);
+            rmdir($tempDir);
+        }
+
+        $this->assertCount(1, $result);
+        $this->assertSame('WARNING', $result[0]['level']);
+    }
+
+    public function testProcessFileXliff2WithRegionMismatchEmitsWarning(): void
+    {
+        $xliff = <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en" trgLang="de-AT">
+    <file id="messages">
+        <unit id="test">
+            <segment>
+                <source>Hello</source>
+                <target>Hallo</target>
+            </segment>
+        </unit>
+    </file>
+</xliff>
+XML;
+
+        $tempDir = sys_get_temp_dir().'/xliff_schema_'.uniqid('', true);
+        mkdir($tempDir);
+        $tempFile = $tempDir.'/de_DE.locallang.xlf';
+        file_put_contents($tempFile, $xliff);
+
+        try {
+            $result = $this->validator->processFile(new XliffParser($tempFile));
+        } finally {
+            unlink($tempFile);
+            rmdir($tempDir);
+        }
+
+        $this->assertCount(1, $result);
+        $this->assertSame('WARNING', $result[0]['level']);
+        $this->assertStringContainsString('trgLang', $result[0]['message']);
+    }
+
     public function testProcessFileWithMismatchedTargetLanguage(): void
     {
         $xliff = <<<'XML'
