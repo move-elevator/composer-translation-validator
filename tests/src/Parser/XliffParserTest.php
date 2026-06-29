@@ -541,6 +541,14 @@ EOT);
         $this->assertSame('de', $parser->getLocaleFromFileName());
     }
 
+    public function testGetLocaleFromFileNamePreservesNonAlphaSubtag(): void
+    {
+        $file = $this->tempDir.'/messages.es_419.xlf';
+        file_put_contents($file, $this->targetLanguageXliffContent);
+
+        $this->assertSame('es_419', (new XliffParser($file))->getLocaleFromFileName());
+    }
+
     public function testGetLocaleFromFileNameReturnsNullForSourceFile(): void
     {
         $parser = new XliffParser($this->validXliffFile); // messages.xlf — no locale

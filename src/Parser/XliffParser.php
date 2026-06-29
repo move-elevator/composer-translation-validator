@@ -41,9 +41,11 @@ class XliffParser extends AbstractParser implements ParserInterface
         parent::__construct($filePath);
 
         $xmlContent = file_get_contents($filePath);
+        // @codeCoverageIgnoreStart
         if (false === $xmlContent) {
             throw new InvalidArgumentException("Failed to read file: {$filePath}");
         }
+        // @codeCoverageIgnoreEnd
 
         libxml_use_internal_errors(true);
         $this->xml = simplexml_load_string($xmlContent);
@@ -144,13 +146,13 @@ class XliffParser extends AbstractParser implements ParserInterface
     {
         $fileName = $this->getFileName();
 
-        // Prefix convention: de.locallang.xlf, de_AT.locallang.xlf, de_DE.locallang.xlf
-        if (preg_match('/^([a-z]{2}(?:[-_][a-z]{2})?)\./i', $fileName, $matches)) {
+        // Prefix convention: de.locallang.xlf, de_AT.locallang.xlf, es_419.locallang.xlf
+        if (preg_match('/^([a-z]{2}(?:[-_](?:[a-z]{2}|[0-9]{3}))?)\./i', $fileName, $matches)) {
             return $matches[1];
         }
 
-        // Suffix convention: messages.de.xlf, messages.de_AT.xlf, messages.de_DE.xlf
-        if (preg_match('/\.([a-z]{2}(?:[-_][a-z]{2})?)\.(?:xlf|xliff)$/i', $fileName, $matches)) {
+        // Suffix convention: messages.de.xlf, messages.de_AT.xlf, messages.es_419.xlf
+        if (preg_match('/\.([a-z]{2}(?:[-_](?:[a-z]{2}|[0-9]{3}))?)\.(?:xlf|xliff)$/i', $fileName, $matches)) {
             return $matches[1];
         }
 
