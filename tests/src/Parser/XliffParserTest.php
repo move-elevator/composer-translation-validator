@@ -633,6 +633,30 @@ EOT;
         $this->assertSame('Fallback Target', $parser->getContentByKey('empty_source'));
     }
 
+    public function testExtractKeysReturnsEmptyArrayWhenNoTransUnits(): void
+    {
+        $file = $this->tempDir.'/no_units.xlf';
+        file_put_contents($file, <<<'EOT'
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2"><file source-language="en" datatype="plaintext" original="x"><body></body></file></xliff>
+EOT);
+
+        $parser = new XliffParser($file);
+        $this->assertSame([], $parser->extractKeys());
+    }
+
+    public function testGetContentByKeyReturnsNullWhenNoTransUnits(): void
+    {
+        $file = $this->tempDir.'/no_units_content.xlf';
+        file_put_contents($file, <<<'EOT'
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2"><file source-language="en" datatype="plaintext" original="x"><body></body></file></xliff>
+EOT);
+
+        $parser = new XliffParser($file);
+        $this->assertNull($parser->getContentByKey('x'));
+    }
+
     public function testExtractKeysXliff22(): void
     {
         $xliff22File = $this->tempDir.'/messages_v22.xlf';

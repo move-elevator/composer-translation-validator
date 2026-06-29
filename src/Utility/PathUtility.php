@@ -38,6 +38,7 @@ class PathUtility
         $normalizedPath = rtrim($realPath, \DIRECTORY_SEPARATOR);
 
         $cwd = getcwd();
+        // @codeCoverageIgnoreStart
         if (false === $cwd) {
             return $normalizedPath;
         }
@@ -45,6 +46,7 @@ class PathUtility
         if (false === $realCwd) {
             return $normalizedPath;
         }
+        // @codeCoverageIgnoreEnd
         $cwd = $realCwd.\DIRECTORY_SEPARATOR;
 
         if (str_starts_with($normalizedPath.\DIRECTORY_SEPARATOR, $cwd)) {

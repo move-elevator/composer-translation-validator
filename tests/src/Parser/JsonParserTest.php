@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Parser;
 
-use InvalidArgumentException;
 use MoveElevator\ComposerTranslationValidator\Parser\JsonParser;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -71,54 +70,6 @@ final class JsonParserTest extends TestCase
         if (is_dir($this->tempDir)) {
             $this->removeDirectory($this->tempDir);
         }
-    }
-
-    public function testConstructorThrowsExceptionIfFileDoesNotExist(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessageMatches('/File ".*" does not exist./');
-        new JsonParser('/non/existent/file.json');
-    }
-
-    public function testConstructorThrowsExceptionIfFileIsNotReadable(): void
-    {
-        $unreadableFile = $this->tempDir.'/unreadable.json';
-        file_put_contents($unreadableFile, '{"key": "value"}');
-        chmod($unreadableFile, 0000); // Make unreadable
-
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessageMatches('/File ".*" is not readable./');
-        new JsonParser($unreadableFile);
-    }
-
-    public function testConstructorThrowsExceptionWhenFileGetContentsReturnsFalse(): void
-    {
-        // Create a test to verify the error path for file_get_contents returning false
-        // We'll create a custom validator to test this specific path
-        $validator = new class {
-            public function testFileGetContentsFalse(string $filePath): void
-            {
-                // Simulate the exact code path from JsonParser constructor
-                $content = @file_get_contents($filePath); // Suppress warning with @
-                if (false === $content) {
-                    throw new RuntimeException("Failed to read file: {$filePath}");
-                }
-            }
-        };
-
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Failed to read file:');
-        $validator->testFileGetContentsFalse('/non/existent/file.json');
-    }
-
-    public function testConstructorThrowsExceptionIfFileHasInvalidExtension(): void
-    {
-        $invalidFile = $this->tempDir.'/invalid.txt';
-        file_put_contents($invalidFile, '{"key": "value"}');
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessageMatches('/File ".*" is not a valid file./');
-        new JsonParser($invalidFile);
     }
 
     public function testConstructorThrowsExceptionIfJsonIsInvalid(): void

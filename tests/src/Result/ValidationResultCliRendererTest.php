@@ -13,10 +13,13 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 
-use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
+use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
+use MoveElevator\ComposerTranslationValidator\FileDetector\{FileSet, PrefixFileDetector};
 use MoveElevator\ComposerTranslationValidator\Result\{Issue, ValidationResult, ValidationResultCliRenderer};
-use MoveElevator\ComposerTranslationValidator\Validator\{ResultType, ValidatorInterface};
+use MoveElevator\ComposerTranslationValidator\Service\ValidationOrchestrationService;
+use MoveElevator\ComposerTranslationValidator\Validator\{HtmlTagValidator, MismatchValidator, ResultType, ValidatorInterface, XliffSchemaValidator};
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\{BufferedOutput, OutputInterface};
 
@@ -321,6 +324,60 @@ final class ValidationResultCliRendererTest extends TestCase
 
         $this->assertStringContainsString('Language validation completed with warnings', $output);
         $this->assertStringContainsString('[WARNING]', $output);
+    }
+
+    public function testRenderVerboseWithRealValidatorsOfMixedSeverity(): void
+    {
+        $validationResult = $this->buildRealValidationResult();
+
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
+        $exitCode = $this->renderer->render($validationResult);
+        $output = $this->output->fetch();
+
+        // Multiple validators of differing severity were rendered, grouped per file.
+        $this->assertSame(1, $exitCode);
+        $this->assertStringContainsString('MismatchValidator', $output);
+        $this->assertStringContainsString('HtmlTagValidator', $output);
+        $this->assertStringContainsString('SchemaValidator', $output);
+        // ERROR validators sort before WARNING validators within a file group.
+        $this->assertLessThan(
+            strpos($output, 'HtmlTagValidator'),
+            strpos($output, 'MismatchValidator'),
+        );
+    }
+
+    public function testRenderCompactWithRealValidatorsOfMixedSeverity(): void
+    {
+        $validationResult = $this->buildRealValidationResult();
+
+        $this->output->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
+        $exitCode = $this->renderer->render($validationResult);
+        $output = $this->output->fetch();
+
+        $this->assertSame(1, $exitCode);
+        $this->assertStringContainsString('Language validation failed with errors', $output);
+        $this->assertNotEmpty($output);
+    }
+
+    private function buildRealValidationResult(): ValidationResult
+    {
+        $service = new ValidationOrchestrationService(new NullLogger());
+
+        $result = $service->executeValidation(
+            paths: [__DIR__.'/../Fixtures/translations/xliff/fail'],
+            excludePatterns: [],
+            recursive: false,
+            fileDetector: new PrefixFileDetector(),
+            // Restrict to the validators this scenario asserts on, so an ERROR
+            // (Mismatch/Schema) and a WARNING (HtmlTag) validator share a file
+            // group and the severity ordering is deterministic.
+            validators: [MismatchValidator::class, HtmlTagValidator::class, XliffSchemaValidator::class],
+            config: new TranslationValidatorConfig(),
+        );
+
+        self::assertInstanceOf(ValidationResult::class, $result);
+
+        return $result;
     }
 
     /**

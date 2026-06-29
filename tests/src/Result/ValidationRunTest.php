@@ -13,10 +13,11 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 
+use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
-use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
+use MoveElevator\ComposerTranslationValidator\Parser\{ParserInterface, XliffParser};
 use MoveElevator\ComposerTranslationValidator\Result\{Issue, ValidationRun, ValidationStatistics};
-use MoveElevator\ComposerTranslationValidator\Validator\{ResultType, ValidatorInterface};
+use MoveElevator\ComposerTranslationValidator\Validator\{KeyNamingConventionValidator, MismatchValidator, ResultType, ValidatorInterface};
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -111,6 +112,35 @@ final class ValidationRunTest extends TestCase
         $this->assertCount(2, $result->getAllValidators()); // 2 file sets × 1 validator with issues
         $this->assertSame(ResultType::ERROR, $result->getOverallResult());
         $this->assertTrue($result->hasIssues());
+    }
+
+    public function testExecuteForWithRealValidatorsSharesParserCacheAndConfig(): void
+    {
+        $fixtureDir = __DIR__.'/../Fixtures/translations/xliff/fail';
+        $fileSet = new FileSet(
+            XliffParser::class,
+            $fixtureDir,
+            'locallang',
+            [$fixtureDir.'/locallang.xlf', $fixtureDir.'/de.locallang.xlf'],
+        );
+
+        $config = new TranslationValidatorConfig();
+        $config->setValidatorSetting('KeyNamingConventionValidator', ['convention' => 'snake_case']);
+
+        $validationRun = new ValidationRun($this->logger);
+        $result = $validationRun->executeFor(
+            [$fileSet],
+            // MismatchValidator + KeyNamingConventionValidator both extend AbstractValidator
+            // (setParserCache), KeyNamingConventionValidator also supports setConfig.
+            [MismatchValidator::class, KeyNamingConventionValidator::class],
+            $config,
+        );
+
+        $statistics = $result->getStatistics();
+        $this->assertInstanceOf(ValidationStatistics::class, $statistics);
+        // Real XLIFF parser was instantiated and cached.
+        $this->assertGreaterThan(0, $statistics->getParsersCached());
+        $this->assertGreaterThan(0, $statistics->getKeysChecked());
     }
 
     public function testCreateFileSetsFromArrayWithEmptyArray(): void

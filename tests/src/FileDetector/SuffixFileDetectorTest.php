@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\FileDetector;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\SuffixFileDetector;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,67 +25,56 @@ use PHPUnit\Framework\TestCase;
  */
 final class SuffixFileDetectorTest extends TestCase
 {
-    public function testMapTranslationSetWithSuffixFiles(): void
+    /**
+     * @param array<int, string>                $files
+     * @param array<string, array<int, string>> $expected
+     */
+    #[DataProvider('mapTranslationSetProvider')]
+    public function testMapTranslationSet(array $files, array $expected): void
     {
-        $detector = new SuffixFileDetector();
-        $files = [
-            '/path/to/locallang.de.xlf',
-            '/path/to/locallang.fr.xlf',
-            '/path/to/locallang.xlf',
-        ];
+        $this->assertSame($expected, (new SuffixFileDetector())->mapTranslationSet($files));
+    }
 
-        $expected = [
-            'locallang' => [
+    /**
+     * @return iterable<string, array{array<int, string>, array<string, array<int, string>>}>
+     */
+    public static function mapTranslationSetProvider(): iterable
+    {
+        yield 'suffix files' => [
+            [
                 '/path/to/locallang.de.xlf',
                 '/path/to/locallang.fr.xlf',
+                '/path/to/locallang.xlf',
+            ],
+            [
+                'locallang' => [
+                    '/path/to/locallang.de.xlf',
+                    '/path/to/locallang.fr.xlf',
+                ],
             ],
         ];
 
-        $this->assertSame($expected, $detector->mapTranslationSet($files));
-    }
-
-    public function testMapTranslationSetWithMixedFiles(): void
-    {
-        $detector = new SuffixFileDetector();
-        $files = [
-            '/path/to/messages.de.xlf',
-            '/path/to/messages.xlf',
-            '/path/to/validation.en.yml',
-            '/path/to/validation.yml',
-        ];
-
-        $expected = [
-            'messages' => [
+        yield 'mixed files' => [
+            [
                 '/path/to/messages.de.xlf',
-            ],
-            'validation' => [
+                '/path/to/messages.xlf',
                 '/path/to/validation.en.yml',
+                '/path/to/validation.yml',
+            ],
+            [
+                'messages' => ['/path/to/messages.de.xlf'],
+                'validation' => ['/path/to/validation.en.yml'],
             ],
         ];
 
-        $this->assertSame($expected, $detector->mapTranslationSet($files));
-    }
-
-    public function testMapTranslationSetWithNoSuffixFiles(): void
-    {
-        $detector = new SuffixFileDetector();
-        $files = [
-            '/path/to/locallang.xlf',
-            '/path/to/messages.yml',
+        yield 'no suffix files' => [
+            [
+                '/path/to/locallang.xlf',
+                '/path/to/messages.yml',
+            ],
+            [],
         ];
 
-        $expected = [];
-
-        $this->assertSame($expected, $detector->mapTranslationSet($files));
-    }
-
-    public function testMapTranslationSetWithEmptyArray(): void
-    {
-        $detector = new SuffixFileDetector();
-        $files = [];
-
-        $expected = [];
-
-        $this->assertSame($expected, $detector->mapTranslationSet($files));
+        yield 'empty array' => [[], []];
     }
 }

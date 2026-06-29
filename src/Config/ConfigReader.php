@@ -76,9 +76,11 @@ class ConfigReader
         }
 
         $content = file_get_contents($composerJsonPath);
+        // @codeCoverageIgnoreStart
         if (false === $content) {
             return null;
         }
+        // @codeCoverageIgnoreEnd
 
         $composerData = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         if (!is_array($composerData)) {

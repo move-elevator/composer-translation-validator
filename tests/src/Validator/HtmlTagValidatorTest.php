@@ -14,9 +14,9 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
-use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
+use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
-use MoveElevator\ComposerTranslationValidator\Validator\{HtmlTagValidator, ResultType};
+use MoveElevator\ComposerTranslationValidator\Validator\HtmlTagValidator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
@@ -122,6 +122,79 @@ final class HtmlTagValidatorTest extends TestCase
         $this->assertContains('Unclosed tag: <div>', $structure['structure_errors']);
     }
 
+    public function testProcessFileSkipsKeysWithNullValue(): void
+    {
+        $parser = $this->createStub(ParserInterface::class);
+        $parser->method('extractKeys')->willReturn(['key1', 'key2']);
+        $parser->method('getContentByKey')->willReturnMap([
+            ['key1', 'Hello <strong>world</strong>!'],
+            ['key2', null],
+        ]);
+        $parser->method('getFileName')->willReturn('test.xlf');
+
+        $validator = new HtmlTagValidator();
+        $validator->processFile($parser);
+
+        $reflection = new ReflectionClass($validator);
+        $keyData = $reflection->getProperty('keyData')->getValue($validator);
+
+        $this->assertArrayHasKey('key1', $keyData);
+        $this->assertArrayNotHasKey('key2', $keyData);
+    }
+
+    public function testRenderDetailedOutputWithEmptyIssues(): void
+    {
+        $validator = new HtmlTagValidator();
+        $output = new BufferedOutput();
+
+        $validator->renderDetailedOutput($output, []);
+
+        $this->assertSame('', $output->fetch());
+    }
+
+    public function testFindHtmlInconsistenciesWithSingleFileReturnsEmpty(): void
+    {
+        $parser = $this->createStub(ParserInterface::class);
+        $parser->method('extractKeys')->willReturn(['greeting']);
+        $parser->method('getContentByKey')->willReturn('Hello <strong>world</strong>!');
+        $parser->method('getFileName')->willReturn('en.xlf');
+
+        // Only one file carries this key, so there is nothing to compare against.
+        $validator = new HtmlTagValidator();
+        $validator->processFile($parser);
+        $validator->postProcess();
+
+        $this->assertFalse($validator->hasIssues());
+    }
+
+    public function testPostProcessDetectsClassAttributeDifference(): void
+    {
+        $parser1 = $this->createStub(ParserInterface::class);
+        $parser1->method('extractKeys')->willReturn(['link']);
+        $parser1->method('getContentByKey')->willReturn('See <a class="primary">here</a>');
+        $parser1->method('getFileName')->willReturn('en.xlf');
+
+        $parser2 = $this->createStub(ParserInterface::class);
+        $parser2->method('extractKeys')->willReturn(['link']);
+        $parser2->method('getContentByKey')->willReturn('Siehe <a class="secondary">hier</a>');
+        $parser2->method('getFileName')->willReturn('de.xlf');
+
+        $validator = new HtmlTagValidator();
+        $validator->processFile($parser1);
+        $validator->processFile($parser2);
+        $validator->postProcess();
+
+        $this->assertTrue($validator->hasIssues());
+        $issues = $validator->getIssues();
+        $this->assertCount(1, $issues);
+
+        $inconsistencies = $issues[0]->getDetails()['inconsistencies'];
+        $this->assertStringContainsString(
+            'different class attribute for <a>',
+            implode(' ', $inconsistencies),
+        );
+    }
+
     public function testPostProcessWithConsistentHtml(): void
     {
         $parser1 = $this->createStub(ParserInterface::class);
@@ -194,25 +267,6 @@ final class HtmlTagValidatorTest extends TestCase
         $details = $issue->getDetails();
         $inconsistencies = $details['inconsistencies'];
         $this->assertStringContainsString('HTML structure errors', implode(' ', $inconsistencies));
-    }
-
-    public function testSupportsParser(): void
-    {
-        $validator = new HtmlTagValidator();
-        $supportedParsers = $validator->supportsParser();
-
-        $this->assertContains(XliffParser::class, $supportedParsers);
-        $this->assertContains(YamlParser::class, $supportedParsers);
-        $this->assertContains(JsonParser::class, $supportedParsers);
-        $this->assertContains(PhpParser::class, $supportedParsers);
-    }
-
-    public function testResultTypeOnValidationFailure(): void
-    {
-        $validator = new HtmlTagValidator();
-        $resultType = $validator->resultTypeOnValidationFailure();
-
-        $this->assertSame(ResultType::WARNING, $resultType);
     }
 
     public function testShouldShowDetailedOutput(): void

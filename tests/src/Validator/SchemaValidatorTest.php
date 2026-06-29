@@ -124,14 +124,6 @@ EOT
         $this->assertEmpty($result);
     }
 
-    public function testSupportsParser(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new XliffSchemaValidator($logger);
-
-        $this->assertSame([\MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class], $validator->supportsParser());
-    }
-
     public function testFormatIssueMessage(): void
     {
         $logger = $this->createStub(LoggerInterface::class);
@@ -226,14 +218,6 @@ EOT
         $this->assertStringContainsString('Error', $result);
         $this->assertStringContainsString('Schema validation error', $result);
         $this->assertStringContainsString('<fg=red>', $result);
-    }
-
-    public function testGetShortName(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new XliffSchemaValidator($logger);
-
-        $this->assertSame('XliffSchemaValidator', $validator->getShortName());
     }
 
     public function testProcessFileWithFileReadFailure(): void

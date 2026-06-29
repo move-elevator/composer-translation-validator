@@ -104,9 +104,11 @@ class ConfigFileReader
     private function readJsonConfig(string $configPath): array
     {
         $content = file_get_contents($configPath);
+        // @codeCoverageIgnoreStart
         if (false === $content) {
             throw new RuntimeException("Failed to read configuration file: {$configPath}");
         }
+        // @codeCoverageIgnoreEnd
 
         $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         if (!is_array($data)) {

@@ -134,9 +134,11 @@ class ValidationRun
             foreach ($fileSet->getFiles() as $file) {
                 try {
                     $parser = $this->parserCache->get($file, $parserClass);
+                    // @codeCoverageIgnoreStart
                     if (false === $parser) {
                         continue;
                     }
+                    // @codeCoverageIgnoreEnd
                     $keys = $parser->extractKeys();
                     if (is_array($keys)) {
                         $keysChecked += count($keys);

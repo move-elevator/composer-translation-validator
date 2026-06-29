@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\Config;
 
 use MoveElevator\ComposerTranslationValidator\Config\ConfigValidator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -52,100 +53,35 @@ final class ConfigValidatorTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
-    public function testValidateInvalidPathsType(): void
+    /**
+     * @param array<string, mixed> $config
+     */
+    #[DataProvider('invalidTypeProvider')]
+    public function testValidateInvalidType(array $config, string $expectedMessage): void
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Configuration 'paths' must be an array");
+        $this->expectExceptionMessage($expectedMessage);
 
-        $this->validator->validate(['paths' => 'invalid']);
+        $this->validator->validate($config);
     }
 
-    public function testValidateInvalidValidatorsType(): void
+    /**
+     * @return iterable<string, array{array<string, mixed>, string}>
+     */
+    public static function invalidTypeProvider(): iterable
     {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Configuration 'validators' must be an array");
-
-        $this->validator->validate(['validators' => 'invalid']);
-    }
-
-    public function testValidateInvalidFileDetectorsType(): void
-    {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Configuration 'file-detectors' must be an array");
-
-        $this->validator->validate(['file-detectors' => 'invalid']);
-    }
-
-    public function testValidateInvalidParsersType(): void
-    {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Configuration 'parsers' must be an array");
-
-        $this->validator->validate(['parsers' => 'invalid']);
-    }
-
-    public function testValidateInvalidOnlyType(): void
-    {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Configuration 'only' must be an array");
-
-        $this->validator->validate(['only' => 'invalid']);
-    }
-
-    public function testValidateInvalidSkipType(): void
-    {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Configuration 'skip' must be an array");
-
-        $this->validator->validate(['skip' => 'invalid']);
-    }
-
-    public function testValidateInvalidExcludeType(): void
-    {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Configuration 'exclude' must be an array");
-
-        $this->validator->validate(['exclude' => 'invalid']);
-    }
-
-    public function testValidateInvalidStrictType(): void
-    {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Configuration 'strict' must be a boolean");
-
-        $this->validator->validate(['strict' => 'invalid']);
-    }
-
-    public function testValidateInvalidDryRunType(): void
-    {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Configuration 'dry-run' must be a boolean");
-
-        $this->validator->validate(['dry-run' => 'invalid']);
-    }
-
-    public function testValidateInvalidFormatType(): void
-    {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Configuration 'format' must be a string");
-
-        $this->validator->validate(['format' => 123]);
-    }
-
-    public function testValidateInvalidFormatValue(): void
-    {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Invalid format 'invalid'. Allowed formats: cli, json, yaml, php");
-
-        $this->validator->validate(['format' => 'invalid']);
-    }
-
-    public function testValidateInvalidVerboseType(): void
-    {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Configuration 'verbose' must be a boolean");
-
-        $this->validator->validate(['verbose' => 'invalid']);
+        yield 'paths' => [['paths' => 'invalid'], "Configuration 'paths' must be an array"];
+        yield 'validators' => [['validators' => 'invalid'], "Configuration 'validators' must be an array"];
+        yield 'file-detectors' => [['file-detectors' => 'invalid'], "Configuration 'file-detectors' must be an array"];
+        yield 'parsers' => [['parsers' => 'invalid'], "Configuration 'parsers' must be an array"];
+        yield 'only' => [['only' => 'invalid'], "Configuration 'only' must be an array"];
+        yield 'skip' => [['skip' => 'invalid'], "Configuration 'skip' must be an array"];
+        yield 'exclude' => [['exclude' => 'invalid'], "Configuration 'exclude' must be an array"];
+        yield 'strict' => [['strict' => 'invalid'], "Configuration 'strict' must be a boolean"];
+        yield 'dry-run' => [['dry-run' => 'invalid'], "Configuration 'dry-run' must be a boolean"];
+        yield 'format type' => [['format' => 123], "Configuration 'format' must be a string"];
+        yield 'format value' => [['format' => 'invalid'], "Invalid format 'invalid'. Allowed formats: cli, json, yaml, php"];
+        yield 'verbose' => [['verbose' => 'invalid'], "Configuration 'verbose' must be a boolean"];
     }
 
     public function testValidateEmptyConfig(): void

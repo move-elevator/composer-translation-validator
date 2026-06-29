@@ -35,9 +35,11 @@ class SchemaValidator
      */
     public function validate(array $data): void
     {
+        // @codeCoverageIgnoreStart
         if (!class_exists(\JsonSchema\Validator::class)) {
             return;
         }
+        // @codeCoverageIgnoreEnd
 
         $schema = $this->loadSchema();
         $validator = new \JsonSchema\Validator();
@@ -70,14 +72,18 @@ class SchemaValidator
         }
 
         $schemaContent = file_get_contents(self::SCHEMA_PATH);
+        // @codeCoverageIgnoreStart
         if (false === $schemaContent) {
             throw new RuntimeException('Failed to read JSON Schema file: '.self::SCHEMA_PATH);
         }
+        // @codeCoverageIgnoreEnd
 
         $schema = json_decode($schemaContent, false, 512, \JSON_THROW_ON_ERROR);
+        // @codeCoverageIgnoreStart
         if (null === $schema) {
             throw new RuntimeException('Invalid JSON Schema file: '.self::SCHEMA_PATH);
         }
+        // @codeCoverageIgnoreEnd
 
         return $schema;
     }

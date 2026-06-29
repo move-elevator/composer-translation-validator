@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 
 use MoveElevator\ComposerTranslationValidator\Result\FormatType;
+use PHPUnit\Framework\Attributes\{CoversClass, DataProvider};
 use PHPUnit\Framework\TestCase;
 use ValueError;
 
@@ -23,6 +24,7 @@ use ValueError;
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
+#[CoversClass(FormatType::class)]
 final class FormatTypeTest extends TestCase
 {
     public function testFromInvalidValueThrowsException(): void
@@ -31,11 +33,19 @@ final class FormatTypeTest extends TestCase
         FormatType::from('invalid');
     }
 
-    public function testEnumCases(): void
+    #[DataProvider('validValueProvider')]
+    public function testFromValidValueResolvesCase(string $input, FormatType $expected): void
     {
-        $cases = FormatType::cases();
-        $this->assertContains(FormatType::CLI, $cases);
-        $this->assertContains(FormatType::JSON, $cases);
-        $this->assertContains(FormatType::GITHUB, $cases);
+        self::assertSame($expected, FormatType::from($input));
+    }
+
+    /**
+     * @return iterable<string, array{string, FormatType}>
+     */
+    public static function validValueProvider(): iterable
+    {
+        yield 'cli' => ['cli', FormatType::CLI];
+        yield 'json' => ['json', FormatType::JSON];
+        yield 'github' => ['github', FormatType::GITHUB];
     }
 }

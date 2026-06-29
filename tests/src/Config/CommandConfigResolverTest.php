@@ -178,6 +178,33 @@ final class CommandConfigResolverTest extends TestCase
         rmdir($tempDir);
     }
 
+    public function testResolveLoadsConfigFromComposerJson(): void
+    {
+        $tempDir = sys_get_temp_dir().'/translation-validator-resolver-composer-'.uniqid('', true);
+        mkdir($tempDir, 0777, true);
+
+        $configFile = $tempDir.'/custom-config.json';
+        file_put_contents($configFile, json_encode(['paths' => ['composer-configured']]));
+
+        $composerJson = $tempDir.'/composer.json';
+        file_put_contents($composerJson, json_encode([
+            'name' => 'test/package',
+            'extra' => [
+                'translation-validator' => [
+                    'config-file' => 'custom-config.json',
+                ],
+            ],
+        ]));
+
+        $config = $this->resolver->resolve($this->createInput([]), $tempDir);
+
+        $this->assertSame(['composer-configured'], $config->getPaths());
+
+        unlink($configFile);
+        unlink($composerJson);
+        rmdir($tempDir);
+    }
+
     /**
      * @param array<string, mixed> $options
      */

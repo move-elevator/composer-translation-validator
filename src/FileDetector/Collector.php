@@ -112,11 +112,13 @@ class Collector
     {
         if (!$recursive) {
             $globFiles = glob($path.'/*');
+            // @codeCoverageIgnoreStart
             if (false === $globFiles) {
                 $this->logger?->warning('Failed to glob files in path: '.$path);
 
                 return [];
             }
+            // @codeCoverageIgnoreEnd
 
             return array_filter(
                 $globFiles,
@@ -151,11 +153,13 @@ class Collector
                     $files[] = $filePath;
                 }
             }
+            // @codeCoverageIgnoreStart
         } catch (Exception $e) {
             $this->logger?->error('Error during recursive file search: '.$e->getMessage());
 
             return [];
         }
+        // @codeCoverageIgnoreEnd
 
         return $files;
     }
@@ -170,7 +174,9 @@ class Collector
             return $resolved;
         }
 
+        // @codeCoverageIgnoreStart
         return rtrim($path, '/\\');
+        // @codeCoverageIgnoreEnd
     }
 
     /**

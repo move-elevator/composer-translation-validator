@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\Utility;
 
 use MoveElevator\ComposerTranslationValidator\Utility\PathUtility;
+use PHPUnit\Framework\Attributes\{CoversClass, DataProvider};
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -22,6 +23,7 @@ use PHPUnit\Framework\TestCase;
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
+#[CoversClass(PathUtility::class)]
 final class PathUtilityTest extends TestCase
 {
     private string $originalCwd;
@@ -48,28 +50,30 @@ final class PathUtilityTest extends TestCase
         chdir($this->originalCwd);
     }
 
-    public function testNormalizeFolderPathWithTrailingSlash(): void
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function normalizeFolderPathProvider(): iterable
     {
-        $path = '/path/to/folder';
-        $this->assertSame('/path/to/folder', PathUtility::normalizeFolderPath($path));
+        yield 'absolute path' => ['/path/to/folder', '/path/to/folder'];
+        yield 'dot-slash prefix' => ['./path/to/folder', 'path/to/folder'];
+        yield 'empty path' => ['', ''];
+        yield 'dot-slash prefix with trailing slash' => ['./path/to/folder/', 'path/to/folder'];
+        yield 'only dot-slash' => ['./', ''];
+        yield 'only dot' => ['.', ''];
+        yield 'multiple trailing slashes' => ['/path/to/folder///', '/path/to/folder'];
+        yield 'single slash' => ['/', ''];
+        yield 'non-existent absolute path' => ['/non/existent/path', '/non/existent/path'];
+        yield 'relative non-existent path' => ['relative/non/existent/path', 'relative/non/existent/path'];
+        yield 'dots in path' => ['/path/../other/path', '/path/../other/path'];
+        yield 'complex dot-slash path' => ['./path/to/some/directory/', 'path/to/some/directory'];
+        yield 'multiple inner slashes preserved' => ['/some/path//with///multiple////slashes/', '/some/path//with///multiple////slashes'];
     }
 
-    public function testNormalizeFolderPathWithoutTrailingSlash(): void
+    #[DataProvider('normalizeFolderPathProvider')]
+    public function testNormalizeFolderPath(string $input, string $expected): void
     {
-        $path = '/path/to/folder';
-        $this->assertSame('/path/to/folder', PathUtility::normalizeFolderPath($path));
-    }
-
-    public function testNormalizeFolderPathWithDotSlashPrefix(): void
-    {
-        $path = './path/to/folder';
-        $this->assertSame('path/to/folder', PathUtility::normalizeFolderPath($path));
-    }
-
-    public function testNormalizeFolderPathWithEmptyPath(): void
-    {
-        $path = '';
-        $this->assertSame('', PathUtility::normalizeFolderPath($path));
+        $this->assertSame($expected, PathUtility::normalizeFolderPath($input));
     }
 
     public function testNormalizeFolderPathWhenPathIsCwd(): void
@@ -92,54 +96,6 @@ final class PathUtilityTest extends TestCase
         chdir($this->tempDir);
         $unrelatedPath = '/another/path/to/folder';
         $this->assertSame('/another/path/to/folder', PathUtility::normalizeFolderPath($unrelatedPath));
-    }
-
-    public function testNormalizeFolderPathWithDotSlashPrefixAndTrailingSlash(): void
-    {
-        $path = './path/to/folder/';
-        $this->assertSame('path/to/folder', PathUtility::normalizeFolderPath($path));
-    }
-
-    public function testNormalizeFolderPathWithOnlyDotSlash(): void
-    {
-        $path = './';
-        $this->assertSame('', PathUtility::normalizeFolderPath($path));
-    }
-
-    public function testNormalizeFolderPathWithOnlyDot(): void
-    {
-        $path = '.';
-        $this->assertSame('', PathUtility::normalizeFolderPath($path));
-    }
-
-    public function testNormalizeFolderPathWithMultipleTrailingSlashes(): void
-    {
-        $path = '/path/to/folder///';
-        $this->assertSame('/path/to/folder', PathUtility::normalizeFolderPath($path));
-    }
-
-    public function testNormalizeFolderPathWithSingleSlash(): void
-    {
-        $path = '/';
-        $this->assertSame('', PathUtility::normalizeFolderPath($path));
-    }
-
-    public function testNormalizeFolderPathWithNonExistentPath(): void
-    {
-        $path = '/non/existent/path';
-        $this->assertSame('/non/existent/path', PathUtility::normalizeFolderPath($path));
-    }
-
-    public function testNormalizeFolderPathWithRelativeNonExistentPath(): void
-    {
-        $path = 'relative/non/existent/path';
-        $this->assertSame('relative/non/existent/path', PathUtility::normalizeFolderPath($path));
-    }
-
-    public function testNormalizeFolderPathWithDotsInPath(): void
-    {
-        $path = '/path/../other/path';
-        $this->assertSame('/path/../other/path', PathUtility::normalizeFolderPath($path));
     }
 
     private function removeDirectory(string $path): void

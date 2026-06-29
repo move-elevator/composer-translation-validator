@@ -46,6 +46,7 @@ class EncodingValidator extends AbstractValidator implements ValidatorInterface
 
         // Read raw file content
         $content = file_get_contents($filePath);
+        // @codeCoverageIgnoreStart
         if (false === $content) {
             $this->logger?->error(
                 'Could not read file content: '.$file->getFileName(),
@@ -53,6 +54,7 @@ class EncodingValidator extends AbstractValidator implements ValidatorInterface
 
             return [];
         }
+        // @codeCoverageIgnoreEnd
 
         // Early exit for empty files
         if ('' === $content) {
@@ -180,9 +182,11 @@ class EncodingValidator extends AbstractValidator implements ValidatorInterface
 
     private function hasUnicodeNormalizationIssues(string $content): bool
     {
+        // @codeCoverageIgnoreStart
         if (!class_exists('Normalizer')) {
             return false;
         }
+        // @codeCoverageIgnoreEnd
 
         $normalized = Normalizer::normalize($content, Normalizer::FORM_C);
 

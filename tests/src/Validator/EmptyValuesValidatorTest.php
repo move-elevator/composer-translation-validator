@@ -13,9 +13,11 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
-use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
+use Iterator;
+use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
-use MoveElevator\ComposerTranslationValidator\Validator\{EmptyValuesValidator, ResultType};
+use MoveElevator\ComposerTranslationValidator\Validator\EmptyValuesValidator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -129,39 +131,19 @@ final class EmptyValuesValidatorTest extends TestCase
         $this->assertEmpty($result);
     }
 
-    public function testSupportsParser(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new EmptyValuesValidator($logger);
-
-        $expectedParsers = [XliffParser::class, YamlParser::class, JsonParser::class, PhpParser::class];
-        $this->assertSame($expectedParsers, $validator->supportsParser());
-    }
-
-    public function testGetShortName(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new EmptyValuesValidator($logger);
-
-        $this->assertSame('EmptyValuesValidator', $validator->getShortName());
-    }
-
-    public function testResultTypeOnValidationFailure(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new EmptyValuesValidator($logger);
-
-        $this->assertSame(ResultType::WARNING, $validator->resultTypeOnValidationFailure());
-    }
-
-    public function testFormatIssueMessageWithEmptyValue(): void
+    /**
+     * @param array<string, string> $details
+     * @param array<string>         $expectedFragments
+     */
+    #[DataProvider('formatIssueMessageProvider')]
+    public function testFormatIssueMessage(array $details, array $expectedFragments): void
     {
         $logger = $this->createStub(LoggerInterface::class);
         $validator = new EmptyValuesValidator($logger);
 
         $issue = new Issue(
             'test.xlf',
-            ['empty_key' => ''],
+            $details,
             'XliffParser',
             'EmptyValuesValidator',
         );
@@ -170,66 +152,30 @@ final class EmptyValuesValidatorTest extends TestCase
 
         $this->assertStringContainsString('Warning', $result);
         $this->assertStringContainsString('<fg=yellow>', $result);
-        $this->assertStringContainsString('empty_key', $result);
-        $this->assertStringContainsString('empty value', $result);
+        foreach ($expectedFragments as $fragment) {
+            $this->assertStringContainsString($fragment, $result);
+        }
     }
 
-    public function testFormatIssueMessageWithWhitespaceValue(): void
+    /**
+     * @return Iterator<string, array{array<string, string>, array<string>}>
+     */
+    public static function formatIssueMessageProvider(): Iterator
     {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new EmptyValuesValidator($logger);
+        yield 'empty value' => [
+            ['empty_key' => ''],
+            ['empty_key', 'empty value'],
+        ];
 
-        $issue = new Issue(
-            'test.xlf',
+        yield 'whitespace only value' => [
             ['whitespace_key' => '   '],
-            'XliffParser',
-            'EmptyValuesValidator',
-        );
+            ['whitespace_key', 'whitespace only value'],
+        ];
 
-        $result = $validator->formatIssueMessage($issue);
-
-        $this->assertStringContainsString('Warning', $result);
-        $this->assertStringContainsString('<fg=yellow>', $result);
-        $this->assertStringContainsString('whitespace_key', $result);
-        $this->assertStringContainsString('whitespace only value', $result);
-    }
-
-    public function testFormatIssueMessageWithMultipleEmptyValues(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new EmptyValuesValidator($logger);
-
-        $issue = new Issue(
-            'test.xlf',
+        yield 'multiple empty values' => [
             ['empty_key' => '', 'whitespace_key' => '  '],
-            'XliffParser',
-            'EmptyValuesValidator',
-        );
-
-        $result = $validator->formatIssueMessage($issue);
-
-        $this->assertStringContainsString('empty_key', $result);
-        $this->assertStringContainsString('whitespace_key', $result);
-        $this->assertStringContainsString('empty value', $result);
-        $this->assertStringContainsString('whitespace only value', $result);
-    }
-
-    public function testFormatIssueMessageWithPrefix(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new EmptyValuesValidator($logger);
-
-        $issue = new Issue(
-            'test.xlf',
-            ['empty_key' => ''],
-            'XliffParser',
-            'EmptyValuesValidator',
-        );
-
-        $result = $validator->formatIssueMessage($issue, '(TestPrefix) ');
-
-        $this->assertStringContainsString('(TestPrefix)', $result);
-        $this->assertStringContainsString('empty_key', $result);
+            ['empty_key', 'whitespace_key', 'empty value', 'whitespace only value'],
+        ];
     }
 
     public function testProcessFileWithEmptyKeysArray(): void

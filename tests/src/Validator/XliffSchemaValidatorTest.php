@@ -43,13 +43,6 @@ final class XliffSchemaValidatorTest extends TestCase
         $this->assertSame([XliffParser::class], $validator->supportsParser());
     }
 
-    public function testSupportsParser(): void
-    {
-        $supportedParsers = $this->validator->supportsParser();
-
-        $this->assertSame([XliffParser::class], $supportedParsers);
-    }
-
     public function testProcessFileWithValidXliff(): void
     {
         $validXliff = <<<'XML'

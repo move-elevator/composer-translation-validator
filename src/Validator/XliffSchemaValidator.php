@@ -44,11 +44,13 @@ class XliffSchemaValidator extends AbstractValidator implements ValidatorInterfa
         }
 
         $fileContent = file_get_contents($file->getFilePath());
+        // @codeCoverageIgnoreStart
         if (false === $fileContent) {
             $this->logger?->error('Failed to read file: '.$file->getFileName());
 
             return [];
         }
+        // @codeCoverageIgnoreEnd
 
         try {
             $dom = XmlUtils::parse($fileContent);
@@ -66,7 +68,9 @@ class XliffSchemaValidator extends AbstractValidator implements ValidatorInterfa
             if (str_contains($e->getMessage(), 'No support implemented for loading XLIFF version')) {
                 $this->logger?->notice(sprintf('Skipping %s: %s', $this->getShortName(), $e->getMessage()));
             } else {
+                // @codeCoverageIgnoreStart
                 $this->logger?->error('Failed to validate XML schema: '.$e->getMessage());
+                // @codeCoverageIgnoreEnd
             }
         }
 

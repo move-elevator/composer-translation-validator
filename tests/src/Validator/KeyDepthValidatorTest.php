@@ -15,7 +15,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Config\ConfigFactory;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
-use MoveElevator\ComposerTranslationValidator\Validator\{KeyDepthValidator, ResultType};
+use MoveElevator\ComposerTranslationValidator\Validator\KeyDepthValidator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
@@ -265,36 +265,6 @@ final class KeyDepthValidatorTest extends TestCase
         // Should use default threshold of 8
         $this->assertArrayHasKey('threshold', $result);
         $this->assertSame(8, $result['threshold']);
-    }
-
-    public function testSupportsParser(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new KeyDepthValidator($logger);
-
-        $expectedParsers = [
-            \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class,
-            \MoveElevator\ComposerTranslationValidator\Parser\YamlParser::class,
-            \MoveElevator\ComposerTranslationValidator\Parser\JsonParser::class,
-            \MoveElevator\ComposerTranslationValidator\Parser\PhpParser::class,
-        ];
-        $this->assertSame($expectedParsers, $validator->supportsParser());
-    }
-
-    public function testGetShortName(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new KeyDepthValidator($logger);
-
-        $this->assertSame('KeyDepthValidator', $validator->getShortName());
-    }
-
-    public function testResultTypeOnValidationFailure(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new KeyDepthValidator($logger);
-
-        $this->assertSame(ResultType::WARNING, $validator->resultTypeOnValidationFailure());
     }
 
     public function testFormatIssueMessage(): void

@@ -13,13 +13,14 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
-use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
+use MoveElevator\ComposerTranslationValidator\Parser\{ParserCache, ParserInterface};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use MoveElevator\ComposerTranslationValidator\Validator\{AbstractValidator, ValidatorInterface};
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionException;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 use function dirname;
 
@@ -81,6 +82,51 @@ class ConcreteValidator extends AbstractValidator implements ValidatorInterface
     public function getShortName(): string
     {
         return static::class;
+    }
+}
+
+// Stub validator returning a list of issue arrays to exercise the multi-issue branch
+
+/**
+ * MultiIssueValidator.
+ *
+ * @author Konrad Michalik <km@move-elevator.de>
+ * @license GPL-3.0-or-later
+ */
+class MultiIssueValidator extends AbstractValidator implements ValidatorInterface
+{
+    public function processFile(ParserInterface $file): array
+    {
+        return [
+            ['message' => 'issue one'],
+            ['message' => 'issue two'],
+        ];
+    }
+
+    public function supportsParser(): array
+    {
+        return [TestParser::class];
+    }
+}
+
+// Bare stub validator that keeps the AbstractValidator default implementations
+
+/**
+ * DefaultMethodsValidator.
+ *
+ * @author Konrad Michalik <km@move-elevator.de>
+ * @license GPL-3.0-or-later
+ */
+class DefaultMethodsValidator extends AbstractValidator implements ValidatorInterface
+{
+    public function processFile(ParserInterface $file): array
+    {
+        return [];
+    }
+
+    public function supportsParser(): array
+    {
+        return [TestParser::class];
     }
 }
 
@@ -378,5 +424,78 @@ final class AbstractValidatorTest extends TestCase
         $result = $validator->validate($files, TestParser::class);
 
         $this->assertEmpty($result);
+    }
+
+    public function testSetParserCacheReplacesCache(): void
+    {
+        $validator = new ConcreteValidator($this->loggerStub);
+        $cache = new ParserCache();
+
+        $validator->setParserCache($cache);
+
+        $reflection = new ReflectionClass(AbstractValidator::class);
+        $cacheProperty = $reflection->getProperty('parserCache');
+
+        $this->assertSame($cache, $cacheProperty->getValue($validator));
+    }
+
+    public function testValidateSkipsFilesThatCannotBeParsed(): void
+    {
+        $loggerMock = $this->createMock(LoggerInterface::class);
+        $loggerMock->expects($this->atLeastOnce())
+            ->method('debug');
+
+        $validator = new ConcreteValidator($loggerMock);
+
+        // Passing null as parser class makes ParserCache::get return false,
+        // so the file cannot be resolved to a ParserInterface instance.
+        $result = $validator->validate(['/path/to/unparseable.unknown'], null);
+
+        $this->assertEmpty($result);
+    }
+
+    public function testValidateCreatesOneIssuePerItemForMultiIssueResult(): void
+    {
+        $validator = new MultiIssueValidator($this->loggerStub);
+
+        $result = $validator->validate(['multi.xlf'], TestParser::class);
+
+        /* @phpstan-ignore-next-line method.impossibleType */
+        $this->assertSame(
+            [
+                [
+                    'file' => 'multi.xlf',
+                    'issues' => ['message' => 'issue one'],
+                    'parser' => TestParser::class,
+                    'type' => 'MultiIssueValidator',
+                ],
+                [
+                    'file' => 'multi.xlf',
+                    'issues' => ['message' => 'issue two'],
+                    'parser' => TestParser::class,
+                    'type' => 'MultiIssueValidator',
+                ],
+            ],
+            $result,
+        );
+    }
+
+    public function testDefaultPostProcessDoesNothing(): void
+    {
+        $validator = new DefaultMethodsValidator($this->loggerStub);
+
+        $validator->postProcess();
+
+        $this->assertFalse($validator->hasIssues());
+    }
+
+    public function testDefaultRenderDetailedOutputProducesNoOutput(): void
+    {
+        $validator = new DefaultMethodsValidator($this->loggerStub);
+        $output = new BufferedOutput();
+
+        $validator->renderDetailedOutput($output, []);
+
+        $this->assertSame('', $output->fetch());
     }
 }

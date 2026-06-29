@@ -14,9 +14,9 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
-use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
+use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
-use MoveElevator\ComposerTranslationValidator\Validator\{PlaceholderConsistencyValidator, ResultType};
+use MoveElevator\ComposerTranslationValidator\Validator\PlaceholderConsistencyValidator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
@@ -67,6 +67,38 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         $result = $validator->processFile($parser);
 
         $this->assertEmpty($result);
+    }
+
+    public function testProcessFileSkipsKeysWithNullValue(): void
+    {
+        $parser = $this->createStub(ParserInterface::class);
+        $parser->method('extractKeys')->willReturn(['key1', 'key2']);
+        $parser->method('getContentByKey')->willReturnMap([
+            ['key1', 'Hello %name%!'],
+            ['key2', null],
+        ]);
+        $parser->method('getFileName')->willReturn('test.xlf');
+
+        $logger = $this->createStub(LoggerInterface::class);
+        $validator = new PlaceholderConsistencyValidator($logger);
+        $validator->processFile($parser);
+
+        $reflection = new ReflectionClass($validator);
+        $keyData = $reflection->getProperty('keyData')->getValue($validator);
+
+        $this->assertArrayHasKey('key1', $keyData);
+        $this->assertArrayNotHasKey('key2', $keyData);
+    }
+
+    public function testRenderDetailedOutputWithEmptyIssues(): void
+    {
+        $logger = $this->createStub(LoggerInterface::class);
+        $validator = new PlaceholderConsistencyValidator($logger);
+
+        $output = new BufferedOutput();
+        $validator->renderDetailedOutput($output, []);
+
+        $this->assertSame('', $output->fetch());
     }
 
     public function testPostProcessWithConsistentPlaceholders(): void
@@ -233,31 +265,6 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         $this->assertCount(3, $placeholders);
     }
 
-    public function testSupportsParser(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new PlaceholderConsistencyValidator($logger);
-
-        $expectedParsers = [XliffParser::class, YamlParser::class, JsonParser::class, PhpParser::class];
-        $this->assertSame($expectedParsers, $validator->supportsParser());
-    }
-
-    public function testGetShortName(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new PlaceholderConsistencyValidator($logger);
-
-        $this->assertSame('PlaceholderConsistencyValidator', $validator->getShortName());
-    }
-
-    public function testResultTypeOnValidationFailure(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new PlaceholderConsistencyValidator($logger);
-
-        $this->assertSame(ResultType::WARNING, $validator->resultTypeOnValidationFailure());
-    }
-
     public function testShouldShowDetailedOutput(): void
     {
         $logger = $this->createStub(LoggerInterface::class);
@@ -291,27 +298,6 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         $this->assertStringContainsString('test.key', $result);
         $this->assertStringContainsString('missing placeholders: %name%', $result);
         $this->assertStringContainsString('extra placeholders: %username%', $result);
-    }
-
-    public function testFormatIssueMessageWithPrefix(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new PlaceholderConsistencyValidator($logger);
-
-        $issue = new Issue(
-            'test.xlf',
-            [
-                'key' => 'test.key',
-                'inconsistencies' => ['Some inconsistency'],
-            ],
-            'XliffParser',
-            'PlaceholderConsistencyValidator',
-        );
-
-        $result = $validator->formatIssueMessage($issue, '(TestPrefix) ');
-
-        $this->assertStringContainsString('(TestPrefix)', $result);
-        $this->assertStringContainsString('test.key', $result);
     }
 
     public function testDistributeIssuesForDisplay(): void

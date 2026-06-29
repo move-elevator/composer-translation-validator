@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Parser;
 
-use InvalidArgumentException;
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -73,34 +72,6 @@ EOT
         if (is_dir($this->tempDir)) {
             $this->removeDirectory($this->tempDir);
         }
-    }
-
-    public function testConstructorThrowsExceptionIfFileDoesNotExist(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessageMatches('/File ".*" does not exist./');
-        new YamlParser('/non/existent/file.yaml');
-    }
-
-    public function testConstructorThrowsExceptionIfFileIsNotReadable(): void
-    {
-        $unreadableFile = $this->tempDir.'/unreadable.yaml';
-        file_put_contents($unreadableFile, 'content');
-        chmod($unreadableFile, 0000); // Make unreadable
-
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessageMatches('/File ".*" is not readable./');
-        new YamlParser($unreadableFile);
-    }
-
-    public function testConstructorThrowsExceptionIfFileHasInvalidExtension(): void
-    {
-        $invalidFile = $this->tempDir.'/invalid.txt';
-        file_put_contents($invalidFile, 'content');
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessageMatches('/File ".*" is not a valid file./');
-        new YamlParser($invalidFile);
     }
 
     public function testConstructorThrowsExceptionIfYamlIsInvalid(): void

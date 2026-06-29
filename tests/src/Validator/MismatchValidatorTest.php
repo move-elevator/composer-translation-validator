@@ -197,19 +197,6 @@ final class MismatchValidatorTest extends TestCase
         $this->assertFalse($validator->hasIssues());
     }
 
-    public function testSupportsParser(): void
-    {
-        $logger = $this->createStub(LoggerInterface::class);
-        $validator = new MismatchValidator($logger);
-
-        $this->assertSame([
-            \MoveElevator\ComposerTranslationValidator\Parser\XliffParser::class,
-            \MoveElevator\ComposerTranslationValidator\Parser\YamlParser::class,
-            \MoveElevator\ComposerTranslationValidator\Parser\JsonParser::class,
-            \MoveElevator\ComposerTranslationValidator\Parser\PhpParser::class,
-        ], $validator->supportsParser());
-    }
-
     public function testDistributeIssuesForDisplay(): void
     {
         $logger = $this->createStub(LoggerInterface::class);
@@ -314,12 +301,42 @@ final class MismatchValidatorTest extends TestCase
         $this->assertStringContainsString('<fg=red>', $result);
     }
 
-    public function testGetShortName(): void
+    public function testFormatIssueMessageWhenCurrentFileHasValue(): void
     {
         $logger = $this->createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
-        $this->assertSame('MismatchValidator', $validator->getShortName());
+        // The Issue file is file1.xlf and it carries a non-null value, so the
+        // current file "has" the translation and it is "missing from" the others.
+        $issue = new Issue(
+            '/test/path/file1.xlf',
+            [
+                'key' => 'test_key',
+                'files' => [
+                    ['file' => '/test/path/file1.xlf', 'value' => 'value1'],
+                    ['file' => '/test/path/file2.xlf', 'value' => null],
+                ],
+            ],
+            'TestParser',
+            'MismatchValidator',
+        );
+
+        $result = $validator->formatIssueMessage($issue);
+
+        $this->assertStringContainsString('is missing from other translation files', $result);
+        $this->assertStringContainsString('file2.xlf', $result);
+        $this->assertStringContainsString('test_key', $result);
+    }
+
+    public function testRenderDetailedOutputWithEmptyIssues(): void
+    {
+        $logger = $this->createStub(LoggerInterface::class);
+        $validator = new MismatchValidator($logger);
+
+        $output = new \Symfony\Component\Console\Output\BufferedOutput();
+        $validator->renderDetailedOutput($output, []);
+
+        $this->assertSame('', $output->fetch());
     }
 
     public function testPostProcessDetectsEmptyFileWithMissingKeys(): void

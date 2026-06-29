@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
-use MoveElevator\ComposerTranslationValidator\Parser\{ParserInterface, XliffParser, YamlParser};
-use MoveElevator\ComposerTranslationValidator\Validator\{DuplicateValuesValidator, ResultType};
+use MoveElevator\ComposerTranslationValidator\Parser\ParserInterface;
+use MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
@@ -205,27 +205,6 @@ final class DuplicateValuesValidatorTest extends TestCase
 
         // Verify issues are also reset (from parent)
         $this->assertFalse($validator->hasIssues());
-    }
-
-    public function testSupportsParser(): void
-    {
-        $validator = new DuplicateValuesValidator($this->loggerStub);
-        $supportedParsers = $validator->supportsParser();
-
-        $this->assertContains(XliffParser::class, $supportedParsers);
-        $this->assertContains(YamlParser::class, $supportedParsers);
-    }
-
-    public function testResultTypeOnValidationFailure(): void
-    {
-        $validator = new DuplicateValuesValidator($this->loggerStub);
-        $this->assertSame(ResultType::WARNING, $validator->resultTypeOnValidationFailure());
-    }
-
-    public function testGetShortName(): void
-    {
-        $validator = new DuplicateValuesValidator($this->loggerStub);
-        $this->assertSame('DuplicateValuesValidator', $validator->getShortName());
     }
 
     public function testFormatIssueMessage(): void

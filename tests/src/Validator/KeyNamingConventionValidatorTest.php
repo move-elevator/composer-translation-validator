@@ -522,6 +522,47 @@ final class KeyNamingConventionValidatorTest extends TestCase
         $this->assertStringContainsString('Consider standardizing', $message);
     }
 
+    public function testValidateKeyFormatReturnsTrueWithoutConventionConfigured(): void
+    {
+        // validateKeyFormat short-circuits to true when neither a convention nor
+        // a custom pattern is configured. processFile guards this path, so invoke
+        // the private method directly.
+        $validator = new KeyNamingConventionValidator();
+
+        $reflection = new ReflectionClass($validator);
+        $method = $reflection->getMethod('validateKeyFormat');
+
+        $this->assertTrue($method->invoke($validator, 'anyKeyAtAll'));
+    }
+
+    public function testSuggestKeyConversionFallsBackOnInvalidDominantConvention(): void
+    {
+        // A dominant convention that is not 'unknown'/'mixed_conventions' but is
+        // rejected by KeyNamingConvention::fromString (e.g. 'dot.notation') must
+        // make suggestKeyConversion return the original key unchanged.
+        $validator = new KeyNamingConventionValidator();
+
+        $issue = new Issue(
+            'test.yaml',
+            [
+                'key' => 'someKey',
+                'inconsistency_type' => 'mixed_conventions',
+                'detected_conventions' => ['camelCase'],
+                'dominant_convention' => 'dot.notation',
+                'all_conventions_found' => ['camelCase', 'dot.notation'],
+            ],
+            'TestParser',
+            'KeyNamingConventionValidator',
+        );
+
+        $message = $validator->formatIssueMessage($issue);
+
+        // No "Consider: `...`" suggestion is appended because the conversion
+        // returned the original key unchanged.
+        $this->assertStringContainsString('someKey', $message);
+        $this->assertStringNotContainsString('Consider: `', $message);
+    }
+
     public function testDetectKeyConventionsReturnsMixedConventions(): void
     {
         $detector = new ConventionDetector();
@@ -534,7 +575,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
     public function testConfigurationLoadingWithInvalidConvention(): void
     {
         $config = $this->createMock(\MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig::class);
-        $config->expects($this->any())
+        $config->expects($this->once())
             ->method('getValidatorSettings')
             ->with('KeyNamingConventionValidator')
             ->willReturn(['convention' => 'invalid_convention']);
@@ -551,7 +592,7 @@ final class KeyNamingConventionValidatorTest extends TestCase
     public function testConfigurationLoadingWithInvalidCustomPattern(): void
     {
         $config = $this->createMock(\MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig::class);
-        $config->expects($this->any())
+        $config->expects($this->once())
             ->method('getValidatorSettings')
             ->with('KeyNamingConventionValidator')
             ->willReturn(['custom_pattern' => 'invalid[pattern']);
