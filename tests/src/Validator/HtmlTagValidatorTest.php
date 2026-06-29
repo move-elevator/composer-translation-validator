@@ -93,6 +93,35 @@ final class HtmlTagValidatorTest extends TestCase
         $this->assertContains('Unmatched closing tag: </span>', $structure['structure_errors']);
     }
 
+    public function testVoidElementsAreNotReportedAsUnclosed(): void
+    {
+        $validator = new HtmlTagValidator();
+        $reflection = new ReflectionClass($validator);
+        $method = $reflection->getMethod('analyzeHtmlStructure');
+
+        // Non-self-closing void element (HTML5 syntax, e.g. from CDATA)
+        $structure = $method->invoke($validator, 'Test<br>Test');
+        $this->assertEmpty($structure['structure_errors']);
+        $this->assertContains('br', $structure['tags']);
+
+        // <br>, <br/> and <br /> must be treated equivalently (no errors)
+        foreach (['Line<br>here', 'Line<br/>here', 'Line<br />here'] as $value) {
+            $structure = $method->invoke($validator, $value);
+            $this->assertEmpty($structure['structure_errors'], "Unexpected error for: {$value}");
+            $this->assertContains('br', $structure['tags']);
+        }
+
+        // Void element with attributes
+        $structure = $method->invoke($validator, 'Image <img src="x.png"> done');
+        $this->assertEmpty($structure['structure_errors']);
+        $this->assertContains('img', $structure['tags']);
+        $this->assertSame('x.png', $structure['attributes']['img']['src'] ?? null);
+
+        // Regression guard: real non-void tags must still be flagged
+        $structure = $method->invoke($validator, 'Unclosed <div>content');
+        $this->assertContains('Unclosed tag: <div>', $structure['structure_errors']);
+    }
+
     public function testPostProcessWithConsistentHtml(): void
     {
         $parser1 = $this->createStub(ParserInterface::class);

@@ -32,6 +32,17 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
 {
     use DistributesIssuesForDisplayTrait;
 
+    /**
+     * HTML5 void elements — they never have a closing tag, regardless of an
+     * explicit trailing slash (`<br>` and `<br/>` are equivalent).
+     *
+     * @var string[]
+     */
+    private const VOID_ELEMENTS = [
+        'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
+        'link', 'meta', 'param', 'source', 'track', 'wbr',
+    ];
+
     /** @var array<string, array<string, array{value: string, html_structure: array<string, mixed>}>> */
     protected array $keyData = [];
 
@@ -228,8 +239,8 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
                     }
                 } else {
                     // Opening tag or self-closing
-                    if (str_ends_with($attributes, '/')) {
-                        // Self-closing tag
+                    if (str_ends_with($attributes, '/') || in_array($tagName, self::VOID_ELEMENTS, true)) {
+                        // Self-closing or HTML void element — never pushed onto the stack
                         $structure['self_closing_tags'][] = $tagName;
                         $attributes = rtrim($attributes, ' /');
                     } else {
