@@ -638,7 +638,7 @@ EOT;
         $file = $this->tempDir.'/no_units.xlf';
         file_put_contents($file, <<<'EOT'
 <?xml version="1.0" encoding="utf-8"?>
-<xliff version="1.2"><file source-language="en" datatype="plaintext" original="x"><body></body></file></xliff>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2"><file source-language="en" datatype="plaintext" original="x"><body></body></file></xliff>
 EOT);
 
         $parser = new XliffParser($file);
@@ -650,7 +650,7 @@ EOT);
         $file = $this->tempDir.'/no_units_content.xlf';
         file_put_contents($file, <<<'EOT'
 <?xml version="1.0" encoding="utf-8"?>
-<xliff version="1.2"><file source-language="en" datatype="plaintext" original="x"><body></body></file></xliff>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2"><file source-language="en" datatype="plaintext" original="x"><body></body></file></xliff>
 EOT);
 
         $parser = new XliffParser($file);
