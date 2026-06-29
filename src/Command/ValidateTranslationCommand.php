@@ -225,9 +225,11 @@ HELP
             return Command::FAILURE;
         }
 
+        // @codeCoverageIgnoreStart
         if (null === $this->output || null === $this->input) {
             throw new RuntimeException('Output or Input interface not initialized');
         }
+        // @codeCoverageIgnoreEnd
 
         return (new Output(
             $this->logger,

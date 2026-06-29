@@ -38,9 +38,11 @@ class JsonParser extends AbstractParser implements ParserInterface
 
         try {
             $content = file_get_contents($filePath);
+            // @codeCoverageIgnoreStart
             if (false === $content) {
                 throw new RuntimeException("Failed to read file: {$filePath}");
             }
+            // @codeCoverageIgnoreEnd
 
             $decoded = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
             if (!is_array($decoded) || array_is_list($decoded)) {

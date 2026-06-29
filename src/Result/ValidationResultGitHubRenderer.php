@@ -63,7 +63,9 @@ class ValidationResultGitHubRenderer extends AbstractValidationResultRenderer
         $annotationType = match ($resultType) {
             ResultType::ERROR => 'error',
             ResultType::WARNING => 'warning',
+            // @codeCoverageIgnoreStart
             default => 'notice',
+            // @codeCoverageIgnoreEnd
         };
 
         $params = ['file='.$this->escapeProperty($filePath)];

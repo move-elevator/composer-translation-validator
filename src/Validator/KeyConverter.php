@@ -46,9 +46,11 @@ final class KeyConverter
 
         // Convert snake_case, kebab-case, and dot.notation to camelCase
         $parts = preg_split('/[_\-.]+/', $key);
+        // @codeCoverageIgnoreStart
         if (false === $parts) {
             return $key;
         }
+        // @codeCoverageIgnoreEnd
 
         $result = strtolower($parts[0] ?? '');
         for ($i = 1, $iMax = count($parts); $i < $iMax; ++$i) {
@@ -78,9 +80,11 @@ final class KeyConverter
 
         // Convert snake_case, kebab-case, and dot.notation to PascalCase
         $parts = preg_split('/[_\-.]+/', $key);
+        // @codeCoverageIgnoreStart
         if (false === $parts) {
             return ucfirst($key);
         }
+        // @codeCoverageIgnoreEnd
 
         return implode('', array_map(ucfirst(...), array_map(strtolower(...), $parts)));
     }

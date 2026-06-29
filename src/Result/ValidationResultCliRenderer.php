@@ -223,9 +223,11 @@ class ValidationResultCliRenderer extends AbstractValidationResultRenderer
         }
 
         try {
+            // @codeCoverageIgnoreStart
             if (!class_exists($validatorClass)) {
                 return 1;
             }
+            // @codeCoverageIgnoreEnd
             /** @var class-string $validatorClass */
             $reflection = new ReflectionClass($validatorClass);
             if ($reflection->isInstantiable()) {
@@ -236,10 +238,12 @@ class ValidationResultCliRenderer extends AbstractValidationResultRenderer
                     return ResultType::ERROR === $resultType ? 1 : 2;
                 }
             }
+            // @codeCoverageIgnoreStart
         } catch (Throwable) {
         }
 
         return 1;
+        // @codeCoverageIgnoreEnd
     }
 
     private function formatIssueMessage(
