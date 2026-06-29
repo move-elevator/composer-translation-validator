@@ -317,14 +317,17 @@ XML;
 </xliff>
 XML;
 
-        $tempDir = sys_get_temp_dir();
+        $tempDir = sys_get_temp_dir().'/xliff_schema_'.uniqid('', true);
+        mkdir($tempDir);
         $tempFile = $tempDir.'/de_DE.locallang.xlf';
         file_put_contents($tempFile, $xliff);
 
-        $parser = new XliffParser($tempFile);
-        $result = $this->validator->processFile($parser);
-
-        unlink($tempFile);
+        try {
+            $result = $this->validator->processFile(new XliffParser($tempFile));
+        } finally {
+            unlink($tempFile);
+            rmdir($tempDir);
+        }
 
         $this->assertCount(1, $result);
         $this->assertSame('WARNING', $result[0]['level']);
@@ -349,14 +352,17 @@ XML;
 </xliff>
 XML;
 
-        $tempDir = sys_get_temp_dir();
+        $tempDir = sys_get_temp_dir().'/xliff_schema_'.uniqid('', true);
+        mkdir($tempDir);
         $tempFile = $tempDir.'/messages.de_DE.xlf';
         file_put_contents($tempFile, $xliff);
 
-        $parser = new XliffParser($tempFile);
-        $result = $this->validator->processFile($parser);
-
-        unlink($tempFile);
+        try {
+            $result = $this->validator->processFile(new XliffParser($tempFile));
+        } finally {
+            unlink($tempFile);
+            rmdir($tempDir);
+        }
 
         $this->assertCount(1, $result);
         $this->assertSame('WARNING', $result[0]['level']);
@@ -378,14 +384,17 @@ XML;
 </xliff>
 XML;
 
-        $tempDir = sys_get_temp_dir();
+        $tempDir = sys_get_temp_dir().'/xliff_schema_'.uniqid('', true);
+        mkdir($tempDir);
         $tempFile = $tempDir.'/de_DE.locallang.xlf';
         file_put_contents($tempFile, $xliff);
 
-        $parser = new XliffParser($tempFile);
-        $result = $this->validator->processFile($parser);
-
-        unlink($tempFile);
+        try {
+            $result = $this->validator->processFile(new XliffParser($tempFile));
+        } finally {
+            unlink($tempFile);
+            rmdir($tempDir);
+        }
 
         $this->assertCount(1, $result);
         $this->assertSame('WARNING', $result[0]['level']);
