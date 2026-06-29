@@ -17,7 +17,7 @@ use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
 use MoveElevator\ComposerTranslationValidator\FileDetector\{FileSet, PrefixFileDetector};
 use MoveElevator\ComposerTranslationValidator\Result\{Issue, ValidationResult, ValidationResultCliRenderer};
 use MoveElevator\ComposerTranslationValidator\Service\ValidationOrchestrationService;
-use MoveElevator\ComposerTranslationValidator\Validator\{ResultType, ValidatorInterface, ValidatorRegistry};
+use MoveElevator\ComposerTranslationValidator\Validator\{HtmlTagValidator, MismatchValidator, ResultType, ValidatorInterface, XliffSchemaValidator};
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Symfony\Component\Console\Input\InputInterface;
@@ -368,7 +368,10 @@ final class ValidationResultCliRendererTest extends TestCase
             excludePatterns: [],
             recursive: false,
             fileDetector: new PrefixFileDetector(),
-            validators: ValidatorRegistry::getAvailableValidators(),
+            // Restrict to the validators this scenario asserts on, so an ERROR
+            // (Mismatch/Schema) and a WARNING (HtmlTag) validator share a file
+            // group and the severity ordering is deterministic.
+            validators: [MismatchValidator::class, HtmlTagValidator::class, XliffSchemaValidator::class],
             config: new TranslationValidatorConfig(),
         );
 
