@@ -697,6 +697,14 @@ composer -d tests validate-translations Fixtures/examples/xliff-schema --only "M
 
 </details>
 
+### Target Language Consistency
+
+When the filename encodes a locale (e.g. `de_DE.locallang.xlf` or `messages.de_DE.xlf`), the declared `target-language` (XLIFF 1.x) or `trgLang` (XLIFF 2.x) is checked against it:
+
+- **Base language mismatch** (e.g. filename `de` vs. `target-language="fr"`) → **ERROR**
+- **Region mismatch** (e.g. filename `de_DE` vs. `target-language="de-AT"`) → **WARNING**
+- A missing region on either side is not reported (e.g. filename `de_DE` with `target-language="de"` is fine).
+
 ::: danger
 Malformed XLIFF files can crash translation tools or cause parsing errors in your application.
 :::
