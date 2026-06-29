@@ -519,6 +519,68 @@ EOT);
         $this->assertSame('de', (new XliffParser($file))->getTargetLanguage());
     }
 
+    public function testGetLocaleFromFileNamePreservesRegionPrefix(): void
+    {
+        $file = $this->tempDir.'/de_DE.locallang.xlf';
+        file_put_contents($file, $this->prefixedXliffContent);
+
+        $this->assertSame('de_DE', (new XliffParser($file))->getLocaleFromFileName());
+    }
+
+    public function testGetLocaleFromFileNamePreservesRegionSuffix(): void
+    {
+        $file = $this->tempDir.'/messages.de_DE.xlf';
+        file_put_contents($file, $this->targetLanguageXliffContent);
+
+        $this->assertSame('de_DE', (new XliffParser($file))->getLocaleFromFileName());
+    }
+
+    public function testGetLocaleFromFileNameReturnsBaseWhenNoRegion(): void
+    {
+        $parser = new XliffParser($this->prefixedXliffFile); // de.messages.xlf
+        $this->assertSame('de', $parser->getLocaleFromFileName());
+    }
+
+    public function testGetLocaleFromFileNameReturnsNullForSourceFile(): void
+    {
+        $parser = new XliffParser($this->validXliffFile); // messages.xlf — no locale
+        $this->assertNull($parser->getLocaleFromFileName());
+    }
+
+    public function testGetTargetLocalePreservesRegion(): void
+    {
+        $file = $this->tempDir.'/region_full.xlf';
+        file_put_contents($file, <<<'EOT'
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="de-AT" datatype="plaintext" original="region_full.xlf">
+    <body><trans-unit id="k"><source>x</source></trans-unit></body>
+  </file>
+</xliff>
+EOT);
+        $this->assertSame('de-AT', (new XliffParser($file))->getTargetLocale());
+    }
+
+    public function testGetTargetLocaleXliff2PreservesRegion(): void
+    {
+        $file = $this->tempDir.'/region_full_v2.xlf';
+        file_put_contents($file, <<<'EOT'
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:2.0" version="2.0" srcLang="en" trgLang="de-AT">
+  <file id="messages">
+    <unit id="k"><segment><source>x</source></segment></unit>
+  </file>
+</xliff>
+EOT);
+        $this->assertSame('de-AT', (new XliffParser($file))->getTargetLocale());
+    }
+
+    public function testGetTargetLocaleReturnsNullWhenNotSet(): void
+    {
+        $parser = new XliffParser($this->validXliffFile); // no target-language attribute
+        $this->assertNull($parser->getTargetLocale());
+    }
+
     public function testGetContentByKeyFallsBackToSourceWhenTargetIsEmptyXliff2(): void
     {
         $fallbackFile = $this->tempDir.'/v2_fallback.xlf';

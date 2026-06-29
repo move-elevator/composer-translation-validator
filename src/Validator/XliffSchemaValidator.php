@@ -14,13 +14,14 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use Exception;
+use MoveElevator\ComposerTranslationValidator\Enum\LocaleMatch;
 use MoveElevator\ComposerTranslationValidator\Parser\{ParserInterface, XliffParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
+use MoveElevator\ComposerTranslationValidator\Utility\LocaleUtility;
 use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Translation\Util\XliffUtils;
 
 use function sprintf;
-use function strtolower;
 
 /**
  * XliffSchemaValidator.
@@ -74,33 +75,47 @@ class XliffSchemaValidator extends AbstractValidator implements ValidatorInterfa
             return $errors;
         }
 
-        $expectedLanguage = $file->getLanguageFromFileName();
-        if (null !== $expectedLanguage) {
-            $targetLang = $file->getTargetLanguage();
+        $expectedLocale = $file->getLocaleFromFileName();
+        if (null !== $expectedLocale) {
+            $targetLocale = $file->getTargetLocale();
             $isVersion2 = $file->isVersion2();
             $attribute = $isVersion2 ? 'trgLang' : 'target-language';
             $element = $isVersion2 ? '<xliff>' : '<file>';
 
-            if (null === $targetLang) {
+            if (null === $targetLocale) {
                 $errors[] = [
                     'message' => sprintf(
                         'Missing "%s" attribute on %s node; expected "%s" based on filename',
                         $attribute,
                         $element,
-                        $expectedLanguage,
+                        $expectedLocale,
                     ),
                     'level' => 'ERROR',
                 ];
-            } elseif (strtolower($targetLang) !== $expectedLanguage) {
-                $errors[] = [
-                    'message' => sprintf(
-                        '"%s" attribute "%s" does not match filename language "%s"',
-                        $attribute,
-                        $targetLang,
-                        $expectedLanguage,
-                    ),
-                    'level' => 'ERROR',
-                ];
+            } else {
+                $match = LocaleUtility::compare($targetLocale, $expectedLocale);
+
+                if (LocaleMatch::BaseMismatch === $match) {
+                    $errors[] = [
+                        'message' => sprintf(
+                            '"%s" attribute "%s" does not match filename language "%s"',
+                            $attribute,
+                            $targetLocale,
+                            $expectedLocale,
+                        ),
+                        'level' => 'ERROR',
+                    ];
+                } elseif (LocaleMatch::RegionMismatch === $match) {
+                    $errors[] = [
+                        'message' => sprintf(
+                            '"%s" attribute "%s" has a different region than filename locale "%s"',
+                            $attribute,
+                            $targetLocale,
+                            $expectedLocale,
+                        ),
+                        'level' => 'WARNING',
+                    ];
+                }
             }
         }
 
