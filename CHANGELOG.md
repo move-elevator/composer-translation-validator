@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-06-29
+
+- feat: add target-language consistency check for XLIFF files (filename locale vs. declared target-language)
+- fix: treat HTML void elements as self-closing in HtmlTagValidator
 - chore[!!!]: drop PHP 8.1 and Symfony 5 support
 
 ## [1.4.0] - 2026-03-26
