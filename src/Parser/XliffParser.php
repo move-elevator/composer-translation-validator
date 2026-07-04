@@ -47,6 +47,8 @@ class XliffParser extends AbstractParser implements ParserInterface
         }
         // @codeCoverageIgnoreEnd
 
+        $this->rawContent = $xmlContent;
+
         libxml_use_internal_errors(true);
         $this->xml = simplexml_load_string($xmlContent);
 

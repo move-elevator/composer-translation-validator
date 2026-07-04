@@ -225,6 +225,14 @@ EOT;
         $this->assertNull($parser->getContentByKey('nonexistent_key'));
     }
 
+    public function testGetRawContentReturnsFileContentAndIsMemoized(): void
+    {
+        $parser = new XliffParser($this->validXliffFile);
+
+        $this->assertSame($this->validXliffContent, $parser->getRawContent());
+        $this->assertSame($parser->getRawContent(), $parser->getRawContent());
+    }
+
     public function testGetSupportedFileExtensions(): void
     {
         $extensions = XliffParser::getSupportedFileExtensions();
