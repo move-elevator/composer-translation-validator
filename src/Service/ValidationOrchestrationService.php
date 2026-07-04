@@ -149,15 +149,13 @@ class ValidationOrchestrationService
         $classes = [];
 
         foreach ($classNames as $name) {
-            ClassUtility::instantiate(
-                $interface,
-                $this->logger,
-                $type,
-                $name,
-            );
-            /** @var class-string<T> $validatedName */
-            $validatedName = $name;
-            $classes[] = $validatedName;
+            if (!ClassUtility::validateClass($interface, $this->logger, $name)) {
+                continue;
+            }
+
+            /** @var class-string<T> $validated */
+            $validated = $name;
+            $classes[] = $validated;
         }
 
         return $classes;
