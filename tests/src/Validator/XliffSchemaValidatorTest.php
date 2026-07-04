@@ -73,6 +73,64 @@ XML;
         $this->assertSame([], $result);
     }
 
+    public function testProcessFileReportsSchemaErrorsViaCachedSchema(): void
+    {
+        // Well-formed XML but schema-invalid: <trans-unit> requires an "id".
+        $invalidXliff = <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" original="test.xlf" datatype="plaintext">
+        <body>
+            <trans-unit>
+                <source>Hello</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
+XML;
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'xliff_test_');
+        file_put_contents($tempFile, $invalidXliff);
+
+        $parser = $this->createStub(XliffParser::class);
+        $parser->method('getFilePath')->willReturn($tempFile);
+        $parser->method('getFileName')->willReturn('test.xlf');
+
+        $result = $this->validator->processFile($parser);
+
+        unlink($tempFile);
+
+        $this->assertNotEmpty($result);
+        $this->assertSame('ERROR', $result[0]['level']);
+    }
+
+    public function testProcessFileReusesCachedSchemaAcrossFiles(): void
+    {
+        $validXliff = <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" original="reuse.xlf" datatype="plaintext">
+        <body>
+            <trans-unit id="a"><source>Hello</source></trans-unit>
+        </body>
+    </file>
+</xliff>
+XML;
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'xliff_test_');
+        file_put_contents($tempFile, $validXliff);
+
+        $parser = $this->createStub(XliffParser::class);
+        $parser->method('getFilePath')->willReturn($tempFile);
+        $parser->method('getFileName')->willReturn('reuse.xlf');
+
+        // Two runs exercise the per-version schema-source cache.
+        $this->assertSame([], $this->validator->processFile($parser));
+        $this->assertSame([], $this->validator->processFile($parser));
+
+        unlink($tempFile);
+    }
+
     public function testProcessFileWithNonExistentFile(): void
     {
         $parser = $this->createStub(XliffParser::class);
