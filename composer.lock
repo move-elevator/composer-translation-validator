@@ -3018,16 +3018,16 @@
         },
         {
             "name": "konradmichalik/php-doc-block-header-fixer",
-            "version": "0.3.3",
+            "version": "0.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/konradmichalik/php-doc-block-header-fixer.git",
-                "reference": "791ae4adae63d5c06534f31a9462b41064301692"
+                "reference": "d45425c0f53b3e9c53b274e6a6f39809703d8585"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/konradmichalik/php-doc-block-header-fixer/zipball/791ae4adae63d5c06534f31a9462b41064301692",
-                "reference": "791ae4adae63d5c06534f31a9462b41064301692",
+                "url": "https://api.github.com/repos/konradmichalik/php-doc-block-header-fixer/zipball/d45425c0f53b3e9c53b274e6a6f39809703d8585",
+                "reference": "d45425c0f53b3e9c53b274e6a6f39809703d8585",
                 "shasum": ""
             },
             "require": {
@@ -3038,11 +3038,11 @@
             "require-dev": {
                 "armin/editorconfig-cli": "^2.0",
                 "ergebnis/composer-normalize": "^2.44",
-                "konradmichalik/php-cs-fixer-preset": "^0.1.0",
+                "konradmichalik/php-cs-fixer-preset": "^0.2.0",
                 "phpstan/phpstan": "^2.0",
                 "phpstan/phpstan-phpunit": "^2.0",
                 "phpstan/phpstan-symfony": "^2.0",
-                "phpunit/phpunit": "^11.0 || ^12.0",
+                "phpunit/phpunit": "^11.0 || ^12.0 || ^13.0",
                 "rector/rector": "^2.2"
             },
             "type": "library",
@@ -3074,9 +3074,9 @@
             ],
             "support": {
                 "issues": "https://github.com/konradmichalik/php-doc-block-header-fixer/issues",
-                "source": "https://github.com/konradmichalik/php-doc-block-header-fixer/tree/0.3.3"
+                "source": "https://github.com/konradmichalik/php-doc-block-header-fixer/tree/0.3.4"
             },
-            "time": "2025-12-03T16:58:20+00:00"
+            "time": "2026-07-04T10:45:22+00:00"
         },
         {
             "name": "localheinz/diff",
