@@ -214,7 +214,8 @@ You can also specify the path to a configuration file in your `composer.json`:
 
 The plugin automatically searches for configuration files in this order:
 
-1. `translation-validator.php`
-2. `translation-validator.json`
-3. `translation-validator.yaml`
-4. `translation-validator.yml`
+1. `translation-validator.json`
+2. `translation-validator.yaml`
+3. `translation-validator.yml`
+
+PHP configuration files are **not** auto-detected, because they are executed when loaded. To use one, reference it explicitly via the `--config` option or the `composer.json` `config-file` entry.

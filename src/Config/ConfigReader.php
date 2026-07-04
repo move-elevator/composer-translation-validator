@@ -26,8 +26,13 @@ use function is_array;
  */
 class ConfigReader
 {
+    /**
+     * PHP config files are intentionally excluded from auto-detection: they are
+     * executed via `require`, so auto-loading one found in an untrusted working
+     * directory would allow arbitrary code execution. A PHP config must be opted
+     * into explicitly via the `--config` option.
+     */
     private const AUTO_DETECTION_FILES = [
-        'translation-validator.php',
         'translation-validator.json',
         'translation-validator.yaml',
         'translation-validator.yml',
