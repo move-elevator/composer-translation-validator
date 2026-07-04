@@ -20,7 +20,6 @@ use Symfony\Component\Console\Helper\{Table, TableStyle};
 use Symfony\Component\Console\Output\OutputInterface;
 
 use function count;
-use function in_array;
 
 /**
  * PlaceholderConsistencyValidator.
@@ -117,9 +116,7 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
             $key = $details['key'] ?? 'unknown';
             $files = $details['files'] ?? [];
 
-            if (!in_array($key, $allKeys)) {
-                $allKeys[] = $key;
-            }
+            $allKeys[$key] = true;
 
             foreach ($files as $filePath => $fileInfo) {
                 $fileName = basename((string) $filePath);
@@ -142,7 +139,7 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
             $header[] = $fileName;
         }
 
-        foreach ($allKeys as $key) {
+        foreach (array_keys($allKeys) as $key) {
             $row = [$key];
             foreach ($fileOrder as $fileName) {
                 $value = $allFilesData[$key][$fileName] ?? '';
