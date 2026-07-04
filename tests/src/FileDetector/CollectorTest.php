@@ -247,6 +247,44 @@ final class CollectorTest extends TestCase
         $this->assertSame([], $result);
     }
 
+    public function testCollectFilesSkipsOversizedFiles(): void
+    {
+        file_put_contents($this->tempDir.'/small.xlf', 'content');
+
+        // Create a sparse file larger than the 30 MB limit without actually
+        // writing 30 MB of data.
+        $big = $this->tempDir.'/big.xlf';
+        $handle = fopen($big, 'w');
+        if (false === $handle) {
+            $this->markTestSkipped('Unable to create the oversized test file.');
+        }
+        fseek($handle, 30 * 1024 * 1024);
+        fwrite($handle, 'x');
+        fclose($handle);
+
+        $captured = [];
+        $detector = $this->createStub(DetectorInterface::class);
+        $detector->method('mapTranslationSet')->willReturnCallback(
+            static function (array $files) use (&$captured): array {
+                $captured = array_merge($captured, $files);
+
+                return ['data'];
+            },
+        );
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->atLeastOnce())
+            ->method('warning')
+            ->with($this->stringContains('exceeding the maximum size'));
+
+        $collector = new Collector($logger);
+        $collector->collectFiles([$this->tempDir], $detector, null);
+
+        $joined = implode('|', $captured);
+        $this->assertStringContainsString('small.xlf', $joined);
+        $this->assertStringNotContainsString('big.xlf', $joined);
+    }
+
     private function removeDirectory(string $path): void
     {
         $files = glob($path.'/*');
