@@ -92,6 +92,17 @@ EOT
         $this->assertSame(['parent.child1', 'parent.child2'], $nestedKeys);
     }
 
+    public function testExtractKeysIsMemoized(): void
+    {
+        $parser = new YamlParser($this->validYamlFile);
+
+        $first = $parser->extractKeys();
+        $second = $parser->extractKeys();
+
+        $this->assertSame(['key1', 'key2'], $first);
+        $this->assertSame($first, $second);
+    }
+
     public function testGetContentByKey(): void
     {
         $parser = new YamlParser($this->validYamlFile);

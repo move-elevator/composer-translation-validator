@@ -33,6 +33,9 @@ class PhpParser extends AbstractParser implements ParserInterface
     /** @var array<string, mixed> */
     private array $translations = [];
 
+    /** @var array<int, string>|null Memoized result of extractKeys(). */
+    private ?array $extractedKeys = null;
+
     public function __construct(string $filePath)
     {
         parent::__construct($filePath);
@@ -49,8 +52,12 @@ class PhpParser extends AbstractParser implements ParserInterface
      */
     public function extractKeys(): ?array
     {
+        if (null !== $this->extractedKeys) {
+            return $this->extractedKeys;
+        }
+
         if (empty($this->translations)) {
-            return [];
+            return $this->extractedKeys = [];
         }
 
         $extract = static function (
@@ -75,7 +82,7 @@ class PhpParser extends AbstractParser implements ParserInterface
             return $keys;
         };
 
-        return $extract($this->translations);
+        return $this->extractedKeys = $extract($this->translations);
     }
 
     public function getContentByKey(string $key): ?string
