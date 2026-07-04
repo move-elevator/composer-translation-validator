@@ -65,10 +65,7 @@ class Collector
                 if ($excludePatterns) {
                     $files = array_filter(
                         $files,
-                        static fn ($file) => !array_filter(
-                            $excludePatterns,
-                            static fn ($pattern) => fnmatch($pattern, basename((string) $file)),
-                        ),
+                        fn ($file) => !$this->matchesAnyPattern(basename((string) $file), $excludePatterns),
                     );
                 }
 
@@ -162,6 +159,23 @@ class Collector
         // @codeCoverageIgnoreEnd
 
         return $files;
+    }
+
+    /**
+     * Returns true as soon as the basename matches any exclude pattern,
+     * short-circuiting instead of evaluating every pattern.
+     *
+     * @param string[] $patterns
+     */
+    private function matchesAnyPattern(string $basename, array $patterns): bool
+    {
+        foreach ($patterns as $pattern) {
+            if (fnmatch($pattern, $basename)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
