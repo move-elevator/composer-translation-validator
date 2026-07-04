@@ -49,10 +49,8 @@ abstract class AbstractValidator
     /**
      * @param string[]                           $files
      * @param class-string<ParserInterface>|null $parserClass
-     *
-     * @return array<string, array<mixed>>
      */
-    public function validate(array $files, ?string $parserClass): array
+    public function validate(array $files, ?string $parserClass): bool
     {
         // Reset state for fresh validation run
         $this->resetState();
@@ -137,7 +135,7 @@ abstract class AbstractValidator
 
         $this->postProcess();
 
-        return array_map(static fn ($issue) => $issue->toArray(), $this->issues);
+        return $this->hasIssues();
     }
 
     /**

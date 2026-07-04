@@ -305,12 +305,9 @@ class MockValidatorWithoutIssues implements ValidatorInterface
         unset($logger);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public function validate(array $files, string $parserClass): array
+    public function validate(array $files, string $parserClass): bool
     {
-        return [];
+        return false;
     }
 
     /**
@@ -380,12 +377,9 @@ class MockValidatorWithIssues implements ValidatorInterface
         unset($logger);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public function validate(array $files, string $parserClass): array
+    public function validate(array $files, string $parserClass): bool
     {
-        return ['mock_issue' => 'test'];
+        return true;
     }
 
     /**

@@ -32,12 +32,13 @@ interface ValidatorInterface
     public function processFile(ParserInterface $file): array;
 
     /**
+     * Runs the validator over the given files and returns whether any issue was
+     * found. The issues themselves are available via getIssues().
+     *
      * @param array<string>                 $files
      * @param class-string<ParserInterface> $parserClass
-     *
-     * @return array<string, mixed>
      */
-    public function validate(array $files, string $parserClass): array;
+    public function validate(array $files, string $parserClass): bool;
 
     /**
      * @return class-string<ParserInterface>[]
