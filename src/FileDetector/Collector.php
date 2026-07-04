@@ -55,8 +55,12 @@ class Collector
                 continue;
             }
 
+            // Scan the directory once and bucket files by their parser, instead
+            // of scanning it separately for every parser class.
+            $filesByParser = $this->scanFilesByParser($path, $recursive);
+
             foreach (ParserRegistry::getAvailableParsers() as $parserClass) {
-                $files = $this->findFiles($path, $parserClass::getSupportedFileExtensions(), $recursive);
+                $files = $filesByParser[$parserClass] ?? [];
                 if (empty($files)) {
                     $this->logger?->debug('No files found for parser class "'.$parserClass.'" in path "'.$path.'".');
                     continue;
@@ -99,6 +103,45 @@ class Collector
         }
 
         return $allFiles;
+    }
+
+    /**
+     * Scans a path once and groups the found files by their parser class.
+     *
+     * @return array<class-string, string[]>
+     */
+    private function scanFilesByParser(string $path, bool $recursive): array
+    {
+        $extensionMap = self::extensionToParserMap();
+        $files = $this->findFiles($path, array_keys($extensionMap), $recursive);
+
+        $filesByParser = [];
+        foreach ($files as $file) {
+            $extension = pathinfo((string) $file, \PATHINFO_EXTENSION);
+            if (isset($extensionMap[$extension])) {
+                $filesByParser[$extensionMap[$extension]][] = $file;
+            }
+        }
+
+        return $filesByParser;
+    }
+
+    /**
+     * Maps each supported file extension to the parser class handling it.
+     * The first parser declaring an extension wins, matching parser resolution.
+     *
+     * @return array<string, class-string>
+     */
+    private static function extensionToParserMap(): array
+    {
+        $map = [];
+        foreach (ParserRegistry::getAvailableParsers() as $parserClass) {
+            foreach ($parserClass::getSupportedFileExtensions() as $extension) {
+                $map[$extension] ??= $parserClass;
+            }
+        }
+
+        return $map;
     }
 
     /**
