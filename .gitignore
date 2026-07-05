@@ -10,6 +10,9 @@
 /tests/composer.lock
 /tests/vendor
 
+# PHAR build artifacts
+/*.phar
+
 # Node.js / VitePress
 node_modules/
 docs/.vitepress/cache/

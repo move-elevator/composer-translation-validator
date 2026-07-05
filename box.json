@@ -1,0 +1,13 @@
+{
+	"$schema": "https://raw.githubusercontent.com/box-project/box/main/res/schema.json",
+	"main": "bin/composer-translation-validator",
+	"output": "composer-translation-validator.phar",
+	"compression": "GZ",
+	"git": "git_version",
+	"check-requirements": true,
+	"exclude-dev-files": true,
+	"blacklist": [
+		"src/Plugin.php",
+		"src/Capability/ValidateTranslationCommandProvider.php"
+	]
+}

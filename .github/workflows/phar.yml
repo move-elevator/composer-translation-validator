@@ -1,0 +1,61 @@
+name: PHAR
+on:
+  push:
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  phar:
+    runs-on: ubuntu-latest
+    name: Build PHAR
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: libxml, mbstring, simplexml, dom, intl
+          tools: composer, box
+
+      - name: Install Composer dependencies (production only)
+        run: composer install --no-dev --no-interaction --no-progress
+
+      - name: Compile PHAR
+        run: box compile --no-interaction
+
+      - name: Smoke test (valid files -> exit 0)
+        run: php composer-translation-validator.phar tests/src/Fixtures/translations/xliff/success
+
+      - name: Smoke test (invalid files -> exit 1)
+        run: |
+          set +e
+          php composer-translation-validator.phar tests/src/Fixtures/translations/xliff/fail
+          code=$?
+          set -e
+          if [ "$code" -ne 1 ]; then
+            echo "Expected exit code 1 for invalid fixtures, got $code" >&2
+            exit 1
+          fi
+
+      - name: Generate checksum
+        if: startsWith(github.ref, 'refs/tags/')
+        run: sha256sum composer-translation-validator.phar > composer-translation-validator.phar.sha256
+
+      - name: Attach PHAR to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            composer-translation-validator.phar
+            composer-translation-validator.phar.sha256
