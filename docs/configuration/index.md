@@ -58,15 +58,18 @@ When the same option is specified in multiple places, this priority applies:
 2. **Configuration file**
 3. **Default values** (lowest priority)
 
-## DuplicateValuesValidator
+## Opt-In Validators
 
 ::: info
-The `DuplicateValuesValidator` is disabled by default to reduce noise in validation results, as duplicate values are often intentional (e.g., common button labels like "OK" or "Cancel").
+The `DuplicateValuesValidator` and the `KeyNamingConventionValidator` are disabled by default to reduce noise in validation results:
+
+- **DuplicateValuesValidator** — duplicate values are often intentional (e.g., common button labels like "OK" or "Cancel").
+- **KeyNamingConventionValidator** — auto-detected naming conventions frequently produce false positives on mixed but intentional key styles.
 :::
 
-To enable it, either:
+To enable one of them, either:
 - Use `--only` to explicitly include it
-- Set `skip: []` in your configuration file
+- Set `skip: []` in your configuration file (enables all validators)
 
 ## Next Steps
 

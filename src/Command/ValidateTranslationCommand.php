@@ -132,7 +132,7 @@ using multiple validators to ensure consistency, correctness and schema complian
   • <info>EmptyValuesValidator</info>     - Finds empty or whitespace-only translation values
   • <info>EncodingValidator</info>        - Validates file encoding and character issues
   • <info>HtmlTagValidator</info>         - Validates HTML tag consistency across translations
-  • <info>KeyNamingConventionValidator</info> - Validates translation key naming conventions
+  • <info>KeyNamingConventionValidator</info> - Validates translation key naming conventions (opt-in, disabled by default)
   • <info>KeyCountValidator</info>        - Warns when a file exceeds the key count threshold
   • <info>KeyDepthValidator</info>        - Warns when keys exceed the nesting depth threshold
   • <info>PlaceholderConsistencyValidator</info> - Validates placeholder consistency across files

@@ -437,9 +437,28 @@ Enforces consistent naming patterns for translation keys.
 
 **Result:** WARNING
 
+::: info Opt-In Validator
+This validator is disabled by default, as auto-detected naming conventions often produce false positives on mixed but intentional key styles. Enable it when you want to enforce a convention.
+:::
+
 ::: tip
 This validator auto-detects the most common pattern in your files. Configure a specific convention for strict enforcement.
 :::
+
+### Enable via CLI
+
+```bash
+composer validate-translations translations/ \
+  --only "MoveElevator\\ComposerTranslationValidator\\Validator\\KeyNamingConventionValidator"
+```
+
+### Enable via Configuration
+
+```yaml
+paths:
+  - translations/
+skip: []  # Empty skip list enables all validators
+```
 
 ### Supported Conventions
 
