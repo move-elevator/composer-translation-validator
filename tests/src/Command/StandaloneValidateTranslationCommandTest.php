@@ -30,7 +30,7 @@ final class StandaloneValidateTranslationCommandTest extends TestCase
 {
     public function testExecuteWithValidArguments(): void
     {
-        $commandTester = new CommandTester(new StandaloneValidateTranslationCommand());
+        $commandTester = $this->createCommandTester();
 
         $commandTester->execute([
             'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
@@ -42,7 +42,7 @@ final class StandaloneValidateTranslationCommandTest extends TestCase
 
     public function testExecuteWithErrors(): void
     {
-        $commandTester = new CommandTester(new StandaloneValidateTranslationCommand());
+        $commandTester = $this->createCommandTester();
 
         $commandTester->execute([
             'path' => [__DIR__.'/../Fixtures/translations/xliff/fail'],
@@ -54,7 +54,7 @@ final class StandaloneValidateTranslationCommandTest extends TestCase
 
     public function testExecuteWithJsonFormat(): void
     {
-        $commandTester = new CommandTester(new StandaloneValidateTranslationCommand());
+        $commandTester = $this->createCommandTester();
 
         $commandTester->execute([
             'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
@@ -65,5 +65,10 @@ final class StandaloneValidateTranslationCommandTest extends TestCase
         $this->assertIsArray($output);
         $this->assertSame(0, $output['status']);
         $this->assertSame(Command::SUCCESS, $commandTester->getStatusCode());
+    }
+
+    private function createCommandTester(): CommandTester
+    {
+        return new CommandTester(new StandaloneValidateTranslationCommand());
     }
 }

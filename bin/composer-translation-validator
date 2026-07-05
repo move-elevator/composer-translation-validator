@@ -42,15 +42,9 @@ if (str_contains($version, '@')) {
 }
 
 $application = new Application('composer-translation-validator', $version);
-
-$command = new StandaloneValidateTranslationCommand();
-// Symfony Console 8 renamed add() to addCommand().
-if (method_exists($application, 'addCommand')) {
-    $application->addCommand($command);
-} else {
-    $application->add($command);
-}
-
+// The PHAR bundles the Symfony version pinned in composer.lock (>= 8), where
+// Application::addCommand() replaced the removed add().
+$application->addCommand(new StandaloneValidateTranslationCommand());
 $application->setDefaultCommand('validate-translations', true);
 
 exit($application->run());
