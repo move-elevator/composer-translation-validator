@@ -39,4 +39,16 @@ class OutputUtility
 
         $newLine ? $output->writeln($message) : $output->write($message);
     }
+
+    /**
+     * Removes control characters (except tab and newline) from a string.
+     *
+     * Untrusted translation values may contain raw ANSI escape sequences; if
+     * rendered verbatim they could manipulate the terminal. Stripping control
+     * characters neutralises that before the value reaches the console.
+     */
+    public static function stripControlCharacters(string $value): string
+    {
+        return preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $value) ?? $value;
+    }
 }
