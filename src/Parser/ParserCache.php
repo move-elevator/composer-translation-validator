@@ -48,6 +48,11 @@ class ParserCache
         $this->cache = [];
     }
 
+    public function count(): int
+    {
+        return count($this->cache);
+    }
+
     /** @return array<string, mixed> */
     public function getCacheStats(): array
     {
