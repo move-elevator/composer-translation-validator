@@ -205,6 +205,17 @@ EOT;
         $this->assertSame(['key1', 'key2', 'key3'], $keys);
     }
 
+    public function testExtractKeysIsMemoized(): void
+    {
+        $parser = new XliffParser($this->validXliffFile);
+
+        $first = $parser->extractKeys();
+        $second = $parser->extractKeys();
+
+        $this->assertSame(['key1', 'key2', 'key3'], $first);
+        $this->assertSame($first, $second);
+    }
+
     public function testGetContentByKeySource(): void
     {
         $parser = new XliffParser($this->validXliffFile);
