@@ -66,8 +66,7 @@ class ValidationRun
 
                 /** @var class-string<\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface> $parserClass */
                 $parserClass = $fileSet->getParser();
-                $result = $validatorInstance->validate($fileSet->getFiles(), $parserClass);
-                if (!empty($result)) {
+                if ($validatorInstance->validate($fileSet->getFiles(), $parserClass)) {
                     $overallResult = $overallResult->max($validatorInstance->resultTypeOnValidationFailure());
                     $validatorInstances[] = $validatorInstance;
                     $validatorFileSetPairs[] = [
