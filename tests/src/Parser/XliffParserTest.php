@@ -311,6 +311,27 @@ EOT;
         new XliffParser($invalidXmlFile);
     }
 
+    public function testConstructorRejectsDoctype(): void
+    {
+        $doctypeFile = $this->tempDir.'/doctype.xlf';
+        $doctypeContent = <<<'EOT'
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE xliff [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="doctype.xlf">
+    <body>
+      <trans-unit id="key"><source>&xxe;</source></trans-unit>
+    </body>
+  </file>
+</xliff>
+EOT;
+        file_put_contents($doctypeFile, $doctypeContent);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Document type definitions are not allowed');
+        new XliffParser($doctypeFile);
+    }
+
     public function testGetContentByKeyFallsBackToTargetWhenSourceIsEmpty(): void
     {
         $fallbackFile = $this->tempDir.'/fallback.xlf';

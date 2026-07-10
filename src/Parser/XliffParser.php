@@ -47,8 +47,14 @@ class XliffParser extends AbstractParser implements ParserInterface
         }
         // @codeCoverageIgnoreEnd
 
+        // Reject document type definitions outright and disable network access
+        // during parsing as defense-in-depth against XXE / entity-expansion.
+        if (preg_match('/<!DOCTYPE/i', $xmlContent)) {
+            throw new InvalidArgumentException("Document type definitions are not allowed in file: {$filePath}");
+        }
+
         libxml_use_internal_errors(true);
-        $this->xml = simplexml_load_string($xmlContent);
+        $this->xml = simplexml_load_string($xmlContent, SimpleXMLElement::class, \LIBXML_NONET);
 
         if (false === $this->xml) {
             throw new InvalidArgumentException("Failed to parse XML content from file: {$filePath}");
