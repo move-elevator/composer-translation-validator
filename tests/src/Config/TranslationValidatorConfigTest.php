@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\Config;
 
 use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
-use MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator;
+use MoveElevator\ComposerTranslationValidator\Validator\{DuplicateValuesValidator, KeyNamingConventionValidator};
 use PHPUnit\Framework\Attributes\{CoversClass, DataProvider};
 use PHPUnit\Framework\TestCase;
 
@@ -84,7 +84,7 @@ final class TranslationValidatorConfigTest extends TestCase
         yield 'addFileDetector' => ['addFileDetector', 'getFileDetectors', 'SomeFileDetector', ['SomeFileDetector']];
         yield 'addParser' => ['addParser', 'getParsers', 'SomeParser', ['SomeParser']];
         yield 'only' => ['only', 'getOnly', 'OnlyValidator', ['OnlyValidator']];
-        yield 'skip' => ['skip', 'getSkip', 'SkipValidator', [DuplicateValuesValidator::class, 'SkipValidator']];
+        yield 'skip' => ['skip', 'getSkip', 'SkipValidator', [DuplicateValuesValidator::class, KeyNamingConventionValidator::class, 'SkipValidator']];
     }
 
     public function testDefaultValues(): void
@@ -94,7 +94,7 @@ final class TranslationValidatorConfigTest extends TestCase
         $this->assertSame([], $this->config->getFileDetectors());
         $this->assertSame([], $this->config->getParsers());
         $this->assertSame([], $this->config->getOnly());
-        $this->assertSame([DuplicateValuesValidator::class], $this->config->getSkip());
+        $this->assertSame([DuplicateValuesValidator::class, KeyNamingConventionValidator::class], $this->config->getSkip());
         $this->assertSame([], $this->config->getExclude());
         $this->assertFalse($this->config->getStrict());
         $this->assertFalse($this->config->getDryRun());
@@ -152,7 +152,7 @@ final class TranslationValidatorConfigTest extends TestCase
             'file-detectors' => [],
             'parsers' => [],
             'only' => [],
-            'skip' => [DuplicateValuesValidator::class],
+            'skip' => [DuplicateValuesValidator::class, KeyNamingConventionValidator::class],
             'exclude' => [],
             'strict' => false,
             'dry-run' => false,

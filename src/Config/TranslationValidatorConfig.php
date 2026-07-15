@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Config;
 
-use MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator;
+use MoveElevator\ComposerTranslationValidator\Validator\{DuplicateValuesValidator, KeyNamingConventionValidator};
 
 /**
  * TranslationValidatorConfig.
@@ -38,9 +38,15 @@ class TranslationValidatorConfig
     /** @var string[] */
     private array $only = [];
 
-    /** @var string[] */
+    /**
+     * Validators disabled by default (opt-in). They produce too many
+     * intentional/false-positive findings to run unconditionally.
+     *
+     * @var string[]
+     */
     private array $skip = [
         DuplicateValuesValidator::class,
+        KeyNamingConventionValidator::class,
     ];
 
     /** @var string[] */
