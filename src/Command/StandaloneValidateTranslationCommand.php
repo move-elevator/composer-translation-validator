@@ -13,15 +13,15 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Command;
 
-use Composer\Command\BaseCommand;
+use Symfony\Component\Console\Command\Command;
 
 /**
- * ValidateTranslationCommand.
+ * StandaloneValidateTranslationCommand.
  *
  * @author Konrad Michalik <km@move-elevator.de>
  * @license GPL-3.0-or-later
  */
-class ValidateTranslationCommand extends BaseCommand
+class StandaloneValidateTranslationCommand extends Command
 {
     use TranslationValidationBehavior;
 }
