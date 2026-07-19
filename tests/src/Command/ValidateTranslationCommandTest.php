@@ -20,7 +20,6 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
-use Throwable;
 
 #[CoversClass(ValidateTranslationCommand::class)]
 /**
@@ -89,18 +88,36 @@ final class ValidateTranslationCommandTest extends TestCase
         $command = $application->find('validate-translations');
         $commandTester = new CommandTester($command);
 
-        try {
-            $commandTester->execute([
-                'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
-                '--only' => 'Invalid\\Validator\\Class',
-            ]);
-            $this->fail('Expected exception was not thrown.');
-        } catch (Throwable $e) {
-            $this->assertStringContainsString(
-                'Class "Invalid\Validator\Class" not found',
-                $e->getMessage(),
-            );
-        }
+        $commandTester->execute([
+            'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
+            '--only' => 'Invalid\\Validator\\Class',
+        ]);
+
+        $this->assertSame(Command::FAILURE, $commandTester->getStatusCode());
+        $this->assertStringContainsString(
+            'The "--only" option contains no valid validators.',
+            $commandTester->getDisplay(),
+        );
+    }
+
+    public function testExecuteWithInvalidSkipValidator(): void
+    {
+        $application = new Application();
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
+
+        $command = $application->find('validate-translations');
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute([
+            'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
+            '--skip' => 'Invalid\\Validator\\Class',
+        ]);
+
+        $this->assertSame(Command::FAILURE, $commandTester->getStatusCode());
+        $this->assertStringContainsString(
+            'The "--skip" option contains no valid validators.',
+            $commandTester->getDisplay(),
+        );
     }
 
     public function testExecuteWithErrors(): void
