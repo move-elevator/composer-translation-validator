@@ -128,9 +128,7 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
             $key = $details['key'] ?? 'unknown';
             $files = $details['files'] ?? [];
 
-            if (!in_array($key, $allKeys)) {
-                $allKeys[] = $key;
-            }
+            $allKeys[$key] = true;
 
             foreach ($files as $filePath => $fileInfo) {
                 $fileName = basename((string) $filePath);
@@ -153,7 +151,7 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
             $header[] = $fileName;
         }
 
-        foreach ($allKeys as $key) {
+        foreach (array_keys($allKeys) as $key) {
             $row = [$key];
             foreach ($fileOrder as $fileName) {
                 $value = $allFilesData[$key][$fileName] ?? '';
