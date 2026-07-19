@@ -13,14 +13,18 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
+use DOMDocument;
 use Exception;
 use MoveElevator\ComposerTranslationValidator\Enum\LocaleMatch;
 use MoveElevator\ComposerTranslationValidator\Parser\{ParserInterface, XliffParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use MoveElevator\ComposerTranslationValidator\Utility\LocaleUtility;
+use ReflectionMethod;
 use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Translation\Util\XliffUtils;
+use Throwable;
 
+use function is_string;
 use function sprintf;
 
 /**
@@ -31,6 +35,15 @@ use function sprintf;
  */
 class XliffSchemaValidator extends AbstractValidator implements ValidatorInterface
 {
+    /**
+     * Prepared XLIFF schema source per version, cached for the whole process.
+     *
+     * @var array<string, string>
+     */
+    private static array $schemaSourceCache = [];
+
+    private static ?ReflectionMethod $getSchemaMethod = null;
+
     public function processFile(ParserInterface $file): array
     {
         /*
@@ -63,7 +76,7 @@ class XliffSchemaValidator extends AbstractValidator implements ValidatorInterfa
         // Schema validation — may throw for unsupported XLIFF versions (e.g. 2.x)
         $errors = [];
         try {
-            $errors = XliffUtils::validateSchema($dom);
+            $errors = $this->validateSchema($dom);
         } catch (Exception $e) {
             if (str_contains($e->getMessage(), 'No support implemented for loading XLIFF version')) {
                 $this->logger?->notice(sprintf('Skipping %s: %s', $this->getShortName(), $e->getMessage()));
@@ -153,5 +166,85 @@ class XliffSchemaValidator extends AbstractValidator implements ValidatorInterfa
     public function supportsParser(): array
     {
         return [XliffParser::class];
+    }
+
+    /**
+     * Validates a document against the XLIFF schema.
+     *
+     * Symfony's XliffUtils::validateSchema() re-reads and re-prepares the ~105 KB
+     * XSD on every call. We cache the prepared schema source per version so this
+     * work happens once per process; only the (uncacheable) libxml compilation
+     * runs per file. Any failure to obtain the cached schema falls back to the
+     * unmodified Symfony behaviour, preserving correctness.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function validateSchema(DOMDocument $dom): array
+    {
+        $schemaSource = $this->getCachedSchemaSource($dom);
+        if (null === $schemaSource) {
+            return XliffUtils::validateSchema($dom);
+        }
+
+        $internalErrors = libxml_use_internal_errors(true);
+
+        if (!@$dom->schemaValidateSource($schemaSource)) {
+            $errors = [];
+            foreach (libxml_get_errors() as $error) {
+                $errors[] = [
+                    'level' => \LIBXML_ERR_WARNING === $error->level ? 'WARNING' : 'ERROR',
+                    'code' => $error->code,
+                    'message' => trim($error->message),
+                    'file' => $error->file ?: 'n/a',
+                    'line' => $error->line,
+                    'column' => $error->column,
+                ];
+            }
+            libxml_clear_errors();
+            libxml_use_internal_errors($internalErrors);
+
+            return $errors;
+        }
+
+        $dom->normalizeDocument();
+        libxml_clear_errors();
+        libxml_use_internal_errors($internalErrors);
+
+        return [];
+    }
+
+    /**
+     * Returns the prepared schema source for the document's XLIFF version, or
+     * null when it cannot be resolved (e.g. unsupported version or a change in
+     * Symfony internals), in which case the caller falls back to Symfony.
+     */
+    private function getCachedSchemaSource(DOMDocument $dom): ?string
+    {
+        try {
+            $version = XliffUtils::getVersionNumber($dom);
+            // @codeCoverageIgnoreStart
+        } catch (Throwable) {
+            return null;
+        }
+        // @codeCoverageIgnoreEnd
+
+        if (isset(self::$schemaSourceCache[$version])) {
+            return self::$schemaSourceCache[$version];
+        }
+
+        try {
+            self::$getSchemaMethod ??= new ReflectionMethod(XliffUtils::class, 'getSchema');
+            $schemaSource = self::$getSchemaMethod->invoke(null, $version);
+        } catch (Throwable) {
+            return null;
+        }
+
+        // @codeCoverageIgnoreStart
+        if (!is_string($schemaSource)) {
+            return null;
+        }
+        // @codeCoverageIgnoreEnd
+
+        return self::$schemaSourceCache[$version] = $schemaSource;
     }
 }
