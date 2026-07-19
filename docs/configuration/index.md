@@ -43,12 +43,13 @@ Specify a custom configuration file path in `composer.json`:
 
 The plugin automatically searches for configuration files in this order:
 
-1. `translation-validator.php`
-2. `translation-validator.json`
-3. `translation-validator.yaml`
-4. `translation-validator.yml`
+1. `translation-validator.json`
+2. `translation-validator.yaml`
+3. `translation-validator.yml`
 
 The first file found will be used.
+
+PHP configuration files are **not** auto-detected, because they are executed when loaded. Auto-loading one from an untrusted working directory would allow arbitrary code execution. To use a PHP configuration file, reference it explicitly via the `--config` option or the `composer.json` `config-file` entry.
 
 ## Configuration Priority
 
