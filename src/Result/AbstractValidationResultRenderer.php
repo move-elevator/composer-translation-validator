@@ -26,6 +26,13 @@ use function strlen;
  */
 abstract class AbstractValidationResultRenderer implements ValidationResultRendererInterface
 {
+    /**
+     * Resolved current working directory, cached per renderer instance so it is
+     * not recomputed for every path during grouping. `false` means resolution
+     * failed; null means not yet resolved.
+     */
+    private string|false|null $resolvedCwd = null;
+
     public function __construct(
         protected readonly OutputInterface $output,
         protected readonly bool $dryRun = false,
@@ -112,12 +119,8 @@ abstract class AbstractValidationResultRenderer implements ValidationResultRende
 
         $normalizedPath = rtrim($realPath, \DIRECTORY_SEPARATOR);
 
-        $cwd = getcwd();
+        $realCwd = $this->resolvedCwd();
         // @codeCoverageIgnoreStart
-        if (false === $cwd) {
-            return $normalizedPath;
-        }
-        $realCwd = realpath($cwd);
         if (false === $realCwd) {
             return $normalizedPath;
         }
@@ -155,5 +158,19 @@ abstract class AbstractValidationResultRenderer implements ValidationResultRende
     {
         return $validationResult->getOverallResult()
             ->resolveErrorToCommandExitCode($this->dryRun, $this->strict);
+    }
+
+    /**
+     * Resolves and caches the current working directory for this renderer.
+     */
+    private function resolvedCwd(): string|false
+    {
+        if (null !== $this->resolvedCwd) {
+            return $this->resolvedCwd;
+        }
+
+        $cwd = getcwd();
+
+        return $this->resolvedCwd = false === $cwd ? false : realpath($cwd);
     }
 }
