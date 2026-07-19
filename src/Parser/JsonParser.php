@@ -44,6 +44,8 @@ class JsonParser extends AbstractParser implements ParserInterface
             }
             // @codeCoverageIgnoreEnd
 
+            $this->rawContent = $content;
+
             $decoded = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
             if (!is_array($decoded) || array_is_list($decoded)) {
                 throw new RuntimeException("JSON file does not contain an object: {$filePath}");
