@@ -33,6 +33,14 @@ final class ConventionDetectorTest extends TestCase
         $this->detector = new ConventionDetector();
     }
 
+    public function testDetectSegmentConventionsIsMemoized(): void
+    {
+        $first = $this->detector->detectSegmentConventions('label');
+        $second = $this->detector->detectSegmentConventions('label');
+
+        $this->assertSame($first, $second);
+    }
+
     /**
      * @param array<string> $expectedContains
      * @param array<string> $expectedNotContains

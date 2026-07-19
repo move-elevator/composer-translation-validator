@@ -26,6 +26,15 @@ use function in_array;
 final class ConventionDetector
 {
     /**
+     * Cache of matched conventions per segment string. Segments (e.g. "label",
+     * "title") repeat heavily across keys, so caching avoids re-running every
+     * convention regex for the same segment.
+     *
+     * @var array<string, array<string>>
+     */
+    private array $segmentConventionCache = [];
+
+    /**
      * Detect which conventions a key matches.
      *
      * @return array<string>
@@ -84,6 +93,10 @@ final class ConventionDetector
      */
     public function detectSegmentConventions(string $segment): array
     {
+        if (isset($this->segmentConventionCache[$segment])) {
+            return $this->segmentConventionCache[$segment];
+        }
+
         $matchingConventions = [];
 
         foreach (KeyNamingConvention::cases() as $convention) {
@@ -97,7 +110,7 @@ final class ConventionDetector
             $matchingConventions[] = 'unknown';
         }
 
-        return $matchingConventions;
+        return $this->segmentConventionCache[$segment] = $matchingConventions;
     }
 
     /**
