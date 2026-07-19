@@ -181,18 +181,29 @@ class Collector
 
     /**
      * Basic path safety check to prevent obvious security issues.
+     *
+     * Rejects sensitive system locations. Matching is done on path boundaries
+     * (so `/etc` does not reject `/etcetera`) and case-insensitively to also
+     * cover Windows system directories.
      */
     private function isPathSafe(string $path): bool
     {
-        $dangerousPaths = ['/etc', '/usr', '/bin', '/sbin', '/proc', '/sys', '/private/etc'];
+        $normalized = rtrim(str_replace('\\', '/', $path), '/');
+        $haystack = strtolower($normalized).'/';
+
+        $dangerousPaths = [
+            '/etc', '/usr', '/bin', '/sbin', '/proc', '/sys', '/dev', '/root', '/boot',
+            '/private/etc',
+            'c:/windows', 'c:/program files', 'c:/program files (x86)',
+        ];
 
         foreach ($dangerousPaths as $dangerousPath) {
-            if (str_starts_with($path, $dangerousPath)) {
+            if (str_starts_with($haystack, $dangerousPath.'/')) {
                 return false;
             }
         }
 
-        return substr_count($path, '/') + substr_count($path, '\\') <= 20;
+        return substr_count($normalized, '/') <= 20;
     }
 
     /**

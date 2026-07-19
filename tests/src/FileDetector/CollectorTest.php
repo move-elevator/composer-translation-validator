@@ -247,6 +247,25 @@ final class CollectorTest extends TestCase
         $this->assertSame([], $result);
     }
 
+    public function testCollectFilesSkipsAdditionalSystemPaths(): void
+    {
+        if (!is_dir('/dev')) {
+            $this->markTestSkipped('/dev is not available on this platform.');
+        }
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->atLeastOnce())
+            ->method('warning')
+            ->with($this->stringContains('Skipping potentially unsafe path'));
+
+        $detector = $this->createStub(DetectorInterface::class);
+        $collector = new Collector($logger);
+
+        $result = $collector->collectFiles(['/dev'], $detector, null, true);
+
+        $this->assertSame([], $result);
+    }
+
     private function removeDirectory(string $path): void
     {
         $files = glob($path.'/*');
