@@ -225,6 +225,30 @@ EOT;
         $this->assertNull($parser->getContentByKey('nonexistent_key'));
     }
 
+    public function testGetContentByKeyReturnsNullWhenSourceAndTargetEmpty(): void
+    {
+        $emptyFile = $this->tempDir.'/empty.xlf';
+        $emptyContent = <<<'EOT'
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="empty.xlf">
+    <body>
+      <trans-unit id="empty"><source></source><target></target></trans-unit>
+      <trans-unit id="filled"><source>Value</source></trans-unit>
+    </body>
+  </file>
+</xliff>
+EOT;
+        file_put_contents($emptyFile, $emptyContent);
+
+        $parser = new XliffParser($emptyFile);
+
+        $this->assertNull($parser->getContentByKey('empty'));
+        $this->assertSame('Value', $parser->getContentByKey('filled'));
+        // Repeated lookups hit the memoized map and stay consistent.
+        $this->assertSame('Value', $parser->getContentByKey('filled'));
+    }
+
     public function testGetSupportedFileExtensions(): void
     {
         $extensions = XliffParser::getSupportedFileExtensions();
