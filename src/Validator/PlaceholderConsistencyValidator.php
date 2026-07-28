@@ -37,6 +37,15 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
     /** @var array<string, array<string, array{value: string, placeholders: array<string>}>> */
     protected array $keyData = [];
 
+    /**
+     * Cache of extracted placeholders per value. The same value is processed
+     * during analysis and again while rendering; memoizing avoids re-running
+     * the placeholder regexes for it.
+     *
+     * @var array<string, array<string>>
+     */
+    private array $placeholderCache = [];
+
     public function processFile(ParserInterface $file): array
     {
         $keys = $file->extractKeys();
@@ -196,6 +205,7 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
     {
         parent::resetState();
         $this->keyData = [];
+        $this->placeholderCache = [];
     }
 
     /**
@@ -211,6 +221,10 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
      */
     private function extractPlaceholders(string $value): array
     {
+        if (isset($this->placeholderCache[$value])) {
+            return $this->placeholderCache[$value];
+        }
+
         $placeholders = [];
 
         // Symfony style: %parameter%
@@ -248,7 +262,7 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
             }
         }
 
-        return array_unique($placeholders);
+        return $this->placeholderCache[$value] = array_unique($placeholders);
     }
 
     /**
