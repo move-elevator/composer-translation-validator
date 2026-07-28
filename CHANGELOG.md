@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-07-28
+
 - feat[!!!]: skip KeyNamingConventionValidator by default (opt-in to reduce false positives)
 - feat: provide a standalone PHAR distribution for CI and non-Composer projects
 - perf: minor render and file-collection optimizations
