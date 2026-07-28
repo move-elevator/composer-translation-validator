@@ -388,6 +388,11 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         $validator->renderDetailedOutput($output, [$issue]);
 
         $this->assertStringContainsString('Hello %name%!', $output->fetch());
+
+        $reflection = new ReflectionClass($validator);
+        $cache = $reflection->getProperty('placeholderCache')->getValue($validator);
+        $this->assertArrayHasKey('Hello %name%!', $cache);
+        $this->assertSame(['%name%'], $cache['Hello %name%!']);
     }
 
     public function testResetState(): void
