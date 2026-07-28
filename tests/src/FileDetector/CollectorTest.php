@@ -19,6 +19,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 use function count;
+use function function_exists;
 use function in_array;
 
 /**
@@ -146,6 +147,49 @@ final class CollectorTest extends TestCase
 
         $this->assertArrayHasKey(XliffParser::class, $result);
         $this->assertEquals(['recursive_data'], $result[XliffParser::class][$this->tempDir]);
+    }
+
+    public function testCollectFilesDoesNotFollowSymlinks(): void
+    {
+        if (!function_exists('symlink')) {
+            $this->markTestSkipped('symlink() is not available on this platform.');
+        }
+
+        // Target directory lives outside the scanned tree and is only reachable
+        // through the symlink created below.
+        $outside = sys_get_temp_dir().'/collector_outside_'.uniqid('', true);
+        mkdir($outside);
+        file_put_contents($outside.'/secret.xlf', 'secret content');
+
+        file_put_contents($this->tempDir.'/real.xlf', 'real content');
+        if (!@symlink($outside, $this->tempDir.'/link')) {
+            unlink($outside.'/secret.xlf');
+            rmdir($outside);
+            $this->markTestSkipped('Unable to create a symlink on this platform.');
+        }
+
+        $captured = [];
+        $detector = $this->createStub(DetectorInterface::class);
+        $detector->method('mapTranslationSet')->willReturnCallback(
+            static function (array $files) use (&$captured): array {
+                $captured = array_merge($captured, $files);
+
+                return ['data'];
+            },
+        );
+
+        try {
+            $collector = new Collector($this->createStub(LoggerInterface::class));
+            $collector->collectFiles([$this->tempDir], $detector, null, true);
+
+            $joined = implode('|', $captured);
+            $this->assertStringContainsString('real.xlf', $joined);
+            $this->assertStringNotContainsString('secret.xlf', $joined);
+        } finally {
+            unlink($this->tempDir.'/link');
+            unlink($outside.'/secret.xlf');
+            rmdir($outside);
+        }
     }
 
     public function testCollectFilesWithMultipleFileTypes(): void
