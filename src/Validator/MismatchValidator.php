@@ -144,9 +144,7 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
             $files = $details['files'] ?? [];
             $currentFile = basename($issue->getFile());
 
-            if (!in_array($key, $allKeys, true)) {
-                $allKeys[] = $key;
-            }
+            $allKeys[$key] = true;
 
             foreach ($files as $fileInfo) {
                 $fileName = basename($fileInfo['file'] ?? '');
@@ -179,7 +177,7 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
             }
         }
 
-        foreach ($allKeys as $key) {
+        foreach (array_keys($allKeys) as $key) {
             $row = [$key];
             foreach ($fileOrder as $fileName) {
                 $value = $allFilesData[$key][$fileName] ?? null;

@@ -62,7 +62,7 @@ class ConcreteValidator extends AbstractValidator implements ValidatorInterface
         return [TestParser::class];
     }
 
-    public function validate(array $files, ?string $parserClass): array
+    public function validate(array $files, ?string $parserClass): bool
     {
         return parent::validate($files, $parserClass);
     }
@@ -211,7 +211,8 @@ final class AbstractValidatorTest extends TestCase
 
         $result = $validator->validate($files, $parserClass);
 
-        $this->assertEmpty($result);
+        $this->assertFalse($result);
+        $this->assertFalse($validator->hasIssues());
     }
 
     /**
@@ -226,7 +227,7 @@ final class AbstractValidatorTest extends TestCase
 
         $result = $validator->validate($files, $parserClass);
 
-        /* @phpstan-ignore-next-line method.impossibleType */
+        $this->assertTrue($result);
         $this->assertSame(
             [
                 [
@@ -236,7 +237,7 @@ final class AbstractValidatorTest extends TestCase
                     'type' => ConcreteValidator::class,
                 ],
             ],
-            $result,
+            array_map(static fn ($issue) => $issue->toArray(), $validator->getIssues()),
         );
     }
 
@@ -262,12 +263,13 @@ final class AbstractValidatorTest extends TestCase
 
         $result = $validator->validate($files, $parserClass);
 
+        $this->assertTrue($result);
         $this->assertContains([
             'file' => 'test_file.xlf',
             'issues' => ['postProcessIssue'],
             'parser' => 'TestParser',
             'type' => 'ConcreteValidator',
-        ], $result);
+        ], array_map(static fn ($issue) => $issue->toArray(), $validator->getIssues()));
     }
 
     public function testHasIssuesReturnsFalseWhenNoIssues(): void
@@ -460,7 +462,7 @@ final class AbstractValidatorTest extends TestCase
 
         $result = $validator->validate(['multi.xlf'], TestParser::class);
 
-        /* @phpstan-ignore-next-line method.impossibleType */
+        $this->assertTrue($result);
         $this->assertSame(
             [
                 [
@@ -476,7 +478,7 @@ final class AbstractValidatorTest extends TestCase
                     'type' => 'MultiIssueValidator',
                 ],
             ],
-            $result,
+            array_map(static fn ($issue) => $issue->toArray(), $validator->getIssues()),
         );
     }
 
