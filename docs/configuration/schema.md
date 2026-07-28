@@ -56,7 +56,7 @@ only:
 ## skip
 
 - **Type**: `array<string>`
-- **Default**: `['DuplicateValuesValidator']`
+- **Default**: `['DuplicateValuesValidator', 'KeyNamingConventionValidator']`
 - **Description**: Array of validator class names to skip
 
 ```yaml
