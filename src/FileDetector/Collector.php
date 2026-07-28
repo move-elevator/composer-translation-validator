@@ -182,7 +182,17 @@ class Collector
     private function isWithinSizeLimit(string $file): bool
     {
         $size = filesize($file);
-        if (false !== $size && $size > self::MAX_FILE_SIZE) {
+        // @codeCoverageIgnoreStart
+        if (false === $size) {
+            $this->logger?->warning(
+                sprintf('Unable to determine file size, skipping: %s', $file),
+            );
+
+            return false;
+        }
+        // @codeCoverageIgnoreEnd
+
+        if ($size > self::MAX_FILE_SIZE) {
             $this->logger?->warning(
                 sprintf('Skipping file exceeding the maximum size of %d bytes: %s', self::MAX_FILE_SIZE, $file),
             );
