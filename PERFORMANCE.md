@@ -15,7 +15,9 @@ so the impact of the open `perf/*` PRs can be measured before/after they land.
   `ValidatorRegistry::getAvailableValidators()` and default `TranslationValidatorConfig`,
   against the fixture directory, non-recursive, auto-detected file grouping.
 - **Runs**: 5 back-to-back invocations in the same PHP process; `gc_collect_cycles()` before each
-  run. Reported: min / median / mean / max wall time (ms) and peak memory (`memory_get_peak_usage(true)`).
+  run. Reported: min / median / mean / max wall time (ms) per run, and peak memory
+  (`memory_get_peak_usage(true)`) as a **process-level** high-water mark across all 5 runs —
+  `gc_collect_cycles()` does not reset it, so it is not an independent per-run figure.
 - **Environment**: PHP 8.5.0 (CLI, NTS), Apple M4 Pro, 14 cores, 24 GB RAM, macOS.
 - Scripts used are not part of the repository (kept in a scratch location); the fixture generator
   and benchmark runner can be recreated on request if this needs to become a repeatable CI check.
