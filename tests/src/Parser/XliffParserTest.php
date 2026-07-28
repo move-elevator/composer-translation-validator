@@ -225,6 +225,30 @@ EOT;
         $this->assertNull($parser->getContentByKey('nonexistent_key'));
     }
 
+    public function testGetContentByKeyReturnsNullWhenSourceAndTargetEmpty(): void
+    {
+        $emptyFile = $this->tempDir.'/empty.xlf';
+        $emptyContent = <<<'EOT'
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="empty.xlf">
+    <body>
+      <trans-unit id="empty"><source></source><target></target></trans-unit>
+      <trans-unit id="filled"><source>Value</source></trans-unit>
+    </body>
+  </file>
+</xliff>
+EOT;
+        file_put_contents($emptyFile, $emptyContent);
+
+        $parser = new XliffParser($emptyFile);
+
+        $this->assertNull($parser->getContentByKey('empty'));
+        $this->assertSame('Value', $parser->getContentByKey('filled'));
+        // Repeated lookups hit the memoized map and stay consistent.
+        $this->assertSame('Value', $parser->getContentByKey('filled'));
+    }
+
     public function testGetSupportedFileExtensions(): void
     {
         $extensions = XliffParser::getSupportedFileExtensions();
@@ -309,6 +333,27 @@ EOT;
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Failed to parse XML content from file:');
         new XliffParser($invalidXmlFile);
+    }
+
+    public function testConstructorRejectsDoctype(): void
+    {
+        $doctypeFile = $this->tempDir.'/doctype.xlf';
+        $doctypeContent = <<<'EOT'
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE xliff [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="doctype.xlf">
+    <body>
+      <trans-unit id="key"><source>&xxe;</source></trans-unit>
+    </body>
+  </file>
+</xliff>
+EOT;
+        file_put_contents($doctypeFile, $doctypeContent);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Document type definitions are not allowed');
+        new XliffParser($doctypeFile);
     }
 
     public function testGetContentByKeyFallsBackToTargetWhenSourceIsEmpty(): void
