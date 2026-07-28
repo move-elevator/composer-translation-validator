@@ -81,4 +81,28 @@ final class OutputUtilityTest extends TestCase
 
         OutputUtility::debug($output, 'Test message', false, false);
     }
+
+    public function testStripControlCharactersRemovesAnsiEscapes(): void
+    {
+        $input = "before\x1b[31mred\x1b[0mafter";
+
+        $this->assertSame('before[31mred[0mafter', OutputUtility::stripControlCharacters($input));
+    }
+
+    public function testStripControlCharactersRemovesNullAndDelete(): void
+    {
+        $this->assertSame('clean', OutputUtility::stripControlCharacters("cl\x00ea\x7fn"));
+    }
+
+    public function testStripControlCharactersKeepsTabAndNewline(): void
+    {
+        $input = "line1\nline2\tend";
+
+        $this->assertSame($input, OutputUtility::stripControlCharacters($input));
+    }
+
+    public function testStripControlCharactersRemovesCarriageReturn(): void
+    {
+        $this->assertSame('safeDANGER', OutputUtility::stripControlCharacters("safe\rDANGER"));
+    }
 }
