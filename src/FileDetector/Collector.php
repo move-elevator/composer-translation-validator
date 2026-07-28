@@ -24,7 +24,9 @@ use SplFileInfo;
 use Symfony\Component\Filesystem\Filesystem;
 
 use function dirname;
+use function filesize;
 use function in_array;
+use function sprintf;
 
 /**
  * Collector.
@@ -34,6 +36,13 @@ use function in_array;
  */
 class Collector
 {
+    /**
+     * Maximum size (in bytes) of a translation file that will be read into
+     * memory. Larger files are skipped to prevent memory exhaustion when
+     * scanning untrusted directories.
+     */
+    private const MAX_FILE_SIZE = 30 * 1024 * 1024;
+
     public function __construct(protected ?LoggerInterface $logger = null) {}
 
     /**
@@ -124,11 +133,11 @@ class Collector
 
             return array_filter(
                 $globFiles,
-                static fn ($file) => in_array(
+                fn ($file) => in_array(
                     pathinfo((string) $file, \PATHINFO_EXTENSION),
                     $supportedExtensions,
                     true,
-                ),
+                ) && $this->isWithinSizeLimit((string) $file),
             );
         }
 
@@ -158,7 +167,9 @@ class Collector
                 $filePath = $file->getPathname();
                 $extension = pathinfo((string) $filePath, \PATHINFO_EXTENSION);
 
-                if (in_array($extension, $supportedExtensions, true) && is_file($filePath)) {
+                if (in_array($extension, $supportedExtensions, true)
+                    && is_file($filePath)
+                    && $this->isWithinSizeLimit($filePath)) {
                     $files[] = $filePath;
                 }
             }
@@ -171,6 +182,34 @@ class Collector
         // @codeCoverageIgnoreEnd
 
         return $files;
+    }
+
+    /**
+     * Rejects files larger than the configured limit to avoid loading huge
+     * (potentially malicious) files entirely into memory.
+     */
+    private function isWithinSizeLimit(string $file): bool
+    {
+        $size = filesize($file);
+        // @codeCoverageIgnoreStart
+        if (false === $size) {
+            $this->logger?->warning(
+                sprintf('Unable to determine file size, skipping: %s', $file),
+            );
+
+            return false;
+        }
+        // @codeCoverageIgnoreEnd
+
+        if ($size > self::MAX_FILE_SIZE) {
+            $this->logger?->warning(
+                sprintf('Skipping file exceeding the maximum size of %d bytes: %s', self::MAX_FILE_SIZE, $file),
+            );
+
+            return false;
+        }
+
+        return true;
     }
 
     /**
