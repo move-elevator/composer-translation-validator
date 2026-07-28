@@ -105,6 +105,17 @@ final class PhpParserTest extends TestCase
         }
     }
 
+    public function testExtractKeysIsMemoized(): void
+    {
+        $filePath = __DIR__.'/../Fixtures/translations/php/success/messages.en.php';
+        $parser = new PhpParser($filePath);
+
+        $first = $parser->extractKeys();
+        $second = $parser->extractKeys();
+
+        $this->assertSame($first, $second);
+    }
+
     public function testGetContentByKeyWithValidKeys(): void
     {
         $filePath = __DIR__.'/../Fixtures/translations/php/success/messages.en.php';

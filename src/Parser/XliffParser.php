@@ -30,6 +30,9 @@ class XliffParser extends AbstractParser implements ParserInterface
     private readonly SimpleXMLElement|bool $xml;
     private readonly bool $isVersion2;
 
+    /** @var array<int, string>|null Memoized result of extractKeys(). */
+    private ?array $extractedKeys = null;
+
     /** @var array<string, string>|null Lazily built map of translation-unit id to its resolved content. */
     private ?array $contentMap = null;
 
@@ -72,9 +75,13 @@ class XliffParser extends AbstractParser implements ParserInterface
      */
     public function extractKeys(): ?array
     {
+        if (null !== $this->extractedKeys) {
+            return $this->extractedKeys;
+        }
+
         $units = $this->getTranslationUnits();
         if (null === $units) {
-            return [];
+            return $this->extractedKeys = [];
         }
 
         $keys = [];
@@ -82,7 +89,7 @@ class XliffParser extends AbstractParser implements ParserInterface
             $keys[] = (string) $unit['id'];
         }
 
-        return $keys;
+        return $this->extractedKeys = $keys;
     }
 
     public function getContentByKey(string $key): ?string
