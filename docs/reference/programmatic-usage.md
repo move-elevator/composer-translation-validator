@@ -55,7 +55,8 @@ $result = $service->executeValidation(
 
 ## Working with Results
 
-The `executeValidation()` method returns a `ValidationResult` object:
+The `executeValidation()` method returns a `ValidationResult` object, or `null` if no matching
+files were found:
 
 ```php
 if ($result === null) {
@@ -63,11 +64,19 @@ if ($result === null) {
     return;
 }
 
-if ($result->hasErrors()) {
-    foreach ($result->getIssues() as $issue) {
-        echo $issue->getFilePath() . ': ' . $issue->getMessage() . PHP_EOL;
+if ($result->hasIssues()) {
+    foreach ($result->getValidatorsWithIssues() as $validator) {
+        foreach ($validator->getIssues() as $issue) {
+            echo $issue->getFile() . ': ' . $validator->formatIssueMessage($issue) . PHP_EOL;
+        }
     }
 }
+
+// The exit code Composer/the CLI would use, respecting --dry-run and --strict
+$exitCode = $result->getOverallResult()->resolveErrorToCommandExitCode(
+    dryRun: $config->getDryRun(),
+    strict: $config->getStrict(),
+);
 ```
 
 ## Use Cases
