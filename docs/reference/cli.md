@@ -138,7 +138,7 @@ In `--dry-run` mode, errors no longer produce a non-zero exit code. This does **
 
 Human-readable output with colored indicators:
 
-```
+```text
 translations/messages.en.yaml
 
   MismatchValidator
@@ -187,7 +187,7 @@ Machine-readable JSON output. Issues are keyed by file path, then by validator s
 
 Outputs GitHub Actions workflow commands for annotations, one per issue, followed by a summary annotation and a statistics notice:
 
-```
+```text
 ::error file=translations/messages.en.yaml::the translation key `delete` is missing but present in other files
 ::error::Language validation failed with errors.
 ::notice::Validation completed in 12ms - Files: 1, Keys: 4, Validators: 10
