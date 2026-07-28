@@ -240,6 +240,150 @@ final class PhpParserTest extends TestCase
         }
     }
 
+    public function testDoesNotExecuteCodeInFile(): void
+    {
+        $marker = (tempnam(sys_get_temp_dir(), 'marker_') ?: '').'.marker';
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'malicious_').'.php';
+        file_put_contents(
+            $tempFile,
+            "<?php file_put_contents('".$marker."', 'pwned'); return ['key' => 'value'];",
+        );
+
+        try {
+            $parser = new PhpParser($tempFile);
+
+            $this->assertFileDoesNotExist($marker, 'PHP translation file must not be executed');
+            $this->assertSame('value', $parser->getContentByKey('key'));
+        } finally {
+            unlink($tempFile);
+            if (file_exists($marker)) {
+                unlink($marker);
+            }
+        }
+    }
+
+    public function testRejectsFunctionCallValues(): void
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), 'call_').'.php';
+        file_put_contents($tempFile, "<?php return ['key' => strtoupper('value')];");
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('unsupported expression');
+
+        try {
+            new PhpParser($tempFile);
+        } finally {
+            unlink($tempFile);
+        }
+    }
+
+    public function testRejectsListArrayWithImplicitKeys(): void
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), 'list_').'.php';
+        file_put_contents($tempFile, '<?php return ["a", "b"];');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('string or integer keys');
+
+        try {
+            new PhpParser($tempFile);
+        } finally {
+            unlink($tempFile);
+        }
+    }
+
+    public function testRejectsUnsupportedConstant(): void
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), 'const_').'.php';
+        file_put_contents($tempFile, '<?php return ["key" => PHP_EOL];');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('unsupported constant');
+
+        try {
+            new PhpParser($tempFile);
+        } finally {
+            unlink($tempFile);
+        }
+    }
+
+    public function testRejectsFloatKey(): void
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), 'floatkey_').'.php';
+        file_put_contents($tempFile, '<?php return [1.5 => "value"];');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('string or integer keys');
+
+        try {
+            new PhpParser($tempFile);
+        } finally {
+            unlink($tempFile);
+        }
+    }
+
+    public function testHandlesBooleanFalseValue(): void
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), 'false_').'.php';
+        file_put_contents($tempFile, '<?php return ["flag" => false];');
+
+        try {
+            $parser = new PhpParser($tempFile);
+            $keys = $parser->extractKeys();
+            $this->assertSame(['flag'], $keys);
+        } finally {
+            unlink($tempFile);
+        }
+    }
+
+    public function testRejectsFileWithoutReturn(): void
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), 'noreturn_').'.php';
+        file_put_contents($tempFile, '<?php $x = 1;');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('must return an array');
+
+        try {
+            new PhpParser($tempFile);
+        } finally {
+            unlink($tempFile);
+        }
+    }
+
+    public function testRejectsNegatedNonNumber(): void
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), 'negstr_').'.php';
+        file_put_contents($tempFile, '<?php return ["key" => -"x"];');
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('unsupported expression');
+
+        try {
+            new PhpParser($tempFile);
+        } finally {
+            unlink($tempFile);
+        }
+    }
+
+    public function testHandlesNegativeNumbers(): void
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), 'negative_').'.php';
+        file_put_contents($tempFile, '<?php return ["count" => -5, "ratio" => -1.5];');
+
+        try {
+            $parser = new PhpParser($tempFile);
+
+            $keys = $parser->extractKeys();
+            $this->assertIsArray($keys);
+            $this->assertContains('count', $keys);
+            $this->assertContains('ratio', $keys);
+        } finally {
+            unlink($tempFile);
+        }
+    }
+
     public function testHandlesEmptyArray(): void
     {
         $tempFile = tempnam(sys_get_temp_dir(), 'empty_').'.php';

@@ -16,9 +16,11 @@ namespace MoveElevator\ComposerTranslationValidator\FileDetector;
 use Exception;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserRegistry;
 use Psr\Log\LoggerInterface;
+use RecursiveCallbackFilterIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionException;
+use SplFileInfo;
 use Symfony\Component\Filesystem\Filesystem;
 
 use function dirname;
@@ -140,8 +142,15 @@ class Collector
         $files = [];
 
         try {
+            // Reject symlinks (files and directories) so the recursive scan
+            // cannot be redirected outside the target tree via a crafted link.
+            $directoryIterator = new RecursiveDirectoryIterator($normalizedPath, RecursiveDirectoryIterator::SKIP_DOTS);
+            $filteredIterator = new RecursiveCallbackFilterIterator(
+                $directoryIterator,
+                static fn (SplFileInfo $current): bool => !$current->isLink(),
+            );
             $iterator = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($normalizedPath, RecursiveDirectoryIterator::SKIP_DOTS),
+                $filteredIterator,
                 RecursiveIteratorIterator::LEAVES_ONLY,
             );
 

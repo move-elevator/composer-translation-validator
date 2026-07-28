@@ -285,14 +285,25 @@ final class ValidationOrchestrationServiceTest extends TestCase
 
     public function testValidateClassInputWithInvalidClass(): void
     {
-        // Invalid classes are logged as errors but still returned in the array
-        // This matches the original behavior from ValidateTranslationCommand
+        // Invalid classes are logged as errors and excluded from the result,
+        // so they never reach the validator chain.
         $result = $this->service->validateClassInput(
             ValidatorInterface::class,
             'validator',
             'NonExistentValidator',
         );
 
-        $this->assertSame(['NonExistentValidator'], $result);
+        $this->assertSame([], $result);
+    }
+
+    public function testValidateClassInputMixesValidAndInvalidClasses(): void
+    {
+        $result = $this->service->validateClassInput(
+            ValidatorInterface::class,
+            'validator',
+            MismatchValidator::class.',NonExistentValidator',
+        );
+
+        $this->assertSame([MismatchValidator::class], $result);
     }
 }
