@@ -82,6 +82,6 @@ composer validate-translations ./translations
 | [EncodingValidator](/reference/validators#encodingvalidator) | WARNING | Validates UTF-8 encoding and Unicode issues |
 | [KeyCountValidator](/reference/validators#keycountvalidator) | WARNING | Warns when files exceed key threshold |
 | [KeyDepthValidator](/reference/validators#keydepthvalidator) | WARNING | Warns about excessive nesting depth |
-| [KeyNamingConventionValidator](/reference/validators#keynamingconventionvalidator) | WARNING | Enforces key naming patterns |
+| [KeyNamingConventionValidator](/reference/validators#keynamingconventionvalidator) | WARNING | Enforces key naming patterns (opt-in) |
 
 See the [Validators Reference](/reference/validators) for detailed documentation.

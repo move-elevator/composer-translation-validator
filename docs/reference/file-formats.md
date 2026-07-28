@@ -31,7 +31,8 @@ The Composer Translation Validator supports multiple translation file formats co
 
 - XML-based industry standard format
 - Supports translation metadata and states
-- Schema validation available (XLIFF 1.2)
+- Schema validation available (XLIFF 1.2 and 2.0)
+- Target-language consistency check between filename locale and declared `target-language`/`trgLang`
 - Nested keys via ID dots: `user.greeting`
 
 ## YAML (YAML Ain't Markup Language)

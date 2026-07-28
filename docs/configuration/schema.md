@@ -17,7 +17,7 @@ paths:
 ## validators
 
 - **Type**: `array<string>`
-- **Default**: `[]` (uses all available validators)
+- **Default**: `[]` (uses all available validators, still subject to the `skip` default below)
 - **Description**: Array of validator class names to use for validation
 
 ```yaml
@@ -56,8 +56,8 @@ only:
 ## skip
 
 - **Type**: `array<string>`
-- **Default**: `['DuplicateValuesValidator']`
-- **Description**: Array of validator class names to skip
+- **Default**: `['DuplicateValuesValidator', 'KeyNamingConventionValidator']`
+- **Description**: Array of validator class names to skip. Set explicitly to `[]` to enable every available validator, including the two skipped by default.
 
 ```yaml
 skip:

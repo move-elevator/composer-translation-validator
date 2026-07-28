@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - feat[!!!]: skip KeyNamingConventionValidator by default (opt-in to reduce false positives)
 - feat: provide a standalone PHAR distribution for CI and non-Composer projects
+- perf: minor render and file-collection optimizations
+- perf: dedupe render keys via hash set instead of in_array
+- perf: memoize placeholder extraction per value
+- perf: memoize segment convention detection
+- perf: return bool from validator validate() instead of building issue arrays
+- perf: reuse parser-read file content in encoding validation
+- perf: scan each directory once and bucket files by parser
+- perf: evict parser cache per file set to bound memory
+- perf: cache validator severity and drop per-comparison reflection
+- perf: memoize extractKeys() results in parsers
+- perf: cache prepared XLIFF schema source per version
+- perf: resolve XLIFF content via a memoized id map
+- fix: reject DOCTYPE and disable network access in XLIFF parser to harden against XXE and entity-expansion attacks
+- fix: skip translation files exceeding a size limit to prevent memory exhaustion
+- fix: strip control characters and escape markup in CLI output to prevent terminal injection
+- fix: harden system path safety check with boundary matching
+- fix: do not follow symlinks during recursive file scan
+- fix: reject invalid validator classes in --only/--skip options instead of silently ignoring them
+- fix: exclude PHP config files from auto-detection to avoid accidental code execution
+- fix: parse PHP translation files via AST instead of executing them to prevent remote code execution
 
 ## [1.5.0] - 2026-06-29
 

@@ -34,6 +34,10 @@ The command is also available under the alias `vt`.
 Either a path to translation files must be provided as a command argument or within the configuration file. If no path is provided, the validator will abort.
 :::
 
+::: warning
+If `--only` or `--skip` is given a value that resolves to no valid validator classes (e.g. a typo in the FQCN), the command fails with an error rather than silently falling back to running all validators.
+:::
+
 ## Examples
 
 ### Basic Validation
@@ -123,10 +127,10 @@ composer validate-translations ./translations --dry-run
 
 | Code | Description |
 |------|-------------|
-| `0` | Validation passed (no errors) |
-| `1` | Validation failed (errors found) |
+| `0` | Validation passed (no errors, or only warnings without `--strict`) |
+| `1` | Validation failed (errors found, or warnings found with `--strict`) |
 
-In `--dry-run` mode, the exit code is always `0` regardless of validation results.
+In `--dry-run` mode, errors no longer produce a non-zero exit code. This does **not** apply to `--strict`: warnings still produce exit code `1` under `--strict` even when combined with `--dry-run`.
 
 ## Output Formats
 
@@ -134,7 +138,7 @@ In `--dry-run` mode, the exit code is always `0` regardless of validation result
 
 Human-readable output with colored indicators:
 
-```
+```text
 translations/messages.en.yaml
 
   MismatchValidator
@@ -145,33 +149,51 @@ translations/messages.en.yaml
 
 ### JSON Format
 
-Machine-readable JSON output:
+Machine-readable JSON output. Issues are keyed by file path, then by validator short name:
 
 ```json
 {
-  "success": false,
-  "files": [
-    {
-      "path": "translations/messages.en.yaml",
-      "issues": [
-        {
-          "validator": "MismatchValidator",
-          "type": "error",
-          "message": "the translation key `delete` is missing"
-        }
-      ]
+  "status": 1,
+  "message": "Language validation failed with errors.",
+  "issues": {
+    "translations/messages.en.yaml": {
+      "MismatchValidator": {
+        "type": "Error",
+        "issues": [
+          {
+            "message": "the translation key `delete` is missing but present in other files",
+            "details": {
+              "key": "delete"
+            }
+          }
+        ]
+      }
     }
-  ]
+  },
+  "statistics": {
+    "execution_time": 0.012,
+    "execution_time_formatted": "12ms",
+    "files_checked": 1,
+    "keys_checked": 4,
+    "validators_run": 10,
+    "parsers_cached": 1
+  }
 }
 ```
 
+`status` is the same process exit code described under [Exit Codes](#exit-codes) above (`0` success, `1` failure). `details` varies per validator and mirrors the data available to `--verbose` CLI output.
+
 ### GitHub Format
 
-Outputs GitHub Actions workflow commands for annotations:
+Outputs GitHub Actions workflow commands for annotations, one per issue, followed by a summary annotation and a statistics notice:
 
+```text
+::error file=translations/messages.en.yaml::the translation key `delete` is missing but present in other files
+::error::Language validation failed with errors.
+::notice::Validation completed in 12ms - Files: 1, Keys: 4, Validators: 10
 ```
-::error file=translations/messages.en.yaml::the translation key `delete` is missing
-```
+
+Annotations additionally include `line=`/`col=` when a validator reports a source position (e.g. `XliffSchemaValidator`), and `title=` when available.
 
 ## See Also
 
