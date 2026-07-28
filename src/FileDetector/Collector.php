@@ -16,13 +16,17 @@ namespace MoveElevator\ComposerTranslationValidator\FileDetector;
 use Exception;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserRegistry;
 use Psr\Log\LoggerInterface;
+use RecursiveCallbackFilterIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionException;
+use SplFileInfo;
 use Symfony\Component\Filesystem\Filesystem;
 
 use function dirname;
+use function filesize;
 use function in_array;
+use function sprintf;
 
 /**
  * Collector.
@@ -32,6 +36,13 @@ use function in_array;
  */
 class Collector
 {
+    /**
+     * Maximum size (in bytes) of a translation file that will be read into
+     * memory. Larger files are skipped to prevent memory exhaustion when
+     * scanning untrusted directories.
+     */
+    private const MAX_FILE_SIZE = 30 * 1024 * 1024;
+
     public function __construct(protected ?LoggerInterface $logger = null) {}
 
     /**
@@ -55,8 +66,12 @@ class Collector
                 continue;
             }
 
+            // Scan the directory once and bucket files by their parser, instead
+            // of scanning it separately for every parser class.
+            $filesByParser = $this->scanFilesByParser($path, $recursive);
+
             foreach (ParserRegistry::getAvailableParsers() as $parserClass) {
-                $files = $this->findFiles($path, $parserClass::getSupportedFileExtensions(), $recursive);
+                $files = $filesByParser[$parserClass] ?? [];
                 if (empty($files)) {
                     $this->logger?->debug('No files found for parser class "'.$parserClass.'" in path "'.$path.'".');
                     continue;
@@ -99,6 +114,45 @@ class Collector
     }
 
     /**
+     * Scans a path once and groups the found files by their parser class.
+     *
+     * @return array<class-string, string[]>
+     */
+    private function scanFilesByParser(string $path, bool $recursive): array
+    {
+        $extensionMap = self::extensionToParserMap();
+        $files = $this->findFiles($path, array_keys($extensionMap), $recursive);
+
+        $filesByParser = [];
+        foreach ($files as $file) {
+            $extension = pathinfo((string) $file, \PATHINFO_EXTENSION);
+            if (isset($extensionMap[$extension])) {
+                $filesByParser[$extensionMap[$extension]][] = $file;
+            }
+        }
+
+        return $filesByParser;
+    }
+
+    /**
+     * Maps each supported file extension to the parser class handling it.
+     * The first parser declaring an extension wins, matching parser resolution.
+     *
+     * @return array<string, class-string>
+     */
+    private static function extensionToParserMap(): array
+    {
+        $map = [];
+        foreach (ParserRegistry::getAvailableParsers() as $parserClass) {
+            foreach ($parserClass::getSupportedFileExtensions() as $extension) {
+                $map[$extension] ??= $parserClass;
+            }
+        }
+
+        return $map;
+    }
+
+    /**
      * Find files in a directory, optionally recursively.
      *
      * @param string[] $supportedExtensions
@@ -119,11 +173,11 @@ class Collector
 
             return array_filter(
                 $globFiles,
-                static fn ($file) => in_array(
+                fn ($file) => in_array(
                     pathinfo((string) $file, \PATHINFO_EXTENSION),
                     $supportedExtensions,
                     true,
-                ),
+                ) && $this->isWithinSizeLimit((string) $file),
             );
         }
 
@@ -137,8 +191,15 @@ class Collector
         $files = [];
 
         try {
+            // Reject symlinks (files and directories) so the recursive scan
+            // cannot be redirected outside the target tree via a crafted link.
+            $directoryIterator = new RecursiveDirectoryIterator($normalizedPath, RecursiveDirectoryIterator::SKIP_DOTS);
+            $filteredIterator = new RecursiveCallbackFilterIterator(
+                $directoryIterator,
+                static fn (SplFileInfo $current): bool => !$current->isLink(),
+            );
             $iterator = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($normalizedPath, RecursiveDirectoryIterator::SKIP_DOTS),
+                $filteredIterator,
                 RecursiveIteratorIterator::LEAVES_ONLY,
             );
 
@@ -146,7 +207,9 @@ class Collector
                 $filePath = $file->getPathname();
                 $extension = pathinfo((string) $filePath, \PATHINFO_EXTENSION);
 
-                if (in_array($extension, $supportedExtensions, true) && is_file($filePath)) {
+                if (in_array($extension, $supportedExtensions, true)
+                    && is_file($filePath)
+                    && $this->isWithinSizeLimit($filePath)) {
                     $files[] = $filePath;
                 }
             }
@@ -179,6 +242,34 @@ class Collector
     }
 
     /**
+     * Rejects files larger than the configured limit to avoid loading huge
+     * (potentially malicious) files entirely into memory.
+     */
+    private function isWithinSizeLimit(string $file): bool
+    {
+        $size = filesize($file);
+        // @codeCoverageIgnoreStart
+        if (false === $size) {
+            $this->logger?->warning(
+                sprintf('Unable to determine file size, skipping: %s', $file),
+            );
+
+            return false;
+        }
+        // @codeCoverageIgnoreEnd
+
+        if ($size > self::MAX_FILE_SIZE) {
+            $this->logger?->warning(
+                sprintf('Skipping file exceeding the maximum size of %d bytes: %s', self::MAX_FILE_SIZE, $file),
+            );
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Normalize a file path to prevent path traversal attacks.
      */
     private function normalizePath(string $path): string
@@ -195,18 +286,29 @@ class Collector
 
     /**
      * Basic path safety check to prevent obvious security issues.
+     *
+     * Rejects sensitive system locations. Matching is done on path boundaries
+     * (so `/etc` does not reject `/etcetera`) and case-insensitively to also
+     * cover Windows system directories.
      */
     private function isPathSafe(string $path): bool
     {
-        $dangerousPaths = ['/etc', '/usr', '/bin', '/sbin', '/proc', '/sys', '/private/etc'];
+        $normalized = rtrim(str_replace('\\', '/', $path), '/');
+        $haystack = strtolower($normalized).'/';
+
+        $dangerousPaths = [
+            '/etc', '/usr', '/bin', '/sbin', '/proc', '/sys', '/dev', '/root', '/boot',
+            '/private/etc',
+            'c:/windows', 'c:/program files', 'c:/program files (x86)',
+        ];
 
         foreach ($dangerousPaths as $dangerousPath) {
-            if (str_starts_with($path, $dangerousPath)) {
+            if (str_starts_with($haystack, $dangerousPath.'/')) {
                 return false;
             }
         }
 
-        return substr_count($path, '/') + substr_count($path, '\\') <= 20;
+        return substr_count($normalized, '/') <= 20;
     }
 
     /**

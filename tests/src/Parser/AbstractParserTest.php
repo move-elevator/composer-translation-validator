@@ -148,4 +148,22 @@ final class AbstractParserTest extends TestCase
 
         unlink($testFile);
     }
+
+    public function testGetRawContentReadsFileLazily(): void
+    {
+        $parser = new TestParser($this->tempFile);
+
+        $this->assertSame('test content', $parser->getRawContent());
+    }
+
+    public function testGetRawContentCachesResult(): void
+    {
+        $parser = new TestParser($this->tempFile);
+
+        $this->assertSame('test content', $parser->getRawContent());
+
+        file_put_contents($this->tempFile, 'changed content');
+
+        $this->assertSame('test content', $parser->getRawContent());
+    }
 }

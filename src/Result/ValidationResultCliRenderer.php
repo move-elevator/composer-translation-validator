@@ -15,11 +15,9 @@ namespace MoveElevator\ComposerTranslationValidator\Result;
 
 use MoveElevator\ComposerTranslationValidator\Utility\PathUtility;
 use MoveElevator\ComposerTranslationValidator\Validator\{ResultType, ValidatorInterface};
-use ReflectionClass;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Throwable;
 
 /**
  * ValidationResultCliRenderer.
@@ -30,6 +28,9 @@ use Throwable;
 class ValidationResultCliRenderer extends AbstractValidationResultRenderer
 {
     private readonly SymfonyStyle $io;
+
+    /** @var array<class-string<ValidatorInterface>, int> Cache of sort severity per validator class. */
+    private array $severityCache = [];
 
     public function __construct(
         OutputInterface $output,
@@ -199,11 +200,8 @@ class ValidationResultCliRenderer extends AbstractValidationResultRenderer
     private function sortValidatorGroupsBySeverity(array $validatorGroups): array
     {
         uksort($validatorGroups, function ($validatorNameA, $validatorNameB) use ($validatorGroups) {
-            $validatorA = $validatorGroups[$validatorNameA]['validator'];
-            $validatorB = $validatorGroups[$validatorNameB]['validator'];
-
-            $severityA = $this->getValidatorSeverity($validatorA::class);
-            $severityB = $this->getValidatorSeverity($validatorB::class);
+            $severityA = $this->getIssueSeverity($validatorGroups[$validatorNameA]['validator']);
+            $severityB = $this->getIssueSeverity($validatorGroups[$validatorNameB]['validator']);
 
             return $severityA <=> $severityB;
         });
@@ -211,39 +209,26 @@ class ValidationResultCliRenderer extends AbstractValidationResultRenderer
         return $validatorGroups;
     }
 
+    /**
+     * Resolves the sort severity for a validator instance.
+     *
+     * The result is cached per validator class: severity only depends on the
+     * class, and the comparators call this on every pairwise comparison. The
+     * already-available instance is used directly, avoiding the previous
+     * reflection-based instantiation on each comparison.
+     */
     private function getIssueSeverity(ValidatorInterface $validator): int
     {
-        return $this->getValidatorSeverity($validator::class);
-    }
-
-    private function getValidatorSeverity(string $validatorClass): int
-    {
-        if (str_contains($validatorClass, 'SchemaValidator')) {
-            return 1;
+        $class = $validator::class;
+        if (isset($this->severityCache[$class])) {
+            return $this->severityCache[$class];
         }
 
-        try {
-            // @codeCoverageIgnoreStart
-            if (!class_exists($validatorClass)) {
-                return 1;
-            }
-            // @codeCoverageIgnoreEnd
-            /** @var class-string $validatorClass */
-            $reflection = new ReflectionClass($validatorClass);
-            if ($reflection->isInstantiable()) {
-                $validator = $reflection->newInstance();
-                if ($validator instanceof ValidatorInterface) {
-                    $resultType = $validator->resultTypeOnValidationFailure();
-
-                    return ResultType::ERROR === $resultType ? 1 : 2;
-                }
-            }
-            // @codeCoverageIgnoreStart
-        } catch (Throwable) {
+        if (str_contains($class, 'SchemaValidator')) {
+            return $this->severityCache[$class] = 1;
         }
 
-        return 1;
-        // @codeCoverageIgnoreEnd
+        return $this->severityCache[$class] = ResultType::ERROR === $validator->resultTypeOnValidationFailure() ? 1 : 2;
     }
 
     private function formatIssueMessage(

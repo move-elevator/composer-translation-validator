@@ -15,6 +15,7 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
+use MoveElevator\ComposerTranslationValidator\Utility\OutputUtility;
 use MoveElevator\ComposerTranslationValidator\Validator\Trait\DistributesIssuesForDisplayTrait;
 use Symfony\Component\Console\Helper\{Table, TableStyle};
 use Symfony\Component\Console\Output\OutputInterface;
@@ -128,9 +129,7 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
             $key = $details['key'] ?? 'unknown';
             $files = $details['files'] ?? [];
 
-            if (!in_array($key, $allKeys)) {
-                $allKeys[] = $key;
-            }
+            $allKeys[$key] = true;
 
             foreach ($files as $filePath => $fileInfo) {
                 $fileName = basename((string) $filePath);
@@ -153,7 +152,7 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
             $header[] = $fileName;
         }
 
-        foreach ($allKeys as $key) {
+        foreach (array_keys($allKeys) as $key) {
             $row = [$key];
             foreach ($fileOrder as $fileName) {
                 $value = $allFilesData[$key][$fileName] ?? '';
@@ -353,6 +352,7 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
 
     private function highlightHtmlTags(string $value): string
     {
+        $value = OutputUtility::stripControlCharacters($value);
         $value = preg_replace('/<(\w+)([^>]*)>/', '<fg=cyan><$1$2></>', $value) ?? $value;
 
         return preg_replace('/<\/(\w+)>/', '<fg=magenta></$1></>', $value) ?? $value;

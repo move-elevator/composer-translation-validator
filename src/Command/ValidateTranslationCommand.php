@@ -191,16 +191,31 @@ HELP
             return Command::FAILURE;
         }
 
+        $onlyOption = $input->getOption('only');
+        $skipOption = $input->getOption('skip');
+
         $onlyValidators = $this->orchestrationService->validateClassInput(
             ValidatorInterface::class,
             'validator',
-            $input->getOption('only'),
+            $onlyOption,
         );
         $skipValidators = $this->orchestrationService->validateClassInput(
             ValidatorInterface::class,
             'validator',
-            $input->getOption('skip'),
+            $skipOption,
         );
+
+        if (!empty($onlyOption) && empty($onlyValidators)) {
+            $this->io?->error('The "--only" option contains no valid validators.');
+
+            return Command::FAILURE;
+        }
+
+        if (!empty($skipOption) && empty($skipValidators)) {
+            $this->io?->error('The "--skip" option contains no valid validators.');
+
+            return Command::FAILURE;
+        }
 
         $validators = $this->orchestrationService->resolveValidators($onlyValidators, $skipValidators, $config);
 
