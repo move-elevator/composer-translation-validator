@@ -19,6 +19,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 use function count;
+use function function_exists;
 use function in_array;
 
 /**
@@ -148,6 +149,49 @@ final class CollectorTest extends TestCase
         $this->assertEquals(['recursive_data'], $result[XliffParser::class][$this->tempDir]);
     }
 
+    public function testCollectFilesDoesNotFollowSymlinks(): void
+    {
+        if (!function_exists('symlink')) {
+            $this->markTestSkipped('symlink() is not available on this platform.');
+        }
+
+        // Target directory lives outside the scanned tree and is only reachable
+        // through the symlink created below.
+        $outside = sys_get_temp_dir().'/collector_outside_'.uniqid('', true);
+        mkdir($outside);
+        file_put_contents($outside.'/secret.xlf', 'secret content');
+
+        file_put_contents($this->tempDir.'/real.xlf', 'real content');
+        if (!@symlink($outside, $this->tempDir.'/link')) {
+            unlink($outside.'/secret.xlf');
+            rmdir($outside);
+            $this->markTestSkipped('Unable to create a symlink on this platform.');
+        }
+
+        $captured = [];
+        $detector = $this->createStub(DetectorInterface::class);
+        $detector->method('mapTranslationSet')->willReturnCallback(
+            static function (array $files) use (&$captured): array {
+                $captured = array_merge($captured, $files);
+
+                return ['data'];
+            },
+        );
+
+        try {
+            $collector = new Collector($this->createStub(LoggerInterface::class));
+            $collector->collectFiles([$this->tempDir], $detector, null, true);
+
+            $joined = implode('|', $captured);
+            $this->assertStringContainsString('real.xlf', $joined);
+            $this->assertStringNotContainsString('secret.xlf', $joined);
+        } finally {
+            unlink($this->tempDir.'/link');
+            unlink($outside.'/secret.xlf');
+            rmdir($outside);
+        }
+    }
+
     public function testCollectFilesWithMultipleFileTypes(): void
     {
         file_put_contents($this->tempDir.'/test.xlf', 'xlf content');
@@ -243,6 +287,63 @@ final class CollectorTest extends TestCase
         $collector = new Collector($logger);
 
         $result = $collector->collectFiles(['/etc'], $detector, null, true);
+
+        $this->assertSame([], $result);
+    }
+
+    public function testCollectFilesSkipsOversizedFiles(): void
+    {
+        file_put_contents($this->tempDir.'/small.xlf', 'content');
+
+        // Create a sparse file larger than the 30 MB limit without actually
+        // writing 30 MB of data.
+        $big = $this->tempDir.'/big.xlf';
+        $handle = fopen($big, 'w');
+        if (false === $handle) {
+            $this->markTestSkipped('Unable to create the oversized test file.');
+        }
+        fseek($handle, 30 * 1024 * 1024);
+        fwrite($handle, 'x');
+        fclose($handle);
+
+        $captured = [];
+        $detector = $this->createStub(DetectorInterface::class);
+        $detector->method('mapTranslationSet')->willReturnCallback(
+            static function (array $files) use (&$captured): array {
+                $captured = array_merge($captured, $files);
+
+                return ['data'];
+            },
+        );
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->atLeastOnce())
+            ->method('warning')
+            ->with($this->stringContains('exceeding the maximum size'));
+
+        $collector = new Collector($logger);
+        $collector->collectFiles([$this->tempDir], $detector, null);
+
+        $joined = implode('|', $captured);
+        $this->assertStringContainsString('small.xlf', $joined);
+        $this->assertStringNotContainsString('big.xlf', $joined);
+    }
+
+    public function testCollectFilesSkipsAdditionalSystemPaths(): void
+    {
+        if (!is_dir('/dev')) {
+            $this->markTestSkipped('/dev is not available on this platform.');
+        }
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->atLeastOnce())
+            ->method('warning')
+            ->with($this->stringContains('Skipping potentially unsafe path'));
+
+        $detector = $this->createStub(DetectorInterface::class);
+        $collector = new Collector($logger);
+
+        $result = $collector->collectFiles(['/dev'], $detector, null, true);
 
         $this->assertSame([], $result);
     }

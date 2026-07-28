@@ -47,6 +47,8 @@ class ValidationRun
         $validatorFileSetPairs = [];
         $overallResult = ResultType::SUCCESS;
         $filesChecked = 0;
+        $keysChecked = 0;
+        $parsersCached = 0;
 
         foreach ($fileSets as $fileSet) {
             $filesChecked += count($fileSet->getFiles());
@@ -76,15 +78,15 @@ class ValidationRun
                     ];
                 }
             }
+
+            // Count keys while this FileSet's parsers are still cached, then evict
+            // them so the cache does not grow with the number of processed FileSets.
+            $keysChecked += $this->countKeysChecked($fileSet);
+            $parsersCached += $this->parserCache->count();
+            $this->parserCache->clear();
         }
 
-        $keysChecked = $this->countKeysChecked($fileSets);
-
         $validatorsRun = count($validatorClasses);
-
-        // Get cache statistics before clearing cache
-        $cacheStats = $this->parserCache->getCacheStats();
-        $parsersCached = $cacheStats['cached_parsers'];
 
         $executionTime = microtime(true) - $startTime;
         $statistics = new ValidationStatistics(
@@ -95,10 +97,7 @@ class ValidationRun
             $parsersCached,
         );
 
-        $validationResult = new ValidationResult($validatorInstances, $overallResult, $validatorFileSetPairs, $statistics);
-        $this->parserCache->clear();
-
-        return $validationResult;
+        return new ValidationResult($validatorInstances, $overallResult, $validatorFileSetPairs, $statistics);
     }
 
     /**
@@ -121,31 +120,25 @@ class ValidationRun
         return $fileSets;
     }
 
-    /**
-     * @param array<FileSet> $fileSets
-     */
-    private function countKeysChecked(array $fileSets): int
+    private function countKeysChecked(FileSet $fileSet): int
     {
         $keysChecked = 0;
+        $parserClass = $fileSet->getParser();
 
-        foreach ($fileSets as $fileSet) {
-            $parserClass = $fileSet->getParser();
-
-            foreach ($fileSet->getFiles() as $file) {
-                try {
-                    $parser = $this->parserCache->get($file, $parserClass);
-                    // @codeCoverageIgnoreStart
-                    if (false === $parser) {
-                        continue;
-                    }
-                    // @codeCoverageIgnoreEnd
-                    $keys = $parser->extractKeys();
-                    if (is_array($keys)) {
-                        $keysChecked += count($keys);
-                    }
-                } catch (Throwable) {
-                    // Skip files that can't be parsed
+        foreach ($fileSet->getFiles() as $file) {
+            try {
+                $parser = $this->parserCache->get($file, $parserClass);
+                // @codeCoverageIgnoreStart
+                if (false === $parser) {
+                    continue;
                 }
+                // @codeCoverageIgnoreEnd
+                $keys = $parser->extractKeys();
+                if (is_array($keys)) {
+                    $keysChecked += count($keys);
+                }
+            } catch (Throwable) {
+                // Skip files that can't be parsed
             }
         }
 
