@@ -15,7 +15,9 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
+use MoveElevator\ComposerTranslationValidator\Utility\OutputUtility;
 use MoveElevator\ComposerTranslationValidator\Validator\Trait\DistributesIssuesForDisplayTrait;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Helper\{Table, TableStyle};
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -33,6 +35,15 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
 
     /** @var array<string, array<string, array{value: string, placeholders: array<string>}>> */
     protected array $keyData = [];
+
+    /**
+     * Cache of extracted placeholders per value. The same value is processed
+     * during analysis and again while rendering; memoizing avoids re-running
+     * the placeholder regexes for it.
+     *
+     * @var array<string, array<string>>
+     */
+    private array $placeholderCache = [];
 
     public function processFile(ParserInterface $file): array
     {
@@ -191,6 +202,7 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
     {
         parent::resetState();
         $this->keyData = [];
+        $this->placeholderCache = [];
     }
 
     /**
@@ -206,6 +218,10 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
      */
     private function extractPlaceholders(string $value): array
     {
+        if (isset($this->placeholderCache[$value])) {
+            return $this->placeholderCache[$value];
+        }
+
         $placeholders = [];
 
         // Symfony style: %parameter%
@@ -243,7 +259,7 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
             }
         }
 
-        return array_unique($placeholders);
+        return $this->placeholderCache[$value] = array_unique($placeholders);
     }
 
     /**
@@ -292,6 +308,12 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
     private function highlightPlaceholders(string $value): string
     {
         $placeholders = $this->extractPlaceholders($value);
+
+        // Neutralise control characters and console markup in the raw value so
+        // untrusted content cannot inject terminal escapes or formatter tags.
+        // Placeholder tokens contain no markup characters, so escaping the value
+        // leaves them intact for the highlighting below.
+        $value = OutputFormatter::escape(OutputUtility::stripControlCharacters($value));
 
         foreach ($placeholders as $placeholder) {
             $value = str_replace($placeholder, "<fg=yellow>{$placeholder}</>", $value);

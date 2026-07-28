@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Validator;
 
-use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, PhpParser, XliffParser, YamlParser};
+use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use MoveElevator\ComposerTranslationValidator\Validator\{EncodingValidator, ResultType};
 use Normalizer;
@@ -159,6 +159,22 @@ final class EncodingValidatorTest extends TestCase
         $this->assertStringContainsString('non-NFC normalized', $issues['unicode_normalization']);
     }
 
+    public function testReadsFromDiskForNonAbstractParser(): void
+    {
+        $filePath = $this->testFilesPath.'/plain-interface.yaml';
+        file_put_contents($filePath, 'key: value');
+
+        // A parser that implements the interface but does not extend
+        // AbstractParser exercises the direct file-read fallback.
+        $parser = $this->createStub(ParserInterface::class);
+        $parser->method('getFilePath')->willReturn($filePath);
+        $parser->method('getFileName')->willReturn('plain-interface.yaml');
+
+        $issues = $this->validator->processFile($parser);
+
+        $this->assertEmpty($issues);
+    }
+
     public function testJsonFilesAreSupported(): void
     {
         $filePath = $this->testFilesPath.'/valid.json';
@@ -174,11 +190,13 @@ final class EncodingValidatorTest extends TestCase
     public function testJsonWithBomIsDetected(): void
     {
         $filePath = $this->testFilesPath.'/valid-json-with-bom.json';
-        file_put_contents($filePath, "\xEF\xBB\xBF{\"key\": \"value\"}"); // Valid JSON with BOM
+        $content = "\xEF\xBB\xBF{\"key\": \"value\"}"; // Valid JSON with BOM
+        file_put_contents($filePath, $content);
 
         // Mock parser to avoid BOM parsing issues
         $mockParser = $this->createStub(JsonParser::class);
         $mockParser->method('getFilePath')->willReturn($filePath);
+        $mockParser->method('getRawContent')->willReturn($content);
 
         $issues = $this->validator->processFile($mockParser);
 
@@ -207,7 +225,7 @@ final class EncodingValidatorTest extends TestCase
             ->with($this->stringContains('Could not read file content:'));
 
         $validator = new class($logger) extends EncodingValidator {
-            public function processFile(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface $file): array
+            public function processFile(ParserInterface $file): array
             {
                 // Simulate file_get_contents returning false
                 $content = @file_get_contents($file->getFilePath()); // Suppress warning with @
@@ -309,7 +327,7 @@ final class EncodingValidatorTest extends TestCase
         file_put_contents($filePath, ''); // Completely empty file
 
         // Create a mock parser that can handle empty files
-        $mockParser = $this->createStub(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface::class);
+        $mockParser = $this->createStub(ParserInterface::class);
         $mockParser->method('getFilePath')->willReturn($filePath);
         $mockParser->method('getFileName')->willReturn('just-empty-content.txt');
 
@@ -325,7 +343,7 @@ final class EncodingValidatorTest extends TestCase
         file_put_contents($filePath, 'test content');
 
         // Create mock parser
-        $mockParser = $this->createStub(\MoveElevator\ComposerTranslationValidator\Parser\ParserInterface::class);
+        $mockParser = $this->createStub(ParserInterface::class);
         $mockParser->method('getFilePath')->willReturn($filePath);
         $mockParser->method('getFileName')->willReturn('temp-file.yaml');
 
