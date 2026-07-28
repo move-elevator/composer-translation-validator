@@ -59,6 +59,8 @@ class XliffParser extends AbstractParser implements ParserInterface
             throw new InvalidArgumentException("Document type definitions are not allowed in file: {$filePath}");
         }
 
+        $this->rawContent = $xmlContent;
+
         libxml_use_internal_errors(true);
         $this->xml = simplexml_load_string($xmlContent, SimpleXMLElement::class, \LIBXML_NONET);
 
