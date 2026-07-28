@@ -55,8 +55,24 @@ jobs:
 
       - name: Attach PHAR to release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            composer-translation-validator.phar
-            composer-translation-validator.phar.sha256
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${GITHUB_REF_NAME}"
+
+          # The release for this tag is created by the separate "Release" workflow,
+          # which may still be running. `gh release view`/`upload` correctly resolve
+          # drafts by tag name, unlike the REST /releases/tags/{tag} endpoint used by
+          # some third-party actions (which excludes drafts and would otherwise cause
+          # a duplicate, asset-less release to be created here).
+          for _ in $(seq 1 30); do
+            if gh release view "$tag" >/dev/null 2>&1; then
+              break
+            fi
+            sleep 5
+          done
+
+          gh release upload "$tag" \
+            composer-translation-validator.phar \
+            composer-translation-validator.phar.sha256 \
+            --clobber
