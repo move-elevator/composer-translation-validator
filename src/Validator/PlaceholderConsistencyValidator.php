@@ -15,7 +15,9 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
+use MoveElevator\ComposerTranslationValidator\Utility\OutputUtility;
 use MoveElevator\ComposerTranslationValidator\Validator\Trait\DistributesIssuesForDisplayTrait;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Helper\{Table, TableStyle};
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -295,6 +297,12 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
     private function highlightPlaceholders(string $value): string
     {
         $placeholders = $this->extractPlaceholders($value);
+
+        // Neutralise control characters and console markup in the raw value so
+        // untrusted content cannot inject terminal escapes or formatter tags.
+        // Placeholder tokens contain no markup characters, so escaping the value
+        // leaves them intact for the highlighting below.
+        $value = OutputFormatter::escape(OutputUtility::stripControlCharacters($value));
 
         foreach ($placeholders as $placeholder) {
             $value = str_replace($placeholder, "<fg=yellow>{$placeholder}</>", $value);

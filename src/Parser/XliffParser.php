@@ -30,6 +30,12 @@ class XliffParser extends AbstractParser implements ParserInterface
     private readonly SimpleXMLElement|bool $xml;
     private readonly bool $isVersion2;
 
+    /** @var array<int, string>|null Memoized result of extractKeys(). */
+    private ?array $extractedKeys = null;
+
+    /** @var array<string, string>|null Lazily built map of translation-unit id to its resolved content. */
+    private ?array $contentMap = null;
+
     /**
      * @param string $filePath Path to the XLIFF file
      *
@@ -47,8 +53,16 @@ class XliffParser extends AbstractParser implements ParserInterface
         }
         // @codeCoverageIgnoreEnd
 
+        // Reject document type definitions outright and disable network access
+        // during parsing as defense-in-depth against XXE / entity-expansion.
+        if (preg_match('/<!DOCTYPE/i', $xmlContent)) {
+            throw new InvalidArgumentException("Document type definitions are not allowed in file: {$filePath}");
+        }
+
+        $this->rawContent = $xmlContent;
+
         libxml_use_internal_errors(true);
-        $this->xml = simplexml_load_string($xmlContent);
+        $this->xml = simplexml_load_string($xmlContent, SimpleXMLElement::class, \LIBXML_NONET);
 
         if (false === $this->xml) {
             throw new InvalidArgumentException("Failed to parse XML content from file: {$filePath}");
@@ -63,9 +77,13 @@ class XliffParser extends AbstractParser implements ParserInterface
      */
     public function extractKeys(): ?array
     {
+        if (null !== $this->extractedKeys) {
+            return $this->extractedKeys;
+        }
+
         $units = $this->getTranslationUnits();
         if (null === $units) {
-            return [];
+            return $this->extractedKeys = [];
         }
 
         $keys = [];
@@ -73,38 +91,12 @@ class XliffParser extends AbstractParser implements ParserInterface
             $keys[] = (string) $unit['id'];
         }
 
-        return $keys;
+        return $this->extractedKeys = $keys;
     }
 
     public function getContentByKey(string $key): ?string
     {
-        $units = $this->getTranslationUnits();
-        if (null === $units) {
-            return null;
-        }
-
-        $attribute = $this->hasTargetLanguage() ? 'target' : 'source';
-
-        foreach ($units as $unit) {
-            if ((string) $unit['id'] !== $key) {
-                continue;
-            }
-
-            $source = $this->getUnitContent($unit, 'source');
-            $target = $this->getUnitContent($unit, 'target');
-
-            $primary = 'target' === $attribute ? $target : $source;
-            if ('' !== $primary) {
-                return $primary;
-            }
-
-            $fallback = 'target' === $attribute ? $source : $target;
-            if ('' !== $fallback) {
-                return $fallback;
-            }
-        }
-
-        return null;
+        return $this->getContentMap()[$key] ?? null;
     }
 
     /**
@@ -183,6 +175,48 @@ class XliffParser extends AbstractParser implements ParserInterface
             : (string) ($this->xml->file['target-language'] ?? '');
 
         return '' === $lang ? null : $lang;
+    }
+
+    /**
+     * Builds (once) a map of translation-unit id to its resolved content.
+     *
+     * This replaces a linear scan per lookup, which made repeated lookups over
+     * all keys O(n²) per file. The first unit for a given id that yields
+     * non-empty content wins, preserving the previous fallback semantics.
+     *
+     * @return array<string, string>
+     */
+    private function getContentMap(): array
+    {
+        if (null !== $this->contentMap) {
+            return $this->contentMap;
+        }
+
+        $map = [];
+        $units = $this->getTranslationUnits();
+
+        if (null !== $units) {
+            $useTarget = $this->hasTargetLanguage();
+
+            foreach ($units as $unit) {
+                $id = (string) $unit['id'];
+                if (isset($map[$id])) {
+                    continue;
+                }
+
+                $source = $this->getUnitContent($unit, 'source');
+                $target = $this->getUnitContent($unit, 'target');
+
+                $primary = $useTarget ? $target : $source;
+                $value = '' !== $primary ? $primary : ($useTarget ? $source : $target);
+
+                if ('' !== $value) {
+                    $map[$id] = $value;
+                }
+            }
+        }
+
+        return $this->contentMap = $map;
     }
 
     private function getSourceLanguage(): string
