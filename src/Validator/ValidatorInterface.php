@@ -35,10 +35,10 @@ interface ValidatorInterface
      * Runs the validator over the given files and returns whether any issue was
      * found. The issues themselves are available via getIssues().
      *
-     * @param array<string>                 $files
-     * @param class-string<ParserInterface> $parserClass
+     * @param array<string>                      $files
+     * @param class-string<ParserInterface>|null $parserClass
      */
-    public function validate(array $files, string $parserClass): bool;
+    public function validate(array $files, ?string $parserClass): bool;
 
     /**
      * @return class-string<ParserInterface>[]

@@ -305,7 +305,7 @@ class MockValidatorWithoutIssues implements ValidatorInterface
         unset($logger);
     }
 
-    public function validate(array $files, string $parserClass): bool
+    public function validate(array $files, ?string $parserClass): bool
     {
         return false;
     }
@@ -377,7 +377,7 @@ class MockValidatorWithIssues implements ValidatorInterface
         unset($logger);
     }
 
-    public function validate(array $files, string $parserClass): bool
+    public function validate(array $files, ?string $parserClass): bool
     {
         return true;
     }
