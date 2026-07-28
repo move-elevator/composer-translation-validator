@@ -130,12 +130,22 @@ final class ConfigReaderTest extends TestCase
         rmdir($emptyDir);
     }
 
-    public function testAutoDetectWithPhpFile(): void
+    public function testAutoDetectIgnoresPhpFile(): void
     {
-        $config = $this->configReader->autoDetect($this->fixturesDir.'/auto-detect');
-        $this->assertInstanceOf(TranslationValidatorConfig::class, $config);
+        // A directory containing only a PHP config must not be auto-detected,
+        // since auto-loading (and thereby executing) it would allow arbitrary
+        // code execution in an untrusted working directory.
+        $tempDir = sys_get_temp_dir().'/translation-validator-php-'.uniqid('', true);
+        mkdir($tempDir, 0777, true);
+        copy($this->fixturesDir.'/auto-detect/translation-validator.php', $tempDir.'/translation-validator.php');
 
-        $this->assertSame(['detected-php'], $config->getPaths());
+        try {
+            $config = $this->configReader->autoDetect($tempDir);
+            $this->assertNull($config);
+        } finally {
+            unlink($tempDir.'/translation-validator.php');
+            rmdir($tempDir);
+        }
     }
 
     public function testAutoDetectWithJsonFile(): void
@@ -160,8 +170,8 @@ final class ConfigReaderTest extends TestCase
         $config = $this->configReader->autoDetect($this->fixturesDir.'/auto-detect');
         $this->assertInstanceOf(TranslationValidatorConfig::class, $config);
 
-        // Should pick PHP first (highest priority)
-        $this->assertSame(['detected-php'], $config->getPaths());
+        // PHP is excluded from auto-detection, so JSON has the highest priority.
+        $this->assertSame(['detected-json'], $config->getPaths());
     }
 
     public function testReadFromComposerJsonNotFound(): void
