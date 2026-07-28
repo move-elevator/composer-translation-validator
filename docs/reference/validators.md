@@ -325,7 +325,7 @@ navigation:
 large-file.en.yaml
 
   KeyCountValidator
-    - Warning File contains 339 translation keys, exceeds threshold of 300
+    - Warning File contains 339 translation keys, which exceeds the threshold of 300 keys
 
 [WARNING] Language validation completed with warnings.
 ```
@@ -343,10 +343,10 @@ validator-settings:
 
 ```bash
 # Run the validator using pre-created fixtures (from project root)
-composer validate-translations Fixtures/examples/key-count --only "MoveElevator\\ComposerTranslationValidator\\Validator\\KeyCountValidator" -v
+composer -d tests validate-translations Fixtures/examples/key-count --only "MoveElevator\\ComposerTranslationValidator\\Validator\\KeyCountValidator" -v
 
 # Test with custom configuration (threshold: 100)
-composer validate-translations Fixtures/examples/key-count --only "MoveElevator\\ComposerTranslationValidator\\Validator\\KeyCountValidator" -v --config Fixtures/examples/key-count/translation-validator.yaml
+composer -d tests validate-translations Fixtures/examples/key-count --only "MoveElevator\\ComposerTranslationValidator\\Validator\\KeyCountValidator" -v --config Fixtures/examples/key-count/translation-validator.yaml
 ```
 
 </details>
@@ -417,10 +417,10 @@ validator-settings:
 
 ```bash
 # Run the validator using pre-created fixtures (from project root)
-composer validate-translations -d tests Fixtures/examples/key-depth --only "MoveElevator\\ComposerTranslationValidator\\Validator\\KeyDepthValidator" -v
+composer -d tests validate-translations Fixtures/examples/key-depth --only "MoveElevator\\ComposerTranslationValidator\\Validator\\KeyDepthValidator" -v
 
 # Test with custom configuration (threshold: 5)
-composer validate-translations -d tests Fixtures/examples/key-depth --only "MoveElevator\\ComposerTranslationValidator\\Validator\\KeyDepthValidator" -v --config Fixtures/examples/key-depth/translation-validator.yaml
+composer -d tests validate-translations Fixtures/examples/key-depth --only "MoveElevator\\ComposerTranslationValidator\\Validator\\KeyDepthValidator" -v --config Fixtures/examples/key-depth/translation-validator.yaml
 ```
 
 </details>
@@ -493,9 +493,9 @@ User.Address: "Address"         # Mixed styles
 mixed.en.yaml
 
   KeyNamingConventionValidator
-    - Warning key naming violation: `userEmail` does not follow snake_case (suggestion: `user_email`)
-    - Warning key naming violation: `user-phone` does not follow snake_case (suggestion: `user_phone`)
-    - Warning key naming violation: `User.Address` does not follow snake_case (suggestion: `user.address`)
+    - Warning key naming convention violation: `userEmail` does not follow the configured snake_case convention. Suggested: `user_email`
+    - Warning key naming convention violation: `user-phone` does not follow the configured snake_case convention. Suggested: `user_phone`
+    - Warning key naming convention violation: `User.Address` does not follow the configured snake_case convention. Suggested: `user.address`
 
 [WARNING] Language validation completed with warnings.
 ```
@@ -630,9 +630,9 @@ email: "Gesendet an {email_address}"      # Missing double braces
 notifications.de.yaml
 
   PlaceholderConsistencyValidator
-    - Warning placeholder inconsistency in key `welcome` - missing: {username}, extra: {benutzername}
-    - Warning placeholder inconsistency in key `order` - missing: {amount}, extra: {sum}
-    - Warning placeholder inconsistency in key `email` - extra: {{ email_address }}
+    - Warning placeholder inconsistency in translation key `welcome` - missing: {username}, extra: {benutzername}
+    - Warning placeholder inconsistency in translation key `order` - missing: {amount}, extra: {sum}
+    - Warning placeholder inconsistency in translation key `email` - extra: {{ email_address }}
 
 +-----------------+----------------------------------+--------------------------------+
 | Translation Key | notifications.de.yaml            | notifications.en.yaml          |
