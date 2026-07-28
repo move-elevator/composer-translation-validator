@@ -13,14 +13,21 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Parser;
 
+use PhpParser\Node\Expr\{Array_, ConstFetch, UnaryMinus};
+use PhpParser\Node\Scalar\{Float_, Int_, String_};
+use PhpParser\Node\Stmt\Return_;
+use PhpParser\{Node, NodeFinder, ParserFactory};
 use RuntimeException;
 use Throwable;
 
 use function array_key_exists;
 use function dirname;
 use function is_array;
+use function is_float;
+use function is_int;
 use function is_string;
 use function sprintf;
+use function strtolower;
 
 /**
  * PhpParser.
@@ -30,7 +37,7 @@ use function sprintf;
  */
 class PhpParser extends AbstractParser implements ParserInterface
 {
-    /** @var array<string, mixed> */
+    /** @var array<int|string, mixed> */
     private array $translations = [];
 
     public function __construct(string $filePath)
@@ -124,23 +131,98 @@ class PhpParser extends AbstractParser implements ParserInterface
 
     private function loadTranslations(): void
     {
-        // Temporarily disable error reporting to prevent issues with include
-        $errorReporting = error_reporting(0);
+        $source = file_get_contents($this->filePath);
+        // @codeCoverageIgnoreStart
+        if (false === $source) {
+            throw new RuntimeException('Failed to read PHP translation file');
+        }
+        // @codeCoverageIgnoreEnd
 
-        try {
-            // Use output buffering to catch any output from the included file
-            ob_start();
-            $result = include $this->filePath;
-            ob_end_clean();
+        // Parse the file into an AST instead of executing it via include.
+        // This prevents arbitrary code execution when validating untrusted
+        // translation files (e.g. from third-party packages or pull requests).
+        $ast = (new ParserFactory())->createForHostVersion()->parse($source);
+        // @codeCoverageIgnoreStart
+        if (null === $ast) {
+            throw new RuntimeException('PHP translation file could not be parsed');
+        }
+        // @codeCoverageIgnoreEnd
 
-            if (!is_array($result)) {
-                throw new RuntimeException('PHP translation file must return an array');
+        $return = (new NodeFinder())->findFirstInstanceOf($ast, Return_::class);
+        if (!$return instanceof Return_ || !$return->expr instanceof Array_) {
+            throw new RuntimeException('PHP translation file must return an array');
+        }
+
+        $this->translations = $this->evaluateArray($return->expr);
+    }
+
+    /**
+     * Safely evaluates an array literal node into a PHP array.
+     *
+     * Only scalar literals (string, int, float, bool, null) and nested arrays
+     * are supported. Any other expression (function calls, variables, constants)
+     * is rejected to guarantee no code is executed.
+     *
+     * @return array<int|string, mixed>
+     */
+    private function evaluateArray(Array_ $array): array
+    {
+        $result = [];
+        foreach ($array->items as $item) {
+            if (null === $item->key) {
+                throw new RuntimeException('PHP translation file must use string or integer keys');
             }
 
-            $this->translations = $result;
-        } finally {
-            // Restore error reporting
-            error_reporting($errorReporting);
+            $key = $this->evaluateScalar($item->key);
+            if (!is_string($key) && !is_int($key)) {
+                throw new RuntimeException('PHP translation file must use string or integer keys');
+            }
+
+            $result[$key] = $item->value instanceof Array_
+                ? $this->evaluateArray($item->value)
+                : $this->evaluateScalar($item->value);
         }
+
+        return $result;
+    }
+
+    private function evaluateScalar(Node $node): string|int|float|bool|null
+    {
+        if ($node instanceof String_) {
+            return $node->value;
+        }
+
+        if ($node instanceof Int_) {
+            return $node->value;
+        }
+
+        if ($node instanceof Float_) {
+            return $node->value;
+        }
+
+        if ($node instanceof UnaryMinus) {
+            $operand = $this->evaluateScalar($node->expr);
+            if (is_int($operand) || is_float($operand)) {
+                return -$operand;
+            }
+            throw new RuntimeException('PHP translation file contains an unsupported expression');
+        }
+
+        if ($node instanceof ConstFetch) {
+            $name = strtolower($node->name->toString());
+            if ('true' === $name) {
+                return true;
+            }
+            if ('false' === $name) {
+                return false;
+            }
+            if ('null' === $name) {
+                return null;
+            }
+
+            throw new RuntimeException('PHP translation file contains an unsupported constant');
+        }
+
+        throw new RuntimeException('PHP translation file contains an unsupported expression');
     }
 }
