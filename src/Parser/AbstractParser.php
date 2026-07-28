@@ -30,6 +30,8 @@ abstract class AbstractParser
 {
     protected readonly string $fileName;
 
+    protected ?string $rawContent = null;
+
     public function __construct(protected readonly string $filePath)
     {
         if (!file_exists($filePath)) {
@@ -64,6 +66,24 @@ abstract class AbstractParser
     public function getFilePath(): string
     {
         return $this->filePath;
+    }
+
+    /**
+     * Returns the raw file content, reading it at most once.
+     *
+     * Parsers that already read the file while parsing populate this, so
+     * consumers (e.g. the encoding validator) can reuse it instead of reading
+     * the file from disk again. Returns null if the file cannot be read.
+     */
+    public function getRawContent(): ?string
+    {
+        if (null !== $this->rawContent) {
+            return $this->rawContent;
+        }
+
+        $content = file_get_contents($this->filePath);
+
+        return false === $content ? null : ($this->rawContent = $content);
     }
 
     /**

@@ -363,6 +363,38 @@ final class PlaceholderConsistencyValidatorTest extends TestCase
         $this->assertStringContainsString('Hallo %username%!', $outputContent);
     }
 
+    public function testRenderDetailedOutputReusesCachedPlaceholders(): void
+    {
+        $logger = $this->createStub(LoggerInterface::class);
+        $validator = new PlaceholderConsistencyValidator($logger);
+
+        // Both files carry the identical value, so highlighting the second cell
+        // reuses the memoized placeholder extraction of the first.
+        $issue = new Issue(
+            'test.xlf',
+            [
+                'key' => 'shared.key',
+                'files' => [
+                    'en.xlf' => ['value' => 'Hello %name%!', 'placeholders' => ['%name%']],
+                    'de.xlf' => ['value' => 'Hello %name%!', 'placeholders' => ['%name%']],
+                ],
+                'inconsistencies' => ['dummy'],
+            ],
+            'XliffParser',
+            'PlaceholderConsistencyValidator',
+        );
+
+        $output = new BufferedOutput();
+        $validator->renderDetailedOutput($output, [$issue]);
+
+        $this->assertStringContainsString('Hello %name%!', $output->fetch());
+
+        $reflection = new ReflectionClass($validator);
+        $cache = $reflection->getProperty('placeholderCache')->getValue($validator);
+        $this->assertArrayHasKey('Hello %name%!', $cache);
+        $this->assertSame(['%name%'], $cache['Hello %name%!']);
+    }
+
     public function testResetState(): void
     {
         $logger = $this->createStub(LoggerInterface::class);

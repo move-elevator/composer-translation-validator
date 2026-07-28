@@ -444,7 +444,7 @@ final class ValidationResultJsonRendererTest extends TestCase
         $validator->method('getShortName')->willReturn('MockValidator');
         $validator->method('supportsParser')->willReturn(['TestParser']);
         $validator->method('processFile')->willReturn([]);
-        $validator->method('validate')->willReturn([]);
+        $validator->method('validate')->willReturn(true);
         $validator->method('addIssue');
 
         return $validator;

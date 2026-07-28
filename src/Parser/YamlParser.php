@@ -33,6 +33,9 @@ class YamlParser extends AbstractParser implements ParserInterface
     /** @var array<string, mixed> */
     private array $yaml = [];
 
+    /** @var array<int, string>|null Memoized result of extractKeys(). */
+    private ?array $extractedKeys = null;
+
     public function __construct(string $filePath)
     {
         parent::__construct($filePath);
@@ -49,6 +52,10 @@ class YamlParser extends AbstractParser implements ParserInterface
      */
     public function extractKeys(): ?array
     {
+        if (null !== $this->extractedKeys) {
+            return $this->extractedKeys;
+        }
+
         $extract = static function (
             array $data,
             string $prefix = '',
@@ -71,7 +78,7 @@ class YamlParser extends AbstractParser implements ParserInterface
             return $keys;
         };
 
-        return $extract($this->yaml);
+        return $this->extractedKeys = $extract($this->yaml);
     }
 
     public function getContentByKey(string $key): ?string

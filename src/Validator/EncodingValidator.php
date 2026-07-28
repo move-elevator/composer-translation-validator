@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Validator;
 
-use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
+use MoveElevator\ComposerTranslationValidator\Parser\{AbstractParser, JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use Normalizer;
 
@@ -44,10 +44,17 @@ class EncodingValidator extends AbstractValidator implements ValidatorInterface
             return [];
         }
 
-        // Read raw file content
-        $content = file_get_contents($filePath);
+        // Reuse the content already read by the parser when possible, otherwise
+        // read it from disk.
+        if ($file instanceof AbstractParser) {
+            $content = $file->getRawContent();
+        } else {
+            $raw = file_get_contents($filePath);
+            $content = false === $raw ? null : $raw;
+        }
+
         // @codeCoverageIgnoreStart
-        if (false === $content) {
+        if (null === $content) {
             $this->logger?->error(
                 'Could not read file content: '.$file->getFileName(),
             );
