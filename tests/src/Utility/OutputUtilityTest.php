@@ -100,4 +100,9 @@ final class OutputUtilityTest extends TestCase
 
         $this->assertSame($input, OutputUtility::stripControlCharacters($input));
     }
+
+    public function testStripControlCharactersRemovesCarriageReturn(): void
+    {
+        $this->assertSame('safeDANGER', OutputUtility::stripControlCharacters("safe\rDANGER"));
+    }
 }

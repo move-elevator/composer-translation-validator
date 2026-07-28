@@ -49,6 +49,6 @@ class OutputUtility
      */
     public static function stripControlCharacters(string $value): string
     {
-        return preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $value) ?? $value;
+        return preg_replace('/[\x00-\x08\x0B-\x1F\x7F]/', '', $value) ?? $value;
     }
 }
