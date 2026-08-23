@@ -3075,16 +3075,16 @@
         },
         {
             "name": "konradmichalik/php-doc-block-header-fixer",
-            "version": "0.3.4",
+            "version": "0.3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/konradmichalik/php-doc-block-header-fixer.git",
-                "reference": "d45425c0f53b3e9c53b274e6a6f39809703d8585"
+                "reference": "111aa54c491b5b399d0c04c96f038b847b5be771"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/konradmichalik/php-doc-block-header-fixer/zipball/d45425c0f53b3e9c53b274e6a6f39809703d8585",
-                "reference": "d45425c0f53b3e9c53b274e6a6f39809703d8585",
+                "url": "https://api.github.com/repos/konradmichalik/php-doc-block-header-fixer/zipball/111aa54c491b5b399d0c04c96f038b847b5be771",
+                "reference": "111aa54c491b5b399d0c04c96f038b847b5be771",
                 "shasum": ""
             },
             "require": {
@@ -3131,9 +3131,9 @@
             ],
             "support": {
                 "issues": "https://github.com/konradmichalik/php-doc-block-header-fixer/issues",
-                "source": "https://github.com/konradmichalik/php-doc-block-header-fixer/tree/0.3.4"
+                "source": "https://github.com/konradmichalik/php-doc-block-header-fixer/tree/0.3.5"
             },
-            "time": "2026-07-04T10:45:22+00:00"
+            "time": "2026-08-21T08:38:26+00:00"
         },
         {
             "name": "localheinz/diff",
