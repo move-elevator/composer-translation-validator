@@ -12,6 +12,7 @@ declare(strict_types=1);
  */
 
 use Rector\Config\RectorConfig;
+use Rector\Renaming\Rector\MethodCall\RenameMethodRector;
 use Rector\Set\ValueObject\LevelSetList;
 use Rector\TypeDeclaration\Rector\ClassMethod\AddVoidReturnTypeWhereNoReturnRector;
 use Rector\ValueObject\PhpVersion;
@@ -28,5 +29,12 @@ return RectorConfig::configure()
     ->withComposerBased(symfony: true)
     ->withRules([
         AddVoidReturnTypeWhereNoReturnRector::class,
+    ])
+    ->withSkip([
+        // Application::add() is called intentionally as a runtime fallback for Symfony Console < 8,
+        // see ValidateTranslationCommandTest::addCommandToApplication().
+        RenameMethodRector::class => [
+            __DIR__.'/tests/src/Command/ValidateTranslationCommandTest.php',
+        ],
     ])
 ;
