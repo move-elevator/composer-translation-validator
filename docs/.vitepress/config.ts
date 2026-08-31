@@ -6,11 +6,11 @@ export default defineConfig({
   base: '/composer-translation-validator/',
 
   head: [
-    ['link', { rel: 'icon', href: '/composer-translation-validator/logo.svg' }]
+    ['link', { rel: 'icon', href: '/composer-translation-validator/logo.png' }]
   ],
 
   themeConfig: {
-    logo: '/logo.svg',
+    logo: '/logo.png',
 
     nav: [
       { text: 'Guide', link: '/getting-started/' },

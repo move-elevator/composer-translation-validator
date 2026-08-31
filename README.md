@@ -1,5 +1,7 @@
 <div align="center">
 
+![icon](icon.png)
+
 # Composer Translation Validator
 
 [![Coverage](https://img.shields.io/coverallsCoverage/github/move-elevator/composer-translation-validator?logo=coveralls)](https://coveralls.io/github/move-elevator/composer-translation-validator)

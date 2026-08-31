@@ -6,7 +6,7 @@ hero:
   text: Validate your translation files
   tagline: A Composer plugin that validates XLIFF, YAML, JSON and PHP translation files for mismatches, duplicates, schema issues and more.
   image:
-    src: /logo.svg
+    src: /logo.png
     alt: Composer Translation Validator
   actions:
     - theme: brand
