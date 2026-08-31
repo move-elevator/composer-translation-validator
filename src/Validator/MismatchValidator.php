@@ -150,9 +150,7 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
                 $fileName = basename($fileInfo['file'] ?? '');
                 $value = $fileInfo['value'];
 
-                if (!isset($allFilesData[$key])) {
-                    $allFilesData[$key] = [];
-                }
+                $allFilesData[$key] ??= [];
                 $allFilesData[$key][$fileName] = $value;
             }
         }

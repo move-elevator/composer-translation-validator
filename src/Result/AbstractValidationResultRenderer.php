@@ -83,18 +83,14 @@ abstract class AbstractValidationResultRenderer implements ValidationResultRende
             foreach ($distributedIssues as $filePath => $issues) {
                 $normalizedPath = $this->normalizePath($filePath);
 
-                if (!isset($groupedByFile[$normalizedPath])) {
-                    $groupedByFile[$normalizedPath] = [];
-                }
+                $groupedByFile[$normalizedPath] ??= [];
 
                 $validatorName = $validator->getShortName();
-                if (!isset($groupedByFile[$normalizedPath][$validatorName])) {
-                    $groupedByFile[$normalizedPath][$validatorName] = [
-                        'validator' => $validator,
-                        'type' => $validator->resultTypeOnValidationFailure()->toString(),
-                        'issues' => [],
-                    ];
-                }
+                $groupedByFile[$normalizedPath][$validatorName] ??= [
+                    'validator' => $validator,
+                    'type' => $validator->resultTypeOnValidationFailure()->toString(),
+                    'issues' => [],
+                ];
 
                 foreach ($issues as $issue) {
                     $groupedByFile[$normalizedPath][$validatorName]['issues'][] = $issue;

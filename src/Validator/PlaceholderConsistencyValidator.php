@@ -132,9 +132,7 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
             foreach ($files as $filePath => $fileInfo) {
                 $fileName = basename((string) $filePath);
                 $value = $fileInfo['value'] ?? '';
-                if (!isset($allFilesData[$key])) {
-                    $allFilesData[$key] = [];
-                }
+                $allFilesData[$key] ??= [];
                 $allFilesData[$key][$fileName] = $value;
             }
         }
