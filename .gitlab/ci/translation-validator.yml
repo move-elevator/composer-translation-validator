@@ -1,0 +1,23 @@
+.translation-validator:
+  stage: test
+  image: php:8.4-cli
+  variables:
+    TRANSLATION_VALIDATOR_VERSION: "latest"
+    TRANSLATION_VALIDATOR_ARGS: "."
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq --no-install-recommends curl ca-certificates > /dev/null
+  script:
+    - |
+      if [ "$TRANSLATION_VALIDATOR_VERSION" = "latest" ]; then
+        base_url="https://github.com/move-elevator/composer-translation-validator/releases/latest/download"
+      else
+        base_url="https://github.com/move-elevator/composer-translation-validator/releases/download/${TRANSLATION_VALIDATOR_VERSION}"
+      fi
+      curl -fsSL -o composer-translation-validator.phar "${base_url}/composer-translation-validator.phar"
+      curl -fsSL -o composer-translation-validator.phar.sha256 "${base_url}/composer-translation-validator.phar.sha256"
+      sha256sum -c composer-translation-validator.phar.sha256
+      chmod +x composer-translation-validator.phar
+      ./composer-translation-validator.phar $TRANSLATION_VALIDATOR_ARGS
+
+validate-translations:
+  extends: .translation-validator

@@ -1,0 +1,42 @@
+name: Action
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'action.yml'
+      - '.github/workflows/action.yml'
+  pull_request:
+    branches:
+      - '**'
+    paths:
+      - 'action.yml'
+      - '.github/workflows/action.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test composite action
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Run against valid fixtures (expect success)
+        uses: ./
+        with:
+          args: tests/src/Fixtures/translations/xliff/success
+
+      - name: Run against invalid fixtures (expect failure)
+        id: invalid
+        continue-on-error: true
+        uses: ./
+        with:
+          args: tests/src/Fixtures/translations/xliff/fail
+
+      - name: Assert invalid fixtures failed
+        if: steps.invalid.outcome != 'failure'
+        run: |
+          echo "Expected the action to fail for invalid fixtures, but it did not" >&2
+          exit 1
