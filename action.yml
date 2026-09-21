@@ -24,11 +24,13 @@ runs:
   steps:
     - name: Download PHAR
       shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
       run: |
-        if [ "${{ inputs.version }}" = "latest" ]; then
+        if [ "$VERSION" = "latest" ]; then
           base_url="https://github.com/move-elevator/composer-translation-validator/releases/latest/download"
         else
-          base_url="https://github.com/move-elevator/composer-translation-validator/releases/download/${{ inputs.version }}"
+          base_url="https://github.com/move-elevator/composer-translation-validator/releases/download/${VERSION}"
         fi
         curl -fsSL -o "${{ runner.temp }}/composer-translation-validator.phar" "${base_url}/composer-translation-validator.phar"
         curl -fsSL -o "${{ runner.temp }}/composer-translation-validator.phar.sha256" "${base_url}/composer-translation-validator.phar.sha256"
@@ -41,6 +43,8 @@ runs:
     - name: Run validator
       shell: bash
       working-directory: ${{ inputs.working-directory }}
+      env:
+        ARGS: ${{ inputs.args }}
       run: |
         chmod +x "${{ runner.temp }}/composer-translation-validator.phar"
-        php "${{ runner.temp }}/composer-translation-validator.phar" ${{ inputs.args }}
+        php "${{ runner.temp }}/composer-translation-validator.phar" $ARGS
