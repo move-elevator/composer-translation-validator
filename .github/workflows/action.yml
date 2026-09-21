@@ -23,6 +23,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: libxml, mbstring, simplexml, dom, intl
+
       - name: Run against valid fixtures (expect success)
         uses: ./
         with:

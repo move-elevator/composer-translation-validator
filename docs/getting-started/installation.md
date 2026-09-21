@@ -48,6 +48,11 @@ The PHAR accepts the same arguments and options as the `validate-translations` c
 For GitHub Actions, use the bundled composite action instead of downloading the PHAR manually:
 
 ```yaml
+- name: Setup PHP
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '8.4'
+
 - name: Validate translations
   uses: move-elevator/composer-translation-validator@1.6.0
   with:
@@ -62,7 +67,7 @@ Inputs:
 | `args`               | Arguments passed to the PHAR, e.g. paths and options.                   | `.`      |
 | `working-directory`  | Directory the PHAR is executed in.                                     | `.`      |
 
-The action downloads the PHAR for the pinned (or latest) release, verifies its checksum, and runs it. PHP must already be available on the runner, which is the case on GitHub-hosted runners; otherwise set it up beforehand with [`shivammathur/setup-php`](https://github.com/shivammathur/setup-php).
+The action downloads the PHAR for the pinned (or latest) release, verifies its checksum, and runs it. It does not set up PHP itself, and the default PHP version on GitHub-hosted runners can be older than what the PHAR requires (see [Requirements](#requirements)), so set up a matching PHP version beforehand with [`shivammathur/setup-php`](https://github.com/shivammathur/setup-php) as shown above.
 
 ## GitLab CI Template
 
