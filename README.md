@@ -34,7 +34,7 @@ Supports XLIFF, YAML, JSON and PHP translation files.
 composer require --dev move-elevator/composer-translation-validator
 ```
 
-Alternatively, a dependency-free [standalone PHAR](https://move-elevator.github.io/composer-translation-validator/getting-started/installation#standalone-phar) is available for CI or non-Composer projects.
+Alternatively, a dependency-free [standalone PHAR](https://move-elevator.github.io/composer-translation-validator/getting-started/installation#standalone-phar) is available for CI or non-Composer projects, with a ready-made [GitHub Action](https://move-elevator.github.io/composer-translation-validator/getting-started/installation#github-action) and [GitLab CI template](https://move-elevator.github.io/composer-translation-validator/getting-started/installation#gitlab-ci-template).
 
 ## 📊 Usage
 

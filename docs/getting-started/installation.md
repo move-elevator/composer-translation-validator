@@ -43,6 +43,48 @@ Run it directly against your translation folders:
 
 The PHAR accepts the same arguments and options as the `validate-translations` command.
 
+## GitHub Action
+
+For GitHub Actions, use the bundled composite action instead of downloading the PHAR manually:
+
+```yaml
+- name: Setup PHP
+  uses: shivammathur/setup-php@v2
+  with:
+    php-version: '8.4'
+
+- name: Validate translations
+  uses: move-elevator/composer-translation-validator@1.6.0
+  with:
+    args: ./translations --recursive
+```
+
+Inputs:
+
+| Input                | Description                                                          | Default  |
+|----------------------|------------------------------------------------------------------------|----------|
+| `version`            | Release tag to use (e.g. `1.6.0`). Defaults to the latest release.      | `latest` |
+| `args`               | Arguments passed to the PHAR, e.g. paths and options.                   | `.`      |
+| `working-directory`  | Directory the PHAR is executed in.                                     | `.`      |
+
+The action downloads the PHAR for the pinned (or latest) release, verifies its checksum, and runs it. It does not set up PHP itself, and the default PHP version on GitHub-hosted runners can be older than what the PHAR requires (see [Requirements](#requirements)), so set up a matching PHP version beforehand with [`shivammathur/setup-php`](https://github.com/shivammathur/setup-php) as shown above.
+
+## GitLab CI Template
+
+For GitLab CI, include the hosted template and extend its job:
+
+```yaml
+include:
+  - remote: 'https://raw.githubusercontent.com/move-elevator/composer-translation-validator/main/.gitlab/ci/translation-validator.yml'
+
+validate-translations:
+  extends: .translation-validator
+  variables:
+    TRANSLATION_VALIDATOR_ARGS: "./translations --recursive"
+```
+
+The `TRANSLATION_VALIDATOR_VERSION` variable pins a release tag (defaults to `latest`), the same way the GitHub Action's `version` input does.
+
 ## Verify Installation
 
 Check that the command is available:
