@@ -31,7 +31,7 @@
 		"composer/composer": "^2.0",
 		"ergebnis/composer-normalize": "^2.44",
 		"konradmichalik/php-cs-fixer-preset": "^0.3.0",
-		"konradmichalik/php-doc-block-header-fixer": "^0.3.0",
+		"konradmichalik/php-doc-block-header-fixer": "^0.4.0",
 		"phpstan/phpstan": "^2.0",
 		"phpstan/phpstan-phpunit": "^2.0",
 		"phpstan/phpstan-symfony": "^2.0",
