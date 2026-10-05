@@ -17,6 +17,7 @@
       curl -fsSL -o composer-translation-validator.phar.sha256 "${base_url}/composer-translation-validator.phar.sha256"
       sha256sum -c composer-translation-validator.phar.sha256
       chmod +x composer-translation-validator.phar
+      set -f
       ./composer-translation-validator.phar $TRANSLATION_VALIDATOR_ARGS
 
 validate-translations:

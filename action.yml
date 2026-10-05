@@ -11,7 +11,7 @@ inputs:
     required: false
     default: 'latest'
   args:
-    description: 'Arguments passed to the PHAR, e.g. paths and options.'
+    description: 'Whitespace-separated arguments passed to the PHAR, e.g. paths and options.'
     required: false
     default: '.'
   working-directory:
@@ -32,8 +32,8 @@ runs:
         else
           base_url="https://github.com/move-elevator/composer-translation-validator/releases/download/${VERSION}"
         fi
-        curl -fsSL -o "${{ runner.temp }}/composer-translation-validator.phar" "${base_url}/composer-translation-validator.phar"
-        curl -fsSL -o "${{ runner.temp }}/composer-translation-validator.phar.sha256" "${base_url}/composer-translation-validator.phar.sha256"
+        curl -fsSL -o "$RUNNER_TEMP/composer-translation-validator.phar" "${base_url}/composer-translation-validator.phar"
+        curl -fsSL -o "$RUNNER_TEMP/composer-translation-validator.phar.sha256" "${base_url}/composer-translation-validator.phar.sha256"
 
     - name: Verify checksum
       shell: bash
@@ -46,5 +46,6 @@ runs:
       env:
         ARGS: ${{ inputs.args }}
       run: |
-        chmod +x "${{ runner.temp }}/composer-translation-validator.phar"
-        php "${{ runner.temp }}/composer-translation-validator.phar" $ARGS
+        set -f
+        chmod +x "$RUNNER_TEMP/composer-translation-validator.phar"
+        php "$RUNNER_TEMP/composer-translation-validator.phar" $ARGS
