@@ -23,6 +23,7 @@ use ReflectionException;
 use SplFileInfo;
 use Symfony\Component\Filesystem\Filesystem;
 
+use function count;
 use function dirname;
 use function filesize;
 use function in_array;
@@ -116,6 +117,17 @@ class Collector
                         $allFiles[$parserClass][$directory] = $translationSet;
                     }
                 } else {
+                    // Language directories (en/, de/) hold one file each, so they have to be
+                    // paired before the files are split by directory
+                    $claimed = [];
+                    foreach ($this->mapDirectoryLayouts($files) as $parent => $translationSet) {
+                        $allFiles[$parserClass][$path.'/'.$parent] = $translationSet;
+                        foreach ($translationSet as $setFiles) {
+                            array_push($claimed, ...$setFiles);
+                        }
+                    }
+                    $files = array_diff($files, $claimed);
+
                     // Group files by directory to prevent cross-directory FileSets
                     $filesByDirectory = $this->groupFilesByDirectory($files);
 
@@ -125,7 +137,10 @@ class Collector
                             if (!empty($translationSet)) {
                                 // Use directory-specific path key to separate FileSets
                                 $pathKey = $path.'/'.$directory;
-                                $allFiles[$parserClass][$pathKey] = $translationSet;
+                                $allFiles[$parserClass][$pathKey] = array_merge_recursive(
+                                    $allFiles[$parserClass][$pathKey] ?? [],
+                                    $translationSet,
+                                );
                                 break; // Found a detector for this directory, move to next directory
                             }
                         }
@@ -349,6 +364,36 @@ class Collector
         }
 
         return substr_count($normalized, '/') <= 20;
+    }
+
+    /**
+     * Pairs files of language directories per parent directory of those directories.
+     *
+     * @param array<string> $files
+     *
+     * @return array<string, array<string, array<string>>> translation sets keyed by parent directory
+     */
+    private function mapDirectoryLayouts(array $files): array
+    {
+        $filesByParent = [];
+        foreach ($files as $file) {
+            $filesByParent[dirname($file, 2)][] = $file;
+        }
+
+        $detector = new DirectoryFileDetector();
+        $layouts = [];
+        foreach ($filesByParent as $parent => $parentFiles) {
+            // A set with a single file is no layout, `ui/en.json` and `ui/de.json` are prefix-named files
+            $translationSet = array_filter(
+                $detector->mapTranslationSet($parentFiles),
+                static fn (array $setFiles): bool => count($setFiles) > 1,
+            );
+            if ([] !== $translationSet) {
+                $layouts[$parent] = $translationSet;
+            }
+        }
+
+        return $layouts;
     }
 
     /**
