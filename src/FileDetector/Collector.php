@@ -26,6 +26,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use function dirname;
 use function filesize;
 use function in_array;
+use function is_array;
 use function sprintf;
 
 /**
@@ -46,8 +47,9 @@ class Collector
     public function __construct(protected ?LoggerInterface $logger = null) {}
 
     /**
-     * @param string[]      $paths
-     * @param string[]|null $excludePatterns
+     * @param string[]                                   $paths
+     * @param DetectorInterface|DetectorInterface[]|null $detector        one detector or a list applied in order, later ones only see files the earlier ones did not pair
+     * @param string[]|null                              $excludePatterns
      *
      * @return array<class-string, array<string, array<mixed>>>
      *
@@ -55,10 +57,16 @@ class Collector
      */
     public function collectFiles(
         array $paths,
-        ?DetectorInterface $detector = null,
+        DetectorInterface|array|null $detector = null,
         ?array $excludePatterns = null,
         bool $recursive = false,
     ): array {
+        $detectors = match (true) {
+            null === $detector => [],
+            is_array($detector) => $detector,
+            default => [$detector],
+        };
+
         $allFiles = [];
         foreach ($paths as $path) {
             if (!(new Filesystem())->exists($path)) {
@@ -89,17 +97,21 @@ class Collector
                     continue;
                 }
 
-                if (null !== $detector) {
-                    // DirectoryFileDetector pairs files across sibling language directories
-                    $filesByDirectory = $detector instanceof DirectoryFileDetector
-                        ? [$path => $files]
-                        : $this->groupFilesByDirectory($files);
-
-                    foreach ($filesByDirectory as $directory => $directoryFiles) {
-                        $translationSet = $detector->mapTranslationSet($directoryFiles);
-                        if (!empty($translationSet)) {
-                            $allFiles[$parserClass][$directory] = $translationSet;
+                if ([] !== $detectors) {
+                    // Each detector only sees the files the previous ones did not claim
+                    $unclaimed = $files;
+                    $pathSets = [];
+                    foreach ($detectors as $configuredDetector) {
+                        foreach ($this->mapWithDetector($configuredDetector, $path, $unclaimed) as $directory => $translationSet) {
+                            $pathSets[$directory] = array_merge_recursive($pathSets[$directory] ?? [], $translationSet);
+                            foreach ($translationSet as $setFiles) {
+                                $unclaimed = array_diff($unclaimed, (array) $setFiles);
+                            }
                         }
+                    }
+
+                    foreach ($pathSets as $directory => $translationSet) {
+                        $allFiles[$parserClass][$directory] = $translationSet;
                     }
                 } else {
                     // Group files by directory to prevent cross-directory FileSets
@@ -319,6 +331,29 @@ class Collector
         }
 
         return substr_count($normalized, '/') <= 20;
+    }
+
+    /**
+     * @param array<string> $files
+     *
+     * @return array<string, array<mixed>> non-empty translation sets keyed by directory
+     */
+    private function mapWithDetector(DetectorInterface $detector, string $path, array $files): array
+    {
+        // DirectoryFileDetector pairs files across sibling language directories
+        $filesByDirectory = $detector instanceof DirectoryFileDetector
+            ? [$path => $files]
+            : $this->groupFilesByDirectory($files);
+
+        $translationSets = [];
+        foreach ($filesByDirectory as $directory => $directoryFiles) {
+            $translationSet = $detector->mapTranslationSet($directoryFiles);
+            if (!empty($translationSet)) {
+                $translationSets[$directory] = $translationSet;
+            }
+        }
+
+        return $translationSets;
     }
 
     /**

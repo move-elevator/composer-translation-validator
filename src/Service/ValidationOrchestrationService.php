@@ -36,6 +36,7 @@ class ValidationOrchestrationService
     /**
      * @param array<string>                                $paths
      * @param array<string>                                $excludePatterns
+     * @param DetectorInterface|DetectorInterface[]|null   $fileDetector    one detector or a list tried in order
      * @param array<int, class-string<ValidatorInterface>> $validators
      *
      * @throws ReflectionException
@@ -44,7 +45,7 @@ class ValidationOrchestrationService
         array $paths,
         array $excludePatterns,
         bool $recursive,
-        ?DetectorInterface $fileDetector,
+        DetectorInterface|array|null $fileDetector,
         array $validators,
         TranslationValidatorConfig $config,
     ): ?ValidationResult {
@@ -68,19 +69,27 @@ class ValidationOrchestrationService
         return (new ValidationRun($this->logger))->executeFor($fileSets, $validators, $config);
     }
 
-    public function resolveFileDetector(TranslationValidatorConfig $config): ?DetectorInterface
+    /**
+     * @return DetectorInterface[] in the configured order, invalid classes are skipped
+     */
+    public function resolveFileDetectors(TranslationValidatorConfig $config): array
     {
-        $configFileDetectors = $config->getFileDetectors();
-        $fileDetectorClass = !empty($configFileDetectors) ? $configFileDetectors[0] : null;
+        $detectors = [];
 
-        $detector = ClassUtility::instantiate(
-            DetectorInterface::class,
-            $this->logger,
-            'file detector',
-            $fileDetectorClass,
-        );
+        foreach ($config->getFileDetectors() as $fileDetectorClass) {
+            $detector = ClassUtility::instantiate(
+                DetectorInterface::class,
+                $this->logger,
+                'file detector',
+                $fileDetectorClass,
+            );
 
-        return $detector instanceof DetectorInterface ? $detector : null;
+            if ($detector instanceof DetectorInterface) {
+                $detectors[] = $detector;
+            }
+        }
+
+        return $detectors;
     }
 
     /**
