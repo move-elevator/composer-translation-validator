@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-11-25
+
 - fix[!!!]: pair `messages.<locale>.*` style files and language directories (`en/`, `de/`) in auto-detection, so they are compared and report missing keys instead of ending in one-file sets
 - fix[!!!]: reject `format: yaml` and `format: php` when the configuration is validated, only `cli`, `json` and `github` exist
 - feat: warn about file sets that contain only one file, cross-file validators cannot check them
