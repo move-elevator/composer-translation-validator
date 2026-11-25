@@ -16,12 +16,15 @@ namespace MoveElevator\ComposerTranslationValidator\Result;
 use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Parser\ParserCache;
+use MoveElevator\ComposerTranslationValidator\Utility\PathUtility;
 use MoveElevator\ComposerTranslationValidator\Validator\{ResultType, ValidatorInterface};
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Throwable;
 
 use function count;
 use function is_array;
+use function sprintf;
 
 /**
  * ValidationRun.
@@ -52,6 +55,7 @@ class ValidationRun
 
         foreach ($fileSets as $fileSet) {
             $filesChecked += count($fileSet->getFiles());
+            $this->warnAboutSingleFileSet($fileSet);
             foreach ($validatorClasses as $validatorClass) {
                 // Create a new validator instance for each FileSet to ensure isolation
                 $validatorInstance = new $validatorClass($this->logger);
@@ -117,6 +121,19 @@ class ValidationRun
         }
 
         return $fileSets;
+    }
+
+    private function warnAboutSingleFileSet(FileSet $fileSet): void
+    {
+        $files = $fileSet->getFiles();
+        if (1 !== count($files)) {
+            return;
+        }
+
+        $this->logger->warning(sprintf(
+            '%s has no counterpart in other languages, cross-file checks were skipped.',
+            OutputFormatter::escape(PathUtility::normalizeFolderPath((string) reset($files))),
+        ));
     }
 
     private function countKeysChecked(FileSet $fileSet): int
