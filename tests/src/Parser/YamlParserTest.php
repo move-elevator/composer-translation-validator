@@ -99,7 +99,7 @@ EOT
 
         $parser = new YamlParser($file);
 
-        $this->assertSame([], $parser->extractKeys());
+        self::assertSame([], $parser->extractKeys());
     }
 
     public function testConstructorThrowsExceptionIfYamlIsNotAMapping(): void
@@ -116,11 +116,11 @@ EOT
     {
         $parser = new YamlParser($this->validYamlFile);
         $keys = $parser->extractKeys();
-        $this->assertSame(['key1', 'key2'], $keys);
+        self::assertSame(['key1', 'key2'], $keys);
 
         $nestedParser = new YamlParser($this->nestedYamlFile);
         $nestedKeys = $nestedParser->extractKeys();
-        $this->assertSame(['parent.child1', 'parent.child2'], $nestedKeys);
+        self::assertSame(['parent.child1', 'parent.child2'], $nestedKeys);
     }
 
     public function testExtractKeysIsMemoized(): void
@@ -130,34 +130,34 @@ EOT
         $first = $parser->extractKeys();
         $second = $parser->extractKeys();
 
-        $this->assertSame(['key1', 'key2'], $first);
-        $this->assertSame($first, $second);
+        self::assertSame(['key1', 'key2'], $first);
+        self::assertSame($first, $second);
     }
 
     public function testGetContentByKey(): void
     {
         $parser = new YamlParser($this->validYamlFile);
-        $this->assertSame('value1', $parser->getContentByKey('key1'));
-        $this->assertNull($parser->getContentByKey('nonexistent_key'));
+        self::assertSame('value1', $parser->getContentByKey('key1'));
+        self::assertNull($parser->getContentByKey('nonexistent_key'));
 
         $nestedParser = new YamlParser($this->nestedYamlFile);
-        $this->assertSame('value1', $nestedParser->getContentByKey('parent.child1'));
-        $this->assertNull($nestedParser->getContentByKey('parent.nonexistent'));
+        self::assertSame('value1', $nestedParser->getContentByKey('parent.child1'));
+        self::assertNull($nestedParser->getContentByKey('parent.nonexistent'));
     }
 
     public function testGetSupportedFileExtensions(): void
     {
         $extensions = YamlParser::getSupportedFileExtensions();
-        $this->assertSame(['yaml', 'yml'], $extensions);
+        self::assertSame(['yaml', 'yml'], $extensions);
     }
 
     public function testGetLanguage(): void
     {
         $parser = new YamlParser($this->languageYamlFile);
-        $this->assertSame('de', $parser->getLanguage());
+        self::assertSame('de', $parser->getLanguage());
 
         $parser = new YamlParser($this->validYamlFile);
-        $this->assertSame('', $parser->getLanguage());
+        self::assertSame('', $parser->getLanguage());
     }
 
     private function removeDirectory(string $path): void

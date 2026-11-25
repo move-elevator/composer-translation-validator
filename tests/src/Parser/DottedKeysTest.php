@@ -49,11 +49,11 @@ final class DottedKeysTest extends TestCase
             file_put_contents($file, $content);
             $parser = new $parserClass($file);
 
-            $this->assertSame('Hello', $parser->getContentByKey('app.title'));
-            $this->assertSame('Nested', $parser->getContentByKey('app.nested'));
-            $this->assertSame('Deep', $parser->getContentByKey('app.deep.key'));
-            $this->assertNull($parser->getContentByKey('app'));
-            $this->assertSame(['app.title', 'app.nested', 'app.deep.key'], $parser->extractKeys());
+            self::assertSame('Hello', $parser->getContentByKey('app.title'));
+            self::assertSame('Nested', $parser->getContentByKey('app.nested'));
+            self::assertSame('Deep', $parser->getContentByKey('app.deep.key'));
+            self::assertNull($parser->getContentByKey('app'));
+            self::assertSame(['app.title', 'app.nested', 'app.deep.key'], $parser->extractKeys());
         } finally {
             @unlink($file);
             rmdir($directory);
@@ -70,8 +70,8 @@ final class DottedKeysTest extends TestCase
             file_put_contents($file, "app.title: Flat\napp:\n  title: Nested\n");
             $parser = new YamlParser($file);
 
-            $this->assertSame(['app.title', 'app.title'], $parser->extractKeys());
-            $this->assertSame('Nested', $parser->getContentByKey('app.title'));
+            self::assertSame(['app.title', 'app.title'], $parser->extractKeys());
+            self::assertSame('Nested', $parser->getContentByKey('app.title'));
         } finally {
             @unlink($file);
             rmdir($directory);

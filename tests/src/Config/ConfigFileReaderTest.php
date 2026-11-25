@@ -62,7 +62,7 @@ final class ConfigFileReaderTest extends TestCase
 
         $result = $this->reader->readFile($configPath);
 
-        $this->assertSame($configData, $result);
+        self::assertSame($configData, $result);
     }
 
     public function testReadYamlFile(): void
@@ -74,9 +74,9 @@ final class ConfigFileReaderTest extends TestCase
 
         $result = $this->reader->readFile($configPath);
 
-        $this->assertSame(['translations/'], $result['paths']);
-        $this->assertTrue($result['strict']);
-        $this->assertSame('json', $result['format']);
+        self::assertSame(['translations/'], $result['paths']);
+        self::assertTrue($result['strict']);
+        self::assertSame('json', $result['format']);
     }
 
     public function testReadPhpFileAsArray(): void
@@ -97,9 +97,9 @@ return $config;
 
         $result = $this->reader->readFile($configPath);
 
-        $this->assertSame(['translations/'], $result['paths']);
-        $this->assertTrue($result['strict']);
-        $this->assertSame('json', $result['format']);
+        self::assertSame(['translations/'], $result['paths']);
+        self::assertTrue($result['strict']);
+        self::assertSame('json', $result['format']);
     }
 
     public function testReadAsConfig(): void
@@ -115,9 +115,9 @@ return $config;
 
         $config = $this->reader->readAsConfig($configPath);
 
-        $this->assertSame(['translations/'], $config->getPaths());
-        $this->assertTrue($config->getStrict());
-        $this->assertSame('json', $config->getFormat());
+        self::assertSame(['translations/'], $config->getPaths());
+        self::assertTrue($config->getStrict());
+        self::assertSame('json', $config->getFormat());
     }
 
     public function testReadAsConfigWithPhpFile(): void
@@ -138,9 +138,9 @@ return $config;
 
         $config = $this->reader->readAsConfig($configPath);
 
-        $this->assertSame(['translations/'], $config->getPaths());
-        $this->assertTrue($config->getStrict());
-        $this->assertSame('json', $config->getFormat());
+        self::assertSame(['translations/'], $config->getPaths());
+        self::assertTrue($config->getStrict());
+        self::assertSame('json', $config->getFormat());
     }
 
     public function testReadFileNotFound(): void
@@ -155,7 +155,7 @@ return $config;
     {
         $configPath = $this->tempDir.'/config.json';
         file_put_contents($configPath, '{}');
-        chmod($configPath, 0000);
+        chmod($configPath, 0o000);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Configuration file is not readable');
@@ -163,7 +163,7 @@ return $config;
         try {
             $this->reader->readFile($configPath);
         } finally {
-            chmod($configPath, 0644);
+            chmod($configPath, 0o644);
         }
     }
 
@@ -263,6 +263,6 @@ return $config;
 
         $config = $this->reader->readAsConfig($configPath);
 
-        $this->assertSame(['direct-php-test'], $config->getPaths());
+        self::assertSame(['direct-php-test'], $config->getPaths());
     }
 }

@@ -40,30 +40,30 @@ final class KeyDepthValidatorTest extends TestCase
             'app.modules.auth.forms.login.validation.rules.password.complexity.requirements', // 10 levels
         ];
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('error');
+        $logger->expects(self::never())->method('error');
 
         $validator = new KeyDepthValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertArrayHasKey('message', $result);
-        $this->assertArrayHasKey('violating_keys', $result);
-        $this->assertArrayHasKey('threshold', $result);
-        $this->assertSame(8, $result['threshold']);
-        $this->assertCount(2, $result['violating_keys']);
+        self::assertArrayHasKey('message', $result);
+        self::assertArrayHasKey('violating_keys', $result);
+        self::assertArrayHasKey('threshold', $result);
+        self::assertSame(8, $result['threshold']);
+        self::assertCount(2, $result['violating_keys']);
 
         $violatingKeys = $result['violating_keys'];
-        $this->assertSame('user.profile.settings.privacy.notifications.email.daily.summary.enabled', $violatingKeys[0]['key']);
-        $this->assertSame(9, $violatingKeys[0]['depth']);
-        $this->assertSame('app.modules.auth.forms.login.validation.rules.password.complexity.requirements', $violatingKeys[1]['key']);
-        $this->assertSame(10, $violatingKeys[1]['depth']);
+        self::assertSame('user.profile.settings.privacy.notifications.email.daily.summary.enabled', $violatingKeys[0]['key']);
+        self::assertSame(9, $violatingKeys[0]['depth']);
+        self::assertSame('app.modules.auth.forms.login.validation.rules.password.complexity.requirements', $violatingKeys[1]['key']);
+        self::assertSame(10, $violatingKeys[1]['depth']);
 
-        $this->assertStringContainsString('Found 2 translation keys', (string) $result['message']);
-        $this->assertStringContainsString('threshold of 8', (string) $result['message']);
+        self::assertStringContainsString('Found 2 translation keys', (string) $result['message']);
+        self::assertStringContainsString('threshold of 8', (string) $result['message']);
     }
 
     public function testProcessFileWithAcceptableNesting(): void
@@ -78,17 +78,17 @@ final class KeyDepthValidatorTest extends TestCase
             'notifications.email.settings.frequency.daily.enabled', // 8 levels - exactly at threshold
         ];
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('error');
+        $logger->expects(self::never())->method('error');
 
         $validator = new KeyDepthValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testProcessFileWithDifferentSeparators(): void
@@ -100,49 +100,49 @@ final class KeyDepthValidatorTest extends TestCase
             'mixed.key_with-different:separators.in_one-key', // Should take highest depth
         ];
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertArrayHasKey('violating_keys', $result);
+        self::assertArrayHasKey('violating_keys', $result);
         // Let's check how many keys actually violate the threshold
-        $this->assertGreaterThan(0, count($result['violating_keys']));
+        self::assertGreaterThan(0, count($result['violating_keys']));
     }
 
     public function testProcessFileWithInvalidFile(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(null);
         $parser->method('getFileName')->willReturn('invalid.yaml');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method('error')
-            ->with($this->stringContains('The source file invalid.yaml is not valid.'));
+            ->with(self::stringContains('The source file invalid.yaml is not valid.'));
 
         $validator = new KeyDepthValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testProcessFileWithEmptyKeys(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn([]);
         $parser->method('getFileName')->willReturn('empty.yaml');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('error');
+        $logger->expects(self::never())->method('error');
 
         $validator = new KeyDepthValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testValidatorWithCustomThresholdFromConfig(): void
@@ -158,21 +158,21 @@ final class KeyDepthValidatorTest extends TestCase
             'app.navigation.menu.items', // 4 levels - exceeds threshold
         ];
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
         $validator->setConfig($config);
         $result = $validator->processFile($parser);
 
-        $this->assertArrayHasKey('violating_keys', $result);
-        $this->assertArrayHasKey('threshold', $result);
-        $this->assertSame(3, $result['threshold']);
-        $this->assertCount(1, $result['violating_keys']);
-        $this->assertSame('app.navigation.menu.items', $result['violating_keys'][0]['key']);
-        $this->assertSame(4, $result['violating_keys'][0]['depth']);
+        self::assertArrayHasKey('violating_keys', $result);
+        self::assertArrayHasKey('threshold', $result);
+        self::assertSame(3, $result['threshold']);
+        self::assertCount(1, $result['violating_keys']);
+        self::assertSame('app.navigation.menu.items', $result['violating_keys'][0]['key']);
+        self::assertSame(4, $result['violating_keys'][0]['depth']);
     }
 
     public function testValidatorWithCustomThresholdBelowAllKeys(): void
@@ -186,16 +186,16 @@ final class KeyDepthValidatorTest extends TestCase
             'app.modules.auth.forms.login.validation.rules', // 7 levels
         ];
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
         $validator->setConfig($config);
         $result = $validator->processFile($parser);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testValidatorWithInvalidThresholdInConfig(): void
@@ -208,19 +208,19 @@ final class KeyDepthValidatorTest extends TestCase
             'very.deep.nested.key.with.many.levels.that.exceed.default.threshold', // 11 levels
         ];
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
         $validator->setConfig($config);
         $result = $validator->processFile($parser);
 
         // Should fall back to default threshold of 8
-        $this->assertArrayHasKey('threshold', $result);
-        $this->assertSame(8, $result['threshold']);
-        $this->assertCount(1, $result['violating_keys']);
+        self::assertArrayHasKey('threshold', $result);
+        self::assertSame(8, $result['threshold']);
+        self::assertCount(1, $result['violating_keys']);
     }
 
     public function testValidatorWithoutConfig(): void
@@ -229,18 +229,18 @@ final class KeyDepthValidatorTest extends TestCase
             'very.deep.nested.key.with.many.levels.that.exceed.default.threshold', // 11 levels
         ];
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
         $validator->setConfig(null);
         $result = $validator->processFile($parser);
 
         // Should use default threshold of 8
-        $this->assertArrayHasKey('threshold', $result);
-        $this->assertSame(8, $result['threshold']);
+        self::assertArrayHasKey('threshold', $result);
+        self::assertSame(8, $result['threshold']);
     }
 
     public function testValidatorWithEmptyValidatorSettings(): void
@@ -253,23 +253,23 @@ final class KeyDepthValidatorTest extends TestCase
             'very.deep.nested.key.with.many.levels.that.exceed.default.threshold', // 11 levels
         ];
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.yaml');
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
         $validator->setConfig($config);
         $result = $validator->processFile($parser);
 
         // Should use default threshold of 8
-        $this->assertArrayHasKey('threshold', $result);
-        $this->assertSame(8, $result['threshold']);
+        self::assertArrayHasKey('threshold', $result);
+        self::assertSame(8, $result['threshold']);
     }
 
     public function testFormatIssueMessage(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
 
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
@@ -287,15 +287,15 @@ final class KeyDepthValidatorTest extends TestCase
 
         $result = $validator->formatIssueMessage($issue);
 
-        $this->assertStringContainsString('Warning', $result);
-        $this->assertStringContainsString('<fg=yellow>', $result);
-        $this->assertStringContainsString('Found 2 translation keys', $result);
-        $this->assertStringContainsString('threshold of 8', $result);
+        self::assertStringContainsString('Warning', $result);
+        self::assertStringContainsString('<fg=yellow>', $result);
+        self::assertStringContainsString('Found 2 translation keys', $result);
+        self::assertStringContainsString('threshold of 8', $result);
     }
 
     public function testFormatIssueMessageWithPrefix(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
 
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
@@ -313,14 +313,14 @@ final class KeyDepthValidatorTest extends TestCase
 
         $result = $validator->formatIssueMessage($issue, 'in file test.yaml: ');
 
-        $this->assertStringContainsString('Warning', $result);
-        $this->assertStringContainsString('in file test.yaml:', $result);
-        $this->assertStringContainsString('Found 1 translation key', $result);
+        self::assertStringContainsString('Warning', $result);
+        self::assertStringContainsString('in file test.yaml:', $result);
+        self::assertStringContainsString('Found 1 translation key', $result);
     }
 
     public function testCalculateKeyDepthWithDifferentPatterns(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new KeyDepthValidator($logger);
 
         // Use reflection to test the private method
@@ -346,7 +346,7 @@ final class KeyDepthValidatorTest extends TestCase
 
         foreach ($testCases as [$key, $expectedDepth]) {
             $actualDepth = $method->invoke($validator, $key);
-            $this->assertSame($expectedDepth, $actualDepth, "Key '$key' should have depth $expectedDepth but got $actualDepth");
+            self::assertSame($expectedDepth, $actualDepth, "Key '$key' should have depth $expectedDepth but got $actualDepth");
         }
     }
 }

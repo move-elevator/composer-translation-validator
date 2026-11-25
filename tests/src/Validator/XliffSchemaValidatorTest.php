@@ -33,14 +33,14 @@ final class XliffSchemaValidatorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->logger = $this->createStub(LoggerInterface::class);
+        $this->logger = self::createStub(LoggerInterface::class);
         $this->validator = new XliffSchemaValidator($this->logger);
     }
 
     public function testClassCanBeInstantiatedWithoutLogger(): void
     {
         $validator = new XliffSchemaValidator();
-        $this->assertSame([XliffParser::class], $validator->supportsParser());
+        self::assertSame([XliffParser::class], $validator->supportsParser());
     }
 
     public function testProcessFileWithValidXliff(): void
@@ -62,7 +62,7 @@ XML;
         $tempFile = tempnam(sys_get_temp_dir(), 'xliff_test_');
         file_put_contents($tempFile, $validXliff);
 
-        $parser = $this->createStub(XliffParser::class);
+        $parser = self::createStub(XliffParser::class);
         $parser->method('getFilePath')->willReturn($tempFile);
         $parser->method('getFileName')->willReturn('test.xlf');
 
@@ -70,7 +70,7 @@ XML;
 
         unlink($tempFile);
 
-        $this->assertSame([], $result);
+        self::assertSame([], $result);
     }
 
     public function testProcessFileReportsSchemaErrorsViaCachedSchema(): void
@@ -92,7 +92,7 @@ XML;
         $tempFile = tempnam(sys_get_temp_dir(), 'xliff_test_');
         file_put_contents($tempFile, $invalidXliff);
 
-        $parser = $this->createStub(XliffParser::class);
+        $parser = self::createStub(XliffParser::class);
         $parser->method('getFilePath')->willReturn($tempFile);
         $parser->method('getFileName')->willReturn('test.xlf');
 
@@ -100,8 +100,8 @@ XML;
 
         unlink($tempFile);
 
-        $this->assertNotEmpty($result);
-        $this->assertSame('ERROR', $result[0]['level']);
+        self::assertNotEmpty($result);
+        self::assertSame('ERROR', $result[0]['level']);
     }
 
     public function testProcessFileReusesCachedSchemaAcrossFiles(): void
@@ -120,32 +120,32 @@ XML;
         $tempFile = tempnam(sys_get_temp_dir(), 'xliff_test_');
         file_put_contents($tempFile, $validXliff);
 
-        $parser = $this->createStub(XliffParser::class);
+        $parser = self::createStub(XliffParser::class);
         $parser->method('getFilePath')->willReturn($tempFile);
         $parser->method('getFileName')->willReturn('reuse.xlf');
 
         // Two runs exercise the per-version schema-source cache.
-        $this->assertSame([], $this->validator->processFile($parser));
-        $this->assertSame([], $this->validator->processFile($parser));
+        self::assertSame([], $this->validator->processFile($parser));
+        self::assertSame([], $this->validator->processFile($parser));
 
         unlink($tempFile);
     }
 
     public function testProcessFileWithNonExistentFile(): void
     {
-        $parser = $this->createStub(XliffParser::class);
+        $parser = self::createStub(XliffParser::class);
         $parser->method('getFilePath')->willReturn('/non/existent/file.xlf');
         $parser->method('getFileName')->willReturn('non_existent.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method('error')
             ->with('File does not exist: non_existent.xlf');
 
         $validator = new XliffSchemaValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertSame([], $result);
+        self::assertSame([], $result);
     }
 
     public function testProcessFileWithInvalidXml(): void
@@ -155,21 +155,21 @@ XML;
         $tempFile = tempnam(sys_get_temp_dir(), 'xliff_test_');
         file_put_contents($tempFile, $invalidXml);
 
-        $parser = $this->createStub(XliffParser::class);
+        $parser = self::createStub(XliffParser::class);
         $parser->method('getFilePath')->willReturn($tempFile);
         $parser->method('getFileName')->willReturn('invalid.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method('error')
-            ->with($this->stringContains('Failed to parse XML:'));
+            ->with(self::stringContains('Failed to parse XML:'));
 
         $validator = new XliffSchemaValidator($logger);
         $result = $validator->processFile($parser);
 
         unlink($tempFile);
 
-        $this->assertSame([], $result);
+        self::assertSame([], $result);
     }
 
     public function testProcessFileWithUnsupportedXliffVersion(): void
@@ -191,21 +191,21 @@ XML;
         $tempFile = tempnam(sys_get_temp_dir(), 'xliff_test_');
         file_put_contents($tempFile, $unsupportedXliff);
 
-        $parser = $this->createStub(XliffParser::class);
+        $parser = self::createStub(XliffParser::class);
         $parser->method('getFilePath')->willReturn($tempFile);
         $parser->method('getFileName')->willReturn('unsupported.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method('notice')
-            ->with($this->stringContains('Skipping XliffSchemaValidator: No support implemented for loading XLIFF version'));
+            ->with(self::stringContains('Skipping XliffSchemaValidator: No support implemented for loading XLIFF version'));
 
         $validator = new XliffSchemaValidator($logger);
         $result = $validator->processFile($parser);
 
         unlink($tempFile);
 
-        $this->assertSame([], $result);
+        self::assertSame([], $result);
     }
 
     public function testFormatIssueMessageWithArrayError(): void
@@ -228,7 +228,7 @@ XML;
         $result = $this->validator->formatIssueMessage($issue, 'Prefix: ');
 
         $expected = '- <fg=red>Error</> Prefix: Element validation failed (Line: 42) (Code: XLIFF001)';
-        $this->assertSame($expected, $result);
+        self::assertSame($expected, $result);
     }
 
     public function testFormatIssueMessageWithWarning(): void
@@ -249,7 +249,7 @@ XML;
         $result = $this->validator->formatIssueMessage($issue);
 
         $expected = '- <fg=yellow>Warning</> Optional element missing';
-        $this->assertSame($expected, $result);
+        self::assertSame($expected, $result);
     }
 
     public function testFormatIssueMessageWithEmptyDetails(): void
@@ -264,7 +264,7 @@ XML;
         $result = $this->validator->formatIssueMessage($issue);
 
         $expected = '- <fg=red>Error</> Schema validation error';
-        $this->assertSame($expected, $result);
+        self::assertSame($expected, $result);
     }
 
     public function testFormatIssueMessageWithIncompleteErrorArray(): void
@@ -287,7 +287,7 @@ XML;
         $result = $this->validator->formatIssueMessage($issue);
 
         $expected = '- <fg=red>Error</> Schema validation error';
-        $this->assertSame($expected, $result);
+        self::assertSame($expected, $result);
     }
 
     public function testProcessFileWithMissingTargetLanguage(): void
@@ -318,10 +318,10 @@ XML;
             $result,
             static fn ($e) => isset($e['message']) && str_contains((string) $e['message'], 'target-language'),
         );
-        $this->assertCount(1, $targetLangErrors);
+        self::assertCount(1, $targetLangErrors);
         $error = array_values($targetLangErrors)[0];
-        $this->assertStringContainsString('Missing "target-language"', $error['message']);
-        $this->assertStringContainsString('"de"', $error['message']);
+        self::assertStringContainsString('Missing "target-language"', $error['message']);
+        self::assertStringContainsString('"de"', $error['message']);
     }
 
     public function testProcessFileWithRegionInFilenameAndAttributeIsNotAFalsePositive(): void
@@ -349,7 +349,7 @@ XML;
 
         unlink($tempFile);
 
-        $this->assertSame([], $result);
+        self::assertSame([], $result);
     }
 
     public function testProcessFileWithRegionMismatchEmitsWarning(): void
@@ -380,11 +380,11 @@ XML;
             rmdir($tempDir);
         }
 
-        $this->assertCount(1, $result);
-        $this->assertSame('WARNING', $result[0]['level']);
-        $this->assertStringContainsString('different region', $result[0]['message']);
-        $this->assertStringContainsString('de-AT', $result[0]['message']);
-        $this->assertStringContainsString('de_DE', $result[0]['message']);
+        self::assertCount(1, $result);
+        self::assertSame('WARNING', $result[0]['level']);
+        self::assertStringContainsString('different region', $result[0]['message']);
+        self::assertStringContainsString('de-AT', $result[0]['message']);
+        self::assertStringContainsString('de_DE', $result[0]['message']);
     }
 
     public function testProcessFileWithRegionMismatchSuffixConventionEmitsWarning(): void
@@ -415,8 +415,8 @@ XML;
             rmdir($tempDir);
         }
 
-        $this->assertCount(1, $result);
-        $this->assertSame('WARNING', $result[0]['level']);
+        self::assertCount(1, $result);
+        self::assertSame('WARNING', $result[0]['level']);
     }
 
     public function testProcessFileXliff2WithRegionMismatchEmitsWarning(): void
@@ -447,9 +447,9 @@ XML;
             rmdir($tempDir);
         }
 
-        $this->assertCount(1, $result);
-        $this->assertSame('WARNING', $result[0]['level']);
-        $this->assertStringContainsString('trgLang', $result[0]['message']);
+        self::assertCount(1, $result);
+        self::assertSame('WARNING', $result[0]['level']);
+        self::assertStringContainsString('trgLang', $result[0]['message']);
     }
 
     public function testProcessFileWithMismatchedTargetLanguage(): void
@@ -477,9 +477,9 @@ XML;
 
         unlink($tempFile);
 
-        $this->assertCount(1, $result);
-        $this->assertStringContainsString('"fr"', $result[0]['message']);
-        $this->assertStringContainsString('"de"', $result[0]['message']);
+        self::assertCount(1, $result);
+        self::assertStringContainsString('"fr"', $result[0]['message']);
+        self::assertStringContainsString('"de"', $result[0]['message']);
     }
 
     public function testProcessFileWithoutLanguagePrefixSkipsTargetLanguageCheck(): void
@@ -506,7 +506,7 @@ XML;
 
         unlink($tempFile);
 
-        $this->assertSame([], $result);
+        self::assertSame([], $result);
     }
 
     public function testProcessFileXliff2WithMissingTrgLang(): void
@@ -540,7 +540,7 @@ XML;
                 break;
             }
         }
-        $this->assertTrue($hasTargetLangError, 'Expected a trgLang error for XLIFF 2.x without trgLang');
+        self::assertTrue($hasTargetLangError, 'Expected a trgLang error for XLIFF 2.x without trgLang');
     }
 
     public function testProcessFileXliff2WithMismatchedTrgLang(): void
@@ -572,9 +572,9 @@ XML;
             $result,
             static fn ($e) => isset($e['message']) && str_contains((string) $e['message'], 'trgLang'),
         );
-        $this->assertCount(1, $mismatchErrors);
+        self::assertCount(1, $mismatchErrors);
         $error = array_values($mismatchErrors)[0];
-        $this->assertStringContainsString('"fr"', $error['message']);
-        $this->assertStringContainsString('"de"', $error['message']);
+        self::assertStringContainsString('"fr"', $error['message']);
+        self::assertStringContainsString('"de"', $error['message']);
     }
 }

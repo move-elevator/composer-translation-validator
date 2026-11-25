@@ -31,15 +31,15 @@ final class MismatchValidatorTest extends TestCase
 {
     public function testProcessFile(): void
     {
-        $parser1 = $this->createStub(ParserInterface::class);
+        $parser1 = self::createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['key1', 'key2']);
         $parser1->method('getFileName')->willReturn('file1.xlf');
 
-        $parser2 = $this->createStub(ParserInterface::class);
+        $parser2 = self::createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['key2', 'key3']);
         $parser2->method('getFileName')->willReturn('file2.xlf');
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $validator->processFile($parser1);
@@ -50,7 +50,7 @@ final class MismatchValidatorTest extends TestCase
         $keyArrayProperty = $reflection->getProperty('keyArray');
         $keyArray = $keyArrayProperty->getValue($validator);
 
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'file1.xlf' => ['key1' => null, 'key2' => null],
                 'file2.xlf' => ['key2' => null, 'key3' => null],
@@ -61,11 +61,11 @@ final class MismatchValidatorTest extends TestCase
 
     public function testProcessFileWithEmptyFile(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn([]);
         $parser->method('getFileName')->willReturn('empty.xlf');
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
         $result = $validator->processFile($parser);
 
@@ -74,22 +74,22 @@ final class MismatchValidatorTest extends TestCase
         $keyArrayProperty = $reflection->getProperty('keyArray');
         $keyArray = $keyArrayProperty->getValue($validator);
 
-        $this->assertArrayHasKey('empty.xlf', $keyArray);
-        $this->assertSame([], $keyArray['empty.xlf']);
-        $this->assertEmpty($result);
+        self::assertArrayHasKey('empty.xlf', $keyArray);
+        self::assertSame([], $keyArray['empty.xlf']);
+        self::assertEmpty($result);
     }
 
     public function testPostProcessWithMismatches(): void
     {
-        $parser1 = $this->createStub(ParserInterface::class);
+        $parser1 = self::createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['key1', 'key2']);
         $parser1->method('getFileName')->willReturn('file1.xlf');
 
-        $parser2 = $this->createStub(ParserInterface::class);
+        $parser2 = self::createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['key2', 'key3']);
         $parser2->method('getFileName')->willReturn('file2.xlf');
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $validator->processFile($parser1);
@@ -141,20 +141,20 @@ final class MismatchValidatorTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($expectedIssues, array_map(static fn ($issue) => $issue->toArray(), $issues));
+        self::assertEquals($expectedIssues, array_map(static fn ($issue) => $issue->toArray(), $issues));
     }
 
     public function testPostProcessWithoutMismatches(): void
     {
-        $parser1 = $this->createStub(ParserInterface::class);
+        $parser1 = self::createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['key1', 'key2']);
         $parser1->method('getFileName')->willReturn('file1.xlf');
 
-        $parser2 = $this->createStub(ParserInterface::class);
+        $parser2 = self::createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['key1', 'key2']);
         $parser2->method('getFileName')->willReturn('file2.xlf');
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $validator->processFile($parser1);
@@ -167,12 +167,12 @@ final class MismatchValidatorTest extends TestCase
         $issuesProperty = $reflection->getProperty('issues');
         $issues = $issuesProperty->getValue($validator);
 
-        $this->assertEmpty($issues);
+        self::assertEmpty($issues);
     }
 
     public function testResetStateResetsKeyArray(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         // Manually set keyArray to simulate previous validation
@@ -184,22 +184,22 @@ final class MismatchValidatorTest extends TestCase
         ]);
 
         // Verify keyArray is set
-        $this->assertNotEmpty($keyArrayProperty->getValue($validator));
+        self::assertNotEmpty($keyArrayProperty->getValue($validator));
 
         // Call resetState
         $resetStateMethod = $reflection->getMethod('resetState');
         $resetStateMethod->invoke($validator);
 
         // Verify keyArray is reset
-        $this->assertSame([], $keyArrayProperty->getValue($validator));
+        self::assertSame([], $keyArrayProperty->getValue($validator));
 
         // Verify issues are also reset (from parent)
-        $this->assertFalse($validator->hasIssues());
+        self::assertFalse($validator->hasIssues());
     }
 
     public function testDistributeIssuesForDisplay(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         // Create a mismatch issue
@@ -227,23 +227,23 @@ final class MismatchValidatorTest extends TestCase
         $distribution = $validator->distributeIssuesForDisplay($fileSet);
 
         // MismatchValidator should create file-specific issues for each affected file
-        $this->assertArrayHasKey('/test/path/file1.xlf', $distribution);
-        $this->assertArrayHasKey('/test/path/file2.xlf', $distribution);
-        $this->assertCount(1, $distribution['/test/path/file1.xlf']);
-        $this->assertCount(1, $distribution['/test/path/file2.xlf']);
+        self::assertArrayHasKey('/test/path/file1.xlf', $distribution);
+        self::assertArrayHasKey('/test/path/file2.xlf', $distribution);
+        self::assertCount(1, $distribution['/test/path/file1.xlf']);
+        self::assertCount(1, $distribution['/test/path/file2.xlf']);
     }
 
     public function testShouldShowDetailedOutput(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
-        $this->assertTrue($validator->shouldShowDetailedOutput());
+        self::assertTrue($validator->shouldShowDetailedOutput());
     }
 
     public function testRenderDetailedOutput(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $output = new \Symfony\Component\Console\Output\BufferedOutput();
@@ -267,17 +267,17 @@ final class MismatchValidatorTest extends TestCase
         $outputContent = $output->fetch();
 
         // Should contain table output
-        $this->assertStringContainsString('Key', $outputContent);
-        $this->assertStringContainsString('file1.xlf', $outputContent);
-        $this->assertStringContainsString('file2.xlf', $outputContent);
-        $this->assertStringContainsString('test_key', $outputContent);
+        self::assertStringContainsString('Key', $outputContent);
+        self::assertStringContainsString('file1.xlf', $outputContent);
+        self::assertStringContainsString('file2.xlf', $outputContent);
+        self::assertStringContainsString('test_key', $outputContent);
         // The table output shows empty cells for missing values, not "<missing>"
-        $this->assertStringContainsString('value1', $outputContent);
+        self::assertStringContainsString('value1', $outputContent);
     }
 
     public function testFormatIssueMessage(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $issue = new Issue(
@@ -295,15 +295,15 @@ final class MismatchValidatorTest extends TestCase
 
         $result = $validator->formatIssueMessage($issue);
 
-        $this->assertStringContainsString('Error', $result);
-        $this->assertStringContainsString('test_key', $result);
-        $this->assertStringContainsString('files', $result);
-        $this->assertStringContainsString('<fg=red>', $result);
+        self::assertStringContainsString('Error', $result);
+        self::assertStringContainsString('test_key', $result);
+        self::assertStringContainsString('files', $result);
+        self::assertStringContainsString('<fg=red>', $result);
     }
 
     public function testFormatIssueMessageWhenCurrentFileHasValue(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         // The Issue file is file1.xlf and it carries a non-null value, so the
@@ -323,9 +323,9 @@ final class MismatchValidatorTest extends TestCase
 
         $result = $validator->formatIssueMessage($issue);
 
-        $this->assertStringContainsString('is missing from other translation files', $result);
-        $this->assertStringContainsString('file2.xlf', $result);
-        $this->assertStringContainsString('test_key', $result);
+        self::assertStringContainsString('is missing from other translation files', $result);
+        self::assertStringContainsString('file2.xlf', $result);
+        self::assertStringContainsString('test_key', $result);
     }
 
     public function testFormatIssueMessageNamesNoFilesWhenAllFilesShareTheName(): void
@@ -345,31 +345,31 @@ final class MismatchValidatorTest extends TestCase
             'MismatchValidator',
         );
 
-        $this->assertStringContainsString('(`other files`)', $validator->formatIssueMessage($issue));
+        self::assertStringContainsString('(`other files`)', $validator->formatIssueMessage($issue));
     }
 
     public function testRenderDetailedOutputWithEmptyIssues(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $output = new \Symfony\Component\Console\Output\BufferedOutput();
         $validator->renderDetailedOutput($output, []);
 
-        $this->assertSame('', $output->fetch());
+        self::assertSame('', $output->fetch());
     }
 
     public function testPostProcessDetectsEmptyFileWithMissingKeys(): void
     {
-        $parser1 = $this->createStub(ParserInterface::class);
+        $parser1 = self::createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['key1', 'key2']);
         $parser1->method('getFileName')->willReturn('source.xlf');
 
-        $parser2 = $this->createStub(ParserInterface::class);
+        $parser2 = self::createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn([]);
         $parser2->method('getFileName')->willReturn('empty.xlf');
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $validator->processFile($parser1);
@@ -383,28 +383,28 @@ final class MismatchValidatorTest extends TestCase
         $issues = $issuesProperty->getValue($validator);
 
         // Should detect both keys as missing in the empty file
-        $this->assertCount(2, $issues);
+        self::assertCount(2, $issues);
 
         $issueArrays = array_map(static fn ($issue) => $issue->toArray(), $issues);
 
         // Check that both key1 and key2 are reported as mismatches
         $keys = array_map(static fn ($issue) => $issue['issues']['key'], $issueArrays);
-        $this->assertContains('key1', $keys);
-        $this->assertContains('key2', $keys);
+        self::assertContains('key1', $keys);
+        self::assertContains('key2', $keys);
 
         // Verify that the empty file is included in the details
         foreach ($issueArrays as $issueArray) {
             $files = $issueArray['issues']['files'];
-            $this->assertCount(2, $files);
+            self::assertCount(2, $files);
 
             $fileNames = array_map(static fn ($file) => $file['file'], $files);
-            $this->assertContains('source.xlf', $fileNames);
-            $this->assertContains('empty.xlf', $fileNames);
+            self::assertContains('source.xlf', $fileNames);
+            self::assertContains('empty.xlf', $fileNames);
 
             // Empty file should have null value for all keys
             foreach ($files as $file) {
                 if ('empty.xlf' === $file['file']) {
-                    $this->assertNull($file['value']);
+                    self::assertNull($file['value']);
                 }
             }
         }
@@ -413,21 +413,21 @@ final class MismatchValidatorTest extends TestCase
     public function testPostProcessWithMixedScenario(): void
     {
         // Source file with 6 keys
-        $parser1 = $this->createStub(ParserInterface::class);
+        $parser1 = self::createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['key1', 'key2', 'key3', 'key4', 'key5', 'key6']);
         $parser1->method('getFileName')->willReturn('source.xlf');
 
         // Partial translation file with 3 keys
-        $parser2 = $this->createStub(ParserInterface::class);
+        $parser2 = self::createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser2->method('getFileName')->willReturn('partial.xlf');
 
         // Empty translation file
-        $parser3 = $this->createStub(ParserInterface::class);
+        $parser3 = self::createStub(ParserInterface::class);
         $parser3->method('extractKeys')->willReturn([]);
         $parser3->method('getFileName')->willReturn('empty.xlf');
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $validator->processFile($parser1);
@@ -444,40 +444,40 @@ final class MismatchValidatorTest extends TestCase
         // Should detect all 6 keys as mismatches since:
         // - key1, key2, key3 are missing from empty.xlf
         // - key4, key5, key6 are missing from both partial.xlf and empty.xlf
-        $this->assertCount(6, $issues);
+        self::assertCount(6, $issues);
 
         $issueArrays = array_map(static fn ($issue) => $issue->toArray(), $issues);
         $keys = array_map(static fn ($issue) => $issue['issues']['key'], $issueArrays);
 
         // All keys should be reported as missing somewhere
-        $this->assertContains('key1', $keys);
-        $this->assertContains('key2', $keys);
-        $this->assertContains('key3', $keys);
-        $this->assertContains('key4', $keys);
-        $this->assertContains('key5', $keys);
-        $this->assertContains('key6', $keys);
+        self::assertContains('key1', $keys);
+        self::assertContains('key2', $keys);
+        self::assertContains('key3', $keys);
+        self::assertContains('key4', $keys);
+        self::assertContains('key5', $keys);
+        self::assertContains('key6', $keys);
 
         // Verify that all three files are tracked in each issue
         foreach ($issueArrays as $issueArray) {
             $files = $issueArray['issues']['files'];
-            $this->assertCount(3, $files);
+            self::assertCount(3, $files);
         }
     }
 
     public function testDistributeIssuesForDisplayWithNoIssues(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['file1.xlf', 'file2.xlf']);
         $distribution = $validator->distributeIssuesForDisplay($fileSet);
 
-        $this->assertSame([], $distribution);
+        self::assertSame([], $distribution);
     }
 
     public function testDistributeIssuesForDisplaySkipsEmptyFilePaths(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         // Create an issue where one file entry has an empty path
@@ -499,14 +499,14 @@ final class MismatchValidatorTest extends TestCase
         $distribution = $validator->distributeIssuesForDisplay($fileSet);
 
         // Only the non-empty file path should appear in the distribution
-        $this->assertCount(1, $distribution);
-        $this->assertArrayHasKey('/test/path/file1.xlf', $distribution);
-        $this->assertArrayNotHasKey('', $distribution);
+        self::assertCount(1, $distribution);
+        self::assertArrayHasKey('/test/path/file1.xlf', $distribution);
+        self::assertArrayNotHasKey('', $distribution);
     }
 
     public function testDistributeIssuesForDisplayDistributesMultipleIssuesAcrossFiles(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new MismatchValidator($logger);
 
         $issue1 = new Issue(
@@ -542,15 +542,15 @@ final class MismatchValidatorTest extends TestCase
         $distribution = $validator->distributeIssuesForDisplay($fileSet);
 
         // Both files should have 2 issues each
-        $this->assertCount(2, $distribution);
-        $this->assertCount(2, $distribution['/test/path/en.xlf']);
-        $this->assertCount(2, $distribution['/test/path/de.xlf']);
+        self::assertCount(2, $distribution);
+        self::assertCount(2, $distribution['/test/path/en.xlf']);
+        self::assertCount(2, $distribution['/test/path/de.xlf']);
 
         // Verify the distributed issues have file-specific paths
         $enIssue = $distribution['/test/path/en.xlf'][0];
-        $this->assertSame('/test/path/en.xlf', $enIssue->getFile());
+        self::assertSame('/test/path/en.xlf', $enIssue->getFile());
 
         $deIssue = $distribution['/test/path/de.xlf'][0];
-        $this->assertSame('/test/path/de.xlf', $deIssue->getFile());
+        self::assertSame('/test/path/de.xlf', $deIssue->getFile());
     }
 }

@@ -37,7 +37,7 @@ final class EncodingValidatorTest extends TestCase
         $this->testFilesPath = __DIR__.'/../../Fixtures/EncodingValidator';
 
         if (!is_dir($this->testFilesPath)) {
-            mkdir($this->testFilesPath, 0755, true);
+            mkdir($this->testFilesPath, 0o755, true);
         }
     }
 
@@ -54,16 +54,16 @@ final class EncodingValidatorTest extends TestCase
     {
         $supportedParsers = $this->validator->supportsParser();
 
-        $this->assertContains(XliffParser::class, $supportedParsers);
-        $this->assertContains(YamlParser::class, $supportedParsers);
-        $this->assertContains(JsonParser::class, $supportedParsers);
-        $this->assertContains(PhpParser::class, $supportedParsers);
-        $this->assertCount(4, $supportedParsers);
+        self::assertContains(XliffParser::class, $supportedParsers);
+        self::assertContains(YamlParser::class, $supportedParsers);
+        self::assertContains(JsonParser::class, $supportedParsers);
+        self::assertContains(PhpParser::class, $supportedParsers);
+        self::assertCount(4, $supportedParsers);
     }
 
     public function testResultTypeIsWarning(): void
     {
-        $this->assertSame(ResultType::WARNING, $this->validator->resultTypeOnValidationFailure());
+        self::assertSame(ResultType::WARNING, $this->validator->resultTypeOnValidationFailure());
     }
 
     public function testValidUtf8File(): void
@@ -74,7 +74,7 @@ final class EncodingValidatorTest extends TestCase
         $parser = new JsonParser($filePath);
         $issues = $this->validator->processFile($parser);
 
-        $this->assertEmpty($issues);
+        self::assertEmpty($issues);
     }
 
     public function testInvalidUtf8File(): void
@@ -85,8 +85,8 @@ final class EncodingValidatorTest extends TestCase
         $parser = new PhpParser($filePath);
         $issues = $this->validator->processFile($parser);
 
-        $this->assertArrayHasKey('encoding', $issues);
-        $this->assertStringContainsString('not valid UTF-8', $issues['encoding']);
+        self::assertArrayHasKey('encoding', $issues);
+        self::assertStringContainsString('not valid UTF-8', $issues['encoding']);
     }
 
     public function testFileWithBom(): void
@@ -97,8 +97,8 @@ final class EncodingValidatorTest extends TestCase
         $parser = new YamlParser($filePath);
         $issues = $this->validator->processFile($parser);
 
-        $this->assertArrayHasKey('bom', $issues);
-        $this->assertStringContainsString('Byte Order Mark', $issues['bom']);
+        self::assertArrayHasKey('bom', $issues);
+        self::assertStringContainsString('Byte Order Mark', $issues['bom']);
     }
 
     public function testFileWithInvisibleCharacters(): void
@@ -109,10 +109,10 @@ final class EncodingValidatorTest extends TestCase
         $parser = new YamlParser($filePath);
         $issues = $this->validator->processFile($parser);
 
-        $this->assertArrayHasKey('invisible_chars', $issues);
-        $this->assertStringContainsString('invisible characters', $issues['invisible_chars']);
-        $this->assertStringContainsString('Zero-width space', $issues['invisible_chars']);
-        $this->assertStringContainsString('Zero-width non-joiner', $issues['invisible_chars']);
+        self::assertArrayHasKey('invisible_chars', $issues);
+        self::assertStringContainsString('invisible characters', $issues['invisible_chars']);
+        self::assertStringContainsString('Zero-width space', $issues['invisible_chars']);
+        self::assertStringContainsString('Zero-width non-joiner', $issues['invisible_chars']);
     }
 
     public function testFileWithControlCharacters(): void
@@ -123,8 +123,8 @@ final class EncodingValidatorTest extends TestCase
         $parser = new YamlParser($filePath);
         $issues = $this->validator->processFile($parser);
 
-        $this->assertArrayHasKey('invisible_chars', $issues);
-        $this->assertStringContainsString('Control characters', $issues['invisible_chars']);
+        self::assertArrayHasKey('invisible_chars', $issues);
+        self::assertStringContainsString('Control characters', $issues['invisible_chars']);
     }
 
     public function testFileWithControlCharactersInNonAsciiContent(): void
@@ -137,14 +137,14 @@ final class EncodingValidatorTest extends TestCase
         $parser = new YamlParser($filePath);
         $issues = $this->validator->processFile($parser);
 
-        $this->assertArrayHasKey('invisible_chars', $issues);
-        $this->assertStringContainsString('Control characters', $issues['invisible_chars']);
+        self::assertArrayHasKey('invisible_chars', $issues);
+        self::assertStringContainsString('Control characters', $issues['invisible_chars']);
     }
 
     public function testFileWithUnicodeNormalizationIssues(): void
     {
         if (!class_exists('Normalizer')) {
-            $this->markTestSkipped('Intl extension not available');
+            self::markTestSkipped('Intl extension not available');
         }
 
         $filePath = $this->testFilesPath.'/unicode-norm.yaml';
@@ -155,8 +155,8 @@ final class EncodingValidatorTest extends TestCase
         $parser = new YamlParser($filePath);
         $issues = $this->validator->processFile($parser);
 
-        $this->assertArrayHasKey('unicode_normalization', $issues);
-        $this->assertStringContainsString('non-NFC normalized', $issues['unicode_normalization']);
+        self::assertArrayHasKey('unicode_normalization', $issues);
+        self::assertStringContainsString('non-NFC normalized', $issues['unicode_normalization']);
     }
 
     public function testReadsFromDiskForNonAbstractParser(): void
@@ -166,13 +166,13 @@ final class EncodingValidatorTest extends TestCase
 
         // A parser that implements the interface but does not extend
         // AbstractParser exercises the direct file-read fallback.
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('getFilePath')->willReturn($filePath);
         $parser->method('getFileName')->willReturn('plain-interface.yaml');
 
         $issues = $this->validator->processFile($parser);
 
-        $this->assertEmpty($issues);
+        self::assertEmpty($issues);
     }
 
     public function testJsonFilesAreSupported(): void
@@ -184,7 +184,7 @@ final class EncodingValidatorTest extends TestCase
         $issues = $this->validator->processFile($parser);
 
         // Should not have any encoding issues for valid JSON
-        $this->assertEmpty($issues);
+        self::assertEmpty($issues);
     }
 
     public function testJsonWithBomIsDetected(): void
@@ -194,14 +194,14 @@ final class EncodingValidatorTest extends TestCase
         file_put_contents($filePath, $content);
 
         // Mock parser to avoid BOM parsing issues
-        $mockParser = $this->createStub(JsonParser::class);
+        $mockParser = self::createStub(JsonParser::class);
         $mockParser->method('getFilePath')->willReturn($filePath);
         $mockParser->method('getRawContent')->willReturn($content);
 
         $issues = $this->validator->processFile($mockParser);
 
         // Should detect BOM issue
-        $this->assertArrayHasKey('bom', $issues);
+        self::assertArrayHasKey('bom', $issues);
     }
 
     public function testPhpFilesAreSupported(): void
@@ -213,16 +213,16 @@ final class EncodingValidatorTest extends TestCase
         $issues = $this->validator->processFile($parser);
 
         // Should not have any encoding issues for valid PHP
-        $this->assertEmpty($issues);
+        self::assertEmpty($issues);
     }
 
     public function testFileReadError(): void
     {
         // Create a validator that simulates file_get_contents returning false
         $logger = $this->createMock(\Psr\Log\LoggerInterface::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method('error')
-            ->with($this->stringContains('Could not read file content:'));
+            ->with(self::stringContains('Could not read file content:'));
 
         $validator = new class($logger) extends EncodingValidator {
             public function processFile(ParserInterface $file): array
@@ -242,12 +242,12 @@ final class EncodingValidatorTest extends TestCase
         };
 
         $filePath = '/non/existent/file.yaml';
-        $parser = $this->createStub(YamlParser::class);
+        $parser = self::createStub(YamlParser::class);
         $parser->method('getFilePath')->willReturn($filePath);
         $parser->method('getFileName')->willReturn('file.yaml');
 
         $issues = $validator->processFile($parser);
-        $this->assertEmpty($issues);
+        self::assertEmpty($issues);
     }
 
     public function testEmptyFile(): void
@@ -256,7 +256,7 @@ final class EncodingValidatorTest extends TestCase
         file_put_contents($filePath, '{}'); // Empty but valid JSON object
 
         // Create a mock parser that simulates an empty file content
-        $mockParser = $this->createStub(JsonParser::class);
+        $mockParser = self::createStub(JsonParser::class);
         $mockParser->method('getFilePath')->willReturn($filePath);
 
         // Manually test the empty file path in the validator
@@ -276,7 +276,7 @@ final class EncodingValidatorTest extends TestCase
         };
 
         $issues = $validator->testEmptyContent();
-        $this->assertEmpty($issues);
+        self::assertEmpty($issues);
     }
 
     public function testFormatIssueMessage(): void
@@ -289,9 +289,9 @@ final class EncodingValidatorTest extends TestCase
         $issue = new Issue('test-file.json', $details, 'JsonParser', 'EncodingValidator');
         $message = $this->validator->formatIssueMessage($issue, 'test: ');
 
-        $this->assertStringContainsString('Warning', $message);
-        $this->assertStringContainsString('test: encoding issue: File is not valid UTF-8 encoded', $message);
-        $this->assertStringContainsString('test: encoding issue: File contains UTF-8 Byte Order Mark (BOM)', $message);
+        self::assertStringContainsString('Warning', $message);
+        self::assertStringContainsString('test: encoding issue: File is not valid UTF-8 encoded', $message);
+        self::assertStringContainsString('test: encoding issue: File contains UTF-8 Byte Order Mark (BOM)', $message);
     }
 
     public function testMultipleIssuesInSingleFile(): void
@@ -304,9 +304,9 @@ final class EncodingValidatorTest extends TestCase
         $parser = new YamlParser($filePath);
         $issues = $this->validator->processFile($parser);
 
-        $this->assertArrayHasKey('bom', $issues);
-        $this->assertArrayHasKey('invisible_chars', $issues);
-        $this->assertCount(2, $issues);
+        self::assertArrayHasKey('bom', $issues);
+        self::assertArrayHasKey('invisible_chars', $issues);
+        self::assertCount(2, $issues);
     }
 
     public function testCleanFileWithNoIssues(): void
@@ -317,7 +317,7 @@ final class EncodingValidatorTest extends TestCase
         $parser = new YamlParser($filePath);
         $issues = $this->validator->processFile($parser);
 
-        $this->assertEmpty($issues);
+        self::assertEmpty($issues);
     }
 
     public function testEmptyFileContentReturnsNoIssues(): void
@@ -327,13 +327,13 @@ final class EncodingValidatorTest extends TestCase
         file_put_contents($filePath, ''); // Completely empty file
 
         // Create a mock parser that can handle empty files
-        $mockParser = $this->createStub(ParserInterface::class);
+        $mockParser = self::createStub(ParserInterface::class);
         $mockParser->method('getFilePath')->willReturn($filePath);
         $mockParser->method('getFileName')->willReturn('just-empty-content.txt');
 
         $issues = $this->validator->processFile($mockParser);
 
-        $this->assertEmpty($issues);
+        self::assertEmpty($issues);
     }
 
     public function testFileReadErrorHandling(): void
@@ -343,7 +343,7 @@ final class EncodingValidatorTest extends TestCase
         file_put_contents($filePath, 'test content');
 
         // Create mock parser
-        $mockParser = $this->createStub(ParserInterface::class);
+        $mockParser = self::createStub(ParserInterface::class);
         $mockParser->method('getFilePath')->willReturn($filePath);
         $mockParser->method('getFileName')->willReturn('temp-file.yaml');
 
@@ -351,14 +351,14 @@ final class EncodingValidatorTest extends TestCase
         unlink($filePath);
 
         $logger = $this->createMock(\Psr\Log\LoggerInterface::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method('error')
             ->with('File does not exist: temp-file.yaml');
 
         $validator = new EncodingValidator($logger);
         $issues = $validator->processFile($mockParser);
 
-        $this->assertEmpty($issues);
+        self::assertEmpty($issues);
     }
 
     public function testUnicodeNormalizationWithoutIntlExtension(): void
@@ -377,19 +377,19 @@ final class EncodingValidatorTest extends TestCase
 
         if (!class_exists('Normalizer')) {
             $result = $method->invokeArgs($validator, [file_get_contents($filePath)]);
-            $this->assertFalse($result);
+            self::assertFalse($result);
         } else {
             // If Normalizer exists, test that it works normally
             $issues = $validator->processFile($parser);
             // File with normal Unicode should not have normalization issues
-            $this->assertArrayNotHasKey('unicode_normalization', $issues);
+            self::assertArrayNotHasKey('unicode_normalization', $issues);
         }
     }
 
     public function testUnicodeNormalizationWithNonNormalizedContent(): void
     {
         if (!class_exists('Normalizer')) {
-            $this->markTestSkipped('Normalizer class not available');
+            self::markTestSkipped('Normalizer class not available');
         }
 
         $filePath = $this->testFilesPath.'/non-normalized-unicode.yaml';
@@ -407,10 +407,10 @@ final class EncodingValidatorTest extends TestCase
         // The content should trigger unicode_normalization issue if it's not in NFC form
         $normalizedContent = Normalizer::normalize($content, Normalizer::FORM_C);
         if ($content !== $normalizedContent) {
-            $this->assertArrayHasKey('unicode_normalization', $issues);
-            $this->assertStringContainsString('non-NFC normalized', $issues['unicode_normalization']);
+            self::assertArrayHasKey('unicode_normalization', $issues);
+            self::assertStringContainsString('non-NFC normalized', $issues['unicode_normalization']);
         } else {
-            $this->assertArrayNotHasKey('unicode_normalization', $issues);
+            self::assertArrayNotHasKey('unicode_normalization', $issues);
         }
     }
 }

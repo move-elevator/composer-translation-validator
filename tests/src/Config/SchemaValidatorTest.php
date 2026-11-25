@@ -46,7 +46,7 @@ final class SchemaValidatorTest extends TestCase
     {
         $isAvailable = $this->schemaValidator->isAvailable();
 
-        $this->assertTrue($isAvailable);
+        self::assertTrue($isAvailable);
     }
 
     public function testValidateWithValidData(): void
@@ -189,12 +189,12 @@ final class SchemaValidatorTest extends TestCase
 
         try {
             $this->schemaValidator->validate($invalidData);
-            $this->fail('Expected RuntimeException was not thrown');
+            self::fail('Expected RuntimeException was not thrown');
         } catch (RuntimeException $e) {
             $message = $e->getMessage();
-            $this->assertStringContainsString('Configuration validation failed:', $message);
+            self::assertStringContainsString('Configuration validation failed:', $message);
             // The error message should contain multiple error lines
-            $this->assertGreaterThan(1, substr_count($message, '['));
+            self::assertGreaterThan(1, substr_count($message, '['));
         }
     }
 

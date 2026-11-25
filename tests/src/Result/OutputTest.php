@@ -37,8 +37,8 @@ final class OutputTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->loggerMock = $this->createStub(LoggerInterface::class);
-        $this->inputMock = $this->createStub(InputInterface::class);
+        $this->loggerMock = self::createStub(LoggerInterface::class);
+        $this->inputMock = self::createStub(InputInterface::class);
         $this->output = new BufferedOutput();
     }
 
@@ -59,8 +59,8 @@ final class OutputTest extends TestCase
 
         $exitCode = $output->summarize();
 
-        $this->assertSame($expectedExitCode, $exitCode);
-        $this->assertStringContainsString($expectedMessage, $this->output->fetch());
+        self::assertSame($expectedExitCode, $exitCode);
+        self::assertStringContainsString($expectedMessage, $this->output->fetch());
     }
 
     /**
@@ -80,13 +80,13 @@ final class OutputTest extends TestCase
 
         $exitCode = $output->summarize();
 
-        $this->assertSame($expectedStatus, $exitCode);
+        self::assertSame($expectedStatus, $exitCode);
         $rawOutput = $this->output->fetch();
-        $this->assertJson($rawOutput, 'Output should be valid JSON');
+        self::assertJson($rawOutput, 'Output should be valid JSON');
         $jsonOutput = json_decode($rawOutput, true);
-        $this->assertNotNull($jsonOutput, 'JSON output should be valid');
-        $this->assertSame($expectedStatus, $jsonOutput['status']);
-        $this->assertSame($expectedMessage, $jsonOutput['message']);
+        self::assertNotNull($jsonOutput, 'JSON output should be valid');
+        self::assertSame($expectedStatus, $jsonOutput['status']);
+        self::assertSame($expectedMessage, $jsonOutput['message']);
     }
 
     public function testOutputWithDryRunMode(): void
@@ -98,7 +98,7 @@ final class OutputTest extends TestCase
         );
 
         // In dry run mode, should return SUCCESS even with errors
-        $this->assertSame(Command::SUCCESS, $output->summarize());
+        self::assertSame(Command::SUCCESS, $output->summarize());
     }
 
     public function testOutputWithStrictMode(): void
@@ -110,7 +110,7 @@ final class OutputTest extends TestCase
         );
 
         // In strict mode, warnings should return FAILURE
-        $this->assertSame(Command::FAILURE, $output->summarize());
+        self::assertSame(Command::FAILURE, $output->summarize());
     }
 
     private function createOutput(

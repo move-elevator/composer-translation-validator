@@ -49,7 +49,7 @@ final class AbstractParserTest extends TestCase
     {
         parent::setUp();
         $this->tempDir = sys_get_temp_dir().'/abstract_parser_test_'.uniqid('', true);
-        mkdir($this->tempDir, 0777, true);
+        mkdir($this->tempDir, 0o777, true);
         $this->tempFile = $this->tempDir.'/test.txt';
         file_put_contents($this->tempFile, 'test content');
     }
@@ -69,9 +69,9 @@ final class AbstractParserTest extends TestCase
     {
         $parser = new TestParser($this->tempFile);
 
-        $this->assertSame('test.txt', $parser->getFileName());
-        $this->assertSame($this->tempFile, $parser->getFilePath());
-        $this->assertSame($this->tempDir.\DIRECTORY_SEPARATOR, $parser->getFileDirectory());
+        self::assertSame('test.txt', $parser->getFileName());
+        self::assertSame($this->tempFile, $parser->getFilePath());
+        self::assertSame($this->tempDir.\DIRECTORY_SEPARATOR, $parser->getFileDirectory());
     }
 
     public function testConstructorWithNonExistentFile(): void
@@ -86,7 +86,7 @@ final class AbstractParserTest extends TestCase
     {
         $unreadableFile = $this->tempDir.'/unreadable.txt';
         file_put_contents($unreadableFile, 'test content');
-        chmod($unreadableFile, 0000);
+        chmod($unreadableFile, 0o000);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('File "'.$unreadableFile.'" is not readable.');
@@ -94,7 +94,7 @@ final class AbstractParserTest extends TestCase
         try {
             new TestParser($unreadableFile);
         } finally {
-            chmod($unreadableFile, 0644);
+            chmod($unreadableFile, 0o644);
             unlink($unreadableFile);
         }
     }
@@ -116,25 +116,25 @@ final class AbstractParserTest extends TestCase
 
     public function testGetSupportedFileExtensions(): void
     {
-        $this->assertSame(['txt', 'test'], TestParser::getSupportedFileExtensions());
+        self::assertSame(['txt', 'test'], TestParser::getSupportedFileExtensions());
     }
 
     public function testGetFileName(): void
     {
         $parser = new TestParser($this->tempFile);
-        $this->assertSame('test.txt', $parser->getFileName());
+        self::assertSame('test.txt', $parser->getFileName());
     }
 
     public function testGetFileDirectory(): void
     {
         $parser = new TestParser($this->tempFile);
-        $this->assertSame($this->tempDir.\DIRECTORY_SEPARATOR, $parser->getFileDirectory());
+        self::assertSame($this->tempDir.\DIRECTORY_SEPARATOR, $parser->getFileDirectory());
     }
 
     public function testGetFilePath(): void
     {
         $parser = new TestParser($this->tempFile);
-        $this->assertSame($this->tempFile, $parser->getFilePath());
+        self::assertSame($this->tempFile, $parser->getFilePath());
     }
 
     public function testConstructorWithDifferentSupportedExtension(): void
@@ -144,7 +144,7 @@ final class AbstractParserTest extends TestCase
 
         $parser = new TestParser($testFile);
 
-        $this->assertSame('test.test', $parser->getFileName());
+        self::assertSame('test.test', $parser->getFileName());
 
         unlink($testFile);
     }
@@ -153,17 +153,17 @@ final class AbstractParserTest extends TestCase
     {
         $parser = new TestParser($this->tempFile);
 
-        $this->assertSame('test content', $parser->getRawContent());
+        self::assertSame('test content', $parser->getRawContent());
     }
 
     public function testGetRawContentCachesResult(): void
     {
         $parser = new TestParser($this->tempFile);
 
-        $this->assertSame('test content', $parser->getRawContent());
+        self::assertSame('test content', $parser->getRawContent());
 
         file_put_contents($this->tempFile, 'changed content');
 
-        $this->assertSame('test content', $parser->getRawContent());
+        self::assertSame('test content', $parser->getRawContent());
     }
 }

@@ -50,17 +50,17 @@ final class ConfigFactoryTest extends TestCase
 
         $config = $this->factory->createFromArray($data);
 
-        $this->assertSame(['translations/', 'locale/'], $config->getPaths());
-        $this->assertSame(['Validator1', 'Validator2'], $config->getValidators());
-        $this->assertSame(['Detector1'], $config->getFileDetectors());
-        $this->assertSame(['Parser1'], $config->getParsers());
-        $this->assertSame(['OnlyValidator'], $config->getOnly());
-        $this->assertSame(['SkipValidator'], $config->getSkip());
-        $this->assertSame(['*.backup', '*.tmp'], $config->getExclude());
-        $this->assertTrue($config->getStrict());
-        $this->assertFalse($config->getDryRun());
-        $this->assertSame('json', $config->getFormat());
-        $this->assertTrue($config->getVerbose());
+        self::assertSame(['translations/', 'locale/'], $config->getPaths());
+        self::assertSame(['Validator1', 'Validator2'], $config->getValidators());
+        self::assertSame(['Detector1'], $config->getFileDetectors());
+        self::assertSame(['Parser1'], $config->getParsers());
+        self::assertSame(['OnlyValidator'], $config->getOnly());
+        self::assertSame(['SkipValidator'], $config->getSkip());
+        self::assertSame(['*.backup', '*.tmp'], $config->getExclude());
+        self::assertTrue($config->getStrict());
+        self::assertFalse($config->getDryRun());
+        self::assertSame('json', $config->getFormat());
+        self::assertTrue($config->getVerbose());
     }
 
     public function testCreateFromArrayWithEmptyData(): void
@@ -68,20 +68,20 @@ final class ConfigFactoryTest extends TestCase
         // Use minimal valid data to avoid schema validation issues
         $config = $this->factory->createFromArray(['paths' => ['translations/']]);
 
-        $this->assertSame(['translations/'], $config->getPaths());
-        $this->assertSame([], $config->getValidators());
-        $this->assertSame([], $config->getFileDetectors());
-        $this->assertSame([], $config->getParsers());
-        $this->assertSame([], $config->getOnly());
-        $this->assertSame([
+        self::assertSame(['translations/'], $config->getPaths());
+        self::assertSame([], $config->getValidators());
+        self::assertSame([], $config->getFileDetectors());
+        self::assertSame([], $config->getParsers());
+        self::assertSame([], $config->getOnly());
+        self::assertSame([
             \MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator::class,
             \MoveElevator\ComposerTranslationValidator\Validator\KeyNamingConventionValidator::class,
         ], $config->getSkip());
-        $this->assertSame([], $config->getExclude());
-        $this->assertFalse($config->getStrict());
-        $this->assertFalse($config->getDryRun());
-        $this->assertSame('cli', $config->getFormat());
-        $this->assertFalse($config->getVerbose());
+        self::assertSame([], $config->getExclude());
+        self::assertFalse($config->getStrict());
+        self::assertFalse($config->getDryRun());
+        self::assertSame('cli', $config->getFormat());
+        self::assertFalse($config->getVerbose());
     }
 
     public function testCreateFromArrayWithPartialData(): void
@@ -94,11 +94,11 @@ final class ConfigFactoryTest extends TestCase
 
         $config = $this->factory->createFromArray($data);
 
-        $this->assertSame(['translations/'], $config->getPaths());
-        $this->assertTrue($config->getStrict());
-        $this->assertSame('cli', $config->getFormat());
-        $this->assertSame([], $config->getValidators());
-        $this->assertFalse($config->getDryRun());
+        self::assertSame(['translations/'], $config->getPaths());
+        self::assertTrue($config->getStrict());
+        self::assertSame('cli', $config->getFormat());
+        self::assertSame([], $config->getValidators());
+        self::assertFalse($config->getDryRun());
     }
 
     public function testCreateFromArrayValidatesData(): void

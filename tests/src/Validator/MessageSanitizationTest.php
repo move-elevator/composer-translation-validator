@@ -71,15 +71,15 @@ final class MessageSanitizationTest extends TestCase
         $message = $validator->formatIssueMessage(new Issue('/p/a.en.json', $details, 'P', 'V'));
 
         foreach (explode("\n", $message) as $line) {
-            $this->assertFalse(str_starts_with(ltrim($line), '::'), 'Line starts with a workflow command: '.$line);
+            self::assertFalse(str_starts_with(ltrim($line), '::'), 'Line starts with a workflow command: '.$line);
         }
 
         $rendered = (new OutputFormatter(true))->format($message);
 
-        $this->assertNotNull($rendered);
-        $this->assertStringNotContainsString("\e[2J", $rendered);
-        $this->assertStringNotContainsString("\e[41m", $rendered);
-        $this->assertStringNotContainsString("\e]8;", $rendered);
-        $this->assertStringContainsString('<bg=red>RED</>', $rendered);
+        self::assertNotNull($rendered);
+        self::assertStringNotContainsString("\e[2J", $rendered);
+        self::assertStringNotContainsString("\e[41m", $rendered);
+        self::assertStringNotContainsString("\e]8;", $rendered);
+        self::assertStringContainsString('<bg=red>RED</>', $rendered);
     }
 }

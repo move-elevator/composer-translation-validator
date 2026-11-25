@@ -45,8 +45,8 @@ final class ValidateTranslationCommandTest extends TestCase
         ]);
 
         $output = $commandTester->getDisplay();
-        $this->assertStringContainsString('Language validation succeeded.', $output);
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertStringContainsString('Language validation succeeded.', $output);
+        self::assertSame(0, $commandTester->getStatusCode());
     }
 
     public function testExecuteWithNoPaths(): void
@@ -61,8 +61,8 @@ final class ValidateTranslationCommandTest extends TestCase
             'path' => [],
         ]);
 
-        $this->assertStringContainsString('No paths provided.', $commandTester->getDisplay());
-        $this->assertSame(1, $commandTester->getStatusCode());
+        self::assertStringContainsString('No paths provided.', $commandTester->getDisplay());
+        self::assertSame(1, $commandTester->getStatusCode());
     }
 
     public function testExecuteWithNoFilesFound(): void
@@ -77,8 +77,8 @@ final class ValidateTranslationCommandTest extends TestCase
             'path' => [__DIR__.'/../Fixtures/empty'],
         ]);
 
-        $this->assertStringContainsString('No files found in the specified directories.', $commandTester->getDisplay());
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertStringContainsString('No files found in the specified directories.', $commandTester->getDisplay());
+        self::assertSame(0, $commandTester->getStatusCode());
     }
 
     public function testExecuteWithInvalidValidator(): void
@@ -94,8 +94,8 @@ final class ValidateTranslationCommandTest extends TestCase
             '--only' => 'Invalid\\Validator\\Class',
         ]);
 
-        $this->assertSame(Command::FAILURE, $commandTester->getStatusCode());
-        $this->assertStringContainsString(
+        self::assertSame(Command::FAILURE, $commandTester->getStatusCode());
+        self::assertStringContainsString(
             'The "--only" option contains no valid validators.',
             $commandTester->getDisplay(),
         );
@@ -114,8 +114,8 @@ final class ValidateTranslationCommandTest extends TestCase
             '--skip' => 'Invalid\\Validator\\Class',
         ]);
 
-        $this->assertSame(Command::FAILURE, $commandTester->getStatusCode());
-        $this->assertStringContainsString(
+        self::assertSame(Command::FAILURE, $commandTester->getStatusCode());
+        self::assertStringContainsString(
             'The "--skip" option contains no valid validators.',
             $commandTester->getDisplay(),
         );
@@ -138,8 +138,8 @@ final class ValidateTranslationCommandTest extends TestCase
             rmdir($directory);
         }
 
-        $this->assertJson($commandTester->getDisplay());
-        $this->assertStringContainsString('has no counterpart in other languages', $commandTester->getErrorOutput());
+        self::assertJson($commandTester->getDisplay());
+        self::assertStringContainsString('has no counterpart in other languages', $commandTester->getErrorOutput());
     }
 
     /**
@@ -162,8 +162,8 @@ final class ValidateTranslationCommandTest extends TestCase
             unlink($configFile);
         }
 
-        $this->assertSame(Command::FAILURE, $commandTester->getStatusCode());
-        $this->assertStringContainsString($expectedMessage, $commandTester->getDisplay());
+        self::assertSame(Command::FAILURE, $commandTester->getStatusCode());
+        self::assertStringContainsString($expectedMessage, $commandTester->getDisplay());
     }
 
     public function testExecuteIgnoresInvalidConfigSkipWhenOnlyOptionIsGiven(): void
@@ -183,7 +183,7 @@ final class ValidateTranslationCommandTest extends TestCase
             unlink($configFile);
         }
 
-        $this->assertSame(Command::SUCCESS, $commandTester->getStatusCode());
+        self::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
     }
 
     public function testExecuteIgnoresInvalidValidatorNextToValidOneInConfigFile(): void
@@ -196,8 +196,8 @@ final class ValidateTranslationCommandTest extends TestCase
             unlink($configFile);
         }
 
-        $this->assertSame(Command::SUCCESS, $commandTester->getStatusCode());
-        $this->assertStringContainsString('The class "Invalid\\Validator\\Class" does not exist.', $commandTester->getDisplay());
+        self::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
+        self::assertStringContainsString('The class "Invalid\\Validator\\Class" does not exist.', $commandTester->getDisplay());
     }
 
     public function testExecuteWithErrors(): void
@@ -212,8 +212,8 @@ final class ValidateTranslationCommandTest extends TestCase
             'path' => [__DIR__.'/../Fixtures/translations/xliff/fail'],
         ]);
 
-        $this->assertStringContainsString('Language validation failed', $commandTester->getDisplay());
-        $this->assertSame(1, $commandTester->getStatusCode());
+        self::assertStringContainsString('Language validation failed', $commandTester->getDisplay());
+        self::assertSame(1, $commandTester->getStatusCode());
     }
 
     public function testExecuteWithErrorsAndDryRun(): void
@@ -229,8 +229,8 @@ final class ValidateTranslationCommandTest extends TestCase
             '--dry-run' => true,
         ]);
 
-        $this->assertStringContainsString('Language validation failed', $commandTester->getDisplay());
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertStringContainsString('Language validation failed', $commandTester->getDisplay());
+        self::assertSame(0, $commandTester->getStatusCode());
     }
 
     public function testExecuteWithJsonFormat(): void
@@ -247,14 +247,14 @@ final class ValidateTranslationCommandTest extends TestCase
         ]);
 
         $output = json_decode($commandTester->getDisplay(), true);
-        $this->assertIsArray($output);
-        $this->assertArrayHasKey('status', $output);
-        $this->assertSame(0, $output['status']);
-        $this->assertArrayHasKey('message', $output);
-        $this->assertStringContainsString('Language validation succeeded.', (string) $output['message']);
-        $this->assertArrayHasKey('issues', $output);
-        $this->assertEmpty($output['issues']);
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertIsArray($output);
+        self::assertArrayHasKey('status', $output);
+        self::assertSame(0, $output['status']);
+        self::assertArrayHasKey('message', $output);
+        self::assertStringContainsString('Language validation succeeded.', (string) $output['message']);
+        self::assertArrayHasKey('issues', $output);
+        self::assertEmpty($output['issues']);
+        self::assertSame(0, $commandTester->getStatusCode());
     }
 
     public function testExecuteWithErrorsAndVerboseOutput(): void
@@ -269,10 +269,10 @@ final class ValidateTranslationCommandTest extends TestCase
             'path' => [__DIR__.'/../Fixtures/translations/xliff/fail'],
         ], ['verbosity' => OutputInterface::VERBOSITY_VERBOSE]);
 
-        $this->assertStringContainsString('Language validation failed', $commandTester->getDisplay());
+        self::assertStringContainsString('Language validation failed', $commandTester->getDisplay());
         // In verbose mode, validator names should be shown grouped by file
-        $this->assertStringContainsString('MismatchValidator', $commandTester->getDisplay());
-        $this->assertSame(1, $commandTester->getStatusCode());
+        self::assertStringContainsString('MismatchValidator', $commandTester->getDisplay());
+        self::assertSame(1, $commandTester->getStatusCode());
     }
 
     public function testExecuteWithJsonFormatAndErrors(): void
@@ -289,14 +289,14 @@ final class ValidateTranslationCommandTest extends TestCase
         ]);
 
         $output = json_decode($commandTester->getDisplay(), true);
-        $this->assertIsArray($output);
-        $this->assertArrayHasKey('status', $output);
-        $this->assertSame(1, $output['status']);
-        $this->assertArrayHasKey('message', $output);
-        $this->assertStringContainsString('Language validation failed with errors.', (string) $output['message']);
-        $this->assertArrayHasKey('issues', $output);
-        $this->assertNotEmpty($output['issues']);
-        $this->assertSame(1, $commandTester->getStatusCode());
+        self::assertIsArray($output);
+        self::assertArrayHasKey('status', $output);
+        self::assertSame(1, $output['status']);
+        self::assertArrayHasKey('message', $output);
+        self::assertStringContainsString('Language validation failed with errors.', (string) $output['message']);
+        self::assertArrayHasKey('issues', $output);
+        self::assertNotEmpty($output['issues']);
+        self::assertSame(1, $commandTester->getStatusCode());
     }
 
     public function testExecuteWithInvalidFormat(): void
@@ -312,8 +312,8 @@ final class ValidateTranslationCommandTest extends TestCase
             '--format' => 'invalid',
         ]);
 
-        $this->assertStringContainsString('Invalid output format specified.', $commandTester->getDisplay());
-        $this->assertSame(1, $commandTester->getStatusCode());
+        self::assertStringContainsString('Invalid output format specified.', $commandTester->getDisplay());
+        self::assertSame(1, $commandTester->getStatusCode());
     }
 
     public function testExecuteWithNullValidator(): void
@@ -329,8 +329,8 @@ final class ValidateTranslationCommandTest extends TestCase
             '--skip' => null,
         ]);
 
-        $this->assertStringContainsString('Language validation succeeded.', $commandTester->getDisplay());
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertStringContainsString('Language validation succeeded.', $commandTester->getDisplay());
+        self::assertSame(0, $commandTester->getStatusCode());
     }
 
     public function testExecuteWithRecursiveOption(): void
@@ -348,8 +348,8 @@ final class ValidateTranslationCommandTest extends TestCase
         ]);
 
         $output = $commandTester->getDisplay();
-        $this->assertStringContainsString('Language validation', $output);
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertStringContainsString('Language validation', $output);
+        self::assertSame(0, $commandTester->getStatusCode());
     }
 
     public function testExecuteWithRecursiveShortOption(): void
@@ -367,8 +367,8 @@ final class ValidateTranslationCommandTest extends TestCase
         ]);
 
         $output = $commandTester->getDisplay();
-        $this->assertStringContainsString('Language validation', $output);
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertStringContainsString('Language validation', $output);
+        self::assertSame(0, $commandTester->getStatusCode());
     }
 
     public function testExecuteWithRecursiveAndJsonFormat(): void
@@ -386,8 +386,8 @@ final class ValidateTranslationCommandTest extends TestCase
         ]);
 
         $output = json_decode($commandTester->getDisplay(), true);
-        $this->assertIsArray($output);
-        $this->assertArrayHasKey('status', $output);
+        self::assertIsArray($output);
+        self::assertArrayHasKey('status', $output);
     }
 
     public function testRecursiveOptionCanBeUsedWithOtherOptions(): void
@@ -405,7 +405,7 @@ final class ValidateTranslationCommandTest extends TestCase
             '--strict' => true,
         ]);
 
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertSame(0, $commandTester->getStatusCode());
     }
 
     public function testExecuteWithExcludeOption(): void
@@ -423,8 +423,8 @@ final class ValidateTranslationCommandTest extends TestCase
         ]);
 
         $output = $commandTester->getDisplay();
-        $this->assertStringContainsString('Language validation', $output);
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertStringContainsString('Language validation', $output);
+        self::assertSame(0, $commandTester->getStatusCode());
     }
 
     public function testExecuteWithMultipleExcludePatterns(): void
@@ -442,8 +442,8 @@ final class ValidateTranslationCommandTest extends TestCase
         ]);
 
         $output = $commandTester->getDisplay();
-        $this->assertStringContainsString('Language validation', $output);
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertStringContainsString('Language validation', $output);
+        self::assertSame(0, $commandTester->getStatusCode());
     }
 
     public function testExecuteWithExcludeShortOption(): void
@@ -461,8 +461,8 @@ final class ValidateTranslationCommandTest extends TestCase
         ]);
 
         $output = $commandTester->getDisplay();
-        $this->assertStringContainsString('Language validation', $output);
-        $this->assertSame(0, $commandTester->getStatusCode());
+        self::assertStringContainsString('Language validation', $output);
+        self::assertSame(0, $commandTester->getStatusCode());
     }
 
     /**

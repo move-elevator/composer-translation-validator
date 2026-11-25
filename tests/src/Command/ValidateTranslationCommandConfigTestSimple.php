@@ -31,8 +31,8 @@ final class ValidateTranslationCommandConfigTestSimple extends TestCase
         $command = new ValidateTranslationCommand();
         $definition = $command->getDefinition();
 
-        $this->assertTrue($definition->hasOption('config'));
-        $this->assertSame('c', $definition->getOption('config')->getShortcut());
-        $this->assertSame('Path to the configuration file', $definition->getOption('config')->getDescription());
+        self::assertTrue($definition->hasOption('config'));
+        self::assertSame('c', $definition->getOption('config')->getShortcut());
+        self::assertSame('Path to the configuration file', $definition->getOption('config')->getDescription());
     }
 }

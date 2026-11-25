@@ -57,7 +57,7 @@ final class ValidationOrchestrationServiceTest extends TestCase
             new TranslationValidatorConfig(),
         );
 
-        $this->assertNotInstanceOf(ValidationResult::class, $result);
+        self::assertNotInstanceOf(ValidationResult::class, $result);
     }
 
     public function testExecuteValidationWithNoFilesFound(): void
@@ -71,7 +71,7 @@ final class ValidationOrchestrationServiceTest extends TestCase
             new TranslationValidatorConfig(),
         );
 
-        $this->assertNotInstanceOf(ValidationResult::class, $result);
+        self::assertNotInstanceOf(ValidationResult::class, $result);
     }
 
     public function testExecuteValidationWithValidFiles(): void
@@ -87,7 +87,7 @@ final class ValidationOrchestrationServiceTest extends TestCase
             new TranslationValidatorConfig(),
         );
 
-        $this->assertInstanceOf(ValidationResult::class, $result);
+        self::assertInstanceOf(ValidationResult::class, $result);
     }
 
     public function testExecuteValidationWithRecursiveSearch(): void
@@ -103,7 +103,7 @@ final class ValidationOrchestrationServiceTest extends TestCase
             new TranslationValidatorConfig(),
         );
 
-        $this->assertInstanceOf(ValidationResult::class, $result);
+        self::assertInstanceOf(ValidationResult::class, $result);
     }
 
     public function testExecuteValidationWithExcludePatterns(): void
@@ -119,7 +119,7 @@ final class ValidationOrchestrationServiceTest extends TestCase
             new TranslationValidatorConfig(),
         );
 
-        $this->assertInstanceOf(ValidationResult::class, $result);
+        self::assertInstanceOf(ValidationResult::class, $result);
     }
 
     public function testResolveFileDetectorsKeepsConfiguredOrderAndSkipsInvalidClasses(): void
@@ -129,14 +129,14 @@ final class ValidationOrchestrationServiceTest extends TestCase
 
         $detectors = $this->service->resolveFileDetectors($config);
 
-        $this->assertCount(2, $detectors);
-        $this->assertInstanceOf(DirectoryFileDetector::class, $detectors[0]);
-        $this->assertInstanceOf(SuffixFileDetector::class, $detectors[1]);
+        self::assertCount(2, $detectors);
+        self::assertInstanceOf(DirectoryFileDetector::class, $detectors[0]);
+        self::assertInstanceOf(SuffixFileDetector::class, $detectors[1]);
     }
 
     public function testResolveFileDetectorsWithEmptyConfig(): void
     {
-        $this->assertSame([], $this->service->resolveFileDetectors(new TranslationValidatorConfig()));
+        self::assertSame([], $this->service->resolveFileDetectors(new TranslationValidatorConfig()));
     }
 
     public function testResolveFileDetectorsWithInvalidClass(): void
@@ -144,7 +144,7 @@ final class ValidationOrchestrationServiceTest extends TestCase
         $config = new TranslationValidatorConfig();
         $config->setFileDetectors(['NonExistentClass']);
 
-        $this->assertSame([], $this->service->resolveFileDetectors($config));
+        self::assertSame([], $this->service->resolveFileDetectors($config));
     }
 
     public function testResolveValidatorsWithOnlyParameter(): void
@@ -152,7 +152,7 @@ final class ValidationOrchestrationServiceTest extends TestCase
         $only = [MismatchValidator::class];
         $validators = $this->service->resolveValidators($only);
 
-        $this->assertSame($only, $validators);
+        self::assertSame($only, $validators);
     }
 
     public function testResolveValidatorsWithSkipParameter(): void
@@ -163,7 +163,7 @@ final class ValidationOrchestrationServiceTest extends TestCase
 
         $validators = $this->service->resolveValidators(null, $skip);
 
-        $this->assertEquals($expected, $validators);
+        self::assertEquals($expected, $validators);
     }
 
     public function testResolveValidatorsWithConfig(): void
@@ -173,7 +173,7 @@ final class ValidationOrchestrationServiceTest extends TestCase
 
         $validators = $this->service->resolveValidators(null, null, $config);
 
-        $this->assertSame([MismatchValidator::class], $validators);
+        self::assertSame([MismatchValidator::class], $validators);
     }
 
     public function testResolveValidatorsWithConfigSkip(): void
@@ -185,7 +185,7 @@ final class ValidationOrchestrationServiceTest extends TestCase
 
         $validators = $this->service->resolveValidators(null, null, $config);
 
-        $this->assertEquals($expected, $validators);
+        self::assertEquals($expected, $validators);
     }
 
     public function testResolveValidatorsWithParameterOverridingConfig(): void
@@ -197,7 +197,7 @@ final class ValidationOrchestrationServiceTest extends TestCase
         $parameterOnly = ValidatorRegistry::getAvailableValidators();
         $validators = $this->service->resolveValidators($parameterOnly, null, $config);
 
-        $this->assertEquals($parameterOnly, $validators);
+        self::assertEquals($parameterOnly, $validators);
     }
 
     public function testResolveValidatorsWithDefaultBehavior(): void
@@ -205,7 +205,7 @@ final class ValidationOrchestrationServiceTest extends TestCase
         $validators = $this->service->resolveValidators();
         $expected = ValidatorRegistry::getAvailableValidators();
 
-        $this->assertEquals($expected, $validators);
+        self::assertEquals($expected, $validators);
     }
 
     public function testResolvePathsWithInputPaths(): void
@@ -216,8 +216,8 @@ final class ValidationOrchestrationServiceTest extends TestCase
 
         $resolvedPaths = $this->service->resolvePaths($inputPaths, $config);
 
-        $this->assertEquals('/absolute/path', $resolvedPaths[0]);
-        $this->assertStringEndsWith('/relative/path', $resolvedPaths[1]);
+        self::assertEquals('/absolute/path', $resolvedPaths[0]);
+        self::assertStringEndsWith('/relative/path', $resolvedPaths[1]);
     }
 
     public function testResolvePathsWithConfigPaths(): void
@@ -228,8 +228,8 @@ final class ValidationOrchestrationServiceTest extends TestCase
 
         $resolvedPaths = $this->service->resolvePaths($inputPaths, $config);
 
-        $this->assertEquals('/absolute/config', $resolvedPaths[0]);
-        $this->assertStringEndsWith('/relative/config', $resolvedPaths[1]);
+        self::assertEquals('/absolute/config', $resolvedPaths[0]);
+        self::assertStringEndsWith('/relative/config', $resolvedPaths[1]);
     }
 
     public function testResolvePathsWithEmptyInput(): void
@@ -239,7 +239,7 @@ final class ValidationOrchestrationServiceTest extends TestCase
 
         $resolvedPaths = $this->service->resolvePaths($inputPaths, $config);
 
-        $this->assertEmpty($resolvedPaths);
+        self::assertEmpty($resolvedPaths);
     }
 
     public function testValidateClassInputWithNullInput(): void
@@ -250,7 +250,7 @@ final class ValidationOrchestrationServiceTest extends TestCase
             null,
         );
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testValidateClassInputWithSingleClass(): void
@@ -261,7 +261,7 @@ final class ValidationOrchestrationServiceTest extends TestCase
             MismatchValidator::class,
         );
 
-        $this->assertSame([MismatchValidator::class], $result);
+        self::assertSame([MismatchValidator::class], $result);
     }
 
     public function testValidateClassInputWithMultipleClasses(): void
@@ -275,8 +275,8 @@ final class ValidationOrchestrationServiceTest extends TestCase
             $input,
         );
 
-        $this->assertCount(2, $result);
-        $this->assertEquals(array_slice($validators, 0, 2), $result);
+        self::assertCount(2, $result);
+        self::assertEquals(array_slice($validators, 0, 2), $result);
     }
 
     public function testValidateClassInputWithArrayFiltersInvalidClasses(): void
@@ -287,7 +287,7 @@ final class ValidationOrchestrationServiceTest extends TestCase
             ['Invalid\\Validator\\Class', MismatchValidator::class],
         );
 
-        $this->assertSame([MismatchValidator::class], $result);
+        self::assertSame([MismatchValidator::class], $result);
     }
 
     public function testValidateClassInputWithInvalidClass(): void
@@ -300,7 +300,7 @@ final class ValidationOrchestrationServiceTest extends TestCase
             'NonExistentValidator',
         );
 
-        $this->assertSame([], $result);
+        self::assertSame([], $result);
     }
 
     public function testValidateClassInputMixesValidAndInvalidClasses(): void
@@ -311,6 +311,6 @@ final class ValidationOrchestrationServiceTest extends TestCase
             MismatchValidator::class.',NonExistentValidator',
         );
 
-        $this->assertSame([MismatchValidator::class], $result);
+        self::assertSame([MismatchValidator::class], $result);
     }
 }

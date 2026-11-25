@@ -100,11 +100,11 @@ final class JsonParserTest extends TestCase
     {
         $parser = new JsonParser($this->validJsonFile);
         $keys = $parser->extractKeys();
-        $this->assertSame(['key1', 'key2'], $keys);
+        self::assertSame(['key1', 'key2'], $keys);
 
         $nestedParser = new JsonParser($this->nestedJsonFile);
         $nestedKeys = $nestedParser->extractKeys();
-        $this->assertSame(['parent.child1', 'parent.child2'], $nestedKeys);
+        self::assertSame(['parent.child1', 'parent.child2'], $nestedKeys);
     }
 
     public function testExtractKeysIsMemoized(): void
@@ -114,19 +114,19 @@ final class JsonParserTest extends TestCase
         $first = $parser->extractKeys();
         $second = $parser->extractKeys();
 
-        $this->assertSame(['key1', 'key2'], $first);
-        $this->assertSame($first, $second);
+        self::assertSame(['key1', 'key2'], $first);
+        self::assertSame($first, $second);
     }
 
     public function testGetContentByKey(): void
     {
         $parser = new JsonParser($this->validJsonFile);
-        $this->assertSame('value1', $parser->getContentByKey('key1'));
-        $this->assertNull($parser->getContentByKey('nonexistent_key'));
+        self::assertSame('value1', $parser->getContentByKey('key1'));
+        self::assertNull($parser->getContentByKey('nonexistent_key'));
 
         $nestedParser = new JsonParser($this->nestedJsonFile);
-        $this->assertSame('value1', $nestedParser->getContentByKey('parent.child1'));
-        $this->assertNull($nestedParser->getContentByKey('parent.nonexistent'));
+        self::assertSame('value1', $nestedParser->getContentByKey('parent.child1'));
+        self::assertNull($nestedParser->getContentByKey('parent.nonexistent'));
     }
 
     public function testGetContentByKeyReturnsNullForNonStringValues(): void
@@ -140,25 +140,25 @@ final class JsonParserTest extends TestCase
         ], \JSON_PRETTY_PRINT));
 
         $parser = new JsonParser($arrayValueFile);
-        $this->assertNull($parser->getContentByKey('key_with_array'));
-        $this->assertNull($parser->getContentByKey('key_with_object'));
-        $this->assertNull($parser->getContentByKey('key_with_null'));
-        $this->assertNull($parser->getContentByKey('key_with_number'));
+        self::assertNull($parser->getContentByKey('key_with_array'));
+        self::assertNull($parser->getContentByKey('key_with_object'));
+        self::assertNull($parser->getContentByKey('key_with_null'));
+        self::assertNull($parser->getContentByKey('key_with_number'));
     }
 
     public function testGetSupportedFileExtensions(): void
     {
         $extensions = JsonParser::getSupportedFileExtensions();
-        $this->assertSame(['json'], $extensions);
+        self::assertSame(['json'], $extensions);
     }
 
     public function testGetLanguage(): void
     {
         $parser = new JsonParser($this->languageJsonFile);
-        $this->assertSame('de', $parser->getLanguage());
+        self::assertSame('de', $parser->getLanguage());
 
         $parser = new JsonParser($this->validJsonFile);
-        $this->assertSame('', $parser->getLanguage());
+        self::assertSame('', $parser->getLanguage());
     }
 
     public function testGetLanguageWithDifferentPatterns(): void
@@ -178,7 +178,7 @@ final class JsonParserTest extends TestCase
             file_put_contents($file, '{"key": "value"}');
 
             $parser = new JsonParser($file);
-            $this->assertSame($expectedLanguage, $parser->getLanguage(), "Failed for filename: $filename");
+            self::assertSame($expectedLanguage, $parser->getLanguage(), "Failed for filename: $filename");
 
             unlink($file);
         }
@@ -213,7 +213,7 @@ final class JsonParserTest extends TestCase
         }
         sort($expectedKeys);
 
-        $this->assertSame($expectedKeys, $keys);
+        self::assertSame($expectedKeys, $keys);
     }
 
     public function testGetContentByKeyWithComplexNesting(): void
@@ -228,9 +228,9 @@ final class JsonParserTest extends TestCase
         ], \JSON_PRETTY_PRINT));
 
         $parser = new JsonParser($complexFile);
-        $this->assertSame('deep_value', $parser->getContentByKey('level1.level2.level3'));
-        $this->assertNull($parser->getContentByKey('level1.level2.level4'));
-        $this->assertNull($parser->getContentByKey('level1.level2.level3.too_deep'));
+        self::assertSame('deep_value', $parser->getContentByKey('level1.level2.level3'));
+        self::assertNull($parser->getContentByKey('level1.level2.level4'));
+        self::assertNull($parser->getContentByKey('level1.level2.level3.too_deep'));
     }
 
     private function removeDirectory(string $path): void

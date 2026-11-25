@@ -30,5 +30,12 @@ return Config::create()
             DocBlockHeader::fromComposer()->__toArray(),
         ),
     )
+    // Overridden methods must stay overridable, and assertEquals must not be turned into assertSame blindly
+    ->withRule(
+        RuleSet::fromArray([
+            'final_public_method_for_abstract_class' => false,
+            'php_unit_strict' => false,
+        ]),
+    )
     ->withFinder(static fn (Finder $finder) => $finder->in(__DIR__))
 ;

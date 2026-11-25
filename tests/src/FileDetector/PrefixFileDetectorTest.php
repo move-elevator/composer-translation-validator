@@ -32,7 +32,7 @@ final class PrefixFileDetectorTest extends TestCase
     #[DataProvider('mapTranslationSetProvider')]
     public function testMapTranslationSet(array $files, array $expected): void
     {
-        $this->assertSame($expected, (new PrefixFileDetector())->mapTranslationSet($files));
+        self::assertSame($expected, (new PrefixFileDetector())->mapTranslationSet($files));
     }
 
     /**

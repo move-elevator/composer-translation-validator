@@ -180,7 +180,7 @@ EOT;
     {
         $unreadableFile = $this->tempDir.'/unreadable.xlf';
         file_put_contents($unreadableFile, 'content');
-        chmod($unreadableFile, 0000); // Make unreadable
+        chmod($unreadableFile, 0o000); // Make unreadable
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessageMatches('/File ".*" is not readable./');
@@ -202,7 +202,7 @@ EOT;
         $parser = new XliffParser($this->validXliffFile);
         $keys = $parser->extractKeys();
 
-        $this->assertSame(['key1', 'key2', 'key3'], $keys);
+        self::assertSame(['key1', 'key2', 'key3'], $keys);
     }
 
     public function testExtractKeysIsMemoized(): void
@@ -212,36 +212,36 @@ EOT;
         $first = $parser->extractKeys();
         $second = $parser->extractKeys();
 
-        $this->assertSame(['key1', 'key2', 'key3'], $first);
-        $this->assertSame($first, $second);
+        self::assertSame(['key1', 'key2', 'key3'], $first);
+        self::assertSame($first, $second);
     }
 
     public function testGetContentByKeySource(): void
     {
         $parser = new XliffParser($this->validXliffFile);
 
-        $this->assertSame('Source 1', $parser->getContentByKey('key1'));
-        $this->assertSame('Source 2', $parser->getContentByKey('key2'));
-        $this->assertSame('Source 3', $parser->getContentByKey('key3'));
-        $this->assertNull($parser->getContentByKey('nonexistent_key'));
+        self::assertSame('Source 1', $parser->getContentByKey('key1'));
+        self::assertSame('Source 2', $parser->getContentByKey('key2'));
+        self::assertSame('Source 3', $parser->getContentByKey('key3'));
+        self::assertNull($parser->getContentByKey('nonexistent_key'));
     }
 
     public function testGetContentByKeyWithTargetLanguage(): void
     {
         $parser = new XliffParser($this->targetLanguageXliffFile);
 
-        $this->assertSame('Target 1', $parser->getContentByKey('key1'));
-        $this->assertSame('Target 2', $parser->getContentByKey('key2'));
-        $this->assertSame('Source 3', $parser->getContentByKey('key3')); // Fallback to source when target is empty
-        $this->assertNull($parser->getContentByKey('nonexistent_key'));
+        self::assertSame('Target 1', $parser->getContentByKey('key1'));
+        self::assertSame('Target 2', $parser->getContentByKey('key2'));
+        self::assertSame('Source 3', $parser->getContentByKey('key3')); // Fallback to source when target is empty
+        self::assertNull($parser->getContentByKey('nonexistent_key'));
     }
 
     public function testGetRawContentReturnsFileContentAndIsMemoized(): void
     {
         $parser = new XliffParser($this->validXliffFile);
 
-        $this->assertSame($this->validXliffContent, $parser->getRawContent());
-        $this->assertSame($parser->getRawContent(), $parser->getRawContent());
+        self::assertSame($this->validXliffContent, $parser->getRawContent());
+        self::assertSame($parser->getRawContent(), $parser->getRawContent());
     }
 
     public function testGetContentByKeyReturnsNullWhenSourceAndTargetEmpty(): void
@@ -262,46 +262,46 @@ EOT;
 
         $parser = new XliffParser($emptyFile);
 
-        $this->assertNull($parser->getContentByKey('empty'));
-        $this->assertSame('Value', $parser->getContentByKey('filled'));
+        self::assertNull($parser->getContentByKey('empty'));
+        self::assertSame('Value', $parser->getContentByKey('filled'));
         // Repeated lookups hit the memoized map and stay consistent.
-        $this->assertSame('Value', $parser->getContentByKey('filled'));
+        self::assertSame('Value', $parser->getContentByKey('filled'));
     }
 
     public function testGetSupportedFileExtensions(): void
     {
         $extensions = XliffParser::getSupportedFileExtensions();
-        $this->assertSame(['xliff', 'xlf'], $extensions);
+        self::assertSame(['xliff', 'xlf'], $extensions);
     }
 
     public function testGetFileName(): void
     {
         $parser = new XliffParser($this->validXliffFile);
-        $this->assertSame('messages.xlf', $parser->getFileName());
+        self::assertSame('messages.xlf', $parser->getFileName());
     }
 
     public function testGetFileDirectory(): void
     {
         $parser = new XliffParser($this->validXliffFile);
-        $this->assertSame($this->tempDir.\DIRECTORY_SEPARATOR, $parser->getFileDirectory());
+        self::assertSame($this->tempDir.\DIRECTORY_SEPARATOR, $parser->getFileDirectory());
     }
 
     public function testGetFilePath(): void
     {
         $parser = new XliffParser($this->validXliffFile);
-        $this->assertSame($this->validXliffFile, $parser->getFilePath());
+        self::assertSame($this->validXliffFile, $parser->getFilePath());
     }
 
     public function testGetLanguageFromPrefixedFileName(): void
     {
         $parser = new XliffParser($this->prefixedXliffFile);
-        $this->assertSame('de', $parser->getLanguage());
+        self::assertSame('de', $parser->getLanguage());
     }
 
     public function testGetLanguageFromSourceLanguageAttribute(): void
     {
         $parser = new XliffParser($this->validXliffFile);
-        $this->assertSame('en', $parser->getLanguage());
+        self::assertSame('en', $parser->getLanguage());
     }
 
     public function testGetLanguageWhenNoPrefixAndNoSourceLanguage(): void
@@ -322,7 +322,7 @@ EOT;
         file_put_contents($noLangFile, $noLangContent);
 
         $parser = new XliffParser($noLangFile);
-        $this->assertSame('', $parser->getLanguage());
+        self::assertSame('', $parser->getLanguage());
     }
 
     public function testConstructorThrowsExceptionWhenFileGetContentsReturnsFalse(): void
@@ -394,7 +394,7 @@ EOT;
         file_put_contents($fallbackFile, $fallbackContent);
 
         $parser = new XliffParser($fallbackFile);
-        $this->assertSame('Fallback Target', $parser->getContentByKey('empty_source'));
+        self::assertSame('Fallback Target', $parser->getContentByKey('empty_source'));
     }
 
     public function testGetContentByKeyFallsBackToSourceWhenTargetIsEmptyInTargetLanguageFile(): void
@@ -416,7 +416,7 @@ EOT;
         file_put_contents($fallbackFile, $fallbackContent);
 
         $parser = new XliffParser($fallbackFile);
-        $this->assertSame('Fallback Source', $parser->getContentByKey('empty_target'));
+        self::assertSame('Fallback Source', $parser->getContentByKey('empty_target'));
     }
 
     public function testGetContentByKeyReturnsNullWhenBothSourceAndTargetAreEmpty(): void
@@ -438,7 +438,7 @@ EOT;
         file_put_contents($emptyFile, $emptyContent);
 
         $parser = new XliffParser($emptyFile);
-        $this->assertNull($parser->getContentByKey('empty_both'));
+        self::assertNull($parser->getContentByKey('empty_both'));
     }
 
     public function testExtractKeysXliff2(): void
@@ -446,45 +446,45 @@ EOT;
         $parser = new XliffParser($this->xliff2File);
         $keys = $parser->extractKeys();
 
-        $this->assertSame(['key1', 'key2', 'key3'], $keys);
+        self::assertSame(['key1', 'key2', 'key3'], $keys);
     }
 
     public function testGetContentByKeySourceXliff2(): void
     {
         $parser = new XliffParser($this->xliff2File);
 
-        $this->assertSame('Source 1', $parser->getContentByKey('key1'));
-        $this->assertSame('Source 2', $parser->getContentByKey('key2'));
-        $this->assertSame('Source 3', $parser->getContentByKey('key3'));
-        $this->assertNull($parser->getContentByKey('nonexistent_key'));
+        self::assertSame('Source 1', $parser->getContentByKey('key1'));
+        self::assertSame('Source 2', $parser->getContentByKey('key2'));
+        self::assertSame('Source 3', $parser->getContentByKey('key3'));
+        self::assertNull($parser->getContentByKey('nonexistent_key'));
     }
 
     public function testGetContentByKeyWithTargetLanguageXliff2(): void
     {
         $parser = new XliffParser($this->xliff2TargetFile);
 
-        $this->assertSame('Target 1', $parser->getContentByKey('key1'));
-        $this->assertSame('Target 2', $parser->getContentByKey('key2'));
-        $this->assertSame('Source 3', $parser->getContentByKey('key3'));
-        $this->assertNull($parser->getContentByKey('nonexistent_key'));
+        self::assertSame('Target 1', $parser->getContentByKey('key1'));
+        self::assertSame('Target 2', $parser->getContentByKey('key2'));
+        self::assertSame('Source 3', $parser->getContentByKey('key3'));
+        self::assertNull($parser->getContentByKey('nonexistent_key'));
     }
 
     public function testGetLanguageFromSrcLangAttributeXliff2(): void
     {
         $parser = new XliffParser($this->xliff2File);
-        $this->assertSame('en', $parser->getLanguage());
+        self::assertSame('en', $parser->getLanguage());
     }
 
     public function testGetLanguageFromFileNamePrefixConvention(): void
     {
         $parser = new XliffParser($this->prefixedXliffFile); // de.messages.xlf
-        $this->assertSame('de', $parser->getLanguageFromFileName());
+        self::assertSame('de', $parser->getLanguageFromFileName());
     }
 
     public function testGetLanguageFromFileNameSuffixConvention(): void
     {
         $parser = new XliffParser($this->targetLanguageXliffFile); // messages.de.xlf
-        $this->assertSame('de', $parser->getLanguageFromFileName());
+        self::assertSame('de', $parser->getLanguageFromFileName());
     }
 
     public function testGetLanguageFromFileNamePrefixConventionWithRegion(): void
@@ -493,7 +493,7 @@ EOT;
         file_put_contents($file, $this->prefixedXliffContent);
 
         $parser = new XliffParser($file);
-        $this->assertSame('de', $parser->getLanguageFromFileName());
+        self::assertSame('de', $parser->getLanguageFromFileName());
     }
 
     public function testGetLanguageFromFileNameSuffixConventionWithRegion(): void
@@ -502,43 +502,43 @@ EOT;
         file_put_contents($file, $this->targetLanguageXliffContent);
 
         $parser = new XliffParser($file);
-        $this->assertSame('de', $parser->getLanguageFromFileName());
+        self::assertSame('de', $parser->getLanguageFromFileName());
     }
 
     public function testGetLanguageFromFileNameReturnsNullForSourceFile(): void
     {
         $parser = new XliffParser($this->validXliffFile); // messages.xlf — no locale
-        $this->assertNull($parser->getLanguageFromFileName());
+        self::assertNull($parser->getLanguageFromFileName());
     }
 
     public function testGetLanguageFromFileNameReturnsNullForXliff2SourceFile(): void
     {
         $parser = new XliffParser($this->xliff2File); // messages_v2.xlf — no locale
-        $this->assertNull($parser->getLanguageFromFileName());
+        self::assertNull($parser->getLanguageFromFileName());
     }
 
     public function testGetTargetLanguageReturnsValueWhenSet(): void
     {
         $parser = new XliffParser($this->targetLanguageXliffFile); // target-language="de"
-        $this->assertSame('de', $parser->getTargetLanguage());
+        self::assertSame('de', $parser->getTargetLanguage());
     }
 
     public function testGetTargetLanguageReturnsNullWhenNotSet(): void
     {
         $parser = new XliffParser($this->validXliffFile); // no target-language attribute
-        $this->assertNull($parser->getTargetLanguage());
+        self::assertNull($parser->getTargetLanguage());
     }
 
     public function testGetTargetLanguageXliff2ReturnsValueWhenSet(): void
     {
         $parser = new XliffParser($this->xliff2TargetFile); // trgLang="de"
-        $this->assertSame('de', $parser->getTargetLanguage());
+        self::assertSame('de', $parser->getTargetLanguage());
     }
 
     public function testGetTargetLanguageXliff2ReturnsNullWhenNotSet(): void
     {
         $parser = new XliffParser($this->xliff2File); // no trgLang
-        $this->assertNull($parser->getTargetLanguage());
+        self::assertNull($parser->getTargetLanguage());
     }
 
     public function testGetTargetLanguageStripsRegionSuffixWithHyphen(): void
@@ -552,7 +552,7 @@ EOT;
   </file>
 </xliff>
 EOT);
-        $this->assertSame('de', (new XliffParser($file))->getTargetLanguage());
+        self::assertSame('de', (new XliffParser($file))->getTargetLanguage());
     }
 
     public function testGetTargetLanguageStripsRegionSuffixWithUnderscore(): void
@@ -566,7 +566,7 @@ EOT);
   </file>
 </xliff>
 EOT);
-        $this->assertSame('de', (new XliffParser($file))->getTargetLanguage());
+        self::assertSame('de', (new XliffParser($file))->getTargetLanguage());
     }
 
     public function testGetTargetLanguageXliff2StripsRegionSuffix(): void
@@ -580,7 +580,7 @@ EOT);
   </file>
 </xliff>
 EOT);
-        $this->assertSame('de', (new XliffParser($file))->getTargetLanguage());
+        self::assertSame('de', (new XliffParser($file))->getTargetLanguage());
     }
 
     public function testGetLocaleFromFileNamePreservesRegionPrefix(): void
@@ -588,7 +588,7 @@ EOT);
         $file = $this->tempDir.'/de_DE.locallang.xlf';
         file_put_contents($file, $this->prefixedXliffContent);
 
-        $this->assertSame('de_DE', (new XliffParser($file))->getLocaleFromFileName());
+        self::assertSame('de_DE', (new XliffParser($file))->getLocaleFromFileName());
     }
 
     public function testGetLocaleFromFileNamePreservesRegionSuffix(): void
@@ -596,13 +596,13 @@ EOT);
         $file = $this->tempDir.'/messages.de_DE.xlf';
         file_put_contents($file, $this->targetLanguageXliffContent);
 
-        $this->assertSame('de_DE', (new XliffParser($file))->getLocaleFromFileName());
+        self::assertSame('de_DE', (new XliffParser($file))->getLocaleFromFileName());
     }
 
     public function testGetLocaleFromFileNameReturnsBaseWhenNoRegion(): void
     {
         $parser = new XliffParser($this->prefixedXliffFile); // de.messages.xlf
-        $this->assertSame('de', $parser->getLocaleFromFileName());
+        self::assertSame('de', $parser->getLocaleFromFileName());
     }
 
     public function testGetLocaleFromFileNamePreservesNonAlphaSubtag(): void
@@ -610,13 +610,13 @@ EOT);
         $file = $this->tempDir.'/messages.es_419.xlf';
         file_put_contents($file, $this->targetLanguageXliffContent);
 
-        $this->assertSame('es_419', (new XliffParser($file))->getLocaleFromFileName());
+        self::assertSame('es_419', (new XliffParser($file))->getLocaleFromFileName());
     }
 
     public function testGetLocaleFromFileNameReturnsNullForSourceFile(): void
     {
         $parser = new XliffParser($this->validXliffFile); // messages.xlf — no locale
-        $this->assertNull($parser->getLocaleFromFileName());
+        self::assertNull($parser->getLocaleFromFileName());
     }
 
     public function testGetTargetLocalePreservesRegion(): void
@@ -630,7 +630,7 @@ EOT);
   </file>
 </xliff>
 EOT);
-        $this->assertSame('de-AT', (new XliffParser($file))->getTargetLocale());
+        self::assertSame('de-AT', (new XliffParser($file))->getTargetLocale());
     }
 
     public function testGetTargetLocaleXliff2PreservesRegion(): void
@@ -644,13 +644,13 @@ EOT);
   </file>
 </xliff>
 EOT);
-        $this->assertSame('de-AT', (new XliffParser($file))->getTargetLocale());
+        self::assertSame('de-AT', (new XliffParser($file))->getTargetLocale());
     }
 
     public function testGetTargetLocaleReturnsNullWhenNotSet(): void
     {
         $parser = new XliffParser($this->validXliffFile); // no target-language attribute
-        $this->assertNull($parser->getTargetLocale());
+        self::assertNull($parser->getTargetLocale());
     }
 
     public function testGetContentByKeyFallsBackToSourceWhenTargetIsEmptyXliff2(): void
@@ -672,7 +672,7 @@ EOT;
         file_put_contents($fallbackFile, $fallbackContent);
 
         $parser = new XliffParser($fallbackFile);
-        $this->assertSame('Fallback Source', $parser->getContentByKey('empty_target'));
+        self::assertSame('Fallback Source', $parser->getContentByKey('empty_target'));
     }
 
     public function testGetContentByKeyFallsBackToTargetWhenSourceIsEmptyXliff2(): void
@@ -694,7 +694,7 @@ EOT;
         file_put_contents($fallbackFile, $fallbackContent);
 
         $parser = new XliffParser($fallbackFile);
-        $this->assertSame('Fallback Target', $parser->getContentByKey('empty_source'));
+        self::assertSame('Fallback Target', $parser->getContentByKey('empty_source'));
     }
 
     public function testExtractKeysReturnsEmptyArrayWhenNoTransUnits(): void
@@ -706,7 +706,7 @@ EOT;
 EOT);
 
         $parser = new XliffParser($file);
-        $this->assertSame([], $parser->extractKeys());
+        self::assertSame([], $parser->extractKeys());
     }
 
     public function testGetContentByKeyReturnsNullWhenNoTransUnits(): void
@@ -718,7 +718,7 @@ EOT);
 EOT);
 
         $parser = new XliffParser($file);
-        $this->assertNull($parser->getContentByKey('x'));
+        self::assertNull($parser->getContentByKey('x'));
     }
 
     public function testExtractKeysXliff22(): void
@@ -740,9 +740,9 @@ EOT;
         file_put_contents($xliff22File, $xliff22Content);
 
         $parser = new XliffParser($xliff22File);
-        $this->assertSame(['key1'], $parser->extractKeys());
-        $this->assertSame('Target 1', $parser->getContentByKey('key1'));
-        $this->assertSame('en', $parser->getLanguage());
+        self::assertSame(['key1'], $parser->extractKeys());
+        self::assertSame('Target 1', $parser->getContentByKey('key1'));
+        self::assertSame('en', $parser->getLanguage());
     }
 
     private function removeDirectory(string $path): void

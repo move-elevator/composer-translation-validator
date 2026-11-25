@@ -31,7 +31,7 @@ final class OutputUtilityTest extends TestCase
         $output = $this->createMock(OutputInterface::class);
         $output->method('isVerbose')->willReturn(true);
         $output->method('isVeryVerbose')->willReturn(false);
-        $output->expects($this->once())
+        $output->expects(self::once())
             ->method('writeln')
             ->with('Test message');
 
@@ -43,7 +43,7 @@ final class OutputUtilityTest extends TestCase
         $output = $this->createMock(OutputInterface::class);
         $output->method('isVerbose')->willReturn(true);
         $output->method('isVeryVerbose')->willReturn(true);
-        $output->expects($this->once())
+        $output->expects(self::once())
             ->method('writeln')
             ->with('<fg=gray>Very verbose message</>');
 
@@ -54,7 +54,7 @@ final class OutputUtilityTest extends TestCase
     {
         $output = $this->createMock(OutputInterface::class);
         $output->method('isVerbose')->willReturn(false);
-        $output->expects($this->never())
+        $output->expects(self::never())
             ->method('writeln');
 
         OutputUtility::debug($output, 'Test message');
@@ -65,7 +65,7 @@ final class OutputUtilityTest extends TestCase
         $output = $this->createMock(OutputInterface::class);
         $output->method('isVerbose')->willReturn(true);
         $output->method('isVeryVerbose')->willReturn(false);
-        $output->expects($this->never())
+        $output->expects(self::never())
             ->method('writeln');
 
         OutputUtility::debug($output, 'Very verbose message', true);
@@ -76,7 +76,7 @@ final class OutputUtilityTest extends TestCase
         $output = $this->createMock(OutputInterface::class);
         $output->method('isVerbose')->willReturn(true);
         $output->method('isVeryVerbose')->willReturn(false);
-        $output->expects($this->once())
+        $output->expects(self::once())
             ->method('write')
             ->with('Test message');
 
@@ -85,34 +85,34 @@ final class OutputUtilityTest extends TestCase
 
     public function testSanitizeForConsoleMakesLineBreaksVisible(): void
     {
-        $this->assertSame('a\\nb\\rc', OutputUtility::sanitizeForConsole("a\nb\rc"));
+        self::assertSame('a\\nb\\rc', OutputUtility::sanitizeForConsole("a\nb\rc"));
     }
 
     public function testSanitizeForConsoleRemovesEscapeSequencesAndC1Controls(): void
     {
-        $this->assertSame('x[2Jy', OutputUtility::sanitizeForConsole("x\x1b[2Jy\u{009B}"));
+        self::assertSame('x[2Jy', OutputUtility::sanitizeForConsole("x\x1b[2Jy\u{009B}"));
     }
 
     public function testSanitizeForConsoleEscapesFormatterTags(): void
     {
         $sanitized = OutputUtility::sanitizeForConsole('<bg=red>RED</>');
 
-        $this->assertSame('<bg=red>RED</>', (new OutputFormatter(false))->format($sanitized));
-        $this->assertSame('<bg=red>RED</>', (new OutputFormatter(true))->format($sanitized));
+        self::assertSame('<bg=red>RED</>', (new OutputFormatter(false))->format($sanitized));
+        self::assertSame('<bg=red>RED</>', (new OutputFormatter(true))->format($sanitized));
     }
 
     public function testSanitizeForConsoleKeepsTrailingBackslash(): void
     {
-        $this->assertSame('key\\', (new OutputFormatter(false))->format(OutputUtility::sanitizeForConsole('key\\')));
+        self::assertSame('key\\', (new OutputFormatter(false))->format(OutputUtility::sanitizeForConsole('key\\')));
     }
 
     public function testSanitizeForConsoleKeepsTabs(): void
     {
-        $this->assertSame("a\tb", OutputUtility::sanitizeForConsole("a\tb"));
+        self::assertSame("a\tb", OutputUtility::sanitizeForConsole("a\tb"));
     }
 
     public function testSanitizeForConsoleKeepsPlainUnicode(): void
     {
-        $this->assertSame('Schlüssel 日本', OutputUtility::sanitizeForConsole('Schlüssel 日本'));
+        self::assertSame('Schlüssel 日本', OutputUtility::sanitizeForConsole('Schlüssel 日本'));
     }
 }

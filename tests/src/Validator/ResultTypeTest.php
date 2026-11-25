@@ -29,64 +29,64 @@ final class ResultTypeTest extends TestCase
 {
     public function testMax(): void
     {
-        $this->assertSame(ResultType::ERROR, ResultType::ERROR->max(ResultType::WARNING));
-        $this->assertSame(ResultType::ERROR, ResultType::WARNING->max(ResultType::ERROR));
-        $this->assertSame(ResultType::WARNING, ResultType::WARNING->max(ResultType::SUCCESS));
-        $this->assertSame(ResultType::WARNING, ResultType::SUCCESS->max(ResultType::WARNING));
-        $this->assertSame(ResultType::SUCCESS, ResultType::SUCCESS->max(ResultType::SUCCESS));
+        self::assertSame(ResultType::ERROR, ResultType::ERROR->max(ResultType::WARNING));
+        self::assertSame(ResultType::ERROR, ResultType::WARNING->max(ResultType::ERROR));
+        self::assertSame(ResultType::WARNING, ResultType::WARNING->max(ResultType::SUCCESS));
+        self::assertSame(ResultType::WARNING, ResultType::SUCCESS->max(ResultType::WARNING));
+        self::assertSame(ResultType::SUCCESS, ResultType::SUCCESS->max(ResultType::SUCCESS));
     }
 
     public function testNotFullySuccessful(): void
     {
-        $this->assertFalse(ResultType::SUCCESS->notFullySuccessful());
-        $this->assertTrue(ResultType::WARNING->notFullySuccessful());
-        $this->assertTrue(ResultType::ERROR->notFullySuccessful());
+        self::assertFalse(ResultType::SUCCESS->notFullySuccessful());
+        self::assertTrue(ResultType::WARNING->notFullySuccessful());
+        self::assertTrue(ResultType::ERROR->notFullySuccessful());
     }
 
     public function testResolveErrorToCommandExitCode(): void
     {
         // ERROR, not dryRun, not strict
-        $this->assertSame(Command::FAILURE, ResultType::ERROR->resolveErrorToCommandExitCode(false, false));
+        self::assertSame(Command::FAILURE, ResultType::ERROR->resolveErrorToCommandExitCode(false, false));
 
         // ERROR, dryRun, not strict
-        $this->assertSame(Command::SUCCESS, ResultType::ERROR->resolveErrorToCommandExitCode(true, false));
+        self::assertSame(Command::SUCCESS, ResultType::ERROR->resolveErrorToCommandExitCode(true, false));
 
         // ERROR, not dryRun, strict
-        $this->assertSame(Command::FAILURE, ResultType::ERROR->resolveErrorToCommandExitCode(false, true));
+        self::assertSame(Command::FAILURE, ResultType::ERROR->resolveErrorToCommandExitCode(false, true));
 
         // ERROR, dryRun, strict
-        $this->assertSame(Command::SUCCESS, ResultType::ERROR->resolveErrorToCommandExitCode(true, true));
+        self::assertSame(Command::SUCCESS, ResultType::ERROR->resolveErrorToCommandExitCode(true, true));
 
         // WARNING, not dryRun, not strict
-        $this->assertSame(Command::SUCCESS, ResultType::WARNING->resolveErrorToCommandExitCode(false, false));
+        self::assertSame(Command::SUCCESS, ResultType::WARNING->resolveErrorToCommandExitCode(false, false));
 
         // WARNING, dryRun, not strict
-        $this->assertSame(Command::SUCCESS, ResultType::WARNING->resolveErrorToCommandExitCode(true, false));
+        self::assertSame(Command::SUCCESS, ResultType::WARNING->resolveErrorToCommandExitCode(true, false));
 
         // WARNING, not dryRun, strict
-        $this->assertSame(Command::FAILURE, ResultType::WARNING->resolveErrorToCommandExitCode(false, true));
+        self::assertSame(Command::FAILURE, ResultType::WARNING->resolveErrorToCommandExitCode(false, true));
 
         // WARNING, dryRun, strict
-        $this->assertSame(Command::FAILURE, ResultType::WARNING->resolveErrorToCommandExitCode(true, true));
+        self::assertSame(Command::FAILURE, ResultType::WARNING->resolveErrorToCommandExitCode(true, true));
 
         // SUCCESS, not dryRun, not strict
-        $this->assertSame(Command::SUCCESS, ResultType::SUCCESS->resolveErrorToCommandExitCode(false, false));
+        self::assertSame(Command::SUCCESS, ResultType::SUCCESS->resolveErrorToCommandExitCode(false, false));
 
         // SUCCESS, dryRun, not strict
-        $this->assertSame(Command::SUCCESS, ResultType::SUCCESS->resolveErrorToCommandExitCode(true, false));
+        self::assertSame(Command::SUCCESS, ResultType::SUCCESS->resolveErrorToCommandExitCode(true, false));
 
         // SUCCESS, not dryRun, strict
-        $this->assertSame(Command::SUCCESS, ResultType::SUCCESS->resolveErrorToCommandExitCode(false, true));
+        self::assertSame(Command::SUCCESS, ResultType::SUCCESS->resolveErrorToCommandExitCode(false, true));
 
         // SUCCESS, dryRun, strict
-        $this->assertSame(Command::SUCCESS, ResultType::SUCCESS->resolveErrorToCommandExitCode(true, true));
+        self::assertSame(Command::SUCCESS, ResultType::SUCCESS->resolveErrorToCommandExitCode(true, true));
     }
 
     #[DataProvider('stringRepresentationProvider')]
     public function testStringRepresentations(ResultType $type, string $expectedLabel, string $expectedColor): void
     {
-        $this->assertSame($expectedLabel, $type->toString());
-        $this->assertSame($expectedColor, $type->toColorString());
+        self::assertSame($expectedLabel, $type->toString());
+        self::assertSame($expectedColor, $type->toColorString());
     }
 
     /**
@@ -101,7 +101,7 @@ final class ResultTypeTest extends TestCase
 
     public function testMaxWithSameValues(): void
     {
-        $this->assertSame(ResultType::ERROR, ResultType::ERROR->max(ResultType::ERROR));
-        $this->assertSame(ResultType::WARNING, ResultType::WARNING->max(ResultType::WARNING));
+        self::assertSame(ResultType::ERROR, ResultType::ERROR->max(ResultType::ERROR));
+        self::assertSame(ResultType::WARNING, ResultType::WARNING->max(ResultType::WARNING));
     }
 }

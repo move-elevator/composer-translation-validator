@@ -33,10 +33,10 @@ final class IssueTest extends TestCase
 
         $issue = new Issue($file, $details, $parser, $validatorType);
 
-        $this->assertSame($file, $issue->getFile());
-        $this->assertSame($details, $issue->getDetails());
-        $this->assertSame($parser, $issue->getParser());
-        $this->assertSame($validatorType, $issue->getValidatorType());
+        self::assertSame($file, $issue->getFile());
+        self::assertSame($details, $issue->getDetails());
+        self::assertSame($parser, $issue->getParser());
+        self::assertSame($validatorType, $issue->getValidatorType());
     }
 
     public function testToArray(): void
@@ -55,7 +55,7 @@ final class IssueTest extends TestCase
             'type' => $validatorType,
         ];
 
-        $this->assertSame($expected, $issue->toArray());
+        self::assertSame($expected, $issue->toArray());
     }
 
     public function testToArrayWithEmptyDetails(): void
@@ -69,7 +69,7 @@ final class IssueTest extends TestCase
             'type' => 'TestValidator',
         ];
 
-        $this->assertSame($expected, $issue->toArray());
+        self::assertSame($expected, $issue->toArray());
     }
 
     public function testToArrayWithComplexDetails(): void
@@ -93,7 +93,7 @@ final class IssueTest extends TestCase
             'type' => 'SchemaValidator',
         ];
 
-        $this->assertSame($expected, $issue->toArray());
+        self::assertSame($expected, $issue->toArray());
     }
 
     public function testWithNullAndSpecialCharactersInDetails(): void
@@ -109,7 +109,7 @@ final class IssueTest extends TestCase
 
         $issue = new Issue('special.xlf', $details, 'TestParser', 'TestValidator');
 
-        $this->assertSame($details, $issue->getDetails());
-        $this->assertSame($details, $issue->toArray()['issues']);
+        self::assertSame($details, $issue->getDetails());
+        self::assertSame($details, $issue->toArray()['issues']);
     }
 }

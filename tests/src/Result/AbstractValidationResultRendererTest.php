@@ -56,7 +56,7 @@ final class AbstractValidationResultRendererTest extends TestCase
         $renderer = new TestableAbstractValidationResultRenderer($this->output, $dryRun, $strict);
         $message = $renderer->testGenerateMessage(new ValidationResult([], $resultType));
 
-        $this->assertSame($expected, $message);
+        self::assertSame($expected, $message);
     }
 
     /**
@@ -77,7 +77,7 @@ final class AbstractValidationResultRendererTest extends TestCase
         $renderer = new TestableAbstractValidationResultRenderer($this->output, $dryRun, $strict);
         $exitCode = $renderer->testCalculateExitCode(new ValidationResult([], $resultType));
 
-        $this->assertSame($expected, $exitCode);
+        self::assertSame($expected, $exitCode);
     }
 
     public function testNormalizePathWithRealPath(): void
@@ -87,32 +87,32 @@ final class AbstractValidationResultRendererTest extends TestCase
 
         if (file_exists($testFile)) {
             $normalized = $this->renderer->testNormalizePath($testFile);
-            $this->assertSame('composer.json', $normalized);
+            self::assertSame('composer.json', $normalized);
         } else {
-            $this->markTestSkipped('composer.json not found in current directory');
+            self::markTestSkipped('composer.json not found in current directory');
         }
     }
 
     public function testNormalizePathWithNonExistentPath(): void
     {
         $normalized = $this->renderer->testNormalizePath('./some/non/existent/path');
-        $this->assertSame('some/non/existent/path', $normalized);
+        self::assertSame('some/non/existent/path', $normalized);
     }
 
     public function testNormalizePathWithExistingPathOutsideCwd(): void
     {
         $outsidePath = realpath(sys_get_temp_dir());
-        $this->assertNotFalse($outsidePath, 'System temp directory must resolve');
+        self::assertNotFalse($outsidePath, 'System temp directory must resolve');
 
         $normalized = $this->renderer->testNormalizePath($outsidePath);
 
         // Path is real but not below cwd, so it is returned unshortened.
-        $this->assertSame(rtrim($outsidePath, \DIRECTORY_SEPARATOR), $normalized);
+        self::assertSame(rtrim($outsidePath, \DIRECTORY_SEPARATOR), $normalized);
     }
 
     public function testGroupIssuesByFileSkipsValidatorsWithoutIssues(): void
     {
-        $withoutIssues = $this->createStub(ValidatorInterface::class);
+        $withoutIssues = self::createStub(ValidatorInterface::class);
         $withoutIssues->method('hasIssues')->willReturn(false);
 
         $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
@@ -122,13 +122,13 @@ final class AbstractValidationResultRendererTest extends TestCase
             [['validator' => $withoutIssues, 'fileSet' => $fileSet]],
         );
 
-        $this->assertSame([], $this->renderer->testGroupIssuesByFile($result));
+        self::assertSame([], $this->renderer->testGroupIssuesByFile($result));
     }
 
     public function testGroupIssuesByFileGroupsDistributedIssues(): void
     {
         $issue = new Issue('test.xlf', ['key' => 'value'], 'TestParser', 'TestValidator');
-        $validator = $this->createStub(ValidatorInterface::class);
+        $validator = self::createStub(ValidatorInterface::class);
         $validator->method('hasIssues')->willReturn(true);
         $validator->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
         $validator->method('getShortName')->willReturn('TestValidator');
@@ -145,8 +145,8 @@ final class AbstractValidationResultRendererTest extends TestCase
 
         $grouped = $this->renderer->testGroupIssuesByFile($result);
 
-        $this->assertArrayHasKey('/test/path/test.xlf', $grouped);
-        $this->assertArrayHasKey('TestValidator', $grouped['/test/path/test.xlf']);
+        self::assertArrayHasKey('/test/path/test.xlf', $grouped);
+        self::assertArrayHasKey('TestValidator', $grouped['/test/path/test.xlf']);
     }
 
     public function testFormatStatisticsForOutput(): void
@@ -156,12 +156,12 @@ final class AbstractValidationResultRendererTest extends TestCase
 
         $formatted = $this->renderer->testFormatStatisticsForOutput($result);
 
-        $this->assertEqualsWithDelta(1.234, $formatted['execution_time'], \PHP_FLOAT_EPSILON);
-        $this->assertSame('1.23s', $formatted['execution_time_formatted']);
-        $this->assertSame(5, $formatted['files_checked']);
-        $this->assertSame(10, $formatted['keys_checked']);
-        $this->assertSame(4, $formatted['validators_run']);
-        $this->assertSame(3, $formatted['parsers_cached']);
+        self::assertEqualsWithDelta(1.234, $formatted['execution_time'], \PHP_FLOAT_EPSILON);
+        self::assertSame('1.23s', $formatted['execution_time_formatted']);
+        self::assertSame(5, $formatted['files_checked']);
+        self::assertSame(10, $formatted['keys_checked']);
+        self::assertSame(4, $formatted['validators_run']);
+        self::assertSame(3, $formatted['parsers_cached']);
     }
 
     public function testFormatStatisticsForOutputWithoutStatistics(): void
@@ -169,7 +169,7 @@ final class AbstractValidationResultRendererTest extends TestCase
         $result = new ValidationResult([], ResultType::SUCCESS);
         $formatted = $this->renderer->testFormatStatisticsForOutput($result);
 
-        $this->assertSame([], $formatted);
+        self::assertSame([], $formatted);
     }
 }
 

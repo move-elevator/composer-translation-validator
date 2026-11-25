@@ -34,19 +34,19 @@ final class FileSetTest extends TestCase
 
         $fileSet = new FileSet($parser, $path, $setKey, $files);
 
-        $this->assertSame($parser, $fileSet->getParser());
-        $this->assertSame($path, $fileSet->getPath());
-        $this->assertSame($setKey, $fileSet->getSetKey());
-        $this->assertSame($files, $fileSet->getFiles());
+        self::assertSame($parser, $fileSet->getParser());
+        self::assertSame($path, $fileSet->getPath());
+        self::assertSame($setKey, $fileSet->getSetKey());
+        self::assertSame($files, $fileSet->getFiles());
     }
 
     public function testConstructWithEmptyValues(): void
     {
         $fileSet = new FileSet('', '', '', []);
 
-        $this->assertSame('', $fileSet->getParser());
-        $this->assertSame('', $fileSet->getPath());
-        $this->assertSame('', $fileSet->getSetKey());
-        $this->assertSame([], $fileSet->getFiles());
+        self::assertSame('', $fileSet->getParser());
+        self::assertSame('', $fileSet->getPath());
+        self::assertSame('', $fileSet->getSetKey());
+        self::assertSame([], $fileSet->getFiles());
     }
 }

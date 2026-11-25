@@ -28,8 +28,8 @@ final class ValidationResultRendererFactoryTest extends TestCase
 {
     public function testCreateCliRenderer(): void
     {
-        $output = $this->createStub(OutputInterface::class);
-        $input = $this->createStub(InputInterface::class);
+        $output = self::createStub(OutputInterface::class);
+        $input = self::createStub(InputInterface::class);
 
         $renderer = ValidationResultRendererFactory::create(
             FormatType::CLI,
@@ -39,13 +39,13 @@ final class ValidationResultRendererFactoryTest extends TestCase
             false,
         );
 
-        $this->assertInstanceOf(ValidationResultCliRenderer::class, $renderer);
+        self::assertInstanceOf(ValidationResultCliRenderer::class, $renderer);
     }
 
     public function testCreateCliRendererWithDryRun(): void
     {
-        $output = $this->createStub(OutputInterface::class);
-        $input = $this->createStub(InputInterface::class);
+        $output = self::createStub(OutputInterface::class);
+        $input = self::createStub(InputInterface::class);
 
         $renderer = ValidationResultRendererFactory::create(
             FormatType::CLI,
@@ -55,13 +55,13 @@ final class ValidationResultRendererFactoryTest extends TestCase
             false,
         );
 
-        $this->assertInstanceOf(ValidationResultCliRenderer::class, $renderer);
+        self::assertInstanceOf(ValidationResultCliRenderer::class, $renderer);
     }
 
     public function testCreateCliRendererWithStrictMode(): void
     {
-        $output = $this->createStub(OutputInterface::class);
-        $input = $this->createStub(InputInterface::class);
+        $output = self::createStub(OutputInterface::class);
+        $input = self::createStub(InputInterface::class);
 
         $renderer = ValidationResultRendererFactory::create(
             FormatType::CLI,
@@ -71,13 +71,13 @@ final class ValidationResultRendererFactoryTest extends TestCase
             true,
         );
 
-        $this->assertInstanceOf(ValidationResultCliRenderer::class, $renderer);
+        self::assertInstanceOf(ValidationResultCliRenderer::class, $renderer);
     }
 
     public function testCreateJsonRenderer(): void
     {
-        $output = $this->createStub(OutputInterface::class);
-        $input = $this->createStub(InputInterface::class);
+        $output = self::createStub(OutputInterface::class);
+        $input = self::createStub(InputInterface::class);
 
         $renderer = ValidationResultRendererFactory::create(
             FormatType::JSON,
@@ -87,13 +87,13 @@ final class ValidationResultRendererFactoryTest extends TestCase
             false,
         );
 
-        $this->assertInstanceOf(ValidationResultJsonRenderer::class, $renderer);
+        self::assertInstanceOf(ValidationResultJsonRenderer::class, $renderer);
     }
 
     public function testCreateJsonRendererWithDryRun(): void
     {
-        $output = $this->createStub(OutputInterface::class);
-        $input = $this->createStub(InputInterface::class);
+        $output = self::createStub(OutputInterface::class);
+        $input = self::createStub(InputInterface::class);
 
         $renderer = ValidationResultRendererFactory::create(
             FormatType::JSON,
@@ -103,13 +103,13 @@ final class ValidationResultRendererFactoryTest extends TestCase
             false,
         );
 
-        $this->assertInstanceOf(ValidationResultJsonRenderer::class, $renderer);
+        self::assertInstanceOf(ValidationResultJsonRenderer::class, $renderer);
     }
 
     public function testCreateJsonRendererWithStrictMode(): void
     {
-        $output = $this->createStub(OutputInterface::class);
-        $input = $this->createStub(InputInterface::class);
+        $output = self::createStub(OutputInterface::class);
+        $input = self::createStub(InputInterface::class);
 
         $renderer = ValidationResultRendererFactory::create(
             FormatType::JSON,
@@ -119,13 +119,13 @@ final class ValidationResultRendererFactoryTest extends TestCase
             true,
         );
 
-        $this->assertInstanceOf(ValidationResultJsonRenderer::class, $renderer);
+        self::assertInstanceOf(ValidationResultJsonRenderer::class, $renderer);
     }
 
     public function testCreateGitHubRenderer(): void
     {
-        $output = $this->createStub(OutputInterface::class);
-        $input = $this->createStub(InputInterface::class);
+        $output = self::createStub(OutputInterface::class);
+        $input = self::createStub(InputInterface::class);
 
         $renderer = ValidationResultRendererFactory::create(
             FormatType::GITHUB,
@@ -135,13 +135,13 @@ final class ValidationResultRendererFactoryTest extends TestCase
             false,
         );
 
-        $this->assertInstanceOf(ValidationResultGitHubRenderer::class, $renderer);
+        self::assertInstanceOf(ValidationResultGitHubRenderer::class, $renderer);
     }
 
     public function testCreateGitHubRendererWithDryRun(): void
     {
-        $output = $this->createStub(OutputInterface::class);
-        $input = $this->createStub(InputInterface::class);
+        $output = self::createStub(OutputInterface::class);
+        $input = self::createStub(InputInterface::class);
 
         $renderer = ValidationResultRendererFactory::create(
             FormatType::GITHUB,
@@ -151,13 +151,13 @@ final class ValidationResultRendererFactoryTest extends TestCase
             false,
         );
 
-        $this->assertInstanceOf(ValidationResultGitHubRenderer::class, $renderer);
+        self::assertInstanceOf(ValidationResultGitHubRenderer::class, $renderer);
     }
 
     public function testCreateGitHubRendererWithStrictMode(): void
     {
-        $output = $this->createStub(OutputInterface::class);
-        $input = $this->createStub(InputInterface::class);
+        $output = self::createStub(OutputInterface::class);
+        $input = self::createStub(InputInterface::class);
 
         $renderer = ValidationResultRendererFactory::create(
             FormatType::GITHUB,
@@ -167,6 +167,6 @@ final class ValidationResultRendererFactoryTest extends TestCase
             true,
         );
 
-        $this->assertInstanceOf(ValidationResultGitHubRenderer::class, $renderer);
+        self::assertInstanceOf(ValidationResultGitHubRenderer::class, $renderer);
     }
 }

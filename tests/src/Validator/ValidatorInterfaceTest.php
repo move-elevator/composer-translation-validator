@@ -34,9 +34,9 @@ final class ValidatorInterfaceTest extends TestCase
 
         $result = $validator->formatIssueMessage($issue);
 
-        $this->assertStringContainsString('Error', $result);
-        $this->assertStringContainsString('Test error', $result);
-        $this->assertStringContainsString('<fg=red>', $result);
+        self::assertStringContainsString('Error', $result);
+        self::assertStringContainsString('Test error', $result);
+        self::assertStringContainsString('<fg=red>', $result);
     }
 
     public function testFormatIssueMessageWithPrefix(): void
@@ -46,8 +46,8 @@ final class ValidatorInterfaceTest extends TestCase
 
         $result = $validator->formatIssueMessage($issue, '(TestValidator) ');
 
-        $this->assertStringContainsString('(TestValidator)', $result);
-        $this->assertStringContainsString('Test error', $result);
+        self::assertStringContainsString('(TestValidator)', $result);
+        self::assertStringContainsString('Test error', $result);
     }
 
     public function testFormatIssueMessageWithWarningLevel(): void
@@ -57,9 +57,9 @@ final class ValidatorInterfaceTest extends TestCase
 
         $result = $validator->formatIssueMessage($issue);
 
-        $this->assertStringContainsString('Warning', $result);
-        $this->assertStringContainsString('Test warning', $result);
-        $this->assertStringContainsString('<fg=yellow>', $result);
+        self::assertStringContainsString('Warning', $result);
+        self::assertStringContainsString('Test warning', $result);
+        self::assertStringContainsString('<fg=yellow>', $result);
     }
 
     public function testDistributeIssuesForDisplay(): void
@@ -76,12 +76,12 @@ final class ValidatorInterfaceTest extends TestCase
 
         $distribution = $validator->distributeIssuesForDisplay($fileSet);
 
-        $this->assertArrayHasKey('/test/path/file1.xlf', $distribution);
-        $this->assertArrayHasKey('/test/path/file2.xlf', $distribution);
-        $this->assertCount(1, $distribution['/test/path/file1.xlf']);
-        $this->assertCount(1, $distribution['/test/path/file2.xlf']);
-        $this->assertSame($issue1, $distribution['/test/path/file1.xlf'][0]);
-        $this->assertSame($issue2, $distribution['/test/path/file2.xlf'][0]);
+        self::assertArrayHasKey('/test/path/file1.xlf', $distribution);
+        self::assertArrayHasKey('/test/path/file2.xlf', $distribution);
+        self::assertCount(1, $distribution['/test/path/file1.xlf']);
+        self::assertCount(1, $distribution['/test/path/file2.xlf']);
+        self::assertSame($issue1, $distribution['/test/path/file1.xlf'][0]);
+        self::assertSame($issue2, $distribution['/test/path/file2.xlf'][0]);
     }
 
     public function testDistributeIssuesForDisplaySkipsEmptyFilenames(): void
@@ -96,14 +96,14 @@ final class ValidatorInterfaceTest extends TestCase
 
         $distribution = $validator->distributeIssuesForDisplay($fileSet);
 
-        $this->assertEmpty($distribution);
+        self::assertEmpty($distribution);
     }
 
     public function testShouldShowDetailedOutputDefault(): void
     {
         $validator = new TestValidatorImplementation();
 
-        $this->assertFalse($validator->shouldShowDetailedOutput());
+        self::assertFalse($validator->shouldShowDetailedOutput());
     }
 
     public function testGetShortName(): void
@@ -112,7 +112,7 @@ final class ValidatorInterfaceTest extends TestCase
 
         $result = $validator->getShortName();
 
-        $this->assertSame('TestValidatorImplementation', $result);
+        self::assertSame('TestValidatorImplementation', $result);
     }
 }
 

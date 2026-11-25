@@ -44,8 +44,8 @@ final class ValidationResultGitHubRendererTest extends TestCase
         $exitCode = $this->renderer->render($validationResult);
         $output = $this->output->fetch();
 
-        $this->assertSame(0, $exitCode);
-        $this->assertStringContainsString('::notice::Language validation succeeded.', $output);
+        self::assertSame(0, $exitCode);
+        self::assertStringContainsString('::notice::Language validation succeeded.', $output);
     }
 
     public function testRenderErrorIssues(): void
@@ -67,9 +67,9 @@ final class ValidationResultGitHubRendererTest extends TestCase
         $exitCode = $this->renderer->render($validationResult);
         $output = $this->output->fetch();
 
-        $this->assertSame(1, $exitCode);
-        $this->assertStringContainsString('::error file=translations/messages.en.yaml,line=15,col=2,title=Key Mismatch::Translation key mismatch found', $output);
-        $this->assertStringContainsString('::error::Language validation failed with errors.', $output);
+        self::assertSame(1, $exitCode);
+        self::assertStringContainsString('::error file=translations/messages.en.yaml,line=15,col=2,title=Key Mismatch::Translation key mismatch found', $output);
+        self::assertStringContainsString('::error::Language validation failed with errors.', $output);
     }
 
     public function testRenderWarningIssues(): void
@@ -89,9 +89,9 @@ final class ValidationResultGitHubRendererTest extends TestCase
         $exitCode = $this->renderer->render($validationResult);
         $output = $this->output->fetch();
 
-        $this->assertSame(0, $exitCode);
-        $this->assertStringContainsString('::warning file=translations/messages.de.yaml,line=8::Duplicate translation value detected', $output);
-        $this->assertStringContainsString('::notice::Language validation completed with warnings.', $output);
+        self::assertSame(0, $exitCode);
+        self::assertStringContainsString('::warning file=translations/messages.de.yaml,line=8::Duplicate translation value detected', $output);
+        self::assertStringContainsString('::notice::Language validation completed with warnings.', $output);
     }
 
     public function testRenderWarningIssuesWithStrictMode(): void
@@ -113,9 +113,9 @@ final class ValidationResultGitHubRendererTest extends TestCase
         $exitCode = $renderer->render($validationResult);
         $output = $this->output->fetch();
 
-        $this->assertSame(1, $exitCode);
-        $this->assertStringContainsString('::warning file=translations/messages.de.yaml,line=8::Duplicate translation value detected', $output);
-        $this->assertStringContainsString('::error::Language validation failed with warnings in strict mode.', $output);
+        self::assertSame(1, $exitCode);
+        self::assertStringContainsString('::warning file=translations/messages.de.yaml,line=8::Duplicate translation value detected', $output);
+        self::assertStringContainsString('::error::Language validation failed with warnings in strict mode.', $output);
     }
 
     public function testRenderEscapesSpecialCharacters(): void
@@ -135,10 +135,10 @@ final class ValidationResultGitHubRendererTest extends TestCase
         $this->renderer->render($validationResult);
         $output = $this->output->fetch();
 
-        $this->assertStringContainsString('file=translations/special%3Afile%2Cname.yaml', $output);
-        $this->assertStringContainsString('title=Title%3A with%2C special characters', $output);
-        $this->assertStringContainsString('Message with %25special%25 characters: newline', $output);
-        $this->assertStringContainsString('and carriage return', $output);
+        self::assertStringContainsString('file=translations/special%3Afile%2Cname.yaml', $output);
+        self::assertStringContainsString('title=Title%3A with%2C special characters', $output);
+        self::assertStringContainsString('Message with %25special%25 characters: newline', $output);
+        self::assertStringContainsString('and carriage return', $output);
     }
 
     public function testRenderUsesValidatorMessageForIssuesWithoutMessageDetail(): void
@@ -165,8 +165,8 @@ final class ValidationResultGitHubRendererTest extends TestCase
         ));
         $output = $this->output->fetch();
 
-        $this->assertStringContainsString('the translation key `greeting` is missing but present in other translation files', $output);
-        $this->assertStringNotContainsString('Translation validation issue', $output);
+        self::assertStringContainsString('the translation key `greeting` is missing but present in other translation files', $output);
+        self::assertStringNotContainsString('Translation validation issue', $output);
     }
 
     public function testRenderKeepsSpacesInFilePathsAndRemovesControlCharacters(): void
@@ -184,7 +184,7 @@ final class ValidationResultGitHubRendererTest extends TestCase
         $this->renderer->render($this->createValidationResult([$issue], ResultType::ERROR));
         $output = $this->output->fetch();
 
-        $this->assertStringContainsString('::error file=translations/my folder/messages.yaml,title=Title::red text%0D%0Anext line', $output);
+        self::assertStringContainsString('::error file=translations/my folder/messages.yaml,title=Title::red text%0D%0Anext line', $output);
     }
 
     public function testRenderDoesNotInterpretConsoleMarkupInAnnotations(): void
@@ -200,8 +200,8 @@ final class ValidationResultGitHubRendererTest extends TestCase
         (new ValidationResultGitHubRenderer($output))->render($this->createValidationResult([$issue], ResultType::ERROR));
         $written = $output->fetch();
 
-        $this->assertStringContainsString('::<fg=red>key</>', $written);
-        $this->assertStringNotContainsString("\e", $written);
+        self::assertStringContainsString('::<fg=red>key</>', $written);
+        self::assertStringNotContainsString("\e", $written);
     }
 
     public function testRenderWithStatistics(): void
@@ -213,7 +213,7 @@ final class ValidationResultGitHubRendererTest extends TestCase
         $this->renderer->render($validationResult);
         $output = $this->output->fetch();
 
-        $this->assertStringContainsString('::notice::Validation completed in 1.23s - Files: 5, Keys: 150, Validators: 8', $output);
+        self::assertStringContainsString('::notice::Validation completed in 1.23s - Files: 5, Keys: 150, Validators: 8', $output);
     }
 
     public function testRenderWithDryRun(): void
@@ -232,8 +232,8 @@ final class ValidationResultGitHubRendererTest extends TestCase
         $exitCode = $renderer->render($validationResult);
         $output = $this->output->fetch();
 
-        $this->assertSame(0, $exitCode);
-        $this->assertStringContainsString('::notice::Language validation failed with errors in dry-run mode.', $output);
+        self::assertSame(0, $exitCode);
+        self::assertStringContainsString('::notice::Language validation failed with errors in dry-run mode.', $output);
     }
 
     /**
@@ -244,7 +244,7 @@ final class ValidationResultGitHubRendererTest extends TestCase
         ResultType $resultType = ResultType::SUCCESS,
         ?ValidationStatistics $statistics = null,
     ): ValidationResult {
-        $validator = $this->createStub(AbstractValidator::class);
+        $validator = self::createStub(AbstractValidator::class);
         $validator->method('hasIssues')->willReturn(!empty($issues));
         $validator->method('getIssues')->willReturn($issues);
         $validator->method('resultTypeOnValidationFailure')->willReturn($resultType);
@@ -260,7 +260,7 @@ final class ValidationResultGitHubRendererTest extends TestCase
             }, []),
         );
 
-        $fileSet = $this->createStub(FileSet::class);
+        $fileSet = self::createStub(FileSet::class);
 
         /** @var array<ValidatorInterface> $validators */
         $validators = [$validator];

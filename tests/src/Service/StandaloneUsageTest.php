@@ -44,7 +44,7 @@ final class StandaloneUsageTest extends TestCase
             config: new TranslationValidatorConfig(),
         );
 
-        $this->assertInstanceOf(ValidationResult::class, $result);
+        self::assertInstanceOf(ValidationResult::class, $result);
     }
 
     public function testZeroDependencyOnPluginOrComposerRuntime(): void
@@ -60,7 +60,7 @@ final class StandaloneUsageTest extends TestCase
             config: new TranslationValidatorConfig(),
         );
 
-        $this->assertInstanceOf(ValidationResult::class, $result);
-        $this->assertFalse($result->hasIssues());
+        self::assertInstanceOf(ValidationResult::class, $result);
+        self::assertFalse($result->hasIssues());
     }
 }

@@ -36,8 +36,8 @@ final class StandaloneValidateTranslationCommandTest extends TestCase
             'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
         ]);
 
-        $this->assertStringContainsString('Language validation succeeded.', $commandTester->getDisplay());
-        $this->assertSame(Command::SUCCESS, $commandTester->getStatusCode());
+        self::assertStringContainsString('Language validation succeeded.', $commandTester->getDisplay());
+        self::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
     }
 
     public function testExecuteWithErrors(): void
@@ -48,8 +48,8 @@ final class StandaloneValidateTranslationCommandTest extends TestCase
             'path' => [__DIR__.'/../Fixtures/translations/xliff/fail'],
         ]);
 
-        $this->assertStringContainsString('Language validation failed', $commandTester->getDisplay());
-        $this->assertSame(Command::FAILURE, $commandTester->getStatusCode());
+        self::assertStringContainsString('Language validation failed', $commandTester->getDisplay());
+        self::assertSame(Command::FAILURE, $commandTester->getStatusCode());
     }
 
     public function testExecuteWithJsonFormat(): void
@@ -62,9 +62,9 @@ final class StandaloneValidateTranslationCommandTest extends TestCase
         ]);
 
         $output = json_decode($commandTester->getDisplay(), true);
-        $this->assertIsArray($output);
-        $this->assertSame(0, $output['status']);
-        $this->assertSame(Command::SUCCESS, $commandTester->getStatusCode());
+        self::assertIsArray($output);
+        self::assertSame(0, $output['status']);
+        self::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
     }
 
     private function createCommandTester(): CommandTester

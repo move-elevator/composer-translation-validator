@@ -31,89 +31,89 @@ final class KeyCountValidatorTest extends TestCase
     {
         $keys = array_map(static fn ($i) => "key$i", range(1, 350));
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('error');
+        $logger->expects(self::never())->method('error');
 
         $validator = new KeyCountValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertArrayHasKey('message', $result);
-        $this->assertArrayHasKey('key_count', $result);
-        $this->assertArrayHasKey('threshold', $result);
-        $this->assertSame(350, $result['key_count']);
-        $this->assertSame(300, $result['threshold']);
-        $this->assertStringContainsString('350 translation keys', (string) $result['message']);
-        $this->assertStringContainsString('threshold of 300', (string) $result['message']);
+        self::assertArrayHasKey('message', $result);
+        self::assertArrayHasKey('key_count', $result);
+        self::assertArrayHasKey('threshold', $result);
+        self::assertSame(350, $result['key_count']);
+        self::assertSame(300, $result['threshold']);
+        self::assertStringContainsString('350 translation keys', (string) $result['message']);
+        self::assertStringContainsString('threshold of 300', (string) $result['message']);
     }
 
     public function testProcessFileWithAcceptableKeyCount(): void
     {
         $keys = array_map(static fn ($i) => "key$i", range(1, 250));
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('error');
+        $logger->expects(self::never())->method('error');
 
         $validator = new KeyCountValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testProcessFileWithExactThresholdKeyCount(): void
     {
         $keys = array_map(static fn ($i) => "key$i", range(1, 300));
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('error');
+        $logger->expects(self::never())->method('error');
 
         $validator = new KeyCountValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testProcessFileWithInvalidFile(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(null);
         $parser->method('getFileName')->willReturn('invalid.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method('error')
-            ->with($this->stringContains('The source file invalid.xlf is not valid.'));
+            ->with(self::stringContains('The source file invalid.xlf is not valid.'));
 
         $validator = new KeyCountValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testProcessFileWithEmptyKeys(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn([]);
         $parser->method('getFileName')->willReturn('empty.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('error');
+        $logger->expects(self::never())->method('error');
 
         $validator = new KeyCountValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testValidatorWithCustomThresholdFromConfig(): void
@@ -124,22 +124,22 @@ final class KeyCountValidatorTest extends TestCase
 
         $keys = array_map(static fn ($i) => "key$i", range(1, 200));
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new KeyCountValidator($logger);
         $validator->setConfig($config);
         $result = $validator->processFile($parser);
 
-        $this->assertArrayHasKey('message', $result);
-        $this->assertArrayHasKey('key_count', $result);
-        $this->assertArrayHasKey('threshold', $result);
-        $this->assertSame(200, $result['key_count']);
-        $this->assertSame(150, $result['threshold']);
-        $this->assertStringContainsString('200 translation keys', (string) $result['message']);
-        $this->assertStringContainsString('threshold of 150', (string) $result['message']);
+        self::assertArrayHasKey('message', $result);
+        self::assertArrayHasKey('key_count', $result);
+        self::assertArrayHasKey('threshold', $result);
+        self::assertSame(200, $result['key_count']);
+        self::assertSame(150, $result['threshold']);
+        self::assertStringContainsString('200 translation keys', (string) $result['message']);
+        self::assertStringContainsString('threshold of 150', (string) $result['message']);
     }
 
     public function testValidatorWithCustomThresholdBelowCount(): void
@@ -150,16 +150,16 @@ final class KeyCountValidatorTest extends TestCase
 
         $keys = array_map(static fn ($i) => "key$i", range(1, 200));
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new KeyCountValidator($logger);
         $validator->setConfig($config);
         $result = $validator->processFile($parser);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testValidatorWithInvalidThresholdInConfig(): void
@@ -170,36 +170,36 @@ final class KeyCountValidatorTest extends TestCase
 
         $keys = array_map(static fn ($i) => "key$i", range(1, 350));
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new KeyCountValidator($logger);
         $validator->setConfig($config);
         $result = $validator->processFile($parser);
 
         // Should fall back to default threshold of 300
-        $this->assertArrayHasKey('threshold', $result);
-        $this->assertSame(300, $result['threshold']);
+        self::assertArrayHasKey('threshold', $result);
+        self::assertSame(300, $result['threshold']);
     }
 
     public function testValidatorWithoutConfig(): void
     {
         $keys = array_map(static fn ($i) => "key$i", range(1, 350));
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new KeyCountValidator($logger);
         $validator->setConfig(null);
         $result = $validator->processFile($parser);
 
         // Should use default threshold of 300
-        $this->assertArrayHasKey('threshold', $result);
-        $this->assertSame(300, $result['threshold']);
+        self::assertArrayHasKey('threshold', $result);
+        self::assertSame(300, $result['threshold']);
     }
 
     public function testValidatorWithEmptyValidatorSettings(): void
@@ -210,23 +210,23 @@ final class KeyCountValidatorTest extends TestCase
 
         $keys = array_map(static fn ($i) => "key$i", range(1, 350));
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn($keys);
         $parser->method('getFileName')->willReturn('test.xlf');
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new KeyCountValidator($logger);
         $validator->setConfig($config);
         $result = $validator->processFile($parser);
 
         // Should use default threshold of 300
-        $this->assertArrayHasKey('threshold', $result);
-        $this->assertSame(300, $result['threshold']);
+        self::assertArrayHasKey('threshold', $result);
+        self::assertSame(300, $result['threshold']);
     }
 
     public function testFormatIssueMessage(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new KeyCountValidator($logger);
 
         // KeyCountValidator expects details to contain message, key_count, and threshold
@@ -243,9 +243,9 @@ final class KeyCountValidatorTest extends TestCase
 
         $result = $validator->formatIssueMessage($issue);
 
-        $this->assertStringContainsString('Warning', $result);
-        $this->assertStringContainsString('<fg=yellow>', $result);
-        $this->assertStringContainsString('350 translation keys', $result);
-        $this->assertStringContainsString('threshold of 300', $result);
+        self::assertStringContainsString('Warning', $result);
+        self::assertStringContainsString('<fg=yellow>', $result);
+        self::assertStringContainsString('350 translation keys', $result);
+        self::assertStringContainsString('threshold of 300', $result);
     }
 }

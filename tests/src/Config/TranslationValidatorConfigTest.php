@@ -41,7 +41,7 @@ final class TranslationValidatorConfigTest extends TestCase
     public function testSetterAndGetter(string $setter, string $getter, array|bool|string $value): void
     {
         $this->config->{$setter}($value);
-        $this->assertSame($value, $this->config->{$getter}());
+        self::assertSame($value, $this->config->{$getter}());
     }
 
     /**
@@ -72,7 +72,7 @@ final class TranslationValidatorConfigTest extends TestCase
     public function testAdder(string $adder, string $getter, string $value, array $expected): void
     {
         $this->config->{$adder}($value);
-        $this->assertSame($expected, $this->config->{$getter}());
+        self::assertSame($expected, $this->config->{$getter}());
     }
 
     /**
@@ -89,17 +89,17 @@ final class TranslationValidatorConfigTest extends TestCase
 
     public function testDefaultValues(): void
     {
-        $this->assertSame([], $this->config->getPaths());
-        $this->assertSame([], $this->config->getValidators());
-        $this->assertSame([], $this->config->getFileDetectors());
-        $this->assertSame([], $this->config->getParsers());
-        $this->assertSame([], $this->config->getOnly());
-        $this->assertSame([DuplicateValuesValidator::class, KeyNamingConventionValidator::class], $this->config->getSkip());
-        $this->assertSame([], $this->config->getExclude());
-        $this->assertFalse($this->config->getStrict());
-        $this->assertFalse($this->config->getDryRun());
-        $this->assertSame('cli', $this->config->getFormat());
-        $this->assertFalse($this->config->getVerbose());
+        self::assertSame([], $this->config->getPaths());
+        self::assertSame([], $this->config->getValidators());
+        self::assertSame([], $this->config->getFileDetectors());
+        self::assertSame([], $this->config->getParsers());
+        self::assertSame([], $this->config->getOnly());
+        self::assertSame([DuplicateValuesValidator::class, KeyNamingConventionValidator::class], $this->config->getSkip());
+        self::assertSame([], $this->config->getExclude());
+        self::assertFalse($this->config->getStrict());
+        self::assertFalse($this->config->getDryRun());
+        self::assertSame('cli', $this->config->getFormat());
+        self::assertFalse($this->config->getVerbose());
     }
 
     /**
@@ -123,7 +123,7 @@ final class TranslationValidatorConfigTest extends TestCase
                 ->setVerbose(true);
         }
 
-        $this->assertSame($expected, $this->config->toArray());
+        self::assertSame($expected, $this->config->toArray());
     }
 
     /**
@@ -182,10 +182,10 @@ final class TranslationValidatorConfigTest extends TestCase
             ->setFormat('json')
             ->setVerbose(true);
 
-        $this->assertSame($this->config, $result);
-        $this->assertSame(['test'], $this->config->getPaths());
-        $this->assertSame(['test'], $this->config->getValidators());
-        $this->assertTrue($this->config->getStrict());
-        $this->assertSame('json', $this->config->getFormat());
+        self::assertSame($this->config, $result);
+        self::assertSame(['test'], $this->config->getPaths());
+        self::assertSame(['test'], $this->config->getValidators());
+        self::assertTrue($this->config->getStrict());
+        self::assertSame('json', $this->config->getFormat());
     }
 }

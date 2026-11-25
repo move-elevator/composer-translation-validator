@@ -36,7 +36,7 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
             'convention' => 'snake_case',
         ]);
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['userName', 'valid_key']);
         $parser->method('getContentByKey')->willReturnMap([
             ['userName', 'User Name'],
@@ -47,14 +47,14 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
         $validator = new KeyNamingConventionValidator();
         $validator->setConfig($config);
 
-        $this->assertTrue($validator->shouldRun());
+        self::assertTrue($validator->shouldRun());
 
         $result = $validator->processFile($parser);
 
         // Should have one issue for 'userName' (not snake_case)
-        $this->assertCount(1, $result);
-        $this->assertEquals('userName', $result[0]['key']);
-        $this->assertEquals('user_name', $result[0]['suggestion']);
+        self::assertCount(1, $result);
+        self::assertEquals('userName', $result[0]['key']);
+        self::assertEquals('user_name', $result[0]['suggestion']);
     }
 
     public function testValidatorLoadsCustomPatternFromConfig(): void
@@ -66,7 +66,7 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
             'custom_pattern' => '/^[a-z]+$/', // Only lowercase letters
         ]);
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['validkey', 'invalidKey123']);
         $parser->method('getContentByKey')->willReturnMap([
             ['validkey', 'Valid Key'],
@@ -77,13 +77,13 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
         $validator = new KeyNamingConventionValidator();
         $validator->setConfig($config);
 
-        $this->assertTrue($validator->shouldRun());
+        self::assertTrue($validator->shouldRun());
 
         $result = $validator->processFile($parser);
 
         // Should have one issue for 'invalidKey123' (contains numbers and uppercase)
-        $this->assertCount(1, $result);
-        $this->assertEquals('invalidKey123', $result[0]['key']);
+        self::assertCount(1, $result);
+        self::assertEquals('invalidKey123', $result[0]['key']);
     }
 
     public function testValidatorWithoutConfigurationStillRuns(): void
@@ -97,7 +97,7 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
         $validator->setConfig($config);
 
         // Should run to detect mixed conventions even without config
-        $this->assertTrue($validator->shouldRun());
+        self::assertTrue($validator->shouldRun());
     }
 
     public function testValidatorHandlesInvalidConventionInConfig(): void
@@ -110,15 +110,15 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
         ]);
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method('warning')
-            ->with($this->stringContains('Invalid convention in config'));
+            ->with(self::stringContains('Invalid convention in config'));
 
         $validator = new KeyNamingConventionValidator($logger);
         $validator->setConfig($config);
 
         // Should still run to detect mixed conventions even with invalid config
-        $this->assertTrue($validator->shouldRun());
+        self::assertTrue($validator->shouldRun());
     }
 
     public function testValidatorHandlesInvalidCustomPatternInConfig(): void
@@ -131,15 +131,15 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
         ]);
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method('warning')
-            ->with($this->stringContains('Invalid custom pattern in config'));
+            ->with(self::stringContains('Invalid custom pattern in config'));
 
         $validator = new KeyNamingConventionValidator($logger);
         $validator->setConfig($config);
 
         // Should still run to detect mixed conventions even with invalid config
-        $this->assertTrue($validator->shouldRun());
+        self::assertTrue($validator->shouldRun());
     }
 
     public function testCustomPatternOverridesConvention(): void
@@ -152,7 +152,7 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
             'custom_pattern' => '/^[A-Z][a-z]*$/', // PascalCase pattern
         ]);
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['Valid', 'invalid']);
         $parser->method('getContentByKey')->willReturnMap([
             ['Valid', 'Valid Key'],
@@ -166,10 +166,10 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
         $result = $validator->processFile($parser);
 
         // Should validate against custom pattern, not snake_case
-        $this->assertCount(1, $result);
-        $this->assertEquals('invalid', $result[0]['key']);
+        self::assertCount(1, $result);
+        self::assertEquals('invalid', $result[0]['key']);
         // No suggestion for custom patterns
-        $this->assertEquals('invalid', $result[0]['suggestion']);
+        self::assertEquals('invalid', $result[0]['suggestion']);
     }
 
     public function testValidatorWithNullConfig(): void
@@ -178,7 +178,7 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
         $validator->setConfig(null);
 
         // Should still run to detect mixed conventions even with null config
-        $this->assertTrue($validator->shouldRun());
+        self::assertTrue($validator->shouldRun());
     }
 
     public function testValidatorWithEmptyValidatorSettings(): void
@@ -191,6 +191,6 @@ final class KeyNamingConventionValidatorConfigTest extends TestCase
         $validator->setConfig($config);
 
         // Should still run to detect mixed conventions even without validator settings
-        $this->assertTrue($validator->shouldRun());
+        self::assertTrue($validator->shouldRun());
     }
 }

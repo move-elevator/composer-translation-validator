@@ -41,12 +41,12 @@ final class ValidatorSettingsConfigTest extends TestCase
 
         $config = $factory->createFromArray($configData);
 
-        $this->assertTrue($config->hasValidatorSettings('KeyNamingConventionValidator'));
-        $this->assertTrue($config->hasValidatorSettings('HtmlTagValidator'));
-        $this->assertFalse($config->hasValidatorSettings('NonExistentValidator'));
+        self::assertTrue($config->hasValidatorSettings('KeyNamingConventionValidator'));
+        self::assertTrue($config->hasValidatorSettings('HtmlTagValidator'));
+        self::assertFalse($config->hasValidatorSettings('NonExistentValidator'));
 
         $keyNamingSettings = $config->getValidatorSettings('KeyNamingConventionValidator');
-        $this->assertSame(['convention' => 'snake_case'], $keyNamingSettings);
+        self::assertSame(['convention' => 'snake_case'], $keyNamingSettings);
     }
 
     public function testLoadValidatorSettingsFromJson(): void
@@ -63,10 +63,10 @@ final class ValidatorSettingsConfigTest extends TestCase
 
         $config = $factory->createFromArray($configData);
 
-        $this->assertTrue($config->hasValidatorSettings('KeyNamingConventionValidator'));
+        self::assertTrue($config->hasValidatorSettings('KeyNamingConventionValidator'));
 
         $keyNamingSettings = $config->getValidatorSettings('KeyNamingConventionValidator');
-        $this->assertSame(['convention' => 'camelCase'], $keyNamingSettings);
+        self::assertSame(['convention' => 'camelCase'], $keyNamingSettings);
     }
 
     public function testSetValidatorSettings(): void
@@ -74,12 +74,12 @@ final class ValidatorSettingsConfigTest extends TestCase
         $factory = new ConfigFactory();
         $config = $factory->createFromArray(['paths' => ['test/']]);
 
-        $this->assertFalse($config->hasValidatorSettings('TestValidator'));
+        self::assertFalse($config->hasValidatorSettings('TestValidator'));
 
         $config->setValidatorSetting('TestValidator', ['key' => 'value']);
 
-        $this->assertTrue($config->hasValidatorSettings('TestValidator'));
-        $this->assertSame(['key' => 'value'], $config->getValidatorSettings('TestValidator'));
+        self::assertTrue($config->hasValidatorSettings('TestValidator'));
+        self::assertSame(['key' => 'value'], $config->getValidatorSettings('TestValidator'));
     }
 
     public function testSetMultipleValidatorSettings(): void
@@ -94,9 +94,9 @@ final class ValidatorSettingsConfigTest extends TestCase
 
         $config->setValidatorSettings($settings);
 
-        $this->assertSame($settings, $config->getAllValidatorSettings());
-        $this->assertSame(['setting1' => 'value1'], $config->getValidatorSettings('Validator1'));
-        $this->assertSame(['setting2' => 'value2'], $config->getValidatorSettings('Validator2'));
+        self::assertSame($settings, $config->getAllValidatorSettings());
+        self::assertSame(['setting1' => 'value1'], $config->getValidatorSettings('Validator1'));
+        self::assertSame(['setting2' => 'value2'], $config->getValidatorSettings('Validator2'));
     }
 
     public function testGetEmptyValidatorSettings(): void
@@ -104,8 +104,8 @@ final class ValidatorSettingsConfigTest extends TestCase
         $factory = new ConfigFactory();
         $config = $factory->createFromArray(['paths' => ['test/']]);
 
-        $this->assertSame([], $config->getValidatorSettings('NonExistentValidator'));
-        $this->assertSame([], $config->getAllValidatorSettings());
+        self::assertSame([], $config->getValidatorSettings('NonExistentValidator'));
+        self::assertSame([], $config->getAllValidatorSettings());
     }
 
     public function testToArrayIncludesValidatorSettings(): void
@@ -116,8 +116,8 @@ final class ValidatorSettingsConfigTest extends TestCase
         $config->setValidatorSetting('TestValidator', ['test' => 'value']);
         $array = $config->toArray();
 
-        $this->assertArrayHasKey('validator-settings', $array);
-        $this->assertEquals(['TestValidator' => ['test' => 'value']], $array['validator-settings']);
+        self::assertArrayHasKey('validator-settings', $array);
+        self::assertEquals(['TestValidator' => ['test' => 'value']], $array['validator-settings']);
     }
 
     public function testHasValidatorSettingsMethod(): void
@@ -125,11 +125,11 @@ final class ValidatorSettingsConfigTest extends TestCase
         $factory = new ConfigFactory();
         $config = $factory->createFromArray(['paths' => ['test/']]);
 
-        $this->assertFalse($config->hasValidatorSettings('NonExistent'));
+        self::assertFalse($config->hasValidatorSettings('NonExistent'));
 
         $config->setValidatorSetting('Exists', ['key' => 'value']);
-        $this->assertTrue($config->hasValidatorSettings('Exists'));
-        $this->assertFalse($config->hasValidatorSettings('StillNonExistent'));
+        self::assertTrue($config->hasValidatorSettings('Exists'));
+        self::assertFalse($config->hasValidatorSettings('StillNonExistent'));
     }
 
     public function testValidatorSettingsOverride(): void
@@ -139,13 +139,13 @@ final class ValidatorSettingsConfigTest extends TestCase
 
         // Set initial settings
         $config->setValidatorSetting('TestValidator', ['initial' => 'value']);
-        $this->assertSame(['initial' => 'value'], $config->getValidatorSettings('TestValidator'));
+        self::assertSame(['initial' => 'value'], $config->getValidatorSettings('TestValidator'));
 
         // Override with new settings
         $config->setValidatorSetting('TestValidator', ['new' => 'value', 'additional' => 'setting']);
         $settings = $config->getValidatorSettings('TestValidator');
         // @phpstan-ignore-next-line
-        $this->assertSame(['new' => 'value', 'additional' => 'setting'], $settings);
-        $this->assertArrayNotHasKey('initial', $settings);
+        self::assertSame(['new' => 'value', 'additional' => 'setting'], $settings);
+        self::assertArrayNotHasKey('initial', $settings);
     }
 }
