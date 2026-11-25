@@ -38,7 +38,7 @@ final class ValidationResultCliRendererTest extends TestCase
     protected function setUp(): void
     {
         $this->output = new BufferedOutput();
-        $this->input = $this->createStub(InputInterface::class);
+        $this->input = self::createStub(InputInterface::class);
         $this->renderer = new ValidationResultCliRenderer(
             $this->output,
             $this->input,
@@ -53,8 +53,8 @@ final class ValidationResultCliRendererTest extends TestCase
 
         $exitCode = $this->renderer->render($validationResult);
 
-        $this->assertSame(0, $exitCode);
-        $this->assertStringContainsString('Language validation succeeded', $this->output->fetch());
+        self::assertSame(0, $exitCode);
+        self::assertStringContainsString('Language validation succeeded', $this->output->fetch());
     }
 
     public function testRenderWithIssues(): void
@@ -77,11 +77,11 @@ final class ValidationResultCliRendererTest extends TestCase
 
         $exitCode = $this->renderer->render($validationResult);
 
-        $this->assertSame(1, $exitCode);
+        self::assertSame(1, $exitCode);
         $output = $this->output->fetch();
-        $this->assertStringContainsString('test.xlf', $output);
-        $this->assertStringContainsString('ERROR', $output);
-        $this->assertStringContainsString('Language validation failed', $output);
+        self::assertStringContainsString('test.xlf', $output);
+        self::assertStringContainsString('ERROR', $output);
+        self::assertStringContainsString('Language validation failed', $output);
     }
 
     public function testRenderWithDryRun(): void
@@ -105,8 +105,8 @@ final class ValidationResultCliRendererTest extends TestCase
 
         $exitCode = $renderer->render($validationResult);
 
-        $this->assertSame(0, $exitCode);
-        $this->assertStringContainsString('dry-run mode', $this->output->fetch());
+        self::assertSame(0, $exitCode);
+        self::assertStringContainsString('dry-run mode', $this->output->fetch());
     }
 
     public function testRenderWithStrictMode(): void
@@ -131,7 +131,7 @@ final class ValidationResultCliRendererTest extends TestCase
 
         $exitCode = $renderer->render($validationResult);
 
-        $this->assertSame(1, $exitCode);
+        self::assertSame(1, $exitCode);
     }
 
     public function testRenderWithVerboseOutput(): void
@@ -154,8 +154,8 @@ final class ValidationResultCliRendererTest extends TestCase
 
         $output = $this->output->fetch();
         // In verbose mode, validator names should be grouped
-        $this->assertStringContainsString('MockObject_ValidatorInterface', $output);
-        $this->assertStringContainsString('test.xlf', $output);
+        self::assertStringContainsString('MockObject_ValidatorInterface', $output);
+        self::assertStringContainsString('test.xlf', $output);
     }
 
     public function testRenderWithWarningResult(): void
@@ -173,8 +173,8 @@ final class ValidationResultCliRendererTest extends TestCase
 
         $exitCode = $this->renderer->render($validationResult);
 
-        $this->assertSame(0, $exitCode);
-        $this->assertStringContainsString('Language validation completed with warnings', $this->output->fetch());
+        self::assertSame(0, $exitCode);
+        self::assertStringContainsString('Language validation completed with warnings', $this->output->fetch());
     }
 
     public function testRenderWithMultipleValidators(): void
@@ -200,10 +200,10 @@ final class ValidationResultCliRendererTest extends TestCase
 
         $output = $this->output->fetch();
         // In new format, should not contain "Validator:" but should contain file names
-        $this->assertStringNotContainsString('Validator:', $output);
+        self::assertStringNotContainsString('Validator:', $output);
         // Should contain both paths in the new compact format
-        $this->assertStringContainsString('test1.xlf', $output);
-        $this->assertStringContainsString('test2.xlf', $output);
+        self::assertStringContainsString('test1.xlf', $output);
+        self::assertStringContainsString('test2.xlf', $output);
     }
 
     public function testRenderStatisticsInVerboseMode(): void
@@ -221,11 +221,11 @@ final class ValidationResultCliRendererTest extends TestCase
         $this->renderer->render($validationResult);
         $output = $this->output->fetch();
 
-        $this->assertStringContainsString('Execution time: 123ms', $output);
-        $this->assertStringContainsString('Files checked: 5', $output);
-        $this->assertStringContainsString('Keys checked: 15', $output);
-        $this->assertStringContainsString('Validators run: 3', $output);
-        $this->assertStringContainsString('Parsers cached: 0', $output);
+        self::assertStringContainsString('Execution time: 123ms', $output);
+        self::assertStringContainsString('Files checked: 5', $output);
+        self::assertStringContainsString('Keys checked: 15', $output);
+        self::assertStringContainsString('Validators run: 3', $output);
+        self::assertStringContainsString('Parsers cached: 0', $output);
     }
 
     public function testRenderStatisticsNotInCompactMode(): void
@@ -240,8 +240,8 @@ final class ValidationResultCliRendererTest extends TestCase
         $this->renderer->render($validationResult);
         $output = $this->output->fetch();
 
-        $this->assertStringNotContainsString('Execution time:', $output);
-        $this->assertStringNotContainsString('Files checked:', $output);
+        self::assertStringNotContainsString('Execution time:', $output);
+        self::assertStringNotContainsString('Files checked:', $output);
     }
 
     public function testRenderWarningInCompactMode(): void
@@ -262,8 +262,8 @@ final class ValidationResultCliRendererTest extends TestCase
         $exitCode = $this->renderer->render($validationResult);
         $output = $this->output->fetch();
 
-        $this->assertSame(0, $exitCode);
-        $this->assertStringContainsString('Language validation completed with warnings', $output);
+        self::assertSame(0, $exitCode);
+        self::assertStringContainsString('Language validation completed with warnings', $output);
     }
 
     public function testRenderErrorInCompactMode(): void
@@ -284,9 +284,9 @@ final class ValidationResultCliRendererTest extends TestCase
         $exitCode = $this->renderer->render($validationResult);
         $output = $this->output->fetch();
 
-        $this->assertSame(1, $exitCode);
-        $this->assertStringContainsString('test/path/test.xlf', $output);
-        $this->assertStringContainsString('Language validation failed with errors', $output);
+        self::assertSame(1, $exitCode);
+        self::assertStringContainsString('test/path/test.xlf', $output);
+        self::assertStringContainsString('Language validation failed with errors', $output);
     }
 
     public function testRenderWarningWithStrictModeHint(): void
@@ -304,7 +304,7 @@ final class ValidationResultCliRendererTest extends TestCase
         $renderer->render($validationResult);
         $output = $this->output->fetch();
 
-        $this->assertStringContainsString('Use `--strict` to treat warnings as errors', $output);
+        self::assertStringContainsString('Use `--strict` to treat warnings as errors', $output);
     }
 
     public function testRenderWarningInVerboseMode(): void
@@ -322,8 +322,8 @@ final class ValidationResultCliRendererTest extends TestCase
         $renderer->render($validationResult);
         $output = $this->output->fetch();
 
-        $this->assertStringContainsString('Language validation completed with warnings', $output);
-        $this->assertStringContainsString('[WARNING]', $output);
+        self::assertStringContainsString('Language validation completed with warnings', $output);
+        self::assertStringContainsString('[WARNING]', $output);
     }
 
     public function testRenderVerboseWithRealValidatorsOfMixedSeverity(): void
@@ -335,12 +335,12 @@ final class ValidationResultCliRendererTest extends TestCase
         $output = $this->output->fetch();
 
         // Multiple validators of differing severity were rendered, grouped per file.
-        $this->assertSame(1, $exitCode);
-        $this->assertStringContainsString('MismatchValidator', $output);
-        $this->assertStringContainsString('HtmlTagValidator', $output);
-        $this->assertStringContainsString('SchemaValidator', $output);
+        self::assertSame(1, $exitCode);
+        self::assertStringContainsString('MismatchValidator', $output);
+        self::assertStringContainsString('HtmlTagValidator', $output);
+        self::assertStringContainsString('SchemaValidator', $output);
         // ERROR validators sort before WARNING validators within a file group.
-        $this->assertLessThan(
+        self::assertLessThan(
             strpos($output, 'HtmlTagValidator'),
             strpos($output, 'MismatchValidator'),
         );
@@ -354,9 +354,9 @@ final class ValidationResultCliRendererTest extends TestCase
         $exitCode = $this->renderer->render($validationResult);
         $output = $this->output->fetch();
 
-        $this->assertSame(1, $exitCode);
-        $this->assertStringContainsString('Language validation failed with errors', $output);
-        $this->assertNotEmpty($output);
+        self::assertSame(1, $exitCode);
+        self::assertStringContainsString('Language validation failed with errors', $output);
+        self::assertNotEmpty($output);
     }
 
     private function buildRealValidationResult(): ValidationResult
@@ -386,7 +386,7 @@ final class ValidationResultCliRendererTest extends TestCase
     private function createMockValidator(ResultType $resultType = ResultType::ERROR): \PHPUnit\Framework\MockObject\Stub
     {
         /** @var \PHPUnit\Framework\MockObject\Stub&ValidatorInterface $validator */
-        $validator = $this->createStub(ValidatorInterface::class);
+        $validator = self::createStub(ValidatorInterface::class);
         $validator->method('resultTypeOnValidationFailure')->willReturn($resultType);
         $validator->method('formatIssueMessage')->willReturnCallback(static fn (Issue $issue, string $prefix = '', bool $isVerbose = false): string => $isVerbose ? '- <fg=red>Error</> Validation error' : "- <fg=red>Error</> {$prefix}Validation error");
         $validator->method('distributeIssuesForDisplay')->willReturnCallback(static function (FileSet $fileSet) use ($validator): array {

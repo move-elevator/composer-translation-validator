@@ -30,7 +30,7 @@ final class ValidateTranslationCommandProviderTest extends TestCase
         $provider = new ValidateTranslationCommandProvider();
         $commands = $provider->getCommands();
 
-        $this->assertCount(1, $commands);
-        $this->assertInstanceOf(ValidateTranslationCommand::class, $commands[0]);
+        self::assertCount(1, $commands);
+        self::assertInstanceOf(ValidateTranslationCommand::class, $commands[0]);
     }
 }

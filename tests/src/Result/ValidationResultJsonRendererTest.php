@@ -46,15 +46,15 @@ final class ValidationResultJsonRendererTest extends TestCase
 
         $exitCode = $this->renderer->render($validationResult);
 
-        $this->assertSame(0, $exitCode);
+        self::assertSame(0, $exitCode);
 
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
 
-        $this->assertNotNull($output, 'Failed to decode JSON output: '.$jsonOutput);
-        $this->assertEquals(0, $output['status']);
-        $this->assertEquals('Language validation succeeded.', $output['message']);
-        $this->assertEquals([], $output['issues']);
+        self::assertNotNull($output, 'Failed to decode JSON output: '.$jsonOutput);
+        self::assertEquals(0, $output['status']);
+        self::assertEquals('Language validation succeeded.', $output['message']);
+        self::assertEquals([], $output['issues']);
     }
 
     public function testRenderWithIssues(): void
@@ -77,21 +77,21 @@ final class ValidationResultJsonRendererTest extends TestCase
 
         $exitCode = $this->renderer->render($validationResult);
 
-        $this->assertSame(1, $exitCode);
+        self::assertSame(1, $exitCode);
 
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
 
-        $this->assertNotNull($output);
-        $this->assertEquals(1, $output['status']);
-        $this->assertEquals('Language validation failed with errors.', $output['message']);
-        $this->assertNotEmpty($output['issues']);
+        self::assertNotNull($output);
+        self::assertEquals(1, $output['status']);
+        self::assertEquals('Language validation failed with errors.', $output['message']);
+        self::assertNotEmpty($output['issues']);
 
         // Verify the new file-based structure
-        $this->assertArrayHasKey('/test/path/test.xlf', $output['issues']);
-        $this->assertArrayHasKey('MockValidator', $output['issues']['/test/path/test.xlf']);
-        $this->assertArrayHasKey('type', $output['issues']['/test/path/test.xlf']['MockValidator']);
-        $this->assertArrayHasKey('issues', $output['issues']['/test/path/test.xlf']['MockValidator']);
+        self::assertArrayHasKey('/test/path/test.xlf', $output['issues']);
+        self::assertArrayHasKey('MockValidator', $output['issues']['/test/path/test.xlf']);
+        self::assertArrayHasKey('type', $output['issues']['/test/path/test.xlf']['MockValidator']);
+        self::assertArrayHasKey('issues', $output['issues']['/test/path/test.xlf']['MockValidator']);
     }
 
     public function testRenderWithDryRun(): void
@@ -116,13 +116,13 @@ final class ValidationResultJsonRendererTest extends TestCase
 
         $exitCode = $renderer->render($validationResult);
 
-        $this->assertSame(0, $exitCode);
+        self::assertSame(0, $exitCode);
 
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
 
-        $this->assertEquals(0, $output['status']);
-        $this->assertEquals('Language validation failed with errors in dry-run mode.', $output['message']);
+        self::assertEquals(0, $output['status']);
+        self::assertEquals('Language validation failed with errors in dry-run mode.', $output['message']);
     }
 
     public function testRenderWithStrictMode(): void
@@ -148,13 +148,13 @@ final class ValidationResultJsonRendererTest extends TestCase
 
         $exitCode = $renderer->render($validationResult);
 
-        $this->assertSame(1, $exitCode);
+        self::assertSame(1, $exitCode);
 
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
 
-        $this->assertEquals(1, $output['status']);
-        $this->assertEquals('Language validation failed with warnings in strict mode.', $output['message']);
+        self::assertEquals(1, $output['status']);
+        self::assertEquals('Language validation failed with warnings in strict mode.', $output['message']);
     }
 
     public function testRenderWithWarningNotStrict(): void
@@ -180,13 +180,13 @@ final class ValidationResultJsonRendererTest extends TestCase
 
         $exitCode = $renderer->render($validationResult);
 
-        $this->assertSame(0, $exitCode);
+        self::assertSame(0, $exitCode);
 
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
 
-        $this->assertEquals(0, $output['status']);
-        $this->assertEquals('Language validation completed with warnings.', $output['message']);
+        self::assertEquals(0, $output['status']);
+        self::assertEquals('Language validation completed with warnings.', $output['message']);
     }
 
     public function testJsonOutputFormat(): void
@@ -208,11 +208,11 @@ final class ValidationResultJsonRendererTest extends TestCase
         $jsonOutput = $this->output->fetch();
 
         // Verify it's valid JSON
-        $this->assertJson($jsonOutput);
+        self::assertJson($jsonOutput);
 
         // Verify JSON formatting flags are applied
-        $this->assertStringContainsString("\n", $jsonOutput); // Pretty print
-        $this->assertStringContainsString('    ', $jsonOutput); // Indentation
+        self::assertStringContainsString("\n", $jsonOutput); // Pretty print
+        self::assertStringContainsString('    ', $jsonOutput); // Indentation
     }
 
     public function testRenderWithStatistics(): void
@@ -222,21 +222,21 @@ final class ValidationResultJsonRendererTest extends TestCase
 
         $exitCode = $this->renderer->render($validationResult);
 
-        $this->assertSame(0, $exitCode);
+        self::assertSame(0, $exitCode);
 
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
 
-        $this->assertNotNull($output);
-        $this->assertArrayHasKey('statistics', $output);
+        self::assertNotNull($output);
+        self::assertArrayHasKey('statistics', $output);
 
         $stats = $output['statistics'];
-        $this->assertEqualsWithDelta(1.234, $stats['execution_time'], \PHP_FLOAT_EPSILON);
-        $this->assertSame('1.23s', $stats['execution_time_formatted']);
-        $this->assertSame(5, $stats['files_checked']);
-        $this->assertSame(10, $stats['keys_checked']);
-        $this->assertSame(4, $stats['validators_run']);
-        $this->assertSame(3, $stats['parsers_cached']);
+        self::assertEqualsWithDelta(1.234, $stats['execution_time'], \PHP_FLOAT_EPSILON);
+        self::assertSame('1.23s', $stats['execution_time_formatted']);
+        self::assertSame(5, $stats['files_checked']);
+        self::assertSame(10, $stats['keys_checked']);
+        self::assertSame(4, $stats['validators_run']);
+        self::assertSame(3, $stats['parsers_cached']);
     }
 
     public function testRenderWithoutStatistics(): void
@@ -245,14 +245,14 @@ final class ValidationResultJsonRendererTest extends TestCase
 
         $exitCode = $this->renderer->render($validationResult);
 
-        $this->assertSame(0, $exitCode);
+        self::assertSame(0, $exitCode);
 
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
 
-        $this->assertNotNull($output);
-        $this->assertArrayHasKey('statistics', $output);
-        $this->assertEmpty($output['statistics']);
+        self::assertNotNull($output);
+        self::assertArrayHasKey('statistics', $output);
+        self::assertEmpty($output['statistics']);
     }
 
     public function testRenderStatisticsDefaultParsersCached(): void
@@ -262,22 +262,22 @@ final class ValidationResultJsonRendererTest extends TestCase
 
         $exitCode = $this->renderer->render($validationResult);
 
-        $this->assertSame(0, $exitCode);
+        self::assertSame(0, $exitCode);
 
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
 
-        $this->assertNotNull($output);
-        $this->assertArrayHasKey('statistics', $output);
+        self::assertNotNull($output);
+        self::assertArrayHasKey('statistics', $output);
 
         $stats = $output['statistics'];
-        $this->assertSame(0, $stats['parsers_cached']); // Default value
+        self::assertSame(0, $stats['parsers_cached']); // Default value
     }
 
     public function testGroupIssuesByFileWithMultipleValidators(): void
     {
         // Create first validator with issues
-        $validator1 = $this->createStub(ValidatorInterface::class);
+        $validator1 = self::createStub(ValidatorInterface::class);
         $validator1->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
         $validator1->method('formatIssueMessage')->willReturnCallback(static fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error 1");
         $validator1->method('getShortName')->willReturn('Validator1');
@@ -287,7 +287,7 @@ final class ValidationResultJsonRendererTest extends TestCase
         $validator1->method('distributeIssuesForDisplay')->willReturnCallback(static fn (FileSet $fileSet): array => ['/test/path/test.xlf' => [$issue1]]);
 
         // Create second validator with issues
-        $validator2 = $this->createStub(ValidatorInterface::class);
+        $validator2 = self::createStub(ValidatorInterface::class);
         $validator2->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
         $validator2->method('formatIssueMessage')->willReturnCallback(static fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error 2");
         $validator2->method('getShortName')->willReturn('Validator2');
@@ -308,33 +308,33 @@ final class ValidationResultJsonRendererTest extends TestCase
 
         $exitCode = $this->renderer->render($validationResult);
 
-        $this->assertSame(1, $exitCode);
+        self::assertSame(1, $exitCode);
 
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
 
-        $this->assertNotNull($output);
-        $this->assertArrayHasKey('issues', $output);
+        self::assertNotNull($output);
+        self::assertArrayHasKey('issues', $output);
 
         // Should have issues grouped by file path
         $issues = $output['issues'];
-        $this->assertArrayHasKey('/test/path/test.xlf', $issues);
+        self::assertArrayHasKey('/test/path/test.xlf', $issues);
 
         $fileIssues = $issues['/test/path/test.xlf'];
-        $this->assertArrayHasKey('Validator1', $fileIssues);
-        $this->assertArrayHasKey('Validator2', $fileIssues);
+        self::assertArrayHasKey('Validator1', $fileIssues);
+        self::assertArrayHasKey('Validator2', $fileIssues);
 
         // Check validator 1 issues
         $validator1Issues = $fileIssues['Validator1'];
-        $this->assertArrayHasKey('type', $validator1Issues);
-        $this->assertArrayHasKey('issues', $validator1Issues);
-        $this->assertCount(1, $validator1Issues['issues']);
+        self::assertArrayHasKey('type', $validator1Issues);
+        self::assertArrayHasKey('issues', $validator1Issues);
+        self::assertCount(1, $validator1Issues['issues']);
 
         // Check validator 2 issues
         $validator2Issues = $fileIssues['Validator2'];
-        $this->assertArrayHasKey('type', $validator2Issues);
-        $this->assertArrayHasKey('issues', $validator2Issues);
-        $this->assertCount(1, $validator2Issues['issues']);
+        self::assertArrayHasKey('type', $validator2Issues);
+        self::assertArrayHasKey('issues', $validator2Issues);
+        self::assertCount(1, $validator2Issues['issues']);
     }
 
     public function testGroupIssuesByFileWithMultipleFiles(): void
@@ -359,21 +359,21 @@ final class ValidationResultJsonRendererTest extends TestCase
 
         $exitCode = $this->renderer->render($validationResult);
 
-        $this->assertSame(1, $exitCode);
+        self::assertSame(1, $exitCode);
 
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
 
-        $this->assertNotNull($output);
-        $this->assertArrayHasKey('issues', $output);
+        self::assertNotNull($output);
+        self::assertArrayHasKey('issues', $output);
 
         $issues = $output['issues'];
-        $this->assertArrayHasKey('/test/path/file1.xlf', $issues);
-        $this->assertArrayHasKey('/test/path/file2.xlf', $issues);
+        self::assertArrayHasKey('/test/path/file1.xlf', $issues);
+        self::assertArrayHasKey('/test/path/file2.xlf', $issues);
 
         // Each file should have the validator's issues
-        $this->assertArrayHasKey('MockValidator', $issues['/test/path/file1.xlf']);
-        $this->assertArrayHasKey('MockValidator', $issues['/test/path/file2.xlf']);
+        self::assertArrayHasKey('MockValidator', $issues['/test/path/file1.xlf']);
+        self::assertArrayHasKey('MockValidator', $issues['/test/path/file2.xlf']);
     }
 
     public function testGroupIssuesByFileWithEmptyValidators(): void
@@ -382,14 +382,14 @@ final class ValidationResultJsonRendererTest extends TestCase
 
         $exitCode = $this->renderer->render($validationResult);
 
-        $this->assertSame(0, $exitCode);
+        self::assertSame(0, $exitCode);
 
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
 
-        $this->assertNotNull($output);
-        $this->assertArrayHasKey('issues', $output);
-        $this->assertEmpty($output['issues']);
+        self::assertNotNull($output);
+        self::assertArrayHasKey('issues', $output);
+        self::assertEmpty($output['issues']);
     }
 
     public function testGroupIssuesByFileWithValidatorsWithoutIssues(): void
@@ -407,14 +407,14 @@ final class ValidationResultJsonRendererTest extends TestCase
 
         $exitCode = $this->renderer->render($validationResult);
 
-        $this->assertSame(0, $exitCode);
+        self::assertSame(0, $exitCode);
 
         $jsonOutput = $this->output->fetch();
         $output = json_decode($jsonOutput, true);
 
-        $this->assertNotNull($output);
-        $this->assertArrayHasKey('issues', $output);
-        $this->assertEmpty($output['issues']);
+        self::assertNotNull($output);
+        self::assertArrayHasKey('issues', $output);
+        self::assertEmpty($output['issues']);
     }
 
     /**
@@ -423,7 +423,7 @@ final class ValidationResultJsonRendererTest extends TestCase
     private function createMockValidator(): \PHPUnit\Framework\MockObject\Stub
     {
         /** @var \PHPUnit\Framework\MockObject\Stub&ValidatorInterface $validator */
-        $validator = $this->createStub(ValidatorInterface::class);
+        $validator = self::createStub(ValidatorInterface::class);
         $validator->method('resultTypeOnValidationFailure')->willReturn(ResultType::ERROR);
         $validator->method('formatIssueMessage')->willReturnCallback(static fn (Issue $issue, string $prefix = ''): string => "- ERROR {$prefix}Validation error");
         $validator->method('distributeIssuesForDisplay')->willReturnCallback(static function (FileSet $fileSet) use ($validator): array {

@@ -33,15 +33,15 @@ final class PluginTest extends TestCase
         $plugin = new Plugin();
         $capabilities = $plugin->getCapabilities();
 
-        $this->assertArrayHasKey(CommandProvider::class, $capabilities);
-        $this->assertSame(ValidateTranslationCommandProvider::class, $capabilities[CommandProvider::class]);
+        self::assertArrayHasKey(CommandProvider::class, $capabilities);
+        self::assertSame(ValidateTranslationCommandProvider::class, $capabilities[CommandProvider::class]);
     }
 
     public function testActivate(): void
     {
         $plugin = new Plugin();
-        $composer = $this->createStub(\Composer\Composer::class);
-        $io = $this->createStub(\Composer\IO\IOInterface::class);
+        $composer = self::createStub(\Composer\Composer::class);
+        $io = self::createStub(\Composer\IO\IOInterface::class);
 
         // Should not throw any exception
         $plugin->activate($composer, $io);
@@ -51,8 +51,8 @@ final class PluginTest extends TestCase
     public function testDeactivate(): void
     {
         $plugin = new Plugin();
-        $composer = $this->createStub(\Composer\Composer::class);
-        $io = $this->createStub(\Composer\IO\IOInterface::class);
+        $composer = self::createStub(\Composer\Composer::class);
+        $io = self::createStub(\Composer\IO\IOInterface::class);
 
         // Should not throw any exception
         $plugin->deactivate($composer, $io);
@@ -62,8 +62,8 @@ final class PluginTest extends TestCase
     public function testUninstall(): void
     {
         $plugin = new Plugin();
-        $composer = $this->createStub(\Composer\Composer::class);
-        $io = $this->createStub(\Composer\IO\IOInterface::class);
+        $composer = self::createStub(\Composer\Composer::class);
+        $io = self::createStub(\Composer\IO\IOInterface::class);
 
         // Should not throw any exception
         $plugin->uninstall($composer, $io);

@@ -34,7 +34,7 @@ final class ValidationRunTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->logger = $this->createStub(LoggerInterface::class);
+        $this->logger = self::createStub(LoggerInterface::class);
     }
 
     public function testConstructor(): void
@@ -43,7 +43,7 @@ final class ValidationRunTest extends TestCase
 
         // Just verify the object exists by calling a method
         $result = $validationRun->executeFor([], []);
-        $this->assertSame([], $result->getAllValidators());
+        self::assertSame([], $result->getAllValidators());
     }
 
     public function testExecuteForWithEmptyFileSets(): void
@@ -51,9 +51,9 @@ final class ValidationRunTest extends TestCase
         $validationRun = new ValidationRun($this->logger);
         $result = $validationRun->executeFor([], []);
 
-        $this->assertSame([], $result->getAllValidators());
-        $this->assertSame(ResultType::SUCCESS, $result->getOverallResult());
-        $this->assertFalse($result->hasIssues());
+        self::assertSame([], $result->getAllValidators());
+        self::assertSame(ResultType::SUCCESS, $result->getOverallResult());
+        self::assertFalse($result->hasIssues());
     }
 
     public function testExecuteForWithEmptyValidatorClasses(): void
@@ -63,9 +63,9 @@ final class ValidationRunTest extends TestCase
 
         $result = $validationRun->executeFor([$fileSet], []);
 
-        $this->assertSame([], $result->getAllValidators());
-        $this->assertSame(ResultType::SUCCESS, $result->getOverallResult());
-        $this->assertFalse($result->hasIssues());
+        self::assertSame([], $result->getAllValidators());
+        self::assertSame(ResultType::SUCCESS, $result->getOverallResult());
+        self::assertFalse($result->hasIssues());
     }
 
     public function testExecuteForWithValidatorWithoutIssues(): void
@@ -76,9 +76,9 @@ final class ValidationRunTest extends TestCase
         $validationRun = new ValidationRun($this->logger);
         $result = $validationRun->executeFor([$fileSet], [$validatorClass]);
 
-        $this->assertSame([], $result->getAllValidators());
-        $this->assertSame(ResultType::SUCCESS, $result->getOverallResult());
-        $this->assertFalse($result->hasIssues());
+        self::assertSame([], $result->getAllValidators());
+        self::assertSame(ResultType::SUCCESS, $result->getOverallResult());
+        self::assertFalse($result->hasIssues());
     }
 
     public function testExecuteForWithValidatorWithIssues(): void
@@ -89,9 +89,9 @@ final class ValidationRunTest extends TestCase
         $validationRun = new ValidationRun($this->logger);
         $result = $validationRun->executeFor([$fileSet], [$validatorClass]);
 
-        $this->assertCount(1, $result->getAllValidators());
-        $this->assertSame(ResultType::ERROR, $result->getOverallResult());
-        $this->assertTrue($result->hasIssues());
+        self::assertCount(1, $result->getAllValidators());
+        self::assertSame(ResultType::ERROR, $result->getOverallResult());
+        self::assertTrue($result->hasIssues());
     }
 
     public function testExecuteForWithMultipleFileSetsAndValidators(): void
@@ -109,9 +109,9 @@ final class ValidationRunTest extends TestCase
         );
 
         // Only validators with issues should be included
-        $this->assertCount(2, $result->getAllValidators()); // 2 file sets × 1 validator with issues
-        $this->assertSame(ResultType::ERROR, $result->getOverallResult());
-        $this->assertTrue($result->hasIssues());
+        self::assertCount(2, $result->getAllValidators()); // 2 file sets × 1 validator with issues
+        self::assertSame(ResultType::ERROR, $result->getOverallResult());
+        self::assertTrue($result->hasIssues());
     }
 
     public function testExecuteForWithRealValidatorsSharesParserCacheAndConfig(): void
@@ -137,17 +137,17 @@ final class ValidationRunTest extends TestCase
         );
 
         $statistics = $result->getStatistics();
-        $this->assertInstanceOf(ValidationStatistics::class, $statistics);
+        self::assertInstanceOf(ValidationStatistics::class, $statistics);
         // Real XLIFF parser was instantiated and cached.
-        $this->assertGreaterThan(0, $statistics->getParsersCached());
-        $this->assertGreaterThan(0, $statistics->getKeysChecked());
+        self::assertGreaterThan(0, $statistics->getParsersCached());
+        self::assertGreaterThan(0, $statistics->getKeysChecked());
     }
 
     public function testCreateFileSetsFromArrayWithEmptyArray(): void
     {
         $fileSets = ValidationRun::createFileSetsFromArray([]);
 
-        $this->assertSame([], $fileSets);
+        self::assertSame([], $fileSets);
     }
 
     public function testCreateFileSetsFromArrayWithSingleFileSet(): void
@@ -162,11 +162,11 @@ final class ValidationRunTest extends TestCase
 
         $fileSets = ValidationRun::createFileSetsFromArray($allFiles);
 
-        $this->assertCount(1, $fileSets);
-        $this->assertSame('TestParser', $fileSets[0]->getParser());
-        $this->assertSame('/test/path', $fileSets[0]->getPath());
-        $this->assertSame('testSet', $fileSets[0]->getSetKey());
-        $this->assertSame(['file1.xlf', 'file2.xlf'], $fileSets[0]->getFiles());
+        self::assertCount(1, $fileSets);
+        self::assertSame('TestParser', $fileSets[0]->getParser());
+        self::assertSame('/test/path', $fileSets[0]->getPath());
+        self::assertSame('testSet', $fileSets[0]->getSetKey());
+        self::assertSame(['file1.xlf', 'file2.xlf'], $fileSets[0]->getFiles());
     }
 
     public function testCreateFileSetsFromArrayWithMultipleFileSets(): void
@@ -190,19 +190,19 @@ final class ValidationRunTest extends TestCase
 
         $fileSets = ValidationRun::createFileSetsFromArray($allFiles);
 
-        $this->assertCount(4, $fileSets);
+        self::assertCount(4, $fileSets);
 
         // Check first file set
-        $this->assertSame('Parser1', $fileSets[0]->getParser());
-        $this->assertSame('/path1', $fileSets[0]->getPath());
-        $this->assertSame('set1', $fileSets[0]->getSetKey());
-        $this->assertSame(['file1.xlf'], $fileSets[0]->getFiles());
+        self::assertSame('Parser1', $fileSets[0]->getParser());
+        self::assertSame('/path1', $fileSets[0]->getPath());
+        self::assertSame('set1', $fileSets[0]->getSetKey());
+        self::assertSame(['file1.xlf'], $fileSets[0]->getFiles());
 
         // Check last file set
-        $this->assertSame('Parser2', $fileSets[3]->getParser());
-        $this->assertSame('/path3', $fileSets[3]->getPath());
-        $this->assertSame('set4', $fileSets[3]->getSetKey());
-        $this->assertSame(['file4.yaml', 'file5.yaml'], $fileSets[3]->getFiles());
+        self::assertSame('Parser2', $fileSets[3]->getParser());
+        self::assertSame('/path3', $fileSets[3]->getPath());
+        self::assertSame('set4', $fileSets[3]->getSetKey());
+        self::assertSame(['file4.yaml', 'file5.yaml'], $fileSets[3]->getFiles());
     }
 
     public function testExecuteForCreatesStatistics(): void
@@ -214,11 +214,11 @@ final class ValidationRunTest extends TestCase
         $result = $validationRun->executeFor([$fileSet], [$validatorClass]);
 
         $statistics = $result->getStatistics();
-        $this->assertInstanceOf(ValidationStatistics::class, $statistics);
-        $this->assertGreaterThan(0, $statistics->getExecutionTime());
-        $this->assertSame(1, $statistics->getFilesChecked());
-        $this->assertSame(1, $statistics->getValidatorsRun());
-        $this->assertGreaterThanOrEqual(0, $statistics->getKeysChecked());
+        self::assertInstanceOf(ValidationStatistics::class, $statistics);
+        self::assertGreaterThan(0, $statistics->getExecutionTime());
+        self::assertSame(1, $statistics->getFilesChecked());
+        self::assertSame(1, $statistics->getValidatorsRun());
+        self::assertGreaterThanOrEqual(0, $statistics->getKeysChecked());
     }
 
     public function testExecuteForWithMultipleFilesSetsStatistics(): void
@@ -236,11 +236,11 @@ final class ValidationRunTest extends TestCase
         );
 
         $statistics = $result->getStatistics();
-        $this->assertInstanceOf(ValidationStatistics::class, $statistics);
-        $this->assertGreaterThan(0, $statistics->getExecutionTime());
-        $this->assertSame(3, $statistics->getFilesChecked()); // 2 + 1 files
-        $this->assertSame(2, $statistics->getValidatorsRun()); // 2 validator classes
-        $this->assertGreaterThanOrEqual(0, $statistics->getKeysChecked());
+        self::assertInstanceOf(ValidationStatistics::class, $statistics);
+        self::assertGreaterThan(0, $statistics->getExecutionTime());
+        self::assertSame(3, $statistics->getFilesChecked()); // 2 + 1 files
+        self::assertSame(2, $statistics->getValidatorsRun()); // 2 validator classes
+        self::assertGreaterThanOrEqual(0, $statistics->getKeysChecked());
     }
 }
 

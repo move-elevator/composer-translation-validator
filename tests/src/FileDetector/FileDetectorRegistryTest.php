@@ -28,15 +28,15 @@ final class FileDetectorRegistryTest extends TestCase
     {
         $detectors = FileDetectorRegistry::getAvailableFileDetectors();
 
-        $this->assertSame($detectors, FileDetectorRegistry::getAvailableFileDetectors());
-        $this->assertContains(PrefixFileDetector::class, $detectors);
-        $this->assertContains(SuffixFileDetector::class, $detectors);
-        $this->assertContains(DirectoryFileDetector::class, $detectors);
-        $this->assertCount(3, $detectors);
+        self::assertSame($detectors, FileDetectorRegistry::getAvailableFileDetectors());
+        self::assertContains(PrefixFileDetector::class, $detectors);
+        self::assertContains(SuffixFileDetector::class, $detectors);
+        self::assertContains(DirectoryFileDetector::class, $detectors);
+        self::assertCount(3, $detectors);
 
         foreach ($detectors as $detector) {
-            $this->assertTrue(class_exists($detector), "Class {$detector} should exist");
-            $this->assertContains(
+            self::assertTrue(class_exists($detector), "Class {$detector} should exist");
+            self::assertContains(
                 DetectorInterface::class,
                 class_implements($detector) ?: [],
                 "Class {$detector} should implement DetectorInterface",

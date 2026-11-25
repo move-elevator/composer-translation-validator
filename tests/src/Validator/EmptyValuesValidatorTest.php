@@ -31,7 +31,7 @@ final class EmptyValuesValidatorTest extends TestCase
 {
     public function testProcessFileWithEmptyValues(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser->method('getContentByKey')->willReturnMap([
             ['key1', 'Valid content'],
@@ -41,17 +41,17 @@ final class EmptyValuesValidatorTest extends TestCase
         $parser->method('getFileName')->willReturn('test.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('error');
+        $logger->expects(self::never())->method('error');
 
         $validator = new EmptyValuesValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertSame(['key2' => '', 'key3' => '   '], $result);
+        self::assertSame(['key2' => '', 'key3' => '   '], $result);
     }
 
     public function testProcessFileWithoutEmptyValues(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser->method('getContentByKey')->willReturnMap([
             ['key1', 'Valid content'],
@@ -61,17 +61,17 @@ final class EmptyValuesValidatorTest extends TestCase
         $parser->method('getFileName')->willReturn('test.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('error');
+        $logger->expects(self::never())->method('error');
 
         $validator = new EmptyValuesValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testProcessFileWithNullValues(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2']);
         $parser->method('getContentByKey')->willReturnMap([
             ['key1', 'Valid content'],
@@ -80,17 +80,17 @@ final class EmptyValuesValidatorTest extends TestCase
         $parser->method('getFileName')->willReturn('test.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('error');
+        $logger->expects(self::never())->method('error');
 
         $validator = new EmptyValuesValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertSame(['key2' => ''], $result);
+        self::assertSame(['key2' => ''], $result);
     }
 
     public function testProcessFileWithMixedWhitespaceValues(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3', 'key4']);
         $parser->method('getContentByKey')->willReturnMap([
             ['key1', 'Valid content'],
@@ -101,7 +101,7 @@ final class EmptyValuesValidatorTest extends TestCase
         $parser->method('getFileName')->willReturn('test.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('error');
+        $logger->expects(self::never())->method('error');
 
         $validator = new EmptyValuesValidator($logger);
         $result = $validator->processFile($parser);
@@ -111,24 +111,24 @@ final class EmptyValuesValidatorTest extends TestCase
             'key3' => ' ',
             'key4' => "\t\n ",
         ];
-        $this->assertSame($expected, $result);
+        self::assertSame($expected, $result);
     }
 
     public function testProcessFileWithInvalidFile(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(null);
         $parser->method('getFileName')->willReturn('invalid.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method('error')
-            ->with($this->stringContains('The source file invalid.xlf is not valid.'));
+            ->with(self::stringContains('The source file invalid.xlf is not valid.'));
 
         $validator = new EmptyValuesValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     /**
@@ -138,7 +138,7 @@ final class EmptyValuesValidatorTest extends TestCase
     #[DataProvider('formatIssueMessageProvider')]
     public function testFormatIssueMessage(array $details, array $expectedFragments): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new EmptyValuesValidator($logger);
 
         $issue = new Issue(
@@ -150,10 +150,10 @@ final class EmptyValuesValidatorTest extends TestCase
 
         $result = $validator->formatIssueMessage($issue);
 
-        $this->assertStringContainsString('Warning', $result);
-        $this->assertStringContainsString('<fg=yellow>', $result);
+        self::assertStringContainsString('Warning', $result);
+        self::assertStringContainsString('<fg=yellow>', $result);
         foreach ($expectedFragments as $fragment) {
-            $this->assertStringContainsString($fragment, $result);
+            self::assertStringContainsString($fragment, $result);
         }
     }
 
@@ -180,22 +180,22 @@ final class EmptyValuesValidatorTest extends TestCase
 
     public function testProcessFileWithEmptyKeysArray(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn([]);
         $parser->method('getFileName')->willReturn('test.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('error');
+        $logger->expects(self::never())->method('error');
 
         $validator = new EmptyValuesValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testProcessFileWithPartiallyEmptyValues(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3', 'key4', 'key5']);
         $parser->method('getContentByKey')->willReturnMap([
             ['key1', 'Valid content'],
@@ -207,7 +207,7 @@ final class EmptyValuesValidatorTest extends TestCase
         $parser->method('getFileName')->willReturn('test.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('error');
+        $logger->expects(self::never())->method('error');
 
         $validator = new EmptyValuesValidator($logger);
         $result = $validator->processFile($parser);
@@ -216,6 +216,6 @@ final class EmptyValuesValidatorTest extends TestCase
             'key2' => '',
             'key4' => '   ',
         ];
-        $this->assertSame($expected, $result);
+        self::assertSame($expected, $result);
     }
 }

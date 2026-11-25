@@ -32,7 +32,7 @@ final class HtmlTagValidatorTest extends TestCase
 {
     public function testProcessFileWithValidFile(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2']);
         $parser->method('getContentByKey')->willReturnMap([
             ['key1', 'Hello <strong>world</strong>!'],
@@ -43,24 +43,24 @@ final class HtmlTagValidatorTest extends TestCase
         $validator = new HtmlTagValidator();
         $result = $validator->processFile($parser);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testProcessFileWithInvalidFile(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(null);
         $parser->method('getFileName')->willReturn('invalid.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method('error')
             ->with('The source file invalid.xlf is not valid.');
 
         $validator = new HtmlTagValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testAnalyzeHtmlStructure(): void
@@ -72,25 +72,25 @@ final class HtmlTagValidatorTest extends TestCase
         // Test with valid HTML
         $structure = $method->invoke($validator, 'Hello <strong class="highlight">world</strong>!');
 
-        $this->assertEquals(['strong'], $structure['tags']);
-        $this->assertEmpty($structure['structure_errors']);
-        $this->assertSame(['highlight'], array_values($structure['attributes']['strong']));
+        self::assertEquals(['strong'], $structure['tags']);
+        self::assertEmpty($structure['structure_errors']);
+        self::assertSame(['highlight'], array_values($structure['attributes']['strong']));
 
         // Test with self-closing tag
         $structure = $method->invoke($validator, 'Line break <br/> here');
 
-        $this->assertEquals(['br'], $structure['self_closing_tags']);
-        $this->assertEmpty($structure['structure_errors']);
+        self::assertEquals(['br'], $structure['self_closing_tags']);
+        self::assertEmpty($structure['structure_errors']);
 
         // Test with unclosed tag
         $structure = $method->invoke($validator, 'Unclosed <div>content');
 
-        $this->assertContains('Unclosed tag: <div>', $structure['structure_errors']);
+        self::assertContains('Unclosed tag: <div>', $structure['structure_errors']);
 
         // Test with unmatched closing tag
         $structure = $method->invoke($validator, 'Unmatched </span> tag');
 
-        $this->assertContains('Unmatched closing tag: </span>', $structure['structure_errors']);
+        self::assertContains('Unmatched closing tag: </span>', $structure['structure_errors']);
     }
 
     public function testVoidElementsAreNotReportedAsUnclosed(): void
@@ -101,30 +101,30 @@ final class HtmlTagValidatorTest extends TestCase
 
         // Non-self-closing void element (HTML5 syntax, e.g. from CDATA)
         $structure = $method->invoke($validator, 'Test<br>Test');
-        $this->assertEmpty($structure['structure_errors']);
-        $this->assertContains('br', $structure['tags']);
+        self::assertEmpty($structure['structure_errors']);
+        self::assertContains('br', $structure['tags']);
 
         // <br>, <br/> and <br /> must be treated equivalently (no errors)
         foreach (['Line<br>here', 'Line<br/>here', 'Line<br />here'] as $value) {
             $structure = $method->invoke($validator, $value);
-            $this->assertEmpty($structure['structure_errors'], "Unexpected error for: {$value}");
-            $this->assertContains('br', $structure['tags']);
+            self::assertEmpty($structure['structure_errors'], "Unexpected error for: {$value}");
+            self::assertContains('br', $structure['tags']);
         }
 
         // Void element with attributes
         $structure = $method->invoke($validator, 'Image <img src="x.png"> done');
-        $this->assertEmpty($structure['structure_errors']);
-        $this->assertContains('img', $structure['tags']);
-        $this->assertSame('x.png', $structure['attributes']['img']['src'] ?? null);
+        self::assertEmpty($structure['structure_errors']);
+        self::assertContains('img', $structure['tags']);
+        self::assertSame('x.png', $structure['attributes']['img']['src'] ?? null);
 
         // Regression guard: real non-void tags must still be flagged
         $structure = $method->invoke($validator, 'Unclosed <div>content');
-        $this->assertContains('Unclosed tag: <div>', $structure['structure_errors']);
+        self::assertContains('Unclosed tag: <div>', $structure['structure_errors']);
     }
 
     public function testProcessFileSkipsKeysWithNullValue(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2']);
         $parser->method('getContentByKey')->willReturnMap([
             ['key1', 'Hello <strong>world</strong>!'],
@@ -138,8 +138,8 @@ final class HtmlTagValidatorTest extends TestCase
         $reflection = new ReflectionClass($validator);
         $keyData = $reflection->getProperty('keyData')->getValue($validator);
 
-        $this->assertArrayHasKey('key1', $keyData);
-        $this->assertArrayNotHasKey('key2', $keyData);
+        self::assertArrayHasKey('key1', $keyData);
+        self::assertArrayNotHasKey('key2', $keyData);
     }
 
     public function testRenderDetailedOutputWithEmptyIssues(): void
@@ -149,12 +149,12 @@ final class HtmlTagValidatorTest extends TestCase
 
         $validator->renderDetailedOutput($output, []);
 
-        $this->assertSame('', $output->fetch());
+        self::assertSame('', $output->fetch());
     }
 
     public function testFindHtmlInconsistenciesWithSingleFileReturnsEmpty(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['greeting']);
         $parser->method('getContentByKey')->willReturn('Hello <strong>world</strong>!');
         $parser->method('getFileName')->willReturn('en.xlf');
@@ -164,17 +164,17 @@ final class HtmlTagValidatorTest extends TestCase
         $validator->processFile($parser);
         $validator->postProcess();
 
-        $this->assertFalse($validator->hasIssues());
+        self::assertFalse($validator->hasIssues());
     }
 
     public function testPostProcessDetectsClassAttributeDifference(): void
     {
-        $parser1 = $this->createStub(ParserInterface::class);
+        $parser1 = self::createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['link']);
         $parser1->method('getContentByKey')->willReturn('See <a class="primary">here</a>');
         $parser1->method('getFileName')->willReturn('en.xlf');
 
-        $parser2 = $this->createStub(ParserInterface::class);
+        $parser2 = self::createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['link']);
         $parser2->method('getContentByKey')->willReturn('Siehe <a class="secondary">hier</a>');
         $parser2->method('getFileName')->willReturn('de.xlf');
@@ -184,12 +184,12 @@ final class HtmlTagValidatorTest extends TestCase
         $validator->processFile($parser2);
         $validator->postProcess();
 
-        $this->assertTrue($validator->hasIssues());
+        self::assertTrue($validator->hasIssues());
         $issues = $validator->getIssues();
-        $this->assertCount(1, $issues);
+        self::assertCount(1, $issues);
 
         $inconsistencies = $issues[0]->getDetails()['inconsistencies'];
-        $this->assertStringContainsString(
+        self::assertStringContainsString(
             'different class attribute for <a>',
             implode(' ', $inconsistencies),
         );
@@ -197,12 +197,12 @@ final class HtmlTagValidatorTest extends TestCase
 
     public function testPostProcessWithConsistentHtml(): void
     {
-        $parser1 = $this->createStub(ParserInterface::class);
+        $parser1 = self::createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['greeting']);
         $parser1->method('getContentByKey')->willReturn('Hello <strong>world</strong>!');
         $parser1->method('getFileName')->willReturn('en.xlf');
 
-        $parser2 = $this->createStub(ParserInterface::class);
+        $parser2 = self::createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['greeting']);
         $parser2->method('getContentByKey')->willReturn('Hallo <strong>Welt</strong>!');
         $parser2->method('getFileName')->willReturn('de.xlf');
@@ -212,17 +212,17 @@ final class HtmlTagValidatorTest extends TestCase
         $validator->processFile($parser2);
         $validator->postProcess();
 
-        $this->assertFalse($validator->hasIssues());
+        self::assertFalse($validator->hasIssues());
     }
 
     public function testPostProcessWithInconsistentHtml(): void
     {
-        $parser1 = $this->createStub(ParserInterface::class);
+        $parser1 = self::createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['greeting']);
         $parser1->method('getContentByKey')->willReturn('Hello <strong>world</strong>!');
         $parser1->method('getFileName')->willReturn('en.xlf');
 
-        $parser2 = $this->createStub(ParserInterface::class);
+        $parser2 = self::createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['greeting']);
         $parser2->method('getContentByKey')->willReturn('Hallo <b>Welt</b>!');
         $parser2->method('getFileName')->willReturn('de.xlf');
@@ -232,24 +232,24 @@ final class HtmlTagValidatorTest extends TestCase
         $validator->processFile($parser2);
         $validator->postProcess();
 
-        $this->assertTrue($validator->hasIssues());
+        self::assertTrue($validator->hasIssues());
         $issues = $validator->getIssues();
-        $this->assertCount(1, $issues);
+        self::assertCount(1, $issues);
 
         $issue = $issues[0];
         $details = $issue->getDetails();
-        $this->assertEquals('greeting', $details['key']);
-        $this->assertNotEmpty($details['inconsistencies']);
+        self::assertEquals('greeting', $details['key']);
+        self::assertNotEmpty($details['inconsistencies']);
     }
 
     public function testPostProcessWithHtmlErrors(): void
     {
-        $parser1 = $this->createStub(ParserInterface::class);
+        $parser1 = self::createStub(ParserInterface::class);
         $parser1->method('extractKeys')->willReturn(['greeting']);
         $parser1->method('getContentByKey')->willReturn('Hello <strong>world</strong>!');
         $parser1->method('getFileName')->willReturn('en.xlf');
 
-        $parser2 = $this->createStub(ParserInterface::class);
+        $parser2 = self::createStub(ParserInterface::class);
         $parser2->method('extractKeys')->willReturn(['greeting']);
         $parser2->method('getContentByKey')->willReturn('Hallo <strong>Welt!');
         $parser2->method('getFileName')->willReturn('de.xlf');
@@ -259,20 +259,20 @@ final class HtmlTagValidatorTest extends TestCase
         $validator->processFile($parser2);
         $validator->postProcess();
 
-        $this->assertTrue($validator->hasIssues());
+        self::assertTrue($validator->hasIssues());
         $issues = $validator->getIssues();
-        $this->assertCount(1, $issues);
+        self::assertCount(1, $issues);
 
         $issue = $issues[0];
         $details = $issue->getDetails();
         $inconsistencies = $details['inconsistencies'];
-        $this->assertStringContainsString('HTML structure errors', implode(' ', $inconsistencies));
+        self::assertStringContainsString('HTML structure errors', implode(' ', $inconsistencies));
     }
 
     public function testShouldShowDetailedOutput(): void
     {
         $validator = new HtmlTagValidator();
-        $this->assertTrue($validator->shouldShowDetailedOutput());
+        self::assertTrue($validator->shouldShowDetailedOutput());
     }
 
     public function testFormatIssueMessage(): void
@@ -290,9 +290,9 @@ final class HtmlTagValidatorTest extends TestCase
 
         $message = $validator->formatIssueMessage($issue, 'test: ');
 
-        $this->assertStringContainsString('Warning', $message);
-        $this->assertStringContainsString('test: HTML tag inconsistency', $message);
-        $this->assertStringContainsString('greeting', $message);
+        self::assertStringContainsString('Warning', $message);
+        self::assertStringContainsString('test: HTML tag inconsistency', $message);
+        self::assertStringContainsString('greeting', $message);
     }
 
     public function testDistributeIssuesForDisplay(): void
@@ -317,9 +317,9 @@ final class HtmlTagValidatorTest extends TestCase
         $validator->addIssue($issue);
         $distribution = $validator->distributeIssuesForDisplay($fileSet);
 
-        $this->assertCount(2, $distribution);
-        $this->assertArrayHasKey('/test/path/en.xlf', $distribution);
-        $this->assertArrayHasKey('/test/path/de.xlf', $distribution);
+        self::assertCount(2, $distribution);
+        self::assertArrayHasKey('/test/path/en.xlf', $distribution);
+        self::assertArrayHasKey('/test/path/de.xlf', $distribution);
     }
 
     public function testRenderDetailedOutput(): void
@@ -344,9 +344,9 @@ final class HtmlTagValidatorTest extends TestCase
         $validator->renderDetailedOutput($output, [$issue]);
         $outputContent = $output->fetch();
 
-        $this->assertStringContainsString('greeting', $outputContent);
-        $this->assertStringContainsString('en.xlf', $outputContent);
-        $this->assertStringContainsString('de.xlf', $outputContent);
+        self::assertStringContainsString('greeting', $outputContent);
+        self::assertStringContainsString('en.xlf', $outputContent);
+        self::assertStringContainsString('de.xlf', $outputContent);
     }
 
     public function testResetState(): void
@@ -364,7 +364,7 @@ final class HtmlTagValidatorTest extends TestCase
         $resetMethod->invoke($validator);
 
         // Check that data is cleared
-        $this->assertEmpty($keyDataProperty->getValue($validator));
-        $this->assertFalse($validator->hasIssues());
+        self::assertEmpty($keyDataProperty->getValue($validator));
+        self::assertFalse($validator->hasIssues());
     }
 }

@@ -32,7 +32,7 @@ final class DirectoryFileDetectorTest extends TestCase
     #[DataProvider('mapTranslationSetProvider')]
     public function testMapTranslationSet(array $files, array $expected): void
     {
-        $this->assertSame($expected, (new DirectoryFileDetector())->mapTranslationSet($files));
+        self::assertSame($expected, (new DirectoryFileDetector())->mapTranslationSet($files));
     }
 
     /**

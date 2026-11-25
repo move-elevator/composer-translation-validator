@@ -34,7 +34,7 @@ final class PathUtilityTest extends TestCase
         parent::setUp();
         $cwd = getcwd();
         if (false === $cwd) {
-            $this->fail('Could not get current working directory');
+            self::fail('Could not get current working directory');
         }
         $this->originalCwd = $cwd;
         $this->tempDir = sys_get_temp_dir().'/path_utility_test_'.uniqid('', true);
@@ -73,13 +73,13 @@ final class PathUtilityTest extends TestCase
     #[DataProvider('normalizeFolderPathProvider')]
     public function testNormalizeFolderPath(string $input, string $expected): void
     {
-        $this->assertSame($expected, PathUtility::normalizeFolderPath($input));
+        self::assertSame($expected, PathUtility::normalizeFolderPath($input));
     }
 
     public function testNormalizeFolderPathWhenPathIsCwd(): void
     {
         chdir($this->tempDir);
-        $this->assertSame('', PathUtility::normalizeFolderPath($this->tempDir));
+        self::assertSame('', PathUtility::normalizeFolderPath($this->tempDir));
     }
 
     public function testNormalizeFolderPathWhenPathIsSubdirectoryOfCwd(): void
@@ -88,14 +88,14 @@ final class PathUtilityTest extends TestCase
         mkdir($subDir);
         chdir($this->tempDir);
 
-        $this->assertSame('sub', PathUtility::normalizeFolderPath($subDir));
+        self::assertSame('sub', PathUtility::normalizeFolderPath($subDir));
     }
 
     public function testNormalizeFolderPathWhenPathIsNotRelatedToCwd(): void
     {
         chdir($this->tempDir);
         $unrelatedPath = '/another/path/to/folder';
-        $this->assertSame('/another/path/to/folder', PathUtility::normalizeFolderPath($unrelatedPath));
+        self::assertSame('/another/path/to/folder', PathUtility::normalizeFolderPath($unrelatedPath));
     }
 
     private function removeDirectory(string $path): void

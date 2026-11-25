@@ -32,7 +32,7 @@ final class PhpParserTest extends TestCase
     public function testGetSupportedFileExtensions(): void
     {
         $expectedExtensions = ['php'];
-        $this->assertSame($expectedExtensions, PhpParser::getSupportedFileExtensions());
+        self::assertSame($expectedExtensions, PhpParser::getSupportedFileExtensions());
     }
 
     public function testConstructorWithValidFile(): void
@@ -40,8 +40,8 @@ final class PhpParserTest extends TestCase
         $filePath = __DIR__.'/../Fixtures/translations/php/success/messages.en.php';
         $parser = new PhpParser($filePath);
 
-        $this->assertSame('messages.en.php', $parser->getFileName());
-        $this->assertSame($filePath, $parser->getFilePath());
+        self::assertSame('messages.en.php', $parser->getFileName());
+        self::assertSame($filePath, $parser->getFilePath());
     }
 
     public function testConstructorWithNonExistentFile(): void
@@ -84,7 +84,7 @@ final class PhpParserTest extends TestCase
         $parser = new PhpParser($filePath);
 
         $keys = $parser->extractKeys();
-        $this->assertIsArray($keys);
+        self::assertIsArray($keys);
 
         $expectedKeys = [
             'welcome',
@@ -99,9 +99,9 @@ final class PhpParserTest extends TestCase
             'status.inactive',
         ];
 
-        $this->assertCount(count($expectedKeys), $keys);
+        self::assertCount(count($expectedKeys), $keys);
         foreach ($expectedKeys as $expectedKey) {
-            $this->assertContains($expectedKey, $keys);
+            self::assertContains($expectedKey, $keys);
         }
     }
 
@@ -113,7 +113,7 @@ final class PhpParserTest extends TestCase
         $first = $parser->extractKeys();
         $second = $parser->extractKeys();
 
-        $this->assertSame($first, $second);
+        self::assertSame($first, $second);
     }
 
     public function testGetContentByKeyWithValidKeys(): void
@@ -121,13 +121,13 @@ final class PhpParserTest extends TestCase
         $filePath = __DIR__.'/../Fixtures/translations/php/success/messages.en.php';
         $parser = new PhpParser($filePath);
 
-        $this->assertSame('Welcome to our application!', $parser->getContentByKey('welcome'));
-        $this->assertSame('User Profile', $parser->getContentByKey('user.profile'));
-        $this->assertSame('Username: %username%', $parser->getContentByKey('user.name'));
-        $this->assertSame('Home', $parser->getContentByKey('navigation.home'));
-        $this->assertSame('Contact {email}', $parser->getContentByKey('navigation.contact'));
-        $this->assertSame('Hello %name%! Welcome to {site}', $parser->getContentByKey('greeting'));
-        $this->assertSame('Active', $parser->getContentByKey('status.active'));
+        self::assertSame('Welcome to our application!', $parser->getContentByKey('welcome'));
+        self::assertSame('User Profile', $parser->getContentByKey('user.profile'));
+        self::assertSame('Username: %username%', $parser->getContentByKey('user.name'));
+        self::assertSame('Home', $parser->getContentByKey('navigation.home'));
+        self::assertSame('Contact {email}', $parser->getContentByKey('navigation.contact'));
+        self::assertSame('Hello %name%! Welcome to {site}', $parser->getContentByKey('greeting'));
+        self::assertSame('Active', $parser->getContentByKey('status.active'));
     }
 
     public function testGetContentByKeyWithInvalidKeys(): void
@@ -135,9 +135,9 @@ final class PhpParserTest extends TestCase
         $filePath = __DIR__.'/../Fixtures/translations/php/success/messages.en.php';
         $parser = new PhpParser($filePath);
 
-        $this->assertNull($parser->getContentByKey('nonexistent'));
-        $this->assertNull($parser->getContentByKey('user.nonexistent'));
-        $this->assertNull($parser->getContentByKey('navigation.nonexistent.deep'));
+        self::assertNull($parser->getContentByKey('nonexistent'));
+        self::assertNull($parser->getContentByKey('user.nonexistent'));
+        self::assertNull($parser->getContentByKey('navigation.nonexistent.deep'));
     }
 
     public function testGetContentByKeyIgnoresAttributeParameter(): void
@@ -146,9 +146,9 @@ final class PhpParserTest extends TestCase
         $parser = new PhpParser($filePath);
 
         // The attribute parameter should be ignored for PHP files
-        $this->assertSame('Welcome to our application!', $parser->getContentByKey('welcome'));
-        $this->assertSame('Welcome to our application!', $parser->getContentByKey('welcome'));
-        $this->assertSame('Welcome to our application!', $parser->getContentByKey('welcome'));
+        self::assertSame('Welcome to our application!', $parser->getContentByKey('welcome'));
+        self::assertSame('Welcome to our application!', $parser->getContentByKey('welcome'));
+        self::assertSame('Welcome to our application!', $parser->getContentByKey('welcome'));
     }
 
     public function testGetLanguageFromSymfonyStyleFilename(): void
@@ -157,7 +157,7 @@ final class PhpParserTest extends TestCase
         $parser = new PhpParser($filePath);
 
         // This file follows Symfony pattern: messages.en.php
-        $this->assertSame('en', $parser->getLanguage());
+        self::assertSame('en', $parser->getLanguage());
     }
 
     public function testGetLanguageFromLaravelStyleDirectory(): void
@@ -165,7 +165,7 @@ final class PhpParserTest extends TestCase
         $filePath = __DIR__.'/../Fixtures/translations/php/laravel/en/messages.php';
         $parser = new PhpParser($filePath);
 
-        $this->assertSame('en', $parser->getLanguage());
+        self::assertSame('en', $parser->getLanguage());
     }
 
     public function testGetLanguageFromLaravelStyleDirectoryGerman(): void
@@ -173,7 +173,7 @@ final class PhpParserTest extends TestCase
         $filePath = __DIR__.'/../Fixtures/translations/php/laravel/de/messages.php';
         $parser = new PhpParser($filePath);
 
-        $this->assertSame('de', $parser->getLanguage());
+        self::assertSame('de', $parser->getLanguage());
     }
 
     public function testGetLanguageReturnsEmptyWhenNoPatternMatches(): void
@@ -184,7 +184,7 @@ final class PhpParserTest extends TestCase
 
         try {
             $parser = new PhpParser($tempFile);
-            $this->assertSame('', $parser->getLanguage());
+            self::assertSame('', $parser->getLanguage());
         } finally {
             unlink($tempFile);
         }
@@ -196,7 +196,7 @@ final class PhpParserTest extends TestCase
         $parser = new PhpParser($filePath);
 
         $expectedDirectory = dirname($filePath).\DIRECTORY_SEPARATOR;
-        $this->assertSame($expectedDirectory, $parser->getFileDirectory());
+        self::assertSame($expectedDirectory, $parser->getFileDirectory());
     }
 
     public function testGetFilePath(): void
@@ -204,7 +204,7 @@ final class PhpParserTest extends TestCase
         $filePath = __DIR__.'/../Fixtures/translations/php/success/messages.en.php';
         $parser = new PhpParser($filePath);
 
-        $this->assertSame($filePath, $parser->getFilePath());
+        self::assertSame($filePath, $parser->getFilePath());
     }
 
     public function testGetFileName(): void
@@ -212,7 +212,7 @@ final class PhpParserTest extends TestCase
         $filePath = __DIR__.'/../Fixtures/translations/php/success/messages.en.php';
         $parser = new PhpParser($filePath);
 
-        $this->assertSame('messages.en.php', $parser->getFileName());
+        self::assertSame('messages.en.php', $parser->getFileName());
     }
 
     public function testHandlesComplexNestedArrays(): void
@@ -238,14 +238,14 @@ final class PhpParserTest extends TestCase
 
             $keys = $parser->extractKeys();
             if (null !== $keys) {
-                $this->assertContains('level1.level2.level3.deep', $keys);
-                $this->assertContains('level1.simple', $keys);
-                $this->assertContains('root', $keys);
+                self::assertContains('level1.level2.level3.deep', $keys);
+                self::assertContains('level1.simple', $keys);
+                self::assertContains('root', $keys);
             }
 
-            $this->assertSame('Deep nested value', $parser->getContentByKey('level1.level2.level3.deep'));
-            $this->assertSame('Simple value', $parser->getContentByKey('level1.simple'));
-            $this->assertSame('Root value', $parser->getContentByKey('root'));
+            self::assertSame('Deep nested value', $parser->getContentByKey('level1.level2.level3.deep'));
+            self::assertSame('Simple value', $parser->getContentByKey('level1.simple'));
+            self::assertSame('Root value', $parser->getContentByKey('root'));
         } finally {
             unlink($tempFile);
         }
@@ -264,8 +264,8 @@ final class PhpParserTest extends TestCase
         try {
             $parser = new PhpParser($tempFile);
 
-            $this->assertFileDoesNotExist($marker, 'PHP translation file must not be executed');
-            $this->assertSame('value', $parser->getContentByKey('key'));
+            self::assertFileDoesNotExist($marker, 'PHP translation file must not be executed');
+            self::assertSame('value', $parser->getContentByKey('key'));
         } finally {
             unlink($tempFile);
             if (file_exists($marker)) {
@@ -342,7 +342,7 @@ final class PhpParserTest extends TestCase
         try {
             $parser = new PhpParser($tempFile);
             $keys = $parser->extractKeys();
-            $this->assertSame(['flag'], $keys);
+            self::assertSame(['flag'], $keys);
         } finally {
             unlink($tempFile);
         }
@@ -387,9 +387,9 @@ final class PhpParserTest extends TestCase
             $parser = new PhpParser($tempFile);
 
             $keys = $parser->extractKeys();
-            $this->assertIsArray($keys);
-            $this->assertContains('count', $keys);
-            $this->assertContains('ratio', $keys);
+            self::assertIsArray($keys);
+            self::assertContains('count', $keys);
+            self::assertContains('ratio', $keys);
         } finally {
             unlink($tempFile);
         }
@@ -404,7 +404,7 @@ final class PhpParserTest extends TestCase
             $parser = new PhpParser($tempFile);
 
             $keys = $parser->extractKeys();
-            $this->assertSame([], $keys);
+            self::assertSame([], $keys);
         } finally {
             unlink($tempFile);
         }
@@ -428,18 +428,18 @@ final class PhpParserTest extends TestCase
 
             $keys = $parser->extractKeys();
             if (null !== $keys) {
-                $this->assertContains('string_value', $keys);
-                $this->assertContains('numeric_value', $keys);
-                $this->assertContains('boolean_value', $keys);
-                $this->assertContains('null_value', $keys);
-                $this->assertContains('array_value.nested', $keys);
+                self::assertContains('string_value', $keys);
+                self::assertContains('numeric_value', $keys);
+                self::assertContains('boolean_value', $keys);
+                self::assertContains('null_value', $keys);
+                self::assertContains('array_value.nested', $keys);
             }
 
-            $this->assertSame('This is a string', $parser->getContentByKey('string_value'));
-            $this->assertNull($parser->getContentByKey('numeric_value')); // Non-string values return null
-            $this->assertNull($parser->getContentByKey('boolean_value'));
-            $this->assertNull($parser->getContentByKey('null_value'));
-            $this->assertSame('value', $parser->getContentByKey('array_value.nested'));
+            self::assertSame('This is a string', $parser->getContentByKey('string_value'));
+            self::assertNull($parser->getContentByKey('numeric_value')); // Non-string values return null
+            self::assertNull($parser->getContentByKey('boolean_value'));
+            self::assertNull($parser->getContentByKey('null_value'));
+            self::assertSame('value', $parser->getContentByKey('array_value.nested'));
         } finally {
             unlink($tempFile);
         }

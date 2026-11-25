@@ -28,16 +28,16 @@ final class ParserRegistryTest extends TestCase
     {
         $parsers = ParserRegistry::getAvailableParsers();
 
-        $this->assertSame($parsers, ParserRegistry::getAvailableParsers());
-        $this->assertContains(XliffParser::class, $parsers);
-        $this->assertContains(YamlParser::class, $parsers);
-        $this->assertContains(JsonParser::class, $parsers);
-        $this->assertContains(PhpParser::class, $parsers);
-        $this->assertCount(4, $parsers);
+        self::assertSame($parsers, ParserRegistry::getAvailableParsers());
+        self::assertContains(XliffParser::class, $parsers);
+        self::assertContains(YamlParser::class, $parsers);
+        self::assertContains(JsonParser::class, $parsers);
+        self::assertContains(PhpParser::class, $parsers);
+        self::assertCount(4, $parsers);
 
         foreach ($parsers as $parser) {
-            $this->assertTrue(class_exists($parser), "Class {$parser} should exist");
-            $this->assertContains(
+            self::assertTrue(class_exists($parser), "Class {$parser} should exist");
+            self::assertContains(
                 ParserInterface::class,
                 class_implements($parser) ?: [],
                 "Class {$parser} should implement ParserInterface",
@@ -47,27 +47,27 @@ final class ParserRegistryTest extends TestCase
 
     public function testResolveParserClassWithVariousExtensions(): void
     {
-        $this->assertSame(XliffParser::class, ParserRegistry::resolveParserClass('test.xliff'));
-        $this->assertSame(XliffParser::class, ParserRegistry::resolveParserClass('messages.xlf'));
-        $this->assertSame(XliffParser::class, ParserRegistry::resolveParserClass('locallang.xliff'));
+        self::assertSame(XliffParser::class, ParserRegistry::resolveParserClass('test.xliff'));
+        self::assertSame(XliffParser::class, ParserRegistry::resolveParserClass('messages.xlf'));
+        self::assertSame(XliffParser::class, ParserRegistry::resolveParserClass('locallang.xliff'));
 
-        $this->assertSame(YamlParser::class, ParserRegistry::resolveParserClass('test.yaml'));
-        $this->assertSame(YamlParser::class, ParserRegistry::resolveParserClass('config.yml'));
-        $this->assertSame(YamlParser::class, ParserRegistry::resolveParserClass('translations.yaml'));
+        self::assertSame(YamlParser::class, ParserRegistry::resolveParserClass('test.yaml'));
+        self::assertSame(YamlParser::class, ParserRegistry::resolveParserClass('config.yml'));
+        self::assertSame(YamlParser::class, ParserRegistry::resolveParserClass('translations.yaml'));
 
-        $this->assertSame(JsonParser::class, ParserRegistry::resolveParserClass('test.json'));
-        $this->assertSame(PhpParser::class, ParserRegistry::resolveParserClass('messages.php'));
+        self::assertSame(JsonParser::class, ParserRegistry::resolveParserClass('test.json'));
+        self::assertSame(PhpParser::class, ParserRegistry::resolveParserClass('messages.php'));
 
-        $this->assertNull(ParserRegistry::resolveParserClass('unknown.txt'));
-        $this->assertNull(ParserRegistry::resolveParserClass('data.xml'));
-        $this->assertNull(ParserRegistry::resolveParserClass('config.ini'));
+        self::assertNull(ParserRegistry::resolveParserClass('unknown.txt'));
+        self::assertNull(ParserRegistry::resolveParserClass('data.xml'));
+        self::assertNull(ParserRegistry::resolveParserClass('config.ini'));
     }
 
     public function testResolveParserClassWithEmptyAndSpecialFilenames(): void
     {
-        $this->assertNull(ParserRegistry::resolveParserClass(''));
-        $this->assertSame(XliffParser::class, ParserRegistry::resolveParserClass('.xlf')); // This actually has the xlf extension
-        $this->assertNull(ParserRegistry::resolveParserClass('file'));
-        $this->assertNull(ParserRegistry::resolveParserClass('file.'));
+        self::assertNull(ParserRegistry::resolveParserClass(''));
+        self::assertSame(XliffParser::class, ParserRegistry::resolveParserClass('.xlf')); // This actually has the xlf extension
+        self::assertNull(ParserRegistry::resolveParserClass('file'));
+        self::assertNull(ParserRegistry::resolveParserClass('file.'));
     }
 }

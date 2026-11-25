@@ -54,9 +54,9 @@ final class ValidatorMetadataTest extends TestCase
     ): void {
         $validator = new $validatorClass();
 
-        $this->assertSame($expectedShortName, $validator->getShortName());
-        $this->assertSame($expectedResultType, $validator->resultTypeOnValidationFailure());
-        $this->assertSame($expectedParsers, $validator->supportsParser());
+        self::assertSame($expectedShortName, $validator->getShortName());
+        self::assertSame($expectedResultType, $validator->resultTypeOnValidationFailure());
+        self::assertSame($expectedParsers, $validator->supportsParser());
     }
 
     /**

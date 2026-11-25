@@ -28,54 +28,54 @@ final class DuplicateKeysValidatorTest extends TestCase
 {
     public function testProcessFileWithDuplicates(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key1', 'key3', 'key2']);
         $parser->method('getFileName')->willReturn('test.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('error');
+        $logger->expects(self::never())->method('error');
 
         $validator = new DuplicateKeysValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertSame(['key1' => 2, 'key2' => 2], $result);
+        self::assertSame(['key1' => 2, 'key2' => 2], $result);
     }
 
     public function testProcessFileWithoutDuplicates(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser->method('getFileName')->willReturn('test.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('error');
+        $logger->expects(self::never())->method('error');
 
         $validator = new DuplicateKeysValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testProcessFileWithInvalidFile(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(null);
         $parser->method('getFileName')->willReturn('invalid.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method('error')
-            ->with($this->stringContains('The source file invalid.xlf is not valid.'));
+            ->with(self::stringContains('The source file invalid.xlf is not valid.'));
 
         $validator = new DuplicateKeysValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testFormatIssueMessage(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new DuplicateKeysValidator($logger);
 
         // DuplicateKeysValidator expects details to be key => count pairs
@@ -88,11 +88,11 @@ final class DuplicateKeysValidatorTest extends TestCase
 
         $result = $validator->formatIssueMessage($issue);
 
-        $this->assertStringContainsString('Error', $result);
-        $this->assertStringContainsString('<fg=red>', $result);
-        $this->assertStringContainsString('duplicate_key', $result);
-        $this->assertStringContainsString('3x', $result);
-        $this->assertStringContainsString('another_key', $result);
-        $this->assertStringContainsString('2x', $result);
+        self::assertStringContainsString('Error', $result);
+        self::assertStringContainsString('<fg=red>', $result);
+        self::assertStringContainsString('duplicate_key', $result);
+        self::assertStringContainsString('3x', $result);
+        self::assertStringContainsString('another_key', $result);
+        self::assertStringContainsString('2x', $result);
     }
 }

@@ -38,7 +38,7 @@ final class ConventionDetectorTest extends TestCase
         $first = $this->detector->detectSegmentConventions('label');
         $second = $this->detector->detectSegmentConventions('label');
 
-        $this->assertSame($first, $second);
+        self::assertSame($first, $second);
     }
 
     /**
@@ -51,11 +51,11 @@ final class ConventionDetectorTest extends TestCase
         $result = $this->detector->detectKeyConventions($key);
 
         foreach ($expectedContains as $convention) {
-            $this->assertContains($convention, $result);
+            self::assertContains($convention, $result);
         }
 
         foreach ($expectedNotContains as $convention) {
-            $this->assertNotContains($convention, $result);
+            self::assertNotContains($convention, $result);
         }
     }
 
@@ -86,7 +86,7 @@ final class ConventionDetectorTest extends TestCase
         $result = $this->detector->detectSegmentConventions($segment);
 
         foreach ($expectedContains as $convention) {
-            $this->assertContains($convention, $result);
+            self::assertContains($convention, $result);
         }
     }
 
@@ -106,7 +106,7 @@ final class ConventionDetectorTest extends TestCase
     public function testAnalyzeKeyConsistencyReturnsEmpty(array $keys): void
     {
         $result = $this->detector->analyzeKeyConsistency($keys, 'test.yaml');
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     /**
@@ -127,9 +127,9 @@ final class ConventionDetectorTest extends TestCase
             'test.yaml',
         );
 
-        $this->assertNotEmpty($result);
-        $this->assertSame('mixed_conventions', $result[0]['inconsistency_type']);
-        $this->assertSame('test.yaml', $result[0]['file']);
+        self::assertNotEmpty($result);
+        self::assertSame('mixed_conventions', $result[0]['inconsistency_type']);
+        self::assertSame('test.yaml', $result[0]['file']);
     }
 
     public function testAnalyzeKeyConsistencyDominantConvention(): void
@@ -139,8 +139,8 @@ final class ConventionDetectorTest extends TestCase
             'test.yaml',
         );
 
-        $this->assertNotEmpty($result);
-        $this->assertSame('snake_case', $result[0]['dominant_convention']);
+        self::assertNotEmpty($result);
+        self::assertSame('snake_case', $result[0]['dominant_convention']);
     }
 
     public function testAnalyzeKeyConsistencyDeterministicTieBreaking(): void
@@ -157,11 +157,11 @@ final class ConventionDetectorTest extends TestCase
         );
 
         // Results must be identical across runs
-        $this->assertSame($result1, $result2);
+        self::assertSame($result1, $result2);
 
         // Verify the alphabetically first convention wins the tie
-        $this->assertNotEmpty($result1);
-        $this->assertSame('camelCase', $result1[0]['dominant_convention']);
+        self::assertNotEmpty($result1);
+        self::assertSame('camelCase', $result1[0]['dominant_convention']);
     }
 
     public function testAnalyzeKeyConsistencyReturnsDataArrays(): void
@@ -171,15 +171,15 @@ final class ConventionDetectorTest extends TestCase
             'test.yaml',
         );
 
-        $this->assertNotEmpty($result);
+        self::assertNotEmpty($result);
         $issue = $result[0];
 
         // Verify returned data structure
-        $this->assertArrayHasKey('key', $issue);
-        $this->assertArrayHasKey('file', $issue);
-        $this->assertArrayHasKey('detected_conventions', $issue);
-        $this->assertArrayHasKey('dominant_convention', $issue);
-        $this->assertArrayHasKey('all_conventions_found', $issue);
-        $this->assertArrayHasKey('inconsistency_type', $issue);
+        self::assertArrayHasKey('key', $issue);
+        self::assertArrayHasKey('file', $issue);
+        self::assertArrayHasKey('detected_conventions', $issue);
+        self::assertArrayHasKey('dominant_convention', $issue);
+        self::assertArrayHasKey('all_conventions_found', $issue);
+        self::assertArrayHasKey('inconsistency_type', $issue);
     }
 }

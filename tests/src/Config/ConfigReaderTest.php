@@ -68,10 +68,10 @@ final class ConfigReaderTest extends TestCase
     {
         $config = $this->configReader->read($this->fixturesDir.'/'.$fixture);
 
-        $this->assertSame($expectedPaths, $config->getPaths());
-        $this->assertSame($expectedStrict, $config->getStrict());
+        self::assertSame($expectedPaths, $config->getPaths());
+        self::assertSame($expectedStrict, $config->getStrict());
         if (null !== $expectedFormat) {
-            $this->assertSame($expectedFormat, $config->getFormat());
+            self::assertSame($expectedFormat, $config->getFormat());
         }
     }
 
@@ -89,13 +89,13 @@ final class ConfigReaderTest extends TestCase
     public function testReadJsonConfigParsesExclude(): void
     {
         $config = $this->configReader->read($this->fixturesDir.'/valid.json');
-        $this->assertSame(['vendor/*'], $config->getExclude());
+        self::assertSame(['vendor/*'], $config->getExclude());
     }
 
     public function testReadYmlConfigParsesVerbose(): void
     {
         $config = $this->configReader->read($this->fixturesDir.'/valid.yml');
-        $this->assertTrue($config->getVerbose());
+        self::assertTrue($config->getVerbose());
     }
 
     public function testReadInvalidPhpConfig(): void
@@ -121,11 +121,11 @@ final class ConfigReaderTest extends TestCase
     public function testAutoDetectWithNoFiles(): void
     {
         $emptyDir = sys_get_temp_dir().'/translation-validator-empty-'.uniqid();
-        mkdir($emptyDir, 0777, true);
+        mkdir($emptyDir, 0o777, true);
 
         $config = $this->configReader->autoDetect($emptyDir);
 
-        $this->assertNotInstanceOf(TranslationValidatorConfig::class, $config);
+        self::assertNotInstanceOf(TranslationValidatorConfig::class, $config);
 
         rmdir($emptyDir);
     }
@@ -136,12 +136,12 @@ final class ConfigReaderTest extends TestCase
         // since auto-loading (and thereby executing) it would allow arbitrary
         // code execution in an untrusted working directory.
         $tempDir = sys_get_temp_dir().'/translation-validator-php-'.uniqid('', true);
-        mkdir($tempDir, 0777, true);
+        mkdir($tempDir, 0o777, true);
         copy($this->fixturesDir.'/auto-detect/translation-validator.php', $tempDir.'/translation-validator.php');
 
         try {
             $config = $this->configReader->autoDetect($tempDir);
-            $this->assertNull($config);
+            self::assertNull($config);
         } finally {
             unlink($tempDir.'/translation-validator.php');
             rmdir($tempDir);
@@ -152,13 +152,13 @@ final class ConfigReaderTest extends TestCase
     {
         // Create a temporary directory with only JSON file
         $tempDir = sys_get_temp_dir().'/translation-validator-json-'.uniqid('', true);
-        mkdir($tempDir, 0777, true);
+        mkdir($tempDir, 0o777, true);
         copy($this->fixturesDir.'/auto-detect/translation-validator.json', $tempDir.'/translation-validator.json');
 
         $config = $this->configReader->autoDetect($tempDir);
-        $this->assertInstanceOf(TranslationValidatorConfig::class, $config);
+        self::assertInstanceOf(TranslationValidatorConfig::class, $config);
 
-        $this->assertSame(['detected-json'], $config->getPaths());
+        self::assertSame(['detected-json'], $config->getPaths());
 
         // Clean up
         unlink($tempDir.'/translation-validator.json');
@@ -168,30 +168,30 @@ final class ConfigReaderTest extends TestCase
     public function testAutoDetectPriority(): void
     {
         $config = $this->configReader->autoDetect($this->fixturesDir.'/auto-detect');
-        $this->assertInstanceOf(TranslationValidatorConfig::class, $config);
+        self::assertInstanceOf(TranslationValidatorConfig::class, $config);
 
         // PHP is excluded from auto-detection, so JSON has the highest priority.
-        $this->assertSame(['detected-json'], $config->getPaths());
+        self::assertSame(['detected-json'], $config->getPaths());
     }
 
     public function testReadFromComposerJsonNotFound(): void
     {
         $config = $this->configReader->readFromComposerJson('/non/existent/composer.json');
 
-        $this->assertNotInstanceOf(TranslationValidatorConfig::class, $config);
+        self::assertNotInstanceOf(TranslationValidatorConfig::class, $config);
     }
 
     public function testReadFromComposerJsonWithoutConfig(): void
     {
         $tempDir = sys_get_temp_dir().'/translation-validator-composer-empty-'.uniqid('', true);
-        mkdir($tempDir, 0777, true);
+        mkdir($tempDir, 0o777, true);
 
         $composerJson = $tempDir.'/composer.json';
         file_put_contents($composerJson, json_encode(['name' => 'test/package']));
 
         $config = $this->configReader->readFromComposerJson($composerJson);
 
-        $this->assertNotInstanceOf(TranslationValidatorConfig::class, $config);
+        self::assertNotInstanceOf(TranslationValidatorConfig::class, $config);
 
         // Clean up
         unlink($composerJson);
@@ -201,7 +201,7 @@ final class ConfigReaderTest extends TestCase
     public function testReadFromComposerJsonWithConfig(): void
     {
         $tempDir = sys_get_temp_dir().'/translation-validator-composer-'.uniqid('', true);
-        mkdir($tempDir, 0777, true);
+        mkdir($tempDir, 0o777, true);
 
         $configFile = $tempDir.'/custom-config.json';
         file_put_contents($configFile, json_encode(['paths' => ['composer-configured']]));
@@ -218,9 +218,9 @@ final class ConfigReaderTest extends TestCase
         file_put_contents($composerJson, json_encode($composerContent));
 
         $config = $this->configReader->readFromComposerJson($composerJson);
-        $this->assertInstanceOf(TranslationValidatorConfig::class, $config);
+        self::assertInstanceOf(TranslationValidatorConfig::class, $config);
 
-        $this->assertSame(['composer-configured'], $config->getPaths());
+        self::assertSame(['composer-configured'], $config->getPaths());
 
         // Clean up
         unlink($configFile);
@@ -253,42 +253,42 @@ final class ConfigReaderTest extends TestCase
         $configFile = $this->fixturesDir.'/complete.json';
         $config = $this->configReader->read($configFile);
 
-        $this->assertSame(['path1', 'path2'], $config->getPaths());
-        $this->assertSame(['Validator1'], $config->getValidators());
-        $this->assertSame(['Detector1'], $config->getFileDetectors());
-        $this->assertSame(['Parser1'], $config->getParsers());
-        $this->assertSame(['Only1'], $config->getOnly());
-        $this->assertSame(['Skip1'], $config->getSkip());
-        $this->assertSame(['vendor/*'], $config->getExclude());
-        $this->assertTrue($config->getStrict());
-        $this->assertTrue($config->getDryRun());
-        $this->assertSame('json', $config->getFormat());
-        $this->assertTrue($config->getVerbose());
+        self::assertSame(['path1', 'path2'], $config->getPaths());
+        self::assertSame(['Validator1'], $config->getValidators());
+        self::assertSame(['Detector1'], $config->getFileDetectors());
+        self::assertSame(['Parser1'], $config->getParsers());
+        self::assertSame(['Only1'], $config->getOnly());
+        self::assertSame(['Skip1'], $config->getSkip());
+        self::assertSame(['vendor/*'], $config->getExclude());
+        self::assertTrue($config->getStrict());
+        self::assertTrue($config->getDryRun());
+        self::assertSame('json', $config->getFormat());
+        self::assertTrue($config->getVerbose());
     }
 
     public function testAutoDetectWithGetcwdFailure(): void
     {
         $config = $this->configReader->autoDetect(null);
-        $this->assertNotInstanceOf(TranslationValidatorConfig::class, $config);
+        self::assertNotInstanceOf(TranslationValidatorConfig::class, $config);
     }
 
     public function testAutoDetectWithEmptyStringWorkingDirectory(): void
     {
         $config = $this->configReader->autoDetect('');
-        $this->assertNotInstanceOf(TranslationValidatorConfig::class, $config);
+        self::assertNotInstanceOf(TranslationValidatorConfig::class, $config);
     }
 
     public function testReadFromComposerJsonWithNonArrayJson(): void
     {
         $tempDir = sys_get_temp_dir().'/translation-validator-non-array-'.uniqid('', true);
-        mkdir($tempDir, 0777, true);
+        mkdir($tempDir, 0o777, true);
 
         $composerJson = $tempDir.'/composer.json';
         file_put_contents($composerJson, '"just a string"');
 
         try {
             $config = $this->configReader->readFromComposerJson($composerJson);
-            $this->assertNotInstanceOf(TranslationValidatorConfig::class, $config);
+            self::assertNotInstanceOf(TranslationValidatorConfig::class, $config);
         } finally {
             unlink($composerJson);
             rmdir($tempDir);
@@ -299,7 +299,7 @@ final class ConfigReaderTest extends TestCase
     {
         $configFile = $this->fixturesDir.'/unreadable.json';
         file_put_contents($configFile, json_encode(['paths' => ['test']]));
-        chmod($configFile, 0000);
+        chmod($configFile, 0o000);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Configuration file is not readable:');
@@ -307,7 +307,7 @@ final class ConfigReaderTest extends TestCase
         try {
             $this->configReader->read($configFile);
         } finally {
-            chmod($configFile, 0644);
+            chmod($configFile, 0o644);
             unlink($configFile);
         }
     }
@@ -315,7 +315,7 @@ final class ConfigReaderTest extends TestCase
     public function testReadFromComposerJsonWithInvalidJson(): void
     {
         $tempDir = sys_get_temp_dir().'/translation-validator-invalid-json-'.uniqid('', true);
-        mkdir($tempDir, 0777, true);
+        mkdir($tempDir, 0o777, true);
 
         $composerJson = $tempDir.'/composer.json';
         file_put_contents($composerJson, 'invalid json');
@@ -325,7 +325,7 @@ final class ConfigReaderTest extends TestCase
 
         try {
             $config = $this->configReader->readFromComposerJson($composerJson);
-            $this->assertNotInstanceOf(TranslationValidatorConfig::class, $config);
+            self::assertNotInstanceOf(TranslationValidatorConfig::class, $config);
         } finally {
             unlink($composerJson);
             rmdir($tempDir);
@@ -335,7 +335,7 @@ final class ConfigReaderTest extends TestCase
     public function testReadFromComposerJsonWithRelativeConfigPath(): void
     {
         $tempDir = sys_get_temp_dir().'/translation-validator-relative-'.uniqid('', true);
-        mkdir($tempDir, 0777, true);
+        mkdir($tempDir, 0o777, true);
 
         $configFile = $tempDir.'/relative-config.json';
         file_put_contents($configFile, json_encode(['paths' => ['relative-path']]));
@@ -352,8 +352,8 @@ final class ConfigReaderTest extends TestCase
         file_put_contents($composerJson, json_encode($composerContent));
 
         $config = $this->configReader->readFromComposerJson($composerJson);
-        $this->assertInstanceOf(TranslationValidatorConfig::class, $config);
-        $this->assertSame(['relative-path'], $config->getPaths());
+        self::assertInstanceOf(TranslationValidatorConfig::class, $config);
+        self::assertSame(['relative-path'], $config->getPaths());
 
         unlink($configFile);
         unlink($composerJson);
@@ -363,7 +363,7 @@ final class ConfigReaderTest extends TestCase
     public function testReadFromComposerJsonWithAbsoluteConfigPath(): void
     {
         $tempDir = sys_get_temp_dir().'/translation-validator-absolute-'.uniqid('', true);
-        mkdir($tempDir, 0777, true);
+        mkdir($tempDir, 0o777, true);
 
         $configFile = $tempDir.'/absolute-config.json';
         file_put_contents($configFile, json_encode(['paths' => ['absolute-path']]));
@@ -380,8 +380,8 @@ final class ConfigReaderTest extends TestCase
         file_put_contents($composerJson, json_encode($composerContent));
 
         $config = $this->configReader->readFromComposerJson($composerJson);
-        $this->assertInstanceOf(TranslationValidatorConfig::class, $config);
-        $this->assertSame(['absolute-path'], $config->getPaths());
+        self::assertInstanceOf(TranslationValidatorConfig::class, $config);
+        self::assertSame(['absolute-path'], $config->getPaths());
 
         unlink($configFile);
         unlink($composerJson);

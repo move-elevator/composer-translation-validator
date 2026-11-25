@@ -191,7 +191,7 @@ final class AbstractValidatorTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->loggerStub = $this->createStub(LoggerInterface::class);
+        $this->loggerStub = self::createStub(LoggerInterface::class);
     }
 
     public function testConstructorSetsLogger(): void
@@ -199,7 +199,7 @@ final class AbstractValidatorTest extends TestCase
         $validator = new ConcreteValidator($this->loggerStub);
         $reflection = new ReflectionClass($validator);
         $loggerProperty = $reflection->getProperty('logger');
-        $this->assertSame($this->loggerStub, $loggerProperty->getValue($validator));
+        self::assertSame($this->loggerStub, $loggerProperty->getValue($validator));
     }
 
     public function testValidateWithNoIssues(): void
@@ -211,8 +211,8 @@ final class AbstractValidatorTest extends TestCase
 
         $result = $validator->validate($files, $parserClass);
 
-        $this->assertFalse($result);
-        $this->assertFalse($validator->hasIssues());
+        self::assertFalse($result);
+        self::assertFalse($validator->hasIssues());
     }
 
     /**
@@ -227,8 +227,8 @@ final class AbstractValidatorTest extends TestCase
 
         $result = $validator->validate($files, $parserClass);
 
-        $this->assertTrue($result);
-        $this->assertSame(
+        self::assertTrue($result);
+        self::assertSame(
             [
                 [
                     'file' => 'file_with_issues.xlf',
@@ -244,7 +244,7 @@ final class AbstractValidatorTest extends TestCase
     public function testValidateWithDebugLogging(): void
     {
         $loggerMock = $this->createMock(LoggerInterface::class);
-        $loggerMock->expects($this->atLeastOnce())
+        $loggerMock->expects(self::atLeastOnce())
             ->method('debug');
 
         $validator = new ConcreteValidator($loggerMock);
@@ -263,8 +263,8 @@ final class AbstractValidatorTest extends TestCase
 
         $result = $validator->validate($files, $parserClass);
 
-        $this->assertTrue($result);
-        $this->assertContains([
+        self::assertTrue($result);
+        self::assertContains([
             'file' => 'test_file.xlf',
             'issues' => ['postProcessIssue'],
             'parser' => 'TestParser',
@@ -276,7 +276,7 @@ final class AbstractValidatorTest extends TestCase
     {
         $validator = new ConcreteValidator($this->loggerStub);
 
-        $this->assertFalse($validator->hasIssues());
+        self::assertFalse($validator->hasIssues());
     }
 
     public function testHasIssuesReturnsTrueWhenIssuesExist(): void
@@ -290,14 +290,14 @@ final class AbstractValidatorTest extends TestCase
         );
         $validator->addIssue($issue);
 
-        $this->assertTrue($validator->hasIssues());
+        self::assertTrue($validator->hasIssues());
     }
 
     public function testGetIssuesReturnsEmptyArrayInitially(): void
     {
         $validator = new ConcreteValidator($this->loggerStub);
 
-        $this->assertSame([], $validator->getIssues());
+        self::assertSame([], $validator->getIssues());
     }
 
     public function testGetIssuesReturnsAddedIssues(): void
@@ -320,9 +320,9 @@ final class AbstractValidatorTest extends TestCase
         $validator->addIssue($issue2);
 
         $issues = $validator->getIssues();
-        $this->assertCount(2, $issues);
-        $this->assertContains($issue1, $issues);
-        $this->assertContains($issue2, $issues);
+        self::assertCount(2, $issues);
+        self::assertContains($issue1, $issues);
+        self::assertContains($issue2, $issues);
     }
 
     public function testAddIssueAddsIssueToCollection(): void
@@ -335,12 +335,12 @@ final class AbstractValidatorTest extends TestCase
             'TestValidator',
         );
 
-        $this->assertCount(0, $validator->getIssues());
+        self::assertCount(0, $validator->getIssues());
 
         $validator->addIssue($issue);
 
-        $this->assertCount(1, $validator->getIssues());
-        $this->assertSame($issue, $validator->getIssues()[0]);
+        self::assertCount(1, $validator->getIssues());
+        self::assertSame($issue, $validator->getIssues()[0]);
     }
 
     public function testResetStateResetsIssues(): void
@@ -354,15 +354,15 @@ final class AbstractValidatorTest extends TestCase
         );
         $validator->addIssue($issue);
 
-        $this->assertTrue($validator->hasIssues());
+        self::assertTrue($validator->hasIssues());
 
         // Access resetState via reflection since it's protected
         $reflection = new ReflectionClass($validator);
         $resetStateMethod = $reflection->getMethod('resetState');
         $resetStateMethod->invoke($validator);
 
-        $this->assertFalse($validator->hasIssues());
-        $this->assertSame([], $validator->getIssues());
+        self::assertFalse($validator->hasIssues());
+        self::assertSame([], $validator->getIssues());
     }
 
     public function testValidateCallsResetStateBeforeProcessing(): void
@@ -378,7 +378,7 @@ final class AbstractValidatorTest extends TestCase
         );
         $validator->addIssue($issue);
 
-        $this->assertTrue($validator->hasIssues());
+        self::assertTrue($validator->hasIssues());
 
         // Call validate - this should reset state
         $files = ['/path/to/some_file.xlf'];
@@ -387,19 +387,19 @@ final class AbstractValidatorTest extends TestCase
 
         // The old issue should be gone, and only validation results should remain
         $issues = $validator->getIssues();
-        $this->assertCount(1, $issues);
-        $this->assertSame('/path/to/some_file.xlf', $issues[0]->getFile());
-        $this->assertSame(['validationIssue'], $issues[0]->getDetails());
+        self::assertCount(1, $issues);
+        self::assertSame('/path/to/some_file.xlf', $issues[0]->getFile());
+        self::assertSame(['validationIssue'], $issues[0]->getDetails());
     }
 
     public function testValidateLogsDebugForUnsupportedParser(): void
     {
         $loggerMock = $this->createMock(LoggerInterface::class);
-        $loggerMock->expects($this->atLeastOnce())
+        $loggerMock->expects(self::atLeastOnce())
             ->method('debug')
-            ->with($this->logicalOr(
-                $this->stringContains('is not supported by the validator'),
-                $this->stringContains('UnsupportedValidator'),
+            ->with(self::logicalOr(
+                self::stringContains('is not supported by the validator'),
+                self::stringContains('UnsupportedValidator'),
             ));
 
         // Create a custom validator that doesn't support TestParser
@@ -425,7 +425,7 @@ final class AbstractValidatorTest extends TestCase
         $files = ['/path/to/test.xlf'];
         $result = $validator->validate($files, TestParser::class);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testSetParserCacheReplacesCache(): void
@@ -438,13 +438,13 @@ final class AbstractValidatorTest extends TestCase
         $reflection = new ReflectionClass(AbstractValidator::class);
         $cacheProperty = $reflection->getProperty('parserCache');
 
-        $this->assertSame($cache, $cacheProperty->getValue($validator));
+        self::assertSame($cache, $cacheProperty->getValue($validator));
     }
 
     public function testValidateSkipsFilesThatCannotBeParsed(): void
     {
         $loggerMock = $this->createMock(LoggerInterface::class);
-        $loggerMock->expects($this->atLeastOnce())
+        $loggerMock->expects(self::atLeastOnce())
             ->method('debug');
 
         $validator = new ConcreteValidator($loggerMock);
@@ -453,7 +453,7 @@ final class AbstractValidatorTest extends TestCase
         // so the file cannot be resolved to a ParserInterface instance.
         $result = $validator->validate(['/path/to/unparseable.unknown'], null);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testValidateCreatesOneIssuePerItemForMultiIssueResult(): void
@@ -462,8 +462,8 @@ final class AbstractValidatorTest extends TestCase
 
         $result = $validator->validate(['multi.xlf'], TestParser::class);
 
-        $this->assertTrue($result);
-        $this->assertSame(
+        self::assertTrue($result);
+        self::assertSame(
             [
                 [
                     'file' => 'multi.xlf',
@@ -488,7 +488,7 @@ final class AbstractValidatorTest extends TestCase
 
         $validator->postProcess();
 
-        $this->assertFalse($validator->hasIssues());
+        self::assertFalse($validator->hasIssues());
     }
 
     public function testDefaultRenderDetailedOutputProducesNoOutput(): void
@@ -498,6 +498,6 @@ final class AbstractValidatorTest extends TestCase
 
         $validator->renderDetailedOutput($output, []);
 
-        $this->assertSame('', $output->fetch());
+        self::assertSame('', $output->fetch());
     }
 }

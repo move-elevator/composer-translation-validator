@@ -32,12 +32,12 @@ final class DuplicateValuesValidatorTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->loggerStub = $this->createStub(LoggerInterface::class);
+        $this->loggerStub = self::createStub(LoggerInterface::class);
     }
 
     public function testProcessFileWithDuplicateValues(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser->method('getContentByKey')
             ->willReturnMap([
@@ -55,14 +55,14 @@ final class DuplicateValuesValidatorTest extends TestCase
         $valuesArrayProperty = $reflection->getProperty('valuesArray');
         $valuesArray = $valuesArrayProperty->getValue($validator);
 
-        $this->assertArrayHasKey('test.xlf', $valuesArray);
-        $this->assertArrayHasKey('valueA', $valuesArray['test.xlf']);
-        $this->assertSame(['key1', 'key3'], $valuesArray['test.xlf']['valueA']);
+        self::assertArrayHasKey('test.xlf', $valuesArray);
+        self::assertArrayHasKey('valueA', $valuesArray['test.xlf']);
+        self::assertSame(['key1', 'key3'], $valuesArray['test.xlf']['valueA']);
     }
 
     public function testProcessFileWithoutDuplicateValues(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser->method('getContentByKey')
             ->willReturnMap([
@@ -79,25 +79,25 @@ final class DuplicateValuesValidatorTest extends TestCase
         $valuesArrayProperty = $reflection->getProperty('valuesArray');
         $valuesArray = $valuesArrayProperty->getValue($validator);
 
-        $this->assertArrayHasKey('test.xlf', $valuesArray);
-        $this->assertArrayHasKey('valueA', $valuesArray['test.xlf']);
-        $this->assertArrayHasKey('valueB', $valuesArray['test.xlf']);
-        $this->assertArrayHasKey('valueC', $valuesArray['test.xlf']);
-        $this->assertSame(['key1'], $valuesArray['test.xlf']['valueA']);
-        $this->assertSame(['key2'], $valuesArray['test.xlf']['valueB']);
-        $this->assertSame(['key3'], $valuesArray['test.xlf']['valueC']);
+        self::assertArrayHasKey('test.xlf', $valuesArray);
+        self::assertArrayHasKey('valueA', $valuesArray['test.xlf']);
+        self::assertArrayHasKey('valueB', $valuesArray['test.xlf']);
+        self::assertArrayHasKey('valueC', $valuesArray['test.xlf']);
+        self::assertSame(['key1'], $valuesArray['test.xlf']['valueA']);
+        self::assertSame(['key2'], $valuesArray['test.xlf']['valueB']);
+        self::assertSame(['key3'], $valuesArray['test.xlf']['valueC']);
     }
 
     public function testProcessFileWithInvalidFile(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(null);
         $parser->method('getFileName')->willReturn('invalid.xlf');
 
         $loggerMock = $this->createMock(LoggerInterface::class);
-        $loggerMock->expects($this->once())
+        $loggerMock->expects(self::once())
             ->method('error')
-            ->with($this->stringContains('The source file invalid.xlf is not valid.'));
+            ->with(self::stringContains('The source file invalid.xlf is not valid.'));
 
         $validator = new DuplicateValuesValidator($loggerMock);
         $validator->processFile($parser);
@@ -106,7 +106,7 @@ final class DuplicateValuesValidatorTest extends TestCase
         $valuesArrayProperty = $reflection->getProperty('valuesArray');
         $valuesArray = $valuesArrayProperty->getValue($validator);
 
-        $this->assertEmpty($valuesArray);
+        self::assertEmpty($valuesArray);
     }
 
     public function testPostProcessWithDuplicateValues(): void
@@ -150,7 +150,7 @@ final class DuplicateValuesValidatorTest extends TestCase
             ],
         ];
 
-        $this->assertSame($expectedIssues, array_map(static fn ($issue) => $issue->toArray(), $issues));
+        self::assertSame($expectedIssues, array_map(static fn ($issue) => $issue->toArray(), $issues));
     }
 
     public function testPostProcessWithoutDuplicateValues(): void
@@ -172,12 +172,12 @@ final class DuplicateValuesValidatorTest extends TestCase
         $issuesProperty = $reflection->getProperty('issues');
         $issues = $issuesProperty->getValue($validator);
 
-        $this->assertEmpty($issues);
+        self::assertEmpty($issues);
     }
 
     public function testResetStateResetsValuesArray(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new DuplicateValuesValidator($logger);
 
         // Manually set valuesArray to simulate previous validation
@@ -194,17 +194,17 @@ final class DuplicateValuesValidatorTest extends TestCase
         ]);
 
         // Verify valuesArray is set
-        $this->assertNotEmpty($valuesArrayProperty->getValue($validator));
+        self::assertNotEmpty($valuesArrayProperty->getValue($validator));
 
         // Call resetState
         $resetStateMethod = $reflection->getMethod('resetState');
         $resetStateMethod->invoke($validator);
 
         // Verify valuesArray is reset
-        $this->assertSame([], $valuesArrayProperty->getValue($validator));
+        self::assertSame([], $valuesArrayProperty->getValue($validator));
 
         // Verify issues are also reset (from parent)
-        $this->assertFalse($validator->hasIssues());
+        self::assertFalse($validator->hasIssues());
     }
 
     public function testFormatIssueMessage(): void
@@ -221,17 +221,17 @@ final class DuplicateValuesValidatorTest extends TestCase
 
         $result = $validator->formatIssueMessage($issue);
 
-        $this->assertStringContainsString('Warning', $result);
-        $this->assertStringContainsString('<fg=yellow>', $result);
-        $this->assertStringContainsString('duplicate_value', $result);
-        $this->assertStringContainsString('key1`, `key2', $result);
-        $this->assertStringContainsString('another_value', $result);
-        $this->assertStringContainsString('key3`, `key4', $result);
+        self::assertStringContainsString('Warning', $result);
+        self::assertStringContainsString('<fg=yellow>', $result);
+        self::assertStringContainsString('duplicate_value', $result);
+        self::assertStringContainsString('key1`, `key2', $result);
+        self::assertStringContainsString('another_value', $result);
+        self::assertStringContainsString('key3`, `key4', $result);
     }
 
     public function testProcessFileWithNullValues(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('extractKeys')->willReturn(['key1', 'key2', 'key3']);
         $parser->method('getContentByKey')
             ->willReturnMap([
@@ -249,11 +249,11 @@ final class DuplicateValuesValidatorTest extends TestCase
         $valuesArrayProperty = $reflection->getProperty('valuesArray');
         $valuesArray = $valuesArrayProperty->getValue($validator);
 
-        $this->assertArrayHasKey('test.xlf', $valuesArray);
-        $this->assertArrayHasKey('valueA', $valuesArray['test.xlf']);
-        $this->assertArrayHasKey('valueB', $valuesArray['test.xlf']);
-        $this->assertArrayNotHasKey('null', $valuesArray['test.xlf']); // null values should be skipped
-        $this->assertSame(['key1'], $valuesArray['test.xlf']['valueA']);
-        $this->assertSame(['key3'], $valuesArray['test.xlf']['valueB']);
+        self::assertArrayHasKey('test.xlf', $valuesArray);
+        self::assertArrayHasKey('valueA', $valuesArray['test.xlf']);
+        self::assertArrayHasKey('valueB', $valuesArray['test.xlf']);
+        self::assertArrayNotHasKey('null', $valuesArray['test.xlf']); // null values should be skipped
+        self::assertSame(['key1'], $valuesArray['test.xlf']['valueA']);
+        self::assertSame(['key3'], $valuesArray['test.xlf']['valueB']);
     }
 }

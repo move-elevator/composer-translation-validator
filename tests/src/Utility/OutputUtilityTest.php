@@ -30,7 +30,7 @@ final class OutputUtilityTest extends TestCase
         $output = $this->createMock(OutputInterface::class);
         $output->method('isVerbose')->willReturn(true);
         $output->method('isVeryVerbose')->willReturn(false);
-        $output->expects($this->once())
+        $output->expects(self::once())
             ->method('writeln')
             ->with('Test message');
 
@@ -42,7 +42,7 @@ final class OutputUtilityTest extends TestCase
         $output = $this->createMock(OutputInterface::class);
         $output->method('isVerbose')->willReturn(true);
         $output->method('isVeryVerbose')->willReturn(true);
-        $output->expects($this->once())
+        $output->expects(self::once())
             ->method('writeln')
             ->with('<fg=gray>Very verbose message</>');
 
@@ -53,7 +53,7 @@ final class OutputUtilityTest extends TestCase
     {
         $output = $this->createMock(OutputInterface::class);
         $output->method('isVerbose')->willReturn(false);
-        $output->expects($this->never())
+        $output->expects(self::never())
             ->method('writeln');
 
         OutputUtility::debug($output, 'Test message');
@@ -64,7 +64,7 @@ final class OutputUtilityTest extends TestCase
         $output = $this->createMock(OutputInterface::class);
         $output->method('isVerbose')->willReturn(true);
         $output->method('isVeryVerbose')->willReturn(false);
-        $output->expects($this->never())
+        $output->expects(self::never())
             ->method('writeln');
 
         OutputUtility::debug($output, 'Very verbose message', true);
@@ -75,7 +75,7 @@ final class OutputUtilityTest extends TestCase
         $output = $this->createMock(OutputInterface::class);
         $output->method('isVerbose')->willReturn(true);
         $output->method('isVeryVerbose')->willReturn(false);
-        $output->expects($this->once())
+        $output->expects(self::once())
             ->method('write')
             ->with('Test message');
 
@@ -86,23 +86,23 @@ final class OutputUtilityTest extends TestCase
     {
         $input = "before\x1b[31mred\x1b[0mafter";
 
-        $this->assertSame('before[31mred[0mafter', OutputUtility::stripControlCharacters($input));
+        self::assertSame('before[31mred[0mafter', OutputUtility::stripControlCharacters($input));
     }
 
     public function testStripControlCharactersRemovesNullAndDelete(): void
     {
-        $this->assertSame('clean', OutputUtility::stripControlCharacters("cl\x00ea\x7fn"));
+        self::assertSame('clean', OutputUtility::stripControlCharacters("cl\x00ea\x7fn"));
     }
 
     public function testStripControlCharactersKeepsTabAndNewline(): void
     {
         $input = "line1\nline2\tend";
 
-        $this->assertSame($input, OutputUtility::stripControlCharacters($input));
+        self::assertSame($input, OutputUtility::stripControlCharacters($input));
     }
 
     public function testStripControlCharactersRemovesCarriageReturn(): void
     {
-        $this->assertSame('safeDANGER', OutputUtility::stripControlCharacters("safe\rDANGER"));
+        self::assertSame('safeDANGER', OutputUtility::stripControlCharacters("safe\rDANGER"));
     }
 }

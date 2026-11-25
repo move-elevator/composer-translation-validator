@@ -28,24 +28,24 @@ final class ValidatorRegistryTest extends TestCase
     {
         $validators = ValidatorRegistry::getAvailableValidators();
 
-        $this->assertContains(MismatchValidator::class, $validators);
-        $this->assertContains(DuplicateKeysValidator::class, $validators);
-        $this->assertContains(EmptyValuesValidator::class, $validators);
-        $this->assertContains(PlaceholderConsistencyValidator::class, $validators);
-        $this->assertContains(HtmlTagValidator::class, $validators);
-        $this->assertContains(KeyCountValidator::class, $validators);
-        $this->assertContains(KeyDepthValidator::class, $validators);
-        $this->assertContains(KeyNamingConventionValidator::class, $validators);
-        $this->assertContains(XliffSchemaValidator::class, $validators);
-        $this->assertContains(EncodingValidator::class, $validators);
-        $this->assertCount(11, $validators);
+        self::assertContains(MismatchValidator::class, $validators);
+        self::assertContains(DuplicateKeysValidator::class, $validators);
+        self::assertContains(EmptyValuesValidator::class, $validators);
+        self::assertContains(PlaceholderConsistencyValidator::class, $validators);
+        self::assertContains(HtmlTagValidator::class, $validators);
+        self::assertContains(KeyCountValidator::class, $validators);
+        self::assertContains(KeyDepthValidator::class, $validators);
+        self::assertContains(KeyNamingConventionValidator::class, $validators);
+        self::assertContains(XliffSchemaValidator::class, $validators);
+        self::assertContains(EncodingValidator::class, $validators);
+        self::assertCount(11, $validators);
     }
 
     public function testGetAvailableValidatorsReturnsArray(): void
     {
         $validators = ValidatorRegistry::getAvailableValidators();
 
-        $this->assertNotEmpty($validators);
+        self::assertNotEmpty($validators);
     }
 
     public function testGetAvailableValidatorsContainsValidClasses(): void
@@ -53,8 +53,8 @@ final class ValidatorRegistryTest extends TestCase
         $validators = ValidatorRegistry::getAvailableValidators();
 
         foreach ($validators as $validator) {
-            $this->assertTrue(class_exists($validator), "Class {$validator} should exist");
-            $this->assertContains(
+            self::assertTrue(class_exists($validator), "Class {$validator} should exist");
+            self::assertContains(
                 \MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface::class,
                 class_implements($validator) ?: [],
                 "Class {$validator} should implement ValidatorInterface",
@@ -67,13 +67,13 @@ final class ValidatorRegistryTest extends TestCase
         $validators1 = ValidatorRegistry::getAvailableValidators();
         $validators2 = ValidatorRegistry::getAvailableValidators();
 
-        $this->assertSame($validators1, $validators2);
+        self::assertSame($validators1, $validators2);
     }
 
     public function testGetAvailableValidatorsContainsDuplicateValuesValidator(): void
     {
         $validators = ValidatorRegistry::getAvailableValidators();
 
-        $this->assertContains(\MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator::class, $validators);
+        self::assertContains(\MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator::class, $validators);
     }
 }

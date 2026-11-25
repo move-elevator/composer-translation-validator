@@ -82,51 +82,51 @@ EOT
 
     public function testProcessFileWithValidXliff(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('getFilePath')->willReturn($this->validXliffFile);
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('error');
+        $logger->expects(self::never())->method('error');
 
         $validator = new XliffSchemaValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testProcessFileWithInvalidXliff(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('getFilePath')->willReturn($this->invalidXliffFile);
 
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new XliffSchemaValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertNotEmpty($result);
-        $this->assertArrayHasKey('message', $result[0]);
-        $this->assertStringContainsString("The attribute 'version' is required but missing.", (string) $result[0]['message']);
+        self::assertNotEmpty($result);
+        self::assertArrayHasKey('message', $result[0]);
+        self::assertStringContainsString("The attribute 'version' is required but missing.", (string) $result[0]['message']);
     }
 
     public function testProcessFileWithNonExistentFile(): void
     {
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('getFilePath')->willReturn('/non/existent/file.xlf');
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method('error')
-            ->with($this->stringContains('File does not exist'));
+            ->with(self::stringContains('File does not exist'));
 
         $validator = new XliffSchemaValidator($logger);
         $result = $validator->processFile($parser);
 
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testFormatIssueMessage(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new XliffSchemaValidator($logger);
 
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
@@ -143,16 +143,16 @@ EOT
 
         $result = $validator->formatIssueMessage($issue);
 
-        $this->assertStringContainsString('Error', $result);
-        $this->assertStringContainsString('Element was not closed', $result);
-        $this->assertStringContainsString('Line: 10', $result);
-        $this->assertStringContainsString('Code: 76', $result);
-        $this->assertStringContainsString('<fg=red>', $result);
+        self::assertStringContainsString('Error', $result);
+        self::assertStringContainsString('Element was not closed', $result);
+        self::assertStringContainsString('Line: 10', $result);
+        self::assertStringContainsString('Code: 76', $result);
+        self::assertStringContainsString('<fg=red>', $result);
     }
 
     public function testFormatIssueMessageWithWarning(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new XliffSchemaValidator($logger);
 
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
@@ -169,15 +169,15 @@ EOT
 
         $result = $validator->formatIssueMessage($issue);
 
-        $this->assertStringContainsString('Warning', $result);
-        $this->assertStringContainsString('Some warning', $result);
-        $this->assertStringContainsString('Line: 5', $result);
-        $this->assertStringContainsString('<fg=yellow>', $result);
+        self::assertStringContainsString('Warning', $result);
+        self::assertStringContainsString('Some warning', $result);
+        self::assertStringContainsString('Line: 5', $result);
+        self::assertStringContainsString('<fg=yellow>', $result);
     }
 
     public function testFormatIssueMessageSingleError(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new XliffSchemaValidator($logger);
 
         // With the new behavior, each error is a separate Issue
@@ -195,15 +195,15 @@ EOT
 
         $result = $validator->formatIssueMessage($issue);
 
-        $this->assertStringContainsString('Single error', $result);
-        $this->assertStringContainsString('Line: 10', $result);
-        $this->assertStringContainsString('Code: 76', $result);
-        $this->assertStringContainsString('<fg=red>', $result);
+        self::assertStringContainsString('Single error', $result);
+        self::assertStringContainsString('Line: 10', $result);
+        self::assertStringContainsString('Code: 76', $result);
+        self::assertStringContainsString('<fg=red>', $result);
     }
 
     public function testFormatIssueMessageEmptyDetails(): void
     {
-        $logger = $this->createStub(LoggerInterface::class);
+        $logger = self::createStub(LoggerInterface::class);
         $validator = new XliffSchemaValidator($logger);
 
         $issue = new \MoveElevator\ComposerTranslationValidator\Result\Issue(
@@ -215,17 +215,17 @@ EOT
 
         $result = $validator->formatIssueMessage($issue);
 
-        $this->assertStringContainsString('Error', $result);
-        $this->assertStringContainsString('Schema validation error', $result);
-        $this->assertStringContainsString('<fg=red>', $result);
+        self::assertStringContainsString('Error', $result);
+        self::assertStringContainsString('Schema validation error', $result);
+        self::assertStringContainsString('<fg=red>', $result);
     }
 
     public function testProcessFileWithFileReadFailure(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method('error')
-            ->with($this->stringContains('File does not exist:'));
+            ->with(self::stringContains('File does not exist:'));
 
         // Create a validator that simulates file_get_contents returning false
         $validator = new class($logger) extends XliffSchemaValidator {
@@ -249,20 +249,20 @@ EOT
             }
         };
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('getFilePath')->willReturn('/non/existent/file.xlf');
         $parser->method('getFileName')->willReturn('nonexistent.xlf');
 
         $result = $validator->processFile($parser);
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testProcessFileWithUnsupportedXliffVersion(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method('notice')
-            ->with($this->stringContains('No support implemented for loading XLIFF version'));
+            ->with(self::stringContains('No support implemented for loading XLIFF version'));
 
         // Create a validator that simulates the unsupported version exception
         $validator = new class($logger) extends XliffSchemaValidator {
@@ -293,20 +293,20 @@ EOT
             }
         };
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('getFilePath')->willReturn($this->validXliffFile);
         $parser->method('getFileName')->willReturn('valid.xlf');
 
         $result = $validator->processFile($parser);
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     public function testProcessFileWithValidationException(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
+        $logger->expects(self::once())
             ->method('error')
-            ->with($this->stringContains('Failed to validate XML schema:'));
+            ->with(self::stringContains('Failed to validate XML schema:'));
 
         // Create a validator that simulates a general validation exception
         $validator = new class($logger) extends XliffSchemaValidator {
@@ -337,12 +337,12 @@ EOT
             }
         };
 
-        $parser = $this->createStub(ParserInterface::class);
+        $parser = self::createStub(ParserInterface::class);
         $parser->method('getFilePath')->willReturn($this->validXliffFile);
         $parser->method('getFileName')->willReturn('valid.xlf');
 
         $result = $validator->processFile($parser);
-        $this->assertEmpty($result);
+        self::assertEmpty($result);
     }
 
     private function removeDirectory(string $path): void

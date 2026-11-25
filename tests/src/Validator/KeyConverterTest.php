@@ -37,7 +37,7 @@ final class KeyConverterTest extends TestCase
     #[DataProvider('toSnakeCaseProvider')]
     public function testToSnakeCase(string $input, string $expected): void
     {
-        $this->assertSame($expected, $this->converter->toSnakeCase($input));
+        self::assertSame($expected, $this->converter->toSnakeCase($input));
     }
 
     /**
@@ -57,7 +57,7 @@ final class KeyConverterTest extends TestCase
     #[DataProvider('toCamelCaseProvider')]
     public function testToCamelCase(string $input, string $expected): void
     {
-        $this->assertSame($expected, $this->converter->toCamelCase($input));
+        self::assertSame($expected, $this->converter->toCamelCase($input));
     }
 
     /**
@@ -78,7 +78,7 @@ final class KeyConverterTest extends TestCase
     #[DataProvider('toKebabCaseProvider')]
     public function testToKebabCase(string $input, string $expected): void
     {
-        $this->assertSame($expected, $this->converter->toKebabCase($input));
+        self::assertSame($expected, $this->converter->toKebabCase($input));
     }
 
     /**
@@ -96,7 +96,7 @@ final class KeyConverterTest extends TestCase
     #[DataProvider('toPascalCaseProvider')]
     public function testToPascalCase(string $input, string $expected): void
     {
-        $this->assertSame($expected, $this->converter->toPascalCase($input));
+        self::assertSame($expected, $this->converter->toPascalCase($input));
     }
 
     /**
@@ -115,7 +115,7 @@ final class KeyConverterTest extends TestCase
     #[DataProvider('toDotNotationProvider')]
     public function testToDotNotation(string $input, string $expected): void
     {
-        $this->assertSame($expected, $this->converter->toDotNotation($input));
+        self::assertSame($expected, $this->converter->toDotNotation($input));
     }
 
     /**
@@ -133,36 +133,36 @@ final class KeyConverterTest extends TestCase
     public function testConvertDotSeparatedKeyWithNullConvention(): void
     {
         $result = $this->converter->convertDotSeparatedKey('user.profile', null);
-        $this->assertSame('user.profile', $result);
+        self::assertSame('user.profile', $result);
     }
 
     public function testConvertDotSeparatedKeyWithSnakeCase(): void
     {
         $result = $this->converter->convertDotSeparatedKey('header.metaNavigation', KeyNamingConvention::SNAKE_CASE);
-        $this->assertSame('header.meta_navigation', $result);
+        self::assertSame('header.meta_navigation', $result);
     }
 
     public function testConvertDotSeparatedKeyWithCamelCase(): void
     {
         $result = $this->converter->convertDotSeparatedKey('header.meta_navigation', KeyNamingConvention::CAMEL_CASE);
-        $this->assertSame('header.metaNavigation', $result);
+        self::assertSame('header.metaNavigation', $result);
     }
 
     public function testConvertDotSeparatedKeyWithDotNotation(): void
     {
         $result = $this->converter->convertDotSeparatedKey('user.profileSettings', KeyNamingConvention::DOT_NOTATION);
-        $this->assertSame('user.profile.settings', $result);
+        self::assertSame('user.profile.settings', $result);
     }
 
     public function testConvertKeyWithDot(): void
     {
         $result = $this->converter->convertKey('header.metaNavigation', KeyNamingConvention::SNAKE_CASE);
-        $this->assertSame('header.meta_navigation', $result);
+        self::assertSame('header.meta_navigation', $result);
     }
 
     public function testConvertKeyWithoutDot(): void
     {
         $result = $this->converter->convertKey('userName', KeyNamingConvention::SNAKE_CASE);
-        $this->assertSame('user_name', $result);
+        self::assertSame('user_name', $result);
     }
 }
