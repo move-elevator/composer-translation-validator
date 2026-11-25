@@ -120,6 +120,27 @@ final class ValidateTranslationCommandTest extends TestCase
         );
     }
 
+    public function testWarningsDoNotEndUpInTheJsonOnStdout(): void
+    {
+        $directory = sys_get_temp_dir().'/tv-single-'.uniqid('', true);
+        mkdir($directory);
+
+        try {
+            file_put_contents($directory.'/messages.de.yaml', 'a: x');
+
+            $application = new Application();
+            $this->addCommandToApplication($application, new ValidateTranslationCommand());
+            $commandTester = new CommandTester($application->find('validate-translations'));
+            $commandTester->execute(['path' => [$directory], '--format' => 'json'], ['capture_stderr_separately' => true]);
+        } finally {
+            @unlink($directory.'/messages.de.yaml');
+            rmdir($directory);
+        }
+
+        $this->assertJson($commandTester->getDisplay());
+        $this->assertStringContainsString('has no counterpart in other languages', $commandTester->getErrorOutput());
+    }
+
     public function testExecuteWithErrors(): void
     {
         $application = new Application();
