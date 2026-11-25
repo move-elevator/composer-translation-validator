@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0cdfe1817298e88d7dc7f6a39dde8388",
+    "content-hash": "207279a0ded1189c22e23bbc7c70f21e",
     "packages": [
         {
             "name": "justinrainbow/json-schema",
@@ -3123,28 +3123,28 @@
         },
         {
             "name": "konradmichalik/php-cs-fixer-preset",
-            "version": "0.3.0",
+            "version": "0.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/konradmichalik/php-cs-fixer-preset.git",
-                "reference": "dadfed4c25b71aa27412d9f3da385d0e5be2c919"
+                "reference": "22f92f968ed23581a5d7e839506c4a7247d7dd77"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/konradmichalik/php-cs-fixer-preset/zipball/dadfed4c25b71aa27412d9f3da385d0e5be2c919",
-                "reference": "dadfed4c25b71aa27412d9f3da385d0e5be2c919",
+                "url": "https://api.github.com/repos/konradmichalik/php-cs-fixer-preset/zipball/22f92f968ed23581a5d7e839506c4a7247d7dd77",
+                "reference": "22f92f968ed23581a5d7e839506c4a7247d7dd77",
                 "shasum": ""
             },
             "require": {
                 "ext-ctype": "*",
                 "friendsofphp/php-cs-fixer": "^3.92",
-                "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
+                "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0 || ~8.6.0",
                 "symfony/finder": "^5.4 || ^6.0 || ^7.0 || ^8.0"
             },
             "require-dev": {
                 "armin/editorconfig-cli": "^2.0",
                 "ergebnis/composer-normalize": "^2.44",
-                "konradmichalik/php-doc-block-header-fixer": "^0.3.0",
+                "konradmichalik/php-doc-block-header-fixer": "^0.4.0",
                 "phpstan/phpstan": "^2.0",
                 "phpstan/phpstan-phpunit": "^2.0",
                 "phpstan/phpstan-symfony": "^2.0",
@@ -3180,10 +3180,10 @@
             "description": "Preset configuration for PHP-CS-Fixer",
             "support": {
                 "issues": "https://github.com/konradmichalik/php-cs-fixer-preset/issues",
-                "source": "https://github.com/konradmichalik/php-cs-fixer-preset/tree/0.3.0"
+                "source": "https://github.com/konradmichalik/php-cs-fixer-preset/tree/0.4.0"
             },
-            "time": "2026-09-28T09:10:33+00:00",
-            "published-time": "2026-09-28T09:11:06+00:00"
+            "time": "2026-11-24T10:59:14+00:00",
+            "published-time": "2026-11-24T10:59:48+00:00"
         },
         {
             "name": "konradmichalik/php-doc-block-header-fixer",
