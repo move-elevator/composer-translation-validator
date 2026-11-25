@@ -17,6 +17,7 @@ use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Result\{Issue, ValidationResult, ValidationResultGitHubRenderer, ValidationStatistics};
 use MoveElevator\ComposerTranslationValidator\Validator\{AbstractValidator, MismatchValidator, ResultType, ValidatorInterface};
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
@@ -67,7 +68,7 @@ final class ValidationResultGitHubRendererTest extends TestCase
         $output = $this->output->fetch();
 
         $this->assertSame(1, $exitCode);
-        $this->assertStringContainsString('::error file=translations/messages.en.yaml,line=15,col=2,title=Key%20Mismatch::Translation key mismatch found', $output);
+        $this->assertStringContainsString('::error file=translations/messages.en.yaml,line=15,col=2,title=Key Mismatch::Translation key mismatch found', $output);
         $this->assertStringContainsString('::error::Language validation failed with errors.', $output);
     }
 
@@ -135,8 +136,8 @@ final class ValidationResultGitHubRendererTest extends TestCase
         $output = $this->output->fetch();
 
         $this->assertStringContainsString('file=translations/special%3Afile%2Cname.yaml', $output);
-        $this->assertStringContainsString('title=Title%3A%20with%2C%20special%20characters', $output);
-        $this->assertStringContainsString('Message with %25special%25 characters%3A newline', $output);
+        $this->assertStringContainsString('title=Title%3A with%2C special characters', $output);
+        $this->assertStringContainsString('Message with %25special%25 characters: newline', $output);
         $this->assertStringContainsString('and carriage return', $output);
     }
 
@@ -166,6 +167,41 @@ final class ValidationResultGitHubRendererTest extends TestCase
 
         $this->assertStringContainsString('the translation key `greeting` is missing but present in other translation files', $output);
         $this->assertStringNotContainsString('Translation validation issue', $output);
+    }
+
+    public function testRenderKeepsSpacesInFilePathsAndRemovesControlCharacters(): void
+    {
+        $issue = new Issue(
+            "translations/my folder/messages\x07.yaml",
+            [
+                'message' => "red\x07 text\r\nnext line",
+                'title' => "Ti\x07tle",
+            ],
+            'TestParser',
+            'TestValidator',
+        );
+
+        $this->renderer->render($this->createValidationResult([$issue], ResultType::ERROR));
+        $output = $this->output->fetch();
+
+        $this->assertStringContainsString('::error file=translations/my folder/messages.yaml,title=Title::red text%0D%0Anext line', $output);
+    }
+
+    public function testRenderDoesNotInterpretConsoleMarkupInAnnotations(): void
+    {
+        $output = new BufferedOutput(BufferedOutput::VERBOSITY_NORMAL, true);
+        $issue = new Issue(
+            'translations/messages.yaml',
+            ['message' => OutputFormatter::escape('<fg=red>key</>')],
+            'TestParser',
+            'TestValidator',
+        );
+
+        (new ValidationResultGitHubRenderer($output))->render($this->createValidationResult([$issue], ResultType::ERROR));
+        $written = $output->fetch();
+
+        $this->assertStringContainsString('::<fg=red>key</>', $written);
+        $this->assertStringNotContainsString("\e", $written);
     }
 
     public function testRenderWithStatistics(): void
