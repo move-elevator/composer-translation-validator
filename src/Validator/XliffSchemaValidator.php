@@ -18,7 +18,7 @@ use Exception;
 use MoveElevator\ComposerTranslationValidator\Enum\LocaleMatch;
 use MoveElevator\ComposerTranslationValidator\Parser\{ParserInterface, XliffParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
-use MoveElevator\ComposerTranslationValidator\Utility\LocaleUtility;
+use MoveElevator\ComposerTranslationValidator\Utility\{LocaleUtility, OutputUtility};
 use ReflectionMethod;
 use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Translation\Util\XliffUtils;
@@ -146,7 +146,7 @@ class XliffSchemaValidator extends AbstractValidator implements ValidatorInterfa
         // Since AbstractValidator creates one Issue per error array,
         // $details is the individual error array, not an array of errors
         if (isset($details['message'])) {
-            $message = $details['message'];
+            $message = OutputUtility::sanitizeForConsole((string) $details['message']);
             $line = isset($details['line']) ? " (Line: {$details['line']})" : '';
             $code = isset($details['code']) ? " (Code: {$details['code']})" : '';
             $level = $details['level'] ?? 'ERROR';

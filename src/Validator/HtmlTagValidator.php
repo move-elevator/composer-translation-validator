@@ -106,10 +106,10 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
         $level = $resultType->toString();
         $color = $resultType->toColorString();
 
-        $key = $details['key'] ?? 'unknown';
+        $key = OutputUtility::sanitizeForConsole((string) ($details['key'] ?? 'unknown'));
         $inconsistencies = $details['inconsistencies'] ?? [];
 
-        $inconsistencyText = implode('; ', $inconsistencies);
+        $inconsistencyText = implode('; ', array_map(OutputUtility::sanitizeForConsole(...), $inconsistencies));
 
         return "- <fg={$color}>{$level}</> {$prefix}HTML tag inconsistency in translation key `{$key}` - {$inconsistencyText}";
     }
@@ -147,11 +147,11 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
 
         $header = ['Translation Key'];
         foreach ($fileOrder as $fileName) {
-            $header[] = $fileName;
+            $header[] = OutputUtility::sanitizeForConsole($fileName);
         }
 
         foreach (array_keys($allKeys) as $key) {
-            $row = [$key];
+            $row = [OutputUtility::sanitizeForConsole((string) $key)];
             foreach ($fileOrder as $fileName) {
                 $value = $allFilesData[$key][$fileName] ?? '';
                 $row[] = $this->highlightHtmlTags($value);
@@ -350,9 +350,18 @@ class HtmlTagValidator extends AbstractValidator implements ValidatorInterface
 
     private function highlightHtmlTags(string $value): string
     {
-        $value = OutputUtility::stripControlCharacters($value);
-        $value = preg_replace('/<(\w+)([^>]*)>/', '<fg=cyan><$1$2></>', $value) ?? $value;
+        $parts = preg_split('/(<\/?\w+[^<>]*>)/', $value, -1, \PREG_SPLIT_DELIM_CAPTURE) ?: [];
 
-        return preg_replace('/<\/(\w+)>/', '<fg=magenta></$1></>', $value) ?? $value;
+        $highlighted = '';
+        foreach ($parts as $index => $part) {
+            $escaped = OutputUtility::sanitizeForConsole($part);
+            $highlighted .= match (true) {
+                0 === $index % 2 => $escaped,
+                str_starts_with($part, '</') => "<fg=magenta>{$escaped}</>",
+                default => "<fg=cyan>{$escaped}</>",
+            };
+        }
+
+        return $highlighted;
     }
 }

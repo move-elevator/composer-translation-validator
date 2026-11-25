@@ -24,7 +24,7 @@ The command is also available under the alias `vt`.
 | `--skip` | `-s` | Skips specific validators (FQCN, comma-separated) |
 | `--only` | `-o` | Runs only the specified validators (FQCN, comma-separated) |
 | `--recursive` | `-r` | Search for translation files recursively in subdirectories |
-| `--exclude` | `-e` | Exclude files matching glob patterns, comma-separated |
+| `--exclude` | `-e` | Exclude files and directories matching glob patterns, comma-separated |
 | `--verbose` | `-v` | Shows additional output for detailed information |
 | `--strict` | | Enables strict mode, treating warnings as errors |
 | `--dry-run` | | Runs validation without failing on errors |
@@ -87,6 +87,8 @@ composer validate-translations ./translations --format github
 ```bash
 composer validate-translations ./translations --exclude "**/backup/**,**/*.bak"
 ```
+
+A pattern is matched against the file name and the path relative to the scanned directory (directories above it are ignored). It applies to directories as well, and excluded directories are not traversed, so `-r --exclude "**/vendor/**"` skips `vendor/` entirely.
 
 ### Run Specific Validators
 

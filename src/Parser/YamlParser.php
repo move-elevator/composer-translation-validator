@@ -17,8 +17,6 @@ use Exception;
 use RuntimeException;
 use Symfony\Component\Yaml\Yaml;
 
-use function array_key_exists;
-use function is_array;
 use function is_string;
 use function sprintf;
 
@@ -33,18 +31,21 @@ class YamlParser extends AbstractParser implements ParserInterface
     /** @var array<string, mixed> */
     private array $yaml = [];
 
-    /** @var array<int, string>|null Memoized result of extractKeys(). */
-    private ?array $extractedKeys = null;
-
     public function __construct(string $filePath)
     {
         parent::__construct($filePath);
 
         try {
-            $this->yaml = Yaml::parseFile($filePath);
+            $parsed = Yaml::parseFile($filePath);
         } catch (Exception $e) {
             throw new RuntimeException(sprintf('Failed to parse YAML file "%s": %s', $filePath, $e->getMessage()), 0, $e);
         }
+
+        if (null !== $parsed && !is_array($parsed)) {
+            throw new RuntimeException(sprintf('Failed to parse YAML file "%s": expected a mapping, got %s.', $filePath, get_debug_type($parsed)));
+        }
+
+        $this->yaml = $parsed ?? [];
     }
 
     /**
@@ -52,49 +53,14 @@ class YamlParser extends AbstractParser implements ParserInterface
      */
     public function extractKeys(): ?array
     {
-        if (null !== $this->extractedKeys) {
-            return $this->extractedKeys;
-        }
-
-        $extract = static function (
-            array $data,
-            string $prefix = '',
-        ) use (&$extract): array {
-            $keys = [];
-            foreach ($data as $key => $value) {
-                $fullKey = '' === $prefix
-                    ? $key
-                    : $prefix.'.'.$key;
-                if (is_array($value)) {
-                    $extracted = $extract($value, $fullKey);
-                    foreach ($extracted as $k) {
-                        $keys[] = $k;
-                    }
-                } else {
-                    $keys[] = $fullKey;
-                }
-            }
-
-            return $keys;
-        };
-
-        return $this->extractedKeys = $extract($this->yaml);
+        return $this->flattened($this->yaml)['keys'];
     }
 
     public function getContentByKey(string $key): ?string
     {
         // Note: the $attribute parameter is required by ParserInterface
         // but is not used for YAML, since YAML has no source/target concept.
-        $parts = explode('.', $key);
-        $value = $this->yaml;
-
-        foreach ($parts as $part) {
-            if (is_array($value) && array_key_exists($part, $value)) {
-                $value = $value[$part];
-            } else {
-                return null;
-            }
-        }
+        $value = $this->flattened($this->yaml)['values'][$key] ?? null;
 
         return is_string($value) ? $value : null;
     }

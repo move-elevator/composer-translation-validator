@@ -15,6 +15,7 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
+use MoveElevator\ComposerTranslationValidator\Utility\OutputUtility;
 
 use function is_string;
 
@@ -67,7 +68,7 @@ class EmptyValuesValidator extends AbstractValidator implements ValidatorInterfa
             if (is_string($key)) {
                 $valueDescription = '' === $value ? 'empty' : 'whitespace only';
                 $messages[] = "- <fg=$color>$level</> {$prefix}the translation key "
-                    ."`$key` has an $valueDescription value";
+                    .'`'.OutputUtility::sanitizeForConsole($key)."` has an $valueDescription value";
             }
         }
 

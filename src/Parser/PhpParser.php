@@ -20,9 +20,7 @@ use PhpParser\{Node, NodeFinder, ParserFactory};
 use RuntimeException;
 use Throwable;
 
-use function array_key_exists;
 use function dirname;
-use function is_array;
 use function is_float;
 use function is_int;
 use function is_string;
@@ -40,9 +38,6 @@ class PhpParser extends AbstractParser implements ParserInterface
     /** @var array<int|string, mixed> */
     private array $translations = [];
 
-    /** @var array<int, string>|null Memoized result of extractKeys(). */
-    private ?array $extractedKeys = null;
-
     public function __construct(string $filePath)
     {
         parent::__construct($filePath);
@@ -59,53 +54,14 @@ class PhpParser extends AbstractParser implements ParserInterface
      */
     public function extractKeys(): ?array
     {
-        if (null !== $this->extractedKeys) {
-            return $this->extractedKeys;
-        }
-
-        if (empty($this->translations)) {
-            return $this->extractedKeys = [];
-        }
-
-        $extract = static function (
-            array $data,
-            string $prefix = '',
-        ) use (&$extract): array {
-            $keys = [];
-            foreach ($data as $key => $value) {
-                $fullKey = '' === $prefix
-                    ? $key
-                    : $prefix.'.'.$key;
-                if (is_array($value)) {
-                    $extracted = $extract($value, $fullKey);
-                    foreach ($extracted as $k) {
-                        $keys[] = $k;
-                    }
-                } else {
-                    $keys[] = $fullKey;
-                }
-            }
-
-            return $keys;
-        };
-
-        return $this->extractedKeys = $extract($this->translations);
+        return $this->flattened($this->translations)['keys'];
     }
 
     public function getContentByKey(string $key): ?string
     {
         // Note: the $attribute parameter is required by ParserInterface
         // but is not used for PHP files, since PHP has no source/target concept.
-        $parts = explode('.', $key);
-        $value = $this->translations;
-
-        foreach ($parts as $part) {
-            if (is_array($value) && array_key_exists($part, $value)) {
-                $value = $value[$part];
-            } else {
-                return null;
-            }
-        }
+        $value = $this->flattened($this->translations)['values'][$key] ?? null;
 
         return is_string($value) ? $value : null;
     }

@@ -15,6 +15,7 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
+use MoveElevator\ComposerTranslationValidator\Utility\OutputUtility;
 
 use function count;
 use function is_array;
@@ -87,9 +88,9 @@ class DuplicateValuesValidator extends AbstractValidator implements ValidatorInt
         $messages = [];
         foreach ($details as $value => $keys) {
             if (is_string($value) && is_array($keys)) {
-                $keyList = implode('`, `', $keys);
+                $keyList = implode('`, `', array_map(OutputUtility::sanitizeForConsole(...), $keys));
                 $messages[] = "- <fg=$color>$level</> {$prefix}the translation value "
-                    ."`$value` occurs in multiple keys (`$keyList`)";
+                    .'`'.OutputUtility::sanitizeForConsole($value)."` occurs in multiple keys (`$keyList`)";
             }
         }
 
