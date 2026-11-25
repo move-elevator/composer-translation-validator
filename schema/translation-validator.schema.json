@@ -116,9 +116,7 @@
 			"enum": [
 				"cli",
 				"json",
-				"github",
-				"yaml",
-				"php"
+				"github"
 			],
 			"default": "cli"
 		},
@@ -150,9 +148,6 @@
 			]
 		}
 	},
-	"required": [
-		"paths"
-	],
 	"additionalProperties": false,
 	"allOf": [
 		{

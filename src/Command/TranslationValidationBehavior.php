@@ -219,6 +219,34 @@ HELP
             return Command::FAILURE;
         }
 
+        if (empty($onlyOption) && !empty($config->getOnly())) {
+            $onlyValidators = $this->orchestrationService->validateClassInput(
+                ValidatorInterface::class,
+                'validator',
+                $config->getOnly(),
+            );
+
+            if (empty($onlyValidators)) {
+                $this->io?->error('The "only" setting in the configuration file contains no valid validators.');
+
+                return Command::FAILURE;
+            }
+        }
+
+        if (empty($skipOption) && empty($onlyValidators) && !empty($config->getSkip())) {
+            $skipValidators = $this->orchestrationService->validateClassInput(
+                ValidatorInterface::class,
+                'validator',
+                $config->getSkip(),
+            );
+
+            if (empty($skipValidators)) {
+                $this->io?->error('The "skip" setting in the configuration file contains no valid validators.');
+
+                return Command::FAILURE;
+            }
+        }
+
         $validators = $this->orchestrationService->resolveValidators($onlyValidators, $skipValidators, $config);
 
         $validationResult = $this->orchestrationService->executeValidation(

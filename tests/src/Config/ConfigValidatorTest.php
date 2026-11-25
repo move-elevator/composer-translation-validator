@@ -80,8 +80,14 @@ final class ConfigValidatorTest extends TestCase
         yield 'strict' => [['strict' => 'invalid'], "Configuration 'strict' must be a boolean"];
         yield 'dry-run' => [['dry-run' => 'invalid'], "Configuration 'dry-run' must be a boolean"];
         yield 'format type' => [['format' => 123], "Configuration 'format' must be a string"];
-        yield 'format value' => [['format' => 'invalid'], "Invalid format 'invalid'. Allowed formats: cli, json, yaml, php"];
+        yield 'format value' => [['format' => 'invalid'], "Invalid format 'invalid'. Allowed formats: cli, json, github"];
         yield 'verbose' => [['verbose' => 'invalid'], "Configuration 'verbose' must be a boolean"];
+    }
+
+    public function testValidateAcceptsGithubFormat(): void
+    {
+        $this->validator->validate(['format' => 'github']);
+        $this->addToAssertionCount(1);
     }
 
     public function testValidateEmptyConfig(): void
