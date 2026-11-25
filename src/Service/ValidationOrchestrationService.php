@@ -21,6 +21,8 @@ use MoveElevator\ComposerTranslationValidator\Validator\{ValidatorInterface, Val
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 
+use function is_array;
+
 /**
  * ValidationOrchestrationService.
  *
@@ -131,20 +133,23 @@ class ValidationOrchestrationService
     /**
      * @template T of object
      *
-     * @param class-string<T> $interface
+     * @param class-string<T>      $interface
+     * @param string|string[]|null $className comma-separated string (CLI) or list of class names from the config file
      *
      * @return array<int, class-string<T>>
      */
     public function validateClassInput(
         string $interface,
         string $type,
-        ?string $className = null,
+        string|array|null $className = null,
     ): array {
         if (null === $className) {
             return [];
         }
 
-        $classNames = str_contains($className, ',') ? explode(',', $className) : [$className];
+        $classNames = is_array($className)
+            ? $className
+            : (str_contains($className, ',') ? explode(',', $className) : [$className]);
         /** @var array<int, class-string<T>> $classes */
         $classes = [];
 
