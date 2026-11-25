@@ -90,7 +90,17 @@ class Collector
                 }
 
                 if (null !== $detector) {
-                    $allFiles[$parserClass][$path] = $detector->mapTranslationSet($files);
+                    // DirectoryFileDetector pairs files across sibling language directories
+                    $filesByDirectory = $detector instanceof DirectoryFileDetector
+                        ? [$path => $files]
+                        : $this->groupFilesByDirectory($files);
+
+                    foreach ($filesByDirectory as $directory => $directoryFiles) {
+                        $translationSet = $detector->mapTranslationSet($directoryFiles);
+                        if (!empty($translationSet)) {
+                            $allFiles[$parserClass][$directory] = $translationSet;
+                        }
+                    }
                 } else {
                     // Group files by directory to prevent cross-directory FileSets
                     $filesByDirectory = $this->groupFilesByDirectory($files);
