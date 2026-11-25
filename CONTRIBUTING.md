@@ -4,8 +4,8 @@ Thank you for considering contributing to this project! Every contribution is we
 
 ## Requirements
 
-- PHP >= 8.2
-- Composer >= 2.0
+- PHP 8.2 to 8.6
+- Composer 2.2 or higher (the versions tested in CI)
 
 ## Preparation
 
@@ -48,6 +48,12 @@ composer sca
 composer sca:php
 ```
 
+## Run Rector migrations
+
+```bash
+composer migration
+```
+
 ## Run tests
 
 ```bash
@@ -66,10 +72,14 @@ Code coverage reports are saved in .build/coverage. You can open the latest HTML
 open .build/coverage/html/index.html
 ```
 
+## Commit messages
+
+Use the format `<type>: <description>` with one of the types `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf` or `ci`.
+
 ## Submit a pull request
 
 After completing your work, **open a pull request** and provide a description of your changes. Ideally, your PR should reference an issue that explains the problem you are addressing.
 
-All mentioned code quality tools will run automatically on every pull request for all supported PHP versions. For more details, see the relevant [workflows][1].
+CI runs the linters, static analysis and tests on every pull request for all supported PHP versions. For more details, see the relevant [workflows][1].
 
 [1]: .github/workflows

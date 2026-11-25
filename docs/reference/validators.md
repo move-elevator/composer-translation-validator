@@ -44,12 +44,12 @@ Catches duplicate translation keys within the same file, which can cause unpredi
 
 ### Console Output
 
-```
+```text
 messages.en.xlf
 
 - Error (DuplicateKeysValidator) the translation key `welcome` occurs multiple times (2x)
 
-[ERROR] Language validation failed with errors.
+[ERROR] Language validation failed with errors. See more details with the `-v` verbose option.
 ```
 
 <details>
@@ -79,7 +79,7 @@ Identifies identical translation values that might indicate copy-paste errors or
 **Result:** WARNING
 
 ::: info Opt-In Validator
-This validator is disabled by default to reduce noise, as duplicate values are often intentional (e.g., "OK", "Cancel").
+This validator is disabled by default to reduce noise, as duplicate values are often intentional (e.g., "OK", "Cancel"). The default `skip` list contains this validator and `KeyNamingConventionValidator`. A non-empty `skip` setting replaces that list, so it enables both validators unless it names them. An empty `skip` list runs all validators.
 :::
 
 ### Enable via CLI
@@ -110,12 +110,12 @@ validation:
 
 ### Console Output
 
-```
+```text
 errors.en.yaml
 
   DuplicateValuesValidator
-    - Warning the translation value `This field is required` occurs in multiple keys
-    - Warning the translation value `Please enter a valid phone` occurs in multiple keys
+    - Warning the translation value `This field is required` occurs in multiple keys (`validation.required`, `validation.email`)
+    - Warning the translation value `Please enter a valid phone` occurs in multiple keys (`validation.phone`, `validation.address`)
 
 [WARNING] Language validation completed with warnings.
 ```
@@ -170,7 +170,7 @@ Hunts down empty or whitespace-only translation values that would display nothin
 
 ### Console Output
 
-```
+```text
 navigation.de.xlf
 
   EmptyValuesValidator
@@ -203,24 +203,33 @@ Ensures your files use proper UTF-8 encoding and catches Unicode issues that can
 
 **Result:** WARNING
 
+The validator runs these checks per file:
+
+- **Valid UTF-8:** Reports `File is not valid UTF-8 encoded` and skips the remaining checks for that file. Parsers can reject such a file before the validator runs.
+- **Byte Order Mark (BOM):** Reports a UTF-8 BOM at the start of the file.
+- **Invisible characters:** Reports zero-width characters, word joiners, direction marks, soft hyphens and control characters, and names the characters found. A BOM is the character U+FEFF, so a file with a BOM also reports `Zero-width no-break space`.
+- **Unicode normalization:** Reports content that is not in normalization form NFC (for example `e` followed by a combining accent instead of `é`). This check needs the PHP `intl` extension.
+
+::: info
+The JSON parser rejects a file with a BOM before the validator runs, so the example below uses YAML.
+:::
+
 ### Example
 
-**File: `special.en.json` (with BOM)**
-```json
-{
-  "currency": "Price: €99",
-  "copyright": "© 2024 Company"
-}
+**File: `special.en.yaml` (with BOM)**
+```yaml
+currency: "Price: €99"
+copyright: "© 2024 Company"
 ```
 
 ### Console Output
 
-```
-special.en.json
+```text
+special.en.yaml
 
   EncodingValidator
     - Warning encoding issue: File contains UTF-8 Byte Order Mark (BOM)
-    - Warning encoding issue: File contains invisible characters
+    - Warning encoding issue: File contains invisible characters: Zero-width no-break space
 
 [WARNING] Language validation completed with warnings.
 ```
@@ -230,10 +239,16 @@ special.en.json
 
 ```bash
 # Run the validator using pre-created fixtures (from project root)
-composer -d tests validate-translations Fixtures/examples/encoding --only "MoveElevator\\ComposerTranslationValidator\\Validator\\EncodingValidator"
+composer -d tests validate-translations Fixtures/examples/encoding --only "MoveElevator\\ComposerTranslationValidator\\Validator\\EncodingValidator" -v
 ```
 
-**Example files:** Check `tests/Fixtures/examples/encoding/` to see the JSON file with BOM and encoding issues.
+**Example files:** `tests/Fixtures/examples/encoding/` contains `special.en.json` without a BOM, so the command above reports success. To reproduce the output, create a YAML file that starts with a BOM and run the validator on its directory:
+
+```bash
+mkdir encoding-bom
+printf '\xEF\xBB\xBFcurrency: "Price: €99"\ncopyright: "© 2024 Company"\n' > encoding-bom/special.en.yaml
+composer validate-translations encoding-bom --only "MoveElevator\\ComposerTranslationValidator\\Validator\\EncodingValidator" -v
+```
 
 </details>
 
@@ -245,7 +260,7 @@ Encoding issues can cause mysterious character displays, especially with special
 
 ## HtmlTagValidator
 
-Verifies HTML tags are consistent across all language versions: same tags, proper nesting, matching attributes.
+Verifies HTML tags are consistent across all language versions: same tags, proper nesting and equal `class` values. The first file is the reference. Other attributes are not compared, and a `class` difference is reported only when both values define a `class`.
 
 **Result:** WARNING
 
@@ -260,16 +275,27 @@ footer: 'Visit our <a href="/about" class="link">about page</a>'
 **File: `messages.de.yaml`**
 ```yaml
 welcome: "Willkommen <em>neuer Nutzer</em>!"  # <strong> became <em>
-footer: 'Besuchen Sie unsere <a href="/about">Über-Seite</a>'  # Missing class
+footer: 'Besuchen Sie unsere <a href="/about">Über-Seite</a>'  # No class: not reported
 ```
 
 ### Console Output
 
-```
+```text
 messages.de.yaml
 
   HtmlTagValidator
-    - Warning HTML tag inconsistency in translation key `welcome`
+    - Warning HTML tag inconsistency in translation key `welcome` - File 'messages.en.yaml' is missing HTML tags: <em>; File 'messages.en.yaml' has extra HTML tags: <strong>
+
++-----------------+-----------------------------------+------------------------------------+
+| Translation Key | messages.de.yaml                  | messages.en.yaml                   |
++-----------------+-----------------------------------+------------------------------------+
+| welcome         | Willkommen <em>neuer Nutzer</em>! | Welcome <strong>new user</strong>! |
++-----------------+-----------------------------------+------------------------------------+
+
+messages.en.yaml
+
+  HtmlTagValidator
+    - Warning HTML tag inconsistency in translation key `welcome` - File 'messages.en.yaml' is missing HTML tags: <em>; File 'messages.en.yaml' has extra HTML tags: <strong>
 
 +-----------------+-----------------------------------+------------------------------------+
 | Translation Key | messages.de.yaml                  | messages.en.yaml                   |
@@ -291,6 +317,8 @@ composer -d tests validate-translations Fixtures/examples/html-tags --only "Move
 **Example files:** Check `tests/Fixtures/examples/html-tags/` to see the English and German files with mismatched HTML tags.
 
 </details>
+
+The message names the file that differs from the reference, and the issue appears under every file that contains the key. The first file is the reference, here `messages.de.yaml` (the first table column), so the message reads "missing `<em>`, extra `<strong>`" for `messages.en.yaml`.
 
 ---
 
@@ -321,7 +349,7 @@ navigation:
 
 ### Console Output
 
-```
+```text
 large-file.en.yaml
 
   KeyCountValidator
@@ -380,7 +408,7 @@ user:
           email:
             enabled: "Email notifications enabled"
 
-# 11 levels - EXCEEDS threshold
+# 10 levels - EXCEEDS threshold
 application:
   modules:
     auth:
@@ -395,11 +423,11 @@ application:
 
 ### Console Output
 
-```
+```text
 deeply-nested.en.yaml
 
   KeyDepthValidator
-    - Warning Found 4 translation keys with nesting depth exceeding threshold of 8
+    - Warning Found 1 translation key with nesting depth exceeding threshold of 8
 
 [WARNING] Language validation completed with warnings.
 ```
@@ -423,6 +451,8 @@ composer -d tests validate-translations Fixtures/examples/key-depth --only "Move
 composer -d tests validate-translations Fixtures/examples/key-depth --only "MoveElevator\\ComposerTranslationValidator\\Validator\\KeyDepthValidator" -v --config Fixtures/examples/key-depth/translation-validator.yaml
 ```
 
+**Example files:** The fixture `tests/Fixtures/examples/key-depth/deeply-nested.en.yaml` contains more deeply nested keys than the excerpt above, so the commands report 4 keys (threshold 8) and 5 keys (threshold 5).
+
 </details>
 
 ::: info
@@ -438,11 +468,11 @@ Enforces consistent naming patterns for translation keys.
 **Result:** WARNING
 
 ::: info Opt-In Validator
-This validator is disabled by default, as auto-detected naming conventions often produce false positives on mixed but intentional key styles. Enable it when you want to enforce a convention.
+This validator is disabled by default, as auto-detected naming conventions often produce false positives on mixed but intentional key styles. Enable it when you want to enforce a convention. The default `skip` list contains this validator and `DuplicateValuesValidator`. A non-empty `skip` setting replaces that list, so it enables both validators unless it names them. An empty `skip` list runs all validators.
 :::
 
 ::: tip
-This validator auto-detects the most common pattern in your files. Configure a specific convention for strict enforcement.
+Without a `convention` or `custom_pattern` setting, the validator runs in auto-detect mode: it determines the predominant convention per file and reports keys that deviate from it. Configure a specific convention for strict enforcement.
 :::
 
 ### Enable via CLI
@@ -468,7 +498,8 @@ skip: []  # Empty skip list enables all validators
 | `camelCase` | `userName`, `formSubmit` |
 | `kebab-case` | `user-name`, `form-submit` |
 | `PascalCase` | `UserName`, `FormSubmit` |
-| `custom_pattern` | Your own regex |
+
+Set `custom_pattern` instead of `convention` to match keys against your own regex. When both are set, `custom_pattern` wins. The built-in conventions check each dot-separated segment of a key on its own, while `custom_pattern` matches the whole key.
 
 ### Example
 
@@ -489,7 +520,7 @@ User.Address: "Address"         # Mixed styles
 
 ### Console Output
 
-```
+```text
 mixed.en.yaml
 
   KeyNamingConventionValidator
@@ -512,6 +543,28 @@ composer -d tests validate-translations Fixtures/examples/key-naming --only "Mov
 
 </details>
 
+### Auto-Detect Mode
+
+Run the validator on the same file without a `convention` setting:
+
+```bash
+composer -d tests validate-translations Fixtures/examples/key-naming --only "MoveElevator\\ComposerTranslationValidator\\Validator\\KeyNamingConventionValidator" -v
+```
+
+```text
+mixed.en.yaml
+
+  KeyNamingConventionValidator
+    - Warning key naming inconsistency: `user_name` uses snake_case convention, but this file predominantly uses PascalCase. Consider: `UserName`
+      Tip: Configure a specific naming convention in a configuration file to avoid inconsistencies. Available conventions: snake_case, camelCase, kebab-case, PascalCase.
+    - Warning key naming inconsistency: `userEmail` uses camelCase convention, but this file predominantly uses PascalCase. Consider: `UserEmail`
+    - Warning key naming inconsistency: `user-phone` uses kebab-case convention, but this file predominantly uses PascalCase. Consider: `UserPhone`
+
+[WARNING] Language validation completed with warnings.
+```
+
+The tip appears once per file. The detected dominant convention can differ from the one you intend, so configure `convention` for reliable results.
+
 ### Custom Pattern Examples
 
 ```yaml
@@ -528,7 +581,7 @@ validator-settings:
 ```
 
 ::: warning
-Dot notation (`user.name`) is typically used for nested structures. This validator focuses on flat key names.
+The built-in conventions split a key at dots and check each segment on its own, so `user.first_name` passes `snake_case`. Only `custom_pattern` sees the whole key including its dots.
 :::
 
 ---
@@ -567,18 +620,50 @@ duplicate: "Dupliquer"  # Extra key not in other files
 
 ### Console Output
 
-```
+```text
 buttons.de.yaml
 
   MismatchValidator
-    - Error  the translation key `delete` is missing but present in other files
-    - Error  the translation key `duplicate` is missing but present in other files
+    - Error  the translation key `edit` is missing from other translation files (`buttons.en.yaml`, `buttons.fr.yaml`)
+    - Error  the translation key `delete` is missing but present in other translation files (`buttons.en.yaml`, `buttons.fr.yaml`)
+    - Error  the translation key `duplicate` is missing but present in other translation files (`buttons.en.yaml`, `buttons.fr.yaml`)
 
 +-----------------+-----------------+-----------------+-----------------+
 | Translation Key | buttons.de.yaml | buttons.en.yaml | buttons.fr.yaml |
 +-----------------+-----------------+-----------------+-----------------+
+| edit            | Bearbeiten      | Edit            |                 |
 | delete          |                 | Delete          | Supprimer       |
 | duplicate       |                 |                 | Dupliquer       |
++-----------------+-----------------+-----------------+-----------------+
+
+buttons.en.yaml
+
+  MismatchValidator
+    - Error  the translation key `edit` is missing from other translation files (`buttons.de.yaml`, `buttons.fr.yaml`)
+    - Error  the translation key `delete` is missing from other translation files (`buttons.de.yaml`, `buttons.fr.yaml`)
+    - Error  the translation key `duplicate` is missing but present in other translation files (`buttons.de.yaml`, `buttons.fr.yaml`)
+
++-----------------+-----------------+-----------------+-----------------+
+| Translation Key | buttons.en.yaml | buttons.de.yaml | buttons.fr.yaml |
++-----------------+-----------------+-----------------+-----------------+
+| edit            | Edit            | Bearbeiten      |                 |
+| delete          | Delete          |                 | Supprimer       |
+| duplicate       |                 |                 | Dupliquer       |
++-----------------+-----------------+-----------------+-----------------+
+
+buttons.fr.yaml
+
+  MismatchValidator
+    - Error  the translation key `edit` is missing but present in other translation files (`buttons.de.yaml`, `buttons.en.yaml`)
+    - Error  the translation key `delete` is missing from other translation files (`buttons.de.yaml`, `buttons.en.yaml`)
+    - Error  the translation key `duplicate` is missing from other translation files (`buttons.de.yaml`, `buttons.en.yaml`)
+
++-----------------+-----------------+-----------------+-----------------+
+| Translation Key | buttons.fr.yaml | buttons.de.yaml | buttons.en.yaml |
++-----------------+-----------------+-----------------+-----------------+
+| edit            |                 | Bearbeiten      | Edit            |
+| delete          | Supprimer       |                 | Delete          |
+| duplicate       | Dupliquer       |                 |                 |
 +-----------------+-----------------+-----------------+-----------------+
 
 [ERROR] Language validation failed with errors.
@@ -596,8 +681,10 @@ composer -d tests validate-translations Fixtures/examples/mismatch --only "MoveE
 
 </details>
 
+The issue message has two variants. "is missing but present in other translation files" means the file lacks the key. "is missing from other translation files" means the file has the key and at least one other file lacks it. Every file that takes part in the mismatch gets its own issues.
+
 ::: tip
-This is usually the most valuable validator - it catches incomplete translations that would show key names to users instead of proper text.
+This is usually the most valuable validator. It catches incomplete translations that would show key names to users instead of proper text.
 :::
 
 ---
@@ -626,13 +713,28 @@ email: "Gesendet an {email_address}"      # Missing double braces
 
 ### Console Output
 
-```
+```text
 notifications.de.yaml
 
   PlaceholderConsistencyValidator
-    - Warning placeholder inconsistency in translation key `welcome` - missing: {username}, extra: {benutzername}
-    - Warning placeholder inconsistency in translation key `order` - missing: {amount}, extra: {sum}
-    - Warning placeholder inconsistency in translation key `email` - extra: {{ email_address }}
+    - Warning placeholder inconsistency in translation key `welcome` - File 'notifications.en.yaml' is missing placeholders: {benutzername}; File 'notifications.en.yaml' has extra placeholders: {username}
+    - Warning placeholder inconsistency in translation key `order` - File 'notifications.en.yaml' is missing placeholders: {sum}; File 'notifications.en.yaml' has extra placeholders: {amount}
+    - Warning placeholder inconsistency in translation key `email` - File 'notifications.en.yaml' has extra placeholders: {{ email_address }}
+
++-----------------+----------------------------------+--------------------------------+
+| Translation Key | notifications.de.yaml            | notifications.en.yaml          |
++-----------------+----------------------------------+--------------------------------+
+| welcome         | Willkommen {benutzername}!       | Welcome {username}!            |
+| order           | Bestellung #{order_id} für {sum} | Order #{order_id} for {amount} |
+| email           | Gesendet an {email_address}      | Sent to {{email_address}}      |
++-----------------+----------------------------------+--------------------------------+
+
+notifications.en.yaml
+
+  PlaceholderConsistencyValidator
+    - Warning placeholder inconsistency in translation key `welcome` - File 'notifications.en.yaml' is missing placeholders: {benutzername}; File 'notifications.en.yaml' has extra placeholders: {username}
+    - Warning placeholder inconsistency in translation key `order` - File 'notifications.en.yaml' is missing placeholders: {sum}; File 'notifications.en.yaml' has extra placeholders: {amount}
+    - Warning placeholder inconsistency in translation key `email` - File 'notifications.en.yaml' has extra placeholders: {{ email_address }}
 
 +-----------------+----------------------------------+--------------------------------+
 | Translation Key | notifications.de.yaml            | notifications.en.yaml          |
@@ -657,6 +759,8 @@ composer -d tests validate-translations Fixtures/examples/placeholders --only "M
 
 </details>
 
+The first file (the first table column, here `notifications.de.yaml`) is the reference. Each message names another file and lists the placeholders that file lacks compared to the reference ("is missing") and the ones it has in addition ("has extra"), so the English file is "missing" `{benutzername}` and has `{username}` extra. The same message appears under every file. The validator reads `{{email_address}}` as both `{email_address}` and `{{ email_address }}`, which is why the `email` key reports `{{ email_address }}` as extra.
+
 ::: danger
 Mismatched placeholders will break variable substitution in your app, showing raw placeholder text to users.
 :::
@@ -667,7 +771,7 @@ Mismatched placeholders will break variable substitution in your app, showing ra
 
 Validates XLIFF files against official XML schemas to ensure they're structurally correct.
 
-**Result:** ERROR
+**Result:** ERROR for schema errors, WARNING for libxml warnings and region mismatches. Each issue carries its own level.
 
 ::: warning
 This validator only applies to XLIFF files (`.xlf`, `.xliff`).
@@ -677,11 +781,12 @@ This validator only applies to XLIFF files (`.xlf`, `.xliff`).
 
 **File: `malformed.xlf`**
 ```xml
-<xliff version="1.2">
-  <file source-language="en" target-language="de">
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" target-language="de" datatype="plaintext">
     <body>
       <trans-unit id="test">
         <source>Hello</source>
+        <target>Hallo</target>
       </trans-unit>
       <trans-unit>  <!-- Missing required 'id' attribute -->
         <source>World</source>
@@ -694,12 +799,13 @@ This validator only applies to XLIFF files (`.xlf`, `.xliff`).
 
 ### Console Output
 
-```
+```text
 malformed.xlf
 
   XliffSchemaValidator
-    - Error Element 'file': The attribute 'original' is required but missing. (Line: 3)
-    - Error Element 'trans-unit': The attribute 'id' is required but missing. (Line: 9)
+    - Error Element '{urn:oasis:names:tc:xliff:document:1.2}file': The attribute 'original' is required but missing. (Line: 3) (Code: 1868)
+    - Error Element '{urn:oasis:names:tc:xliff:document:1.2}trans-unit': The attribute 'id' is required but missing. (Line: 9) (Code: 1868)
+    - Error Element '{urn:oasis:names:tc:xliff:document:1.2}trans-unit': Not all fields of key identity-constraint '{urn:oasis:names:tc:xliff:document:1.2}K_unit_id' evaluate to a node. (Line: 9) (Code: 1877)
 
 [ERROR] Language validation failed with errors.
 ```
@@ -709,7 +815,7 @@ malformed.xlf
 
 ```bash
 # Run the validator using pre-created fixtures (from project root)
-composer -d tests validate-translations Fixtures/examples/xliff-schema --only "MoveElevator\\ComposerTranslationValidator\\Validator\\XliffSchemaValidator"
+composer -d tests validate-translations Fixtures/examples/xliff-schema --only "MoveElevator\\ComposerTranslationValidator\\Validator\\XliffSchemaValidator" -v
 ```
 
 **Example files:** Check `tests/Fixtures/examples/xliff-schema/` to see the malformed XLIFF file with schema violations.
@@ -720,9 +826,12 @@ composer -d tests validate-translations Fixtures/examples/xliff-schema --only "M
 
 When the filename encodes a locale (e.g. `de_DE.locallang.xlf` or `messages.de_DE.xlf`), the declared `target-language` (XLIFF 1.x) or `trgLang` (XLIFF 2.x) is checked against it:
 
+- **Missing attribute** (e.g. filename `de` and no `target-language` on `<file>`) → **ERROR**: `Missing "target-language" attribute on <file> node; expected "de" based on filename`
 - **Base language mismatch** (e.g. filename `de` vs. `target-language="fr"`) → **ERROR**
 - **Region mismatch** (e.g. filename `de_DE` vs. `target-language="de-AT"`) → **WARNING**
 - A missing region on either side is not reported (e.g. filename `de_DE` with `target-language="de"` is fine).
+
+The validator skips the schema check when no schema exists for the declared XLIFF version and logs a notice such as `Skipping XliffSchemaValidator: No support implemented for loading XLIFF version "3.0".` The locale check still runs for these files.
 
 ::: danger
 Malformed XLIFF files can crash translation tools or cause parsing errors in your application.

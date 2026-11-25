@@ -3,7 +3,7 @@
 The Composer Translation Validator can be configured using various configuration file formats to customize validation behavior, specify paths and control which validators are used.
 
 ::: tip
-The configuration schema is validated automatically when using JSON or YAML format files.
+The configuration schema is validated automatically when using JSON or YAML format files. PHP configuration files are not validated.
 :::
 
 ## Supported Formats
@@ -79,11 +79,6 @@ Create a JSON file with the following structure:
     "translations/",
     "locale/"
   ],
-  "validators": [
-    "MoveElevator\\ComposerTranslationValidator\\Validator\\MismatchValidator",
-    "MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator",
-    "MoveElevator\\ComposerTranslationValidator\\Validator\\XliffSchemaValidator"
-  ],
   "file-detectors": [
     "MoveElevator\\ComposerTranslationValidator\\FileDetector\\SuffixFileDetector"
   ],
@@ -136,11 +131,6 @@ paths:
   - translations/
   - locale/
 
-validators:
-  - MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator
-  - MoveElevator\ComposerTranslationValidator\Validator\DuplicateKeysValidator
-  - MoveElevator\ComposerTranslationValidator\Validator\XliffSchemaValidator
-
 file-detectors:
   - MoveElevator\ComposerTranslationValidator\FileDetector\SuffixFileDetector
 
@@ -182,7 +172,7 @@ only:
 
 ## Validator Settings
 
-Some validators accept additional configuration options:
+Some validators accept additional configuration options. The keys are short validator names, and only `KeyCountValidator`, `KeyDepthValidator` and `KeyNamingConventionValidator` read settings:
 
 ```yaml
 validator-settings:
@@ -212,10 +202,4 @@ You can also specify the path to a configuration file in your `composer.json`:
 
 ## Auto-Detection Order
 
-The plugin automatically searches for configuration files in this order:
-
-1. `translation-validator.json`
-2. `translation-validator.yaml`
-3. `translation-validator.yml`
-
-PHP configuration files are **not** auto-detected, because they are executed when loaded. To use one, reference it explicitly via the `--config` option or the `composer.json` `config-file` entry.
+The lookup order of the configuration file (`--config`, `composer.json`, auto-detection, defaults) is described in [Auto-Detection](/configuration/#auto-detection).

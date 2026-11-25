@@ -12,8 +12,16 @@ Groups files where the language code appears as a **prefix**.
 - **Usage**: TYPO3 CMS, some Symfony projects
 - **Supported Extensions**: `.xlf`, `.xliff`, `.yaml`, `.yml`, `.json`, `.php`
 
+The detector assigns a file to a set by the first rule that matches:
+
+1. The name starts with a language code and a dot (`de.messages.xlf`). The set key is the rest of the name (`messages.xlf`).
+2. The name starts with `locallang`, `messages`, `validation`, `errors`, `labels`, `translation`, `translations` or `test`, followed by a dot. The file forms a set on its own, keyed by its full name.
+3. The name has a single dot and does not contain `config`, `validator` or `setting` (`app.yaml`). The file forms a set on its own, keyed by its full name.
+
+A file that matches rule 2 or 3 and has no language-prefixed counterpart ends up in a one-file set (see [Scanning](#scanning)).
+
 **Example:**
-```
+```text
 en.messages.xlf    →  grouped as "messages.xlf"
 de.messages.xlf    →
 fr.messages.xlf    →
@@ -23,12 +31,14 @@ fr.messages.xlf    →
 
 Groups files where the language code appears as a **suffix**.
 
-- **Pattern**: `{name}.{lang}.{ext}`
+- **Pattern**: `{name}.{lang}.{ext}` (the extension is optional in the match)
 - **Usage**: Symfony Framework, modern PHP projects
-- **Supported Extensions**: `.yml`, `.yaml`, `.xlf`, `.xliff`, `.json`, `.php`
+- **Supported Extensions**: `.yml`, `.yaml`, `.xlf`, `.json`, `.php`
+
+The name must not contain a dot. The set key is the name without language code and extension. `.xliff` files do not match.
 
 **Example:**
-```
+```text
 messages.en.yaml   →  grouped as "messages"
 messages.de.yaml   →
 messages.fr.yaml   →
@@ -43,7 +53,7 @@ Groups files organized in **language directories**.
 - **Supported Extensions**: `.php`, `.json`, `.yml`, `.yaml`, `.xlf`, `.xliff`
 
 **Example:**
-```
+```text
 en/messages.php    →  grouped as "messages"
 de/messages.php    →
 es/messages.php    →
@@ -53,7 +63,7 @@ es/messages.php    →
 
 ### TYPO3 CMS (PrefixFileDetector)
 
-```
+```text
 Resources/Private/Language/
 ├── locallang.xlf              # Default English
 ├── de.locallang.xlf           # German
@@ -69,7 +79,7 @@ Resources/Private/Language/
 
 ### Symfony (SuffixFileDetector)
 
-```
+```text
 translations/
 ├── messages.en.yaml           # General messages
 ├── messages.de.yaml
@@ -89,7 +99,7 @@ translations/
 
 ### Laravel (DirectoryFileDetector)
 
-```
+```text
 resources/lang/
 ├── en/
 │   ├── auth.php
@@ -116,11 +126,15 @@ resources/lang/
 
 ## Automatic Detection
 
-The validator automatically selects the most appropriate file detector based on discovered file patterns. The detectors are tried per directory in this order, the first one that finds a file set is used:
+Without configured detectors, the validator pairs the files of each scan path in two steps:
 
-1. **SuffixFileDetector** - If files with language suffixes are found
-2. **PrefixFileDetector** - If files with language prefixes are found
-3. **DirectoryFileDetector** - If language directories are found
+1. **Language directories** (`en/`, `de/`) are paired first, per parent directory of the language directories. Only a name that exists in at least two language directories forms a layout.
+2. **The remaining files** are grouped by directory. In each directory the detectors run in this order, and each one only sees the files the previous ones did not pair:
+   1. **SuffixFileDetector**
+   2. **PrefixFileDetector**
+   3. **DirectoryFileDetector**
+
+One directory can therefore mix layouts. The order matters because `PrefixFileDetector` also claims names like `messages.en.yaml`.
 
 ## Manual Configuration
 
@@ -142,6 +156,18 @@ file-detectors:
 }
 ```
 
+The validator applies the configured detectors in the listed order. A later detector only sees the files the earlier ones did not pair. Classes that are not usable file detectors are skipped. Detectors group files per directory, except `DirectoryFileDetector`, which sees all files of the scan path.
+
+The order decides how files are paired. In a directory with `messages.en.yaml`, `messages.de.yaml`, `en.labels.yaml` and `de.labels.yaml`, list `SuffixFileDetector` before `PrefixFileDetector`:
+
+```yaml
+file-detectors:
+  - "MoveElevator\\ComposerTranslationValidator\\FileDetector\\SuffixFileDetector"
+  - "MoveElevator\\ComposerTranslationValidator\\FileDetector\\PrefixFileDetector"
+```
+
+This pairs both `messages.*.yaml` files and both `*.labels.yaml` files. With the two entries swapped, `PrefixFileDetector` claims `messages.en.yaml` and `messages.de.yaml` first as separate one-file sets, and the validator warns that each has no counterpart.
+
 ## Language Codes
 
 ### Supported Formats
@@ -152,7 +178,7 @@ file-detectors:
 
 ### Examples
 
-```
+```text
 # Simple codes
 en/messages.php      → locale: "en"
 de.locallang.xlf     → locale: "de"
@@ -167,6 +193,12 @@ messages.pt_BR.yaml  → locale: "pt_BR"
 en-GB/validation.php → locale: "en-GB"
 messages.zh-CN.json  → locale: "zh-CN"
 ```
+
+## Scanning
+
+The validator reads only the given directory unless `--recursive` is set. It skips files larger than 30 MB and files and directories matched by `--exclude` patterns. The recursive scan also skips symlinks and unsafe system paths such as `/etc`.
+
+A file set with only one file triggers the warning `<file> has no counterpart in other languages, cross-file checks were skipped.` on stderr.
 
 ## See Also
 

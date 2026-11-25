@@ -2,8 +2,14 @@
 
 ## Requirements
 
-- PHP 8.2 or higher
-- Composer 2.0 or higher
+| Install path | Minimum PHP | Other |
+|--------------|-------------|-------|
+| Composer plugin | 8.2 | Composer 2.2 or higher (the versions tested in CI) |
+| Standalone PHAR | 8.4.1 | The PHAR bundles Symfony 8.1, which requires PHP 8.4.1 or higher |
+| GitHub Action | 8.4.1 | Runs the PHAR with the `php` on the runner |
+| GitLab CI template | 8.4 (uses the `php:8.4-cli` image) | Runs the PHAR |
+
+All paths support PHP up to 8.6.
 
 ## Install via Composer
 

@@ -41,13 +41,15 @@ Specify a custom configuration file path in `composer.json`:
 
 ## Auto-Detection
 
-The plugin automatically searches for configuration files in this order:
+The plugin looks for the configuration file in this order and uses the first match. Configurations are not merged.
 
-1. `translation-validator.json`
-2. `translation-validator.yaml`
-3. `translation-validator.yml`
-
-The first file found will be used.
+1. The file passed with `--config`.
+2. The `extra.translation-validator.config-file` entry of the `composer.json` in the working directory. A relative path resolves against the directory of `composer.json`.
+3. Auto-detection in the working directory, first match wins:
+   1. `translation-validator.json`
+   2. `translation-validator.yaml`
+   3. `translation-validator.yml`
+4. The built-in defaults, if none of the above exists.
 
 PHP configuration files are **not** auto-detected, because they are executed when loaded. Auto-loading one from an untrusted working directory would allow arbitrary code execution. To use a PHP configuration file, reference it explicitly via the `--config` option or the `composer.json` `config-file` entry.
 
@@ -58,6 +60,21 @@ When the same option is specified in multiple places, this priority applies:
 1. **Command line arguments** (highest priority)
 2. **Configuration file**
 3. **Default values** (lowest priority)
+
+How a command line argument combines with the configuration file depends on the option:
+
+| Option | Combination |
+|--------|-------------|
+| `--exclude` | Appended to `exclude` from the configuration file |
+| `--strict`, `--dry-run` | Can only switch the setting on. Without the flag, the value from the configuration file applies |
+| `--only`, `--skip` | Replace `only` and `skip` from the configuration file |
+| `<path>` arguments | Replace `paths` from the configuration file |
+
+Relative paths resolve against the current working directory, not against the location of the configuration file.
+
+::: warning Known limitation
+A `format` set in the configuration file has no effect. The `--format` option has the default `cli` and always overrides the configuration value, so only `--format` changes the output format.
+:::
 
 ## Opt-In Validators
 
