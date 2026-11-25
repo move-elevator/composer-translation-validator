@@ -42,6 +42,15 @@ class OutputUtility
     }
 
     /**
+     * Removes control characters except tab and newline, for text that is
+     * rendered or escaped elsewhere and only must not carry raw escape sequences.
+     */
+    public static function stripControlCharacters(string $value): string
+    {
+        return preg_replace('/[\x00-\x08\x0B-\x1F\x7F]|\xC2[\x80-\x9F]/', '', $value) ?? $value;
+    }
+
+    /**
      * Makes an untrusted value safe to embed in a one-line console message.
      *
      * Line breaks become a visible \n or \r so the value cannot start a new

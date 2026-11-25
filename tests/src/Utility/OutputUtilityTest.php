@@ -83,6 +83,11 @@ final class OutputUtilityTest extends TestCase
         OutputUtility::debug($output, 'Test message', false, false);
     }
 
+    public function testStripControlCharactersRemovesEscapeSequencesButKeepsTabAndNewline(): void
+    {
+        self::assertSame("a[31mb\tc\nd", OutputUtility::stripControlCharacters("a\e[31mb\tc\nd\r\x00\x7f\u{009B}"));
+    }
+
     public function testSanitizeForConsoleMakesLineBreaksVisible(): void
     {
         self::assertSame('a\\nb\\rc', OutputUtility::sanitizeForConsole("a\nb\rc"));
