@@ -15,7 +15,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Result\{Issue, ValidationResult, ValidationResultGitHubRenderer, ValidationStatistics};
-use MoveElevator\ComposerTranslationValidator\Validator\{AbstractValidator, ResultType, ValidatorInterface};
+use MoveElevator\ComposerTranslationValidator\Validator\{AbstractValidator, MismatchValidator, ResultType, ValidatorInterface};
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -140,6 +140,34 @@ final class ValidationResultGitHubRendererTest extends TestCase
         $this->assertStringContainsString('and carriage return', $output);
     }
 
+    public function testRenderUsesValidatorMessageForIssuesWithoutMessageDetail(): void
+    {
+        $validator = new MismatchValidator();
+        $validator->addIssue(new Issue(
+            'app.de.yaml',
+            [
+                'key' => 'greeting',
+                'files' => [
+                    ['file' => 'app.en.yaml', 'value' => 'Hello'],
+                    ['file' => 'app.de.yaml', 'value' => null],
+                ],
+            ],
+            'TestParser',
+            'MismatchValidator',
+        ));
+        $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['app.de.yaml']);
+
+        $this->renderer->render(new ValidationResult(
+            [$validator],
+            ResultType::ERROR,
+            [['validator' => $validator, 'fileSet' => $fileSet]],
+        ));
+        $output = $this->output->fetch();
+
+        $this->assertStringContainsString('the translation key `greeting` is missing but present in other translation files', $output);
+        $this->assertStringNotContainsString('Translation validation issue', $output);
+    }
+
     public function testRenderWithStatistics(): void
     {
         $statistics = new ValidationStatistics(1.234, 5, 150, 8, 3);
@@ -185,6 +213,9 @@ final class ValidationResultGitHubRendererTest extends TestCase
         $validator->method('getIssues')->willReturn($issues);
         $validator->method('resultTypeOnValidationFailure')->willReturn($resultType);
         $validator->method('getShortName')->willReturn('TestValidator');
+        $validator->method('formatIssueMessage')->willReturnCallback(
+            static fn (Issue $issue): string => (string) ($issue->getDetails()['message'] ?? ''),
+        );
         $validator->method('distributeIssuesForDisplay')->willReturn(
             array_reduce($issues, static function (array $acc, Issue $issue) {
                 $acc[$issue->getFile()][] = $issue;

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Result;
 
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 
 use function sprintf;
 
@@ -42,21 +43,24 @@ class ValidationResultGitHubRenderer extends AbstractValidationResultRenderer
     {
         $groupedByFile = $this->groupIssuesByFile($validationResult);
 
+        $formatter = new OutputFormatter(false);
+
         foreach ($groupedByFile as $filePath => $validators) {
             foreach ($validators as $validatorData) {
-                $resultType = $validatorData['validator']->resultTypeOnValidationFailure();
+                $validator = $validatorData['validator'];
+                $resultType = $validator->resultTypeOnValidationFailure();
 
                 foreach ($validatorData['issues'] as $issue) {
-                    $this->renderGitHubAnnotation($issue, $filePath, $resultType);
+                    $message = $formatter->format($validator->formatIssueMessage($issue)) ?? '';
+                    $this->renderGitHubAnnotation($issue, $filePath, $resultType, $message);
                 }
             }
         }
     }
 
-    private function renderGitHubAnnotation(Issue $issue, string $filePath, ResultType $resultType): void
+    private function renderGitHubAnnotation(Issue $issue, string $filePath, ResultType $resultType, string $message): void
     {
         $details = $issue->getDetails();
-        $message = $details['message'] ?? 'Translation validation issue';
         $line = $details['line'] ?? null;
         $column = $details['column'] ?? null;
 
