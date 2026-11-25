@@ -85,14 +85,11 @@ final class SchemaValidatorTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
-    public function testValidateWithEmptyDataThrowsException(): void
+    public function testValidateAcceptsConfigWithoutPaths(): void
     {
-        $emptyData = [];
+        $this->schemaValidator->validate(['file-detectors' => ['SomeDetector']]);
 
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Configuration validation failed:');
-
-        $this->schemaValidator->validate($emptyData);
+        $this->addToAssertionCount(1);
     }
 
     public function testValidateWithInvalidDataThrowsException(): void

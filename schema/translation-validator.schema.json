@@ -150,9 +150,6 @@
 			]
 		}
 	},
-	"required": [
-		"paths"
-	],
 	"additionalProperties": false,
 	"allOf": [
 		{
