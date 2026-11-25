@@ -15,6 +15,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\FileDetector;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\{Collector, DetectorInterface};
 use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, XliffParser, YamlParser};
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -147,6 +148,67 @@ final class CollectorTest extends TestCase
 
         $this->assertArrayHasKey(XliffParser::class, $result);
         $this->assertEquals(['recursive_data'], $result[XliffParser::class][$this->tempDir]);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function directoryExcludePatternProvider(): iterable
+    {
+        yield 'glob on the full path' => ['**/backup/**'];
+        yield 'relative to the scanned path' => ['backup/*'];
+        yield 'directory name' => ['backup'];
+    }
+
+    #[DataProvider('directoryExcludePatternProvider')]
+    public function testCollectFilesExcludesFilesByDirectoryPattern(string $pattern): void
+    {
+        mkdir($this->tempDir.'/backup');
+        mkdir($this->tempDir.'/keep');
+        file_put_contents($this->tempDir.'/backup/app.de.yaml', 'k: x');
+        file_put_contents($this->tempDir.'/keep/app.de.yaml', 'k: x');
+
+        $collected = $this->collectedFileNames([$pattern]);
+
+        $this->assertSame(['keep/app.de.yaml'], $collected);
+    }
+
+    public function testCollectFilesExcludesNestedDirectoriesByName(): void
+    {
+        mkdir($this->tempDir.'/nested/backup', 0777, true);
+        file_put_contents($this->tempDir.'/nested/backup/app.de.yaml', 'k: x');
+        file_put_contents($this->tempDir.'/nested/app.de.yaml', 'k: x');
+
+        $this->assertSame(['nested/app.de.yaml'], $this->collectedFileNames(['backup']));
+    }
+
+    public function testCollectFilesIgnoresDirectoriesAboveTheScannedPathWhenMatching(): void
+    {
+        mkdir($this->tempDir.'/backup/project', 0777, true);
+        file_put_contents($this->tempDir.'/backup/project/app.de.yaml', 'k: x');
+
+        $collected = $this->collectedFileNames(['**/backup/**', '*backup*'], '/backup/project');
+
+        $this->assertSame(['app.de.yaml'], $collected);
+    }
+
+    public function testCollectFilesDoesNotTraverseExcludedDirectories(): void
+    {
+        if (function_exists('posix_geteuid') && 0 === posix_geteuid()) {
+            $this->markTestSkipped('Directory permissions are not enforced for root.');
+        }
+
+        mkdir($this->tempDir.'/vendor');
+        file_put_contents($this->tempDir.'/app.de.yaml', 'k: x');
+        chmod($this->tempDir.'/vendor', 0000);
+
+        try {
+            $collected = $this->collectedFileNames(['**/vendor/**']);
+        } finally {
+            chmod($this->tempDir.'/vendor', 0755);
+        }
+
+        $this->assertSame(['app.de.yaml'], $collected);
     }
 
     public function testCollectFilesDoesNotFollowSymlinks(): void
@@ -346,6 +408,33 @@ final class CollectorTest extends TestCase
         $result = $collector->collectFiles(['/dev'], $detector, null, true);
 
         $this->assertSame([], $result);
+    }
+
+    /**
+     * @param string[] $excludePatterns
+     *
+     * @return string[] collected files relative to the scanned directory
+     */
+    private function collectedFileNames(array $excludePatterns, string $subDirectory = ''): array
+    {
+        $collected = [];
+        $detector = $this->createStub(DetectorInterface::class);
+        $detector->method('mapTranslationSet')->willReturnCallback(
+            static function (array $files) use (&$collected): array {
+                $collected = array_merge($collected, $files);
+
+                return ['set' => $files];
+            },
+        );
+
+        (new Collector($this->createStub(LoggerInterface::class)))
+            ->collectFiles([$this->tempDir.$subDirectory], $detector, $excludePatterns, true);
+
+        $root = (string) realpath($this->tempDir.$subDirectory).'/';
+        $relative = array_map(static fn (string $file): string => str_replace($root, '', $file), $collected);
+        sort($relative);
+
+        return $relative;
     }
 
     private function removeDirectory(string $path): void
