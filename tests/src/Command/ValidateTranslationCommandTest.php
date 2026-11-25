@@ -200,6 +200,21 @@ final class ValidateTranslationCommandTest extends TestCase
         self::assertStringContainsString('The class "Invalid\\Validator\\Class" does not exist.', $commandTester->getDisplay());
     }
 
+    public function testLogMessagesDoNotInterpretMarkupFromPaths(): void
+    {
+        $application = new Application();
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
+        $commandTester = new CommandTester($application->find('validate-translations'));
+
+        $commandTester->execute(
+            ['path' => ['/nonexistent/<bg=red>dir']],
+            ['decorated' => true, 'capture_stderr_separately' => true],
+        );
+
+        self::assertStringContainsString('<bg=red>dir', $commandTester->getErrorOutput());
+        self::assertStringNotContainsString("\e[41m", $commandTester->getErrorOutput());
+    }
+
     public function testExecuteWithErrors(): void
     {
         $application = new Application();

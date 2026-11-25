@@ -17,6 +17,7 @@ use JsonException;
 use MoveElevator\ComposerTranslationValidator\Config\CommandConfigResolver;
 use MoveElevator\ComposerTranslationValidator\Result\{FormatType, Output};
 use MoveElevator\ComposerTranslationValidator\Service\ValidationOrchestrationService;
+use MoveElevator\ComposerTranslationValidator\Utility\SanitizingConsoleLogger;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
 use Psr\Log\{LogLevel, LoggerInterface};
 use ReflectionException;
@@ -164,7 +165,7 @@ HELP
         $this->output = $output;
         $this->io = new SymfonyStyle($input, $output);
         // Warnings go to the error output, so they cannot corrupt the JSON or GitHub output on stdout
-        $this->logger = new ConsoleLogger($output, [], [LogLevel::WARNING => ConsoleLogger::ERROR]);
+        $this->logger = new SanitizingConsoleLogger($output, [], [LogLevel::WARNING => ConsoleLogger::ERROR]);
         $this->orchestrationService = new ValidationOrchestrationService($this->logger);
         $this->configResolver = new CommandConfigResolver();
     }
