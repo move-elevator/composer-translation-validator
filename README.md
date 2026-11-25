@@ -1,6 +1,6 @@
 <div align="center">
 
-![icon](icon.png)
+<img src="icon.png" alt="Composer Translation Validator icon" width="120">
 
 # Composer Translation Validator
 
@@ -11,56 +11,53 @@
 
 </div>
 
-A Composer plugin that validates translation files in your project.
-Provides a command `validate-translations` to check for translations mismatches, duplicates, schema validation and more.
-Supports XLIFF, YAML, JSON and PHP translation files.
+Missing keys, duplicate keys, mismatched placeholders and broken HTML in translation files surface at runtime, as raw key names on the page or as formatting errors. This tool finds them before they ship: it groups the language files of a project, compares them and reports the differences.
 
-**[View Documentation](https://move-elevator.github.io/composer-translation-validator/)**
+It runs as a Composer plugin (`composer validate-translations`) and as a standalone PHAR with a GitHub Action and a GitLab CI template. XLIFF, YAML, JSON and PHP files are supported.
 
 ## ✨ Features
 
-* Autodetect coherent language files
-* Supports various [translation file formats](https://move-elevator.github.io/composer-translation-validator/reference/file-formats)
-* Provides multiple [validators](https://move-elevator.github.io/composer-translation-validator/reference/validators)
-* Configurable via separate [configuration files](https://move-elevator.github.io/composer-translation-validator/configuration/)
+- **Auto-detection**: pairs language files by [suffix, prefix or directory](https://move-elevator.github.io/composer-translation-validator/reference/file-detection) without configuration
+- **Formats**: [XLIFF, YAML, JSON and PHP](https://move-elevator.github.io/composer-translation-validator/reference/file-formats)
+- **Validators**: [mismatches, duplicates, placeholders, HTML tags, schema and more](https://move-elevator.github.io/composer-translation-validator/reference/validators)
+- **Output**: CLI, JSON and GitHub annotation [formats](https://move-elevator.github.io/composer-translation-validator/reference/cli)
+- **Configuration**: [config file](https://move-elevator.github.io/composer-translation-validator/configuration/) in PHP, JSON or YAML
 
 ## 🔥 Installation
 
 [![Packagist](https://img.shields.io/packagist/v/move-elevator/composer-translation-validator?label=version&logo=packagist)](https://packagist.org/packages/move-elevator/composer-translation-validator)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/move-elevator/composer-translation-validator?color=brightgreen)](https://packagist.org/packages/move-elevator/composer-translation-validator)
 
-
 ```bash
 composer require --dev move-elevator/composer-translation-validator
 ```
 
-Alternatively, a dependency-free [standalone PHAR](https://move-elevator.github.io/composer-translation-validator/getting-started/installation#standalone-phar) is available for CI or non-Composer projects, with a ready-made [GitHub Action](https://move-elevator.github.io/composer-translation-validator/getting-started/installation#github-action) and [GitLab CI template](https://move-elevator.github.io/composer-translation-validator/getting-started/installation#gitlab-ci-template).
+> [!IMPORTANT]
+> The plugin needs PHP 8.2 or higher and Composer 2.2 or higher. The standalone PHAR, the GitHub Action and the GitLab CI template need PHP 8.4.1 or higher, see the [installation guide](https://move-elevator.github.io/composer-translation-validator/getting-started/installation) for details.
 
-## 📊 Usage
-
-Validate your translation files by running the command:
+## 🚀 Quick start
 
 ```bash
 composer validate-translations ./translations
 ```
 
-![console.png](docs/images/console.png)
+The command detects the translation files in the directory, runs the default validators and exits with a non-zero code if it finds errors.
 
-The command `validate-translations` can be used to validate translation files in your project. It will automatically detect the translation files based on the [supported formats](https://move-elevator.github.io/composer-translation-validator/reference/file-formats) and run the configured [validators](https://move-elevator.github.io/composer-translation-validator/reference/validators). See the [CLI documentation](https://move-elevator.github.io/composer-translation-validator/reference/cli) for more details.
+![Console output of validate-translations with two mismatch errors](docs/images/console.png)
 
-## 📝 Documentation
+## 📚 Documentation
 
-Full documentation is available at **[move-elevator.github.io/composer-translation-validator](https://move-elevator.github.io/composer-translation-validator/)**.
+Full documentation: **[move-elevator.github.io/composer-translation-validator](https://move-elevator.github.io/composer-translation-validator/)**
 
-### Quick Links
-
-- [Getting Started](https://move-elevator.github.io/composer-translation-validator/getting-started/)
-- [Configuration](https://move-elevator.github.io/composer-translation-validator/configuration/)
-- [CLI Reference](https://move-elevator.github.io/composer-translation-validator/reference/cli)
-- [Validators](https://move-elevator.github.io/composer-translation-validator/reference/validators)
-- [File Formats](https://move-elevator.github.io/composer-translation-validator/reference/file-formats)
-- [File Detection](https://move-elevator.github.io/composer-translation-validator/reference/file-detection)
-- [Programmatic Usage](https://move-elevator.github.io/composer-translation-validator/reference/programmatic-usage)
+| Topic | What's inside |
+|-------|---------------|
+| [Getting started](https://move-elevator.github.io/composer-translation-validator/getting-started/) | What the tool checks, installation paths (Composer, PHAR, GitHub Action, GitLab CI), first run |
+| [Configuration](https://move-elevator.github.io/composer-translation-validator/configuration/) | Config file formats, every option, per-validator settings |
+| [CLI reference](https://move-elevator.github.io/composer-translation-validator/reference/cli) | Arguments, options, output formats and exit codes |
+| [Validators](https://move-elevator.github.io/composer-translation-validator/reference/validators) | What each validator checks, with examples |
+| [File formats](https://move-elevator.github.io/composer-translation-validator/reference/file-formats) | Supported formats and their parsing rules |
+| [File detection](https://move-elevator.github.io/composer-translation-validator/reference/file-detection) | How language files are grouped into sets |
+| [Programmatic usage](https://move-elevator.github.io/composer-translation-validator/reference/programmatic-usage) | Calling the validator from PHP code |
 
 ## 🧑‍💻 Contributing
 
@@ -68,4 +65,4 @@ Please have a look at [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## ⭐ License
 
-This project is licensed under [GNU General Public License 3.0 (or later)](LICENSE).
+This project is licensed under [GNU General Public License 3.0 (or later)](LICENSE.md).
