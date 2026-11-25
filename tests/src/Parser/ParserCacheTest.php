@@ -13,9 +13,12 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\Parser;
 
+use InvalidArgumentException;
 use MoveElevator\ComposerTranslationValidator\Parser\{ParserCache, XliffParser, YamlParser};
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
+use Throwable;
 
 #[CoversClass(ParserCache::class)]
 /**
@@ -156,6 +159,38 @@ final class ParserCacheTest extends TestCase
         $expectedKey = $this->testFile.'::'.YamlParser::class;
 
         self::assertContains($expectedKey, $stats['cache_keys']);
+    }
+
+    public function testMissingFileExceptionHasNoControlCharactersInItsMessage(): void
+    {
+        try {
+            $this->parserCache->get("/nonexistent/app\e[31mRED.yaml", YamlParser::class);
+            self::fail('An exception was expected.');
+        } catch (InvalidArgumentException $exception) {
+            self::assertStringContainsString('app[31mRED.yaml', $exception->getMessage());
+            self::assertDoesNotMatchRegularExpression('/[\x00-\x08\x0B-\x1F\x7F]/', $exception->getMessage());
+            self::assertNotInstanceOf(Throwable::class, $exception->getPrevious());
+        }
+    }
+
+    public function testParseErrorExceptionHasNoControlCharactersInItsMessage(): void
+    {
+        $directory = sys_get_temp_dir().'/parser_cache_'.uniqid('', true);
+        mkdir($directory);
+        $file = $directory."/app\e[31mRED.en.yaml";
+
+        try {
+            file_put_contents($file, "key: \"a\n  bad: [unclosed\n");
+            $this->parserCache->get($file, YamlParser::class);
+            self::fail('An exception was expected.');
+        } catch (RuntimeException $exception) {
+            self::assertStringContainsString('Failed to parse YAML file', $exception->getMessage());
+            self::assertDoesNotMatchRegularExpression('/[\x00-\x08\x0B-\x1F\x7F]/', $exception->getMessage());
+            self::assertNotInstanceOf(Throwable::class, $exception->getPrevious());
+        } finally {
+            @unlink($file);
+            rmdir($directory);
+        }
     }
 
     public function testGetWithNullParserClassReturnsFalse(): void

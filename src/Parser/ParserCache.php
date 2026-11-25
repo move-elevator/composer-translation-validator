@@ -13,6 +13,10 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Parser;
 
+use InvalidArgumentException;
+use MoveElevator\ComposerTranslationValidator\Utility\OutputUtility;
+use RuntimeException;
+
 use function count;
 
 /**
@@ -35,8 +39,17 @@ class ParserCache
         $cacheKey = $filePath.'::'.$parserClass;
 
         if (!isset($this->cache[$cacheKey])) {
-            /** @var ParserInterface $parser */
-            $parser = new $parserClass($filePath);
+            try {
+                /** @var ParserInterface $parser */
+                $parser = new $parserClass($filePath);
+            } catch (InvalidArgumentException|RuntimeException $e) {
+                // The message holds the file path, which can carry escape sequences. The exception
+                // renderer prints previous exceptions as well, so the original is not kept.
+                $message = OutputUtility::stripControlCharacters($e->getMessage());
+
+                throw $e instanceof InvalidArgumentException ? new InvalidArgumentException($message) : new RuntimeException($message);
+            }
+
             $this->cache[$cacheKey] = $parser;
         }
 
