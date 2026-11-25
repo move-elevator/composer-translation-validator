@@ -283,6 +283,17 @@ final class ValidationOrchestrationServiceTest extends TestCase
         $this->assertEquals(array_slice($validators, 0, 2), $result);
     }
 
+    public function testValidateClassInputWithArrayFiltersInvalidClasses(): void
+    {
+        $result = $this->service->validateClassInput(
+            ValidatorInterface::class,
+            'validator',
+            ['Invalid\\Validator\\Class', MismatchValidator::class],
+        );
+
+        $this->assertSame([MismatchValidator::class], $result);
+    }
+
     public function testValidateClassInputWithInvalidClass(): void
     {
         // Invalid classes are logged as errors and excluded from the result,
