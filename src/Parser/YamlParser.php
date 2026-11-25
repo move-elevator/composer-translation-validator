@@ -41,10 +41,16 @@ class YamlParser extends AbstractParser implements ParserInterface
         parent::__construct($filePath);
 
         try {
-            $this->yaml = Yaml::parseFile($filePath);
+            $parsed = Yaml::parseFile($filePath);
         } catch (Exception $e) {
             throw new RuntimeException(sprintf('Failed to parse YAML file "%s": %s', $filePath, $e->getMessage()), 0, $e);
         }
+
+        if (null !== $parsed && !is_array($parsed)) {
+            throw new RuntimeException(sprintf('Failed to parse YAML file "%s": expected a mapping, got %s.', $filePath, get_debug_type($parsed)));
+        }
+
+        $this->yaml = $parsed ?? [];
     }
 
     /**
