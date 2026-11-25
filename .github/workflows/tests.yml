@@ -52,29 +52,35 @@ jobs:
             composer_version: '2.9'
             name_suffix: ' (PHP 8.4, Symfony 7.x, Composer 2.9)'
 
-          # Highest PHP, Symfony 7.x, Lowest Compatible Composer (2.4, since 2.2/2.3 are excluded for PHP 8.4)
+          # PHP 8.5, Symfony 7.x, Lowest Compatible Composer (2.4, since 2.2/2.3 are excluded for PHP 8.4)
           - php: '8.5'
             symfony_constraint: '^7.0'
             composer_version: '2.4'
             name_suffix: ' (PHP 8.5, Symfony 7.x, Composer 2.4)'
 
-          # Highest PHP, Symfony 7.x, Highest Composer
+          # PHP 8.5, Symfony 7.x, Highest Composer
           - php: '8.5'
             symfony_constraint: '^7.0'
             composer_version: '2.9'
             name_suffix: ' (PHP 8.5, Symfony 7.x, Composer 2.9)'
 
-          # Highest PHP, Highest Symfony, Lowest Compatible Composer (2.4, since 2.2/2.3 are excluded for PHP 8.4)
+          # PHP 8.5, Highest Symfony, Lowest Compatible Composer (2.4, since 2.2/2.3 are excluded for PHP 8.4)
           - php: '8.5'
             symfony_constraint: '^8.0'
             composer_version: '2.4'
             name_suffix: ' (PHP 8.5, Symfony 8.x, Composer 2.4)'
 
-          # Highest PHP, Highest Symfony, Highest Composer
+          # PHP 8.5, Highest Symfony, Highest Composer
           - php: '8.5'
             symfony_constraint: '^8.0'
             composer_version: '2.9'
             name_suffix: ' (PHP 8.5, Symfony 8.x, Composer 2.9)'
+
+          # Highest PHP, Highest Symfony, Highest Composer
+          - php: '8.6'
+            symfony_constraint: '^8.0'
+            composer_version: '2.9'
+            name_suffix: ' (PHP 8.6, Symfony 8.x, Composer 2.9)'
 
     name: Test ${{ matrix.name_suffix }}
 
