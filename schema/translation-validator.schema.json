@@ -116,9 +116,7 @@
 			"enum": [
 				"cli",
 				"json",
-				"github",
-				"yaml",
-				"php"
+				"github"
 			],
 			"default": "cli"
 		},

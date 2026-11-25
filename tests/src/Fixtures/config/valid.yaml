@@ -2,7 +2,7 @@ paths:
   - path1
   - path2
 strict: true
-format: yaml
+format: github
 exclude:
   - vendor/*
   - node_modules/*
