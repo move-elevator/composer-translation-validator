@@ -13,12 +13,14 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\FileDetector;
 
-use MoveElevator\ComposerTranslationValidator\FileDetector\{Collector, DetectorInterface};
-use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, XliffParser, YamlParser};
+use MoveElevator\ComposerTranslationValidator\FileDetector\{Collector, DetectorInterface, DirectoryFileDetector, PrefixFileDetector, SuffixFileDetector};
+use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, PhpParser, XliffParser, YamlParser};
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 use function count;
+use function dirname;
 use function function_exists;
 use function in_array;
 
@@ -145,8 +147,316 @@ final class CollectorTest extends TestCase
         $collector = new Collector($logger);
         $result = $collector->collectFiles([$this->tempDir], $detector, null, true);
 
+        $root = (string) realpath($this->tempDir);
         self::assertArrayHasKey(XliffParser::class, $result);
-        self::assertEquals(['recursive_data'], $result[XliffParser::class][$this->tempDir]);
+        self::assertEquals(['recursive_data'], $result[XliffParser::class][$root]);
+        self::assertEquals(['recursive_data'], $result[XliffParser::class][$root.'/level1']);
+    }
+
+    public function testCollectFilesWithExplicitDetectorKeepsDirectoriesApartWhenRecursive(): void
+    {
+        mkdir($this->tempDir.'/a');
+        mkdir($this->tempDir.'/b');
+        foreach (['a', 'b'] as $directory) {
+            file_put_contents($this->tempDir.'/'.$directory.'/messages.en.yaml', 'k: x');
+            file_put_contents($this->tempDir.'/'.$directory.'/messages.de.yaml', 'k: x');
+        }
+
+        $collector = new Collector(self::createStub(LoggerInterface::class));
+        $result = $collector->collectFiles([$this->tempDir], new SuffixFileDetector(), null, true);
+
+        $sets = $result[YamlParser::class];
+        ksort($sets);
+
+        $root = (string) realpath($this->tempDir);
+        self::assertSame([$root.'/a', $root.'/b'], array_keys($sets));
+        foreach ($sets as $directory => $set) {
+            self::assertCount(2, $set['messages']);
+            foreach ($set['messages'] as $file) {
+                self::assertSame($directory, dirname($file));
+            }
+        }
+    }
+
+    public function testCollectFilesWithExplicitDetectorSkipsDirectoriesWithoutMatches(): void
+    {
+        mkdir($this->tempDir.'/a');
+        mkdir($this->tempDir.'/b');
+        file_put_contents($this->tempDir.'/a/messages.en.yaml', 'k: x');
+        file_put_contents($this->tempDir.'/b/unrelated.yaml', 'k: x');
+
+        $collector = new Collector(self::createStub(LoggerInterface::class));
+        $result = $collector->collectFiles([$this->tempDir], new SuffixFileDetector(), null, true);
+
+        self::assertSame([(string) realpath($this->tempDir).'/a'], array_keys($result[YamlParser::class]));
+    }
+
+    public function testCollectFilesTriesConfiguredDetectorsInOrder(): void
+    {
+        file_put_contents($this->tempDir.'/messages.en.yaml', 'k: x');
+        file_put_contents($this->tempDir.'/messages.de.yaml', 'k: x');
+
+        $collector = new Collector(self::createStub(LoggerInterface::class));
+        $result = $collector->collectFiles(
+            [$this->tempDir],
+            [new DirectoryFileDetector(), new SuffixFileDetector()],
+            null,
+        );
+
+        self::assertCount(2, $result[YamlParser::class][$this->tempDir]['messages']);
+    }
+
+    public function testCollectFilesUsesFirstConfiguredDetectorThatFindsFiles(): void
+    {
+        file_put_contents($this->tempDir.'/messages.en.yaml', 'k: x');
+        file_put_contents($this->tempDir.'/messages.de.yaml', 'k: x');
+
+        $second = $this->createMock(DetectorInterface::class);
+        $second->expects(self::never())->method('mapTranslationSet');
+
+        $collector = new Collector(self::createStub(LoggerInterface::class));
+        $result = $collector->collectFiles([$this->tempDir], [new SuffixFileDetector(), $second], null);
+
+        self::assertCount(2, $result[YamlParser::class][$this->tempDir]['messages']);
+    }
+
+    public function testCollectFilesDoesNotDuplicateFilesForRepeatedPaths(): void
+    {
+        file_put_contents($this->tempDir.'/messages.en.yaml', 'k: x');
+        file_put_contents($this->tempDir.'/messages.de.yaml', 'k: x');
+
+        $collector = new Collector(self::createStub(LoggerInterface::class));
+        $result = $collector->collectFiles(
+            [$this->tempDir, $this->tempDir],
+            [new SuffixFileDetector(), new PrefixFileDetector()],
+            null,
+        );
+
+        self::assertCount(2, $result[YamlParser::class][$this->tempDir]['messages']);
+    }
+
+    public function testCollectFilesFallsBackToLaterDetectorForDirectoriesTheFirstOneDoesNotMatch(): void
+    {
+        mkdir($this->tempDir.'/a');
+        mkdir($this->tempDir.'/b');
+        file_put_contents($this->tempDir.'/a/messages.en.yaml', 'k: x');
+        file_put_contents($this->tempDir.'/a/messages.de.yaml', 'k: x');
+        file_put_contents($this->tempDir.'/b/en.messages.yaml', 'k: x');
+        file_put_contents($this->tempDir.'/b/de.messages.yaml', 'k: x');
+
+        $collector = new Collector(self::createStub(LoggerInterface::class));
+        $result = $collector->collectFiles(
+            [$this->tempDir],
+            [new SuffixFileDetector(), new PrefixFileDetector()],
+            null,
+            true,
+        );
+
+        $root = (string) realpath($this->tempDir);
+        $sets = $result[YamlParser::class];
+        ksort($sets);
+
+        self::assertSame([$root.'/a', $root.'/b'], array_keys($sets));
+        self::assertCount(2, $sets[$root.'/a']['messages']);
+        self::assertCount(2, $sets[$root.'/b']['messages.yaml']);
+    }
+
+    public function testCollectFilesWithDirectoryDetectorStillSpansLanguageDirectories(): void
+    {
+        mkdir($this->tempDir.'/en');
+        mkdir($this->tempDir.'/de');
+        file_put_contents($this->tempDir.'/en/messages.yaml', 'k: x');
+        file_put_contents($this->tempDir.'/de/messages.yaml', 'k: x');
+
+        $collector = new Collector(self::createStub(LoggerInterface::class));
+        $result = $collector->collectFiles([$this->tempDir], new DirectoryFileDetector(), null, true);
+
+        self::assertSame([$this->tempDir], array_keys($result[YamlParser::class]));
+        self::assertCount(2, $result[YamlParser::class][$this->tempDir]['messages']);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function directoryExcludePatternProvider(): iterable
+    {
+        yield 'glob on the full path' => ['**/backup/**'];
+        yield 'relative to the scanned path' => ['backup/*'];
+        yield 'directory name' => ['backup'];
+    }
+
+    #[DataProvider('directoryExcludePatternProvider')]
+    public function testCollectFilesExcludesFilesByDirectoryPattern(string $pattern): void
+    {
+        mkdir($this->tempDir.'/backup');
+        mkdir($this->tempDir.'/keep');
+        file_put_contents($this->tempDir.'/backup/app.de.yaml', 'k: x');
+        file_put_contents($this->tempDir.'/keep/app.de.yaml', 'k: x');
+
+        $collected = $this->collectedFileNames([$pattern]);
+
+        self::assertSame(['keep/app.de.yaml'], $collected);
+    }
+
+    public function testCollectFilesExcludesNestedDirectoriesByName(): void
+    {
+        mkdir($this->tempDir.'/nested/backup', 0o777, true);
+        file_put_contents($this->tempDir.'/nested/backup/app.de.yaml', 'k: x');
+        file_put_contents($this->tempDir.'/nested/app.de.yaml', 'k: x');
+
+        self::assertSame(['nested/app.de.yaml'], $this->collectedFileNames(['backup']));
+    }
+
+    public function testCollectFilesIgnoresDirectoriesAboveTheScannedPathWhenMatching(): void
+    {
+        mkdir($this->tempDir.'/backup/project', 0o777, true);
+        file_put_contents($this->tempDir.'/backup/project/app.de.yaml', 'k: x');
+
+        $collected = $this->collectedFileNames(['**/backup/**', '*backup*'], '/backup/project');
+
+        self::assertSame(['app.de.yaml'], $collected);
+    }
+
+    public function testCollectFilesDoesNotTraverseExcludedDirectories(): void
+    {
+        if (function_exists('posix_geteuid') && 0 === posix_geteuid()) {
+            self::markTestSkipped('Directory permissions are not enforced for root.');
+        }
+
+        mkdir($this->tempDir.'/vendor');
+        file_put_contents($this->tempDir.'/app.de.yaml', 'k: x');
+        chmod($this->tempDir.'/vendor', 0o000);
+
+        try {
+            $collected = $this->collectedFileNames(['**/vendor/**']);
+        } finally {
+            chmod($this->tempDir.'/vendor', 0o755);
+        }
+
+        self::assertSame(['app.de.yaml'], $collected);
+    }
+
+    public function testCollectFilesAutoDetectsDirectoryBasedLayout(): void
+    {
+        mkdir($this->tempDir.'/en');
+        mkdir($this->tempDir.'/de');
+        file_put_contents($this->tempDir.'/en/messages.php', "<?php return ['a' => 'x'];");
+        file_put_contents($this->tempDir.'/de/messages.php', "<?php return ['a' => 'x'];");
+
+        $collector = new Collector(self::createStub(LoggerInterface::class));
+        $result = $collector->collectFiles([$this->tempDir], null, null, true);
+
+        $sets = array_values($result[PhpParser::class]);
+
+        self::assertCount(1, $sets);
+        self::assertCount(2, $sets[0]['messages']);
+    }
+
+    public function testCollectFilesAutoDetectsDirectoryLayoutsOfDifferentParentsSeparately(): void
+    {
+        foreach (['a', 'b'] as $parent) {
+            mkdir($this->tempDir.'/'.$parent.'/en', 0o777, true);
+            mkdir($this->tempDir.'/'.$parent.'/de', 0o777, true);
+            file_put_contents($this->tempDir.'/'.$parent.'/en/messages.php', "<?php return ['a' => 'x'];");
+            file_put_contents($this->tempDir.'/'.$parent.'/de/messages.php', "<?php return ['a' => 'x'];");
+        }
+
+        $collector = new Collector(self::createStub(LoggerInterface::class));
+        $result = $collector->collectFiles([$this->tempDir], null, null, true);
+
+        $sets = array_values($result[PhpParser::class]);
+
+        self::assertCount(2, $sets);
+        foreach ($sets as $set) {
+            self::assertCount(2, $set['messages']);
+        }
+    }
+
+    public function testCollectFilesKeepsDirectoryLayoutAndSuffixLayoutOfTheSameParent(): void
+    {
+        mkdir($this->tempDir.'/en');
+        mkdir($this->tempDir.'/de');
+        file_put_contents($this->tempDir.'/en/auth.php', "<?php return ['a' => 'x'];");
+        file_put_contents($this->tempDir.'/de/auth.php', "<?php return ['a' => 'x'];");
+        file_put_contents($this->tempDir.'/app.en.php', "<?php return ['a' => 'x'];");
+        file_put_contents($this->tempDir.'/app.de.php', "<?php return ['a' => 'x'];");
+
+        $collector = new Collector(self::createStub(LoggerInterface::class));
+        $result = $collector->collectFiles([$this->tempDir], null, null, true);
+
+        $setNames = [];
+        foreach ($result[PhpParser::class] as $sets) {
+            foreach ($sets as $name => $files) {
+                self::assertCount(2, $files);
+                $setNames[] = $name;
+            }
+        }
+        sort($setNames);
+
+        self::assertSame(['app', 'auth'], $setNames);
+    }
+
+    public function testCollectFilesKeepsLanguageNamedFilesInTwoLetterDirectoriesTogether(): void
+    {
+        mkdir($this->tempDir.'/ui');
+        file_put_contents($this->tempDir.'/ui/en.json', '{"a": "x"}');
+        file_put_contents($this->tempDir.'/ui/de.json', '{"a": "x"}');
+
+        $collector = new Collector(self::createStub(LoggerInterface::class));
+        $result = $collector->collectFiles([$this->tempDir], null, null, true);
+
+        $sets = array_values($result[JsonParser::class]);
+
+        self::assertCount(1, $sets);
+        self::assertSame(['json'], array_keys($sets[0]));
+        self::assertCount(2, $sets[0]['json']);
+    }
+
+    /**
+     * @return iterable<string, array{string, string, string, string}>
+     */
+    public static function autoDetectedLayoutProvider(): iterable
+    {
+        yield 'suffix layout with a common file name' => ['messages.en.yaml', 'messages.de.yaml', 'k: x', 'messages'];
+        yield 'prefix layout (TYPO3)' => ['en.locallang.xlf', 'de.locallang.xlf', '<xliff/>', 'locallang.xlf'];
+    }
+
+    #[DataProvider('autoDetectedLayoutProvider')]
+    public function testCollectFilesPairsLocaleFilesInAutoMode(string $first, string $second, string $content, string $setName): void
+    {
+        file_put_contents($this->tempDir.'/'.$first, $content);
+        file_put_contents($this->tempDir.'/'.$second, $content);
+
+        $sets = $this->autoDetectedSets();
+
+        self::assertSame([$setName], array_keys($sets));
+        self::assertCount(2, $sets[$setName]);
+    }
+
+    public function testCollectFilesKeepsPrefixAndSuffixLayoutOfTheSameDirectory(): void
+    {
+        foreach (['en.a.xlf', 'de.a.xlf', 'b.en.xlf', 'b.de.xlf'] as $file) {
+            file_put_contents($this->tempDir.'/'.$file, '<xliff/>');
+        }
+
+        $sets = $this->autoDetectedSets();
+
+        self::assertSame(['a.xlf', 'b'], array_keys($sets));
+        self::assertCount(2, $sets['a.xlf']);
+        self::assertCount(2, $sets['b']);
+    }
+
+    public function testCollectFilesKeepsFileWithoutLocaleNextToSuffixedFiles(): void
+    {
+        foreach (['messages.yaml', 'messages.en.yaml', 'messages.de.yaml'] as $file) {
+            file_put_contents($this->tempDir.'/'.$file, 'k: x');
+        }
+
+        $sets = $this->autoDetectedSets();
+
+        self::assertSame(['messages', 'messages.yaml'], array_keys($sets));
+        self::assertCount(2, $sets['messages']);
+        self::assertCount(1, $sets['messages.yaml']);
     }
 
     public function testCollectFilesDoesNotFollowSymlinks(): void
@@ -346,6 +656,50 @@ final class CollectorTest extends TestCase
         $result = $collector->collectFiles(['/dev'], $detector, null, true);
 
         self::assertSame([], $result);
+    }
+
+    /**
+     * @return array<string, array<mixed>> translation sets of the temp directory by name
+     */
+    private function autoDetectedSets(): array
+    {
+        $collector = new Collector(self::createStub(LoggerInterface::class));
+        $sets = [];
+        foreach ($collector->collectFiles([$this->tempDir], null, null) as $pathSets) {
+            foreach ($pathSets as $directorySets) {
+                $sets = array_merge($sets, $directorySets);
+            }
+        }
+        ksort($sets);
+
+        return $sets;
+    }
+
+    /**
+     * @param string[] $excludePatterns
+     *
+     * @return string[] collected files relative to the scanned directory
+     */
+    private function collectedFileNames(array $excludePatterns, string $subDirectory = ''): array
+    {
+        $collected = [];
+        $detector = self::createStub(DetectorInterface::class);
+        $detector->method('mapTranslationSet')->willReturnCallback(
+            static function (array $files) use (&$collected): array {
+                $collected = array_merge($collected, $files);
+
+                return ['set' => $files];
+            },
+        );
+
+        (new Collector(self::createStub(LoggerInterface::class)))
+            ->collectFiles([$this->tempDir.$subDirectory], $detector, $excludePatterns, true);
+
+        $root = (string) realpath($this->tempDir.$subDirectory).'/';
+        $relative = array_map(static fn (string $file): string => str_replace($root, '', $file), $collected);
+        sort($relative);
+
+        return $relative;
     }
 
     private function removeDirectory(string $path): void

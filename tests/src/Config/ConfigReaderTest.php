@@ -82,7 +82,7 @@ final class ConfigReaderTest extends TestCase
     {
         yield 'php' => ['valid.php', ['path1', 'path2'], 'json', true];
         yield 'json' => ['valid.json', ['path1', 'path2'], 'json', true];
-        yield 'yaml' => ['valid.yaml', ['path1', 'path2'], 'yaml', true];
+        yield 'yaml' => ['valid.yaml', ['path1', 'path2'], 'github', true];
         yield 'yml' => ['valid.yml', ['path1'], null, false];
     }
 

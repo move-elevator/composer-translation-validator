@@ -349,6 +349,31 @@ final class HtmlTagValidatorTest extends TestCase
         self::assertStringContainsString('de.xlf', $outputContent);
     }
 
+    public function testDetailedOutputDoesNotHighlightPlainTextStartingWithAngleBracket(): void
+    {
+        $validator = new HtmlTagValidator();
+        $output = new BufferedOutput(BufferedOutput::VERBOSITY_NORMAL, true);
+        $issue = new Issue(
+            '',
+            [
+                'key' => 'greeting',
+                'files' => [
+                    'en.xlf' => ['value' => '<3 love <b>this</b>'],
+                    'de.xlf' => ['value' => 'Hallo'],
+                ],
+                'inconsistencies' => ['HTML tag mismatch'],
+            ],
+            '',
+            'HtmlTagValidator',
+        );
+
+        $validator->renderDetailedOutput($output, [$issue]);
+        $outputContent = $output->fetch();
+
+        self::assertStringContainsString("\e[36m<b>\e[39m", $outputContent);
+        self::assertStringNotContainsString("\e[36m<3 love", $outputContent);
+    }
+
     public function testResetState(): void
     {
         $validator = new HtmlTagValidator();

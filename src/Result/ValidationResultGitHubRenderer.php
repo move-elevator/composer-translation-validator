@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Result;
 
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
+use Symfony\Component\Console\Formatter\OutputFormatter;
+use Symfony\Component\Console\Output\OutputInterface;
 
 use function sprintf;
 
@@ -42,21 +44,24 @@ class ValidationResultGitHubRenderer extends AbstractValidationResultRenderer
     {
         $groupedByFile = $this->groupIssuesByFile($validationResult);
 
+        $formatter = new OutputFormatter(false);
+
         foreach ($groupedByFile as $filePath => $validators) {
             foreach ($validators as $validatorData) {
-                $resultType = $validatorData['validator']->resultTypeOnValidationFailure();
+                $validator = $validatorData['validator'];
+                $resultType = $validator->resultTypeOnValidationFailure();
 
                 foreach ($validatorData['issues'] as $issue) {
-                    $this->renderGitHubAnnotation($issue, $filePath, $resultType);
+                    $message = $formatter->format($validator->formatIssueMessage($issue)) ?? '';
+                    $this->renderGitHubAnnotation($issue, $filePath, $resultType, $message);
                 }
             }
         }
     }
 
-    private function renderGitHubAnnotation(Issue $issue, string $filePath, ResultType $resultType): void
+    private function renderGitHubAnnotation(Issue $issue, string $filePath, ResultType $resultType, string $message): void
     {
         $details = $issue->getDetails();
-        $message = $details['message'] ?? 'Translation validation issue';
         $line = $details['line'] ?? null;
         $column = $details['column'] ?? null;
 
@@ -85,7 +90,7 @@ class ValidationResultGitHubRenderer extends AbstractValidationResultRenderer
         $paramString = implode(',', $params);
         $escapedMessage = $this->escapeData($message);
 
-        $this->output->writeln("::{$annotationType} {$paramString}::{$escapedMessage}");
+        $this->output->writeln("::{$annotationType} {$paramString}::{$escapedMessage}", OutputInterface::OUTPUT_RAW);
     }
 
     private function renderSummary(ValidationResult $validationResult, int $exitCode): void
@@ -99,7 +104,7 @@ class ValidationResultGitHubRenderer extends AbstractValidationResultRenderer
             default => 'error',
         };
 
-        $this->output->writeln("::{$summaryType}::{$message}");
+        $this->output->writeln("::{$summaryType}::{$message}", OutputInterface::OUTPUT_RAW);
 
         $statistics = $this->formatStatisticsForOutput($validationResult);
         if (!empty($statistics)) {
@@ -111,33 +116,37 @@ class ValidationResultGitHubRenderer extends AbstractValidationResultRenderer
                 $statistics['validators_run'] ?? 0,
             );
 
-            $this->output->writeln("::notice::{$statsMessage}");
+            $this->output->writeln("::notice::{$statsMessage}", OutputInterface::OUTPUT_RAW);
         }
     }
 
     /**
-     * Escape property values for GitHub Actions annotations
-     * https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message.
+     * Escape property values for GitHub Actions annotations. The characters follow the actions toolkit:
+     * https://github.com/actions/toolkit/blob/main/packages/core/src/command.ts.
      */
     private function escapeProperty(string $value): string
     {
-        return str_replace(
-            ['%', "\r", "\n", ':', ',', ' '],
-            ['%25', '%0D', '%0A', '%3A', '%2C', '%20'],
+        return $this->stripControlCharacters(str_replace(
+            ['%', "\r", "\n", ':', ','],
+            ['%25', '%0D', '%0A', '%3A', '%2C'],
             $value,
-        );
+        ));
     }
 
     /**
-     * Escape data values for GitHub Actions annotations
-     * https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message.
+     * Escape data values for GitHub Actions annotations, see escapeProperty().
      */
     private function escapeData(string $value): string
     {
-        return str_replace(
-            ['%', "\r", "\n", ':'],
-            ['%25', '%0D', '%0A', '%3A'],
+        return $this->stripControlCharacters(str_replace(
+            ['%', "\r", "\n"],
+            ['%25', '%0D', '%0A'],
             $value,
-        );
+        ));
+    }
+
+    private function stripControlCharacters(string $value): string
+    {
+        return preg_replace('/[\x00-\x08\x0B-\x1F\x7F]/', '', $value) ?? $value;
     }
 }

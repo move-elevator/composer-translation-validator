@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\Parser;
 
 use MoveElevator\ComposerTranslationValidator\Parser\YamlParser;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -79,6 +80,36 @@ EOT
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessageMatches('/Failed to parse YAML file/');
         new YamlParser($this->invalidYamlFile);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function emptyYamlContentProvider(): iterable
+    {
+        yield 'empty file' => [''];
+        yield 'comment only' => ["# nothing here\n"];
+    }
+
+    #[DataProvider('emptyYamlContentProvider')]
+    public function testEmptyYamlFileIsTreatedAsNoKeys(string $content): void
+    {
+        $file = $this->tempDir.'/empty.yaml';
+        file_put_contents($file, $content);
+
+        $parser = new YamlParser($file);
+
+        self::assertSame([], $parser->extractKeys());
+    }
+
+    public function testConstructorThrowsExceptionIfYamlIsNotAMapping(): void
+    {
+        $file = $this->tempDir.'/scalar.yaml';
+        file_put_contents($file, "just a string\n");
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessageMatches('/Failed to parse YAML file ".*scalar\.yaml": expected a mapping, got string/');
+        new YamlParser($file);
     }
 
     public function testExtractKeys(): void

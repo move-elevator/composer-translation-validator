@@ -29,10 +29,10 @@ final class FileDetectorRegistryTest extends TestCase
         $detectors = FileDetectorRegistry::getAvailableFileDetectors();
 
         self::assertSame($detectors, FileDetectorRegistry::getAvailableFileDetectors());
-        self::assertContains(PrefixFileDetector::class, $detectors);
-        self::assertContains(SuffixFileDetector::class, $detectors);
-        self::assertContains(DirectoryFileDetector::class, $detectors);
-        self::assertCount(3, $detectors);
+        self::assertSame(
+            [SuffixFileDetector::class, PrefixFileDetector::class, DirectoryFileDetector::class],
+            $detectors,
+        );
 
         foreach ($detectors as $detector) {
             self::assertTrue(class_exists($detector), "Class {$detector} should exist");

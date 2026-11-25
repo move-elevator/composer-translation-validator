@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Result;
 
 use JsonException;
+use Symfony\Component\Console\Formatter\OutputFormatter;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * ValidationResultJsonRenderer.
@@ -39,6 +41,7 @@ class ValidationResultJsonRenderer extends AbstractValidationResultRenderer
 
         $this->output->writeln(
             json_encode($result, \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE),
+            OutputInterface::OUTPUT_RAW,
         );
 
         return $exitCode;
@@ -51,6 +54,7 @@ class ValidationResultJsonRenderer extends AbstractValidationResultRenderer
     {
         $groupedByFile = $this->groupIssuesByFile($validationResult);
         $jsonFormattedIssues = [];
+        $formatter = new OutputFormatter(false);
 
         foreach ($groupedByFile as $filePath => $validatorGroups) {
             $jsonFormattedIssues[$filePath] = [];
@@ -63,7 +67,7 @@ class ValidationResultJsonRenderer extends AbstractValidationResultRenderer
 
                 foreach ($validatorData['issues'] as $issue) {
                     $jsonFormattedIssues[$filePath][$validatorName]['issues'][] = [
-                        'message' => strip_tags((string) $validatorData['validator']->formatIssueMessage($issue)),
+                        'message' => $formatter->format((string) $validatorData['validator']->formatIssueMessage($issue)),
                         'details' => $issue->getDetails(),
                     ];
                 }

@@ -13,11 +13,13 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Parser;
 
+use Generator;
 use InvalidArgumentException;
 use RuntimeException;
 
 use function dirname;
 use function in_array;
+use function is_array;
 use function sprintf;
 
 /**
@@ -31,6 +33,9 @@ abstract class AbstractParser
     protected readonly string $fileName;
 
     protected ?string $rawContent = null;
+
+    /** @var array{keys: array<int, string>, values: array<string, mixed>}|null */
+    private ?array $flattened = null;
 
     public function __construct(protected readonly string $filePath)
     {
@@ -90,4 +95,47 @@ abstract class AbstractParser
      * @return array<int, string>
      */
     abstract public static function getSupportedFileExtensions(): array;
+
+    /**
+     * Flattens nested translation data to dotted keys. A flat key that already
+     * contains dots resolves to its own value, like a nested one. The result is
+     * memoized, so `$data` is only read on the first call.
+     *
+     * @param array<int|string, mixed> $data
+     *
+     * @return array{keys: array<int, string>, values: array<string, mixed>}
+     */
+    protected function flattened(array $data): array
+    {
+        if (null === $this->flattened) {
+            $keys = [];
+            $values = [];
+            foreach (self::flatten($data) as $key => $value) {
+                $keys[] = (string) $key;
+                $values[$key] = $value;
+            }
+
+            $this->flattened = ['keys' => $keys, 'values' => $values];
+        }
+
+        return $this->flattened;
+    }
+
+    /**
+     * @param array<int|string, mixed> $data
+     *
+     * @return Generator<string, mixed>
+     */
+    private static function flatten(array $data, string $prefix = ''): Generator
+    {
+        foreach ($data as $key => $value) {
+            $fullKey = '' === $prefix ? (string) $key : $prefix.'.'.$key;
+
+            if (is_array($value)) {
+                yield from self::flatten($value, $fullKey);
+            } else {
+                yield $fullKey => $value;
+            }
+        }
+    }
 }

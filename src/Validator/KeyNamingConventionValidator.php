@@ -18,6 +18,7 @@ use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
 use MoveElevator\ComposerTranslationValidator\Enum\KeyNamingConvention;
 use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
+use MoveElevator\ComposerTranslationValidator\Utility\OutputUtility;
 
 use function is_string;
 
@@ -123,13 +124,13 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
 
             $detectedStr = implode(', ', $detectedConventions);
 
-            $message = "key naming inconsistency: `{$key}` uses {$detectedStr} convention";
+            $message = 'key naming inconsistency: `'.OutputUtility::sanitizeForConsole($key)."` uses {$detectedStr} convention";
             $message .= ", but this file predominantly uses {$dominantConvention}";
 
             if ('unknown' !== $dominantConvention && 'mixed_conventions' !== $dominantConvention) {
                 $suggestion = $this->suggestKeyConversion($key, $dominantConvention);
                 if ($suggestion !== $key) {
-                    $message .= ". Consider: `{$suggestion}`";
+                    $message .= '. Consider: `'.OutputUtility::sanitizeForConsole($suggestion).'`';
                 }
             } else {
                 $message .= '. Consider standardizing all keys to use the same naming convention';
@@ -143,9 +144,9 @@ class KeyNamingConventionValidator extends AbstractValidator implements Validato
             $convention = $details['expected_convention'] ?? 'custom pattern';
             $suggestion = $details['suggestion'] ?? '';
 
-            $message = "key naming convention violation: `{$key}` does not follow the configured {$convention} convention";
+            $message = 'key naming convention violation: `'.OutputUtility::sanitizeForConsole($key)."` does not follow the configured {$convention} convention";
             if (!empty($suggestion) && $suggestion !== $key) {
-                $message .= ". Suggested: `{$suggestion}`";
+                $message .= '. Suggested: `'.OutputUtility::sanitizeForConsole($suggestion).'`';
             }
         }
 

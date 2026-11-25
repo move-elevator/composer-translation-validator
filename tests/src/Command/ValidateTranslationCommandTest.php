@@ -15,7 +15,8 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Command;
 
 use Composer\Console\Application;
 use MoveElevator\ComposerTranslationValidator\Command\ValidateTranslationCommand;
-use PHPUnit\Framework\Attributes\CoversClass;
+use MoveElevator\ComposerTranslationValidator\Validator\MismatchValidator;
+use PHPUnit\Framework\Attributes\{CoversClass, DataProvider};
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -118,6 +119,85 @@ final class ValidateTranslationCommandTest extends TestCase
             'The "--skip" option contains no valid validators.',
             $commandTester->getDisplay(),
         );
+    }
+
+    public function testWarningsDoNotEndUpInTheJsonOnStdout(): void
+    {
+        $directory = sys_get_temp_dir().'/tv-single-'.uniqid('', true);
+        mkdir($directory);
+
+        try {
+            file_put_contents($directory.'/messages.de.yaml', 'a: x');
+
+            $application = new Application();
+            $this->addCommandToApplication($application, new ValidateTranslationCommand());
+            $commandTester = new CommandTester($application->find('validate-translations'));
+            $commandTester->execute(['path' => [$directory], '--format' => 'json'], ['capture_stderr_separately' => true]);
+        } finally {
+            @unlink($directory.'/messages.de.yaml');
+            rmdir($directory);
+        }
+
+        self::assertJson($commandTester->getDisplay());
+        self::assertStringContainsString('has no counterpart in other languages', $commandTester->getErrorOutput());
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function invalidConfigValidatorProvider(): iterable
+    {
+        yield 'only' => ['only', 'The "only" setting in the configuration file contains no valid validators.'];
+        yield 'skip' => ['skip', 'The "skip" setting in the configuration file contains no valid validators.'];
+    }
+
+    #[DataProvider('invalidConfigValidatorProvider')]
+    public function testExecuteWithInvalidValidatorInConfigFile(string $setting, string $expectedMessage): void
+    {
+        $configFile = $this->createConfigFile([$setting => ['Invalid\\Validator\\Class']]);
+
+        try {
+            $commandTester = $this->executeWithConfig($configFile);
+        } finally {
+            unlink($configFile);
+        }
+
+        self::assertSame(Command::FAILURE, $commandTester->getStatusCode());
+        self::assertStringContainsString($expectedMessage, $commandTester->getDisplay());
+    }
+
+    public function testExecuteIgnoresInvalidConfigSkipWhenOnlyOptionIsGiven(): void
+    {
+        $configFile = $this->createConfigFile(['skip' => ['Invalid\\Validator\\Class']]);
+
+        try {
+            $application = new Application();
+            $this->addCommandToApplication($application, new ValidateTranslationCommand());
+            $commandTester = new CommandTester($application->find('validate-translations'));
+            $commandTester->execute([
+                'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
+                '--config' => $configFile,
+                '--only' => MismatchValidator::class,
+            ]);
+        } finally {
+            unlink($configFile);
+        }
+
+        self::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
+    }
+
+    public function testExecuteIgnoresInvalidValidatorNextToValidOneInConfigFile(): void
+    {
+        $configFile = $this->createConfigFile(['only' => ['Invalid\\Validator\\Class', MismatchValidator::class]]);
+
+        try {
+            $commandTester = $this->executeWithConfig($configFile);
+        } finally {
+            unlink($configFile);
+        }
+
+        self::assertSame(Command::SUCCESS, $commandTester->getStatusCode());
+        self::assertStringContainsString('The class "Invalid\\Validator\\Class" does not exist.', $commandTester->getDisplay());
     }
 
     public function testExecuteWithErrors(): void
@@ -383,6 +463,33 @@ final class ValidateTranslationCommandTest extends TestCase
         $output = $commandTester->getDisplay();
         self::assertStringContainsString('Language validation', $output);
         self::assertSame(0, $commandTester->getStatusCode());
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function createConfigFile(array $config): string
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), 'tv-config-');
+        $configFile = $tempFile.'.json';
+        rename($tempFile, $configFile);
+        file_put_contents($configFile, json_encode(['paths' => ['translations']] + $config, \JSON_THROW_ON_ERROR));
+
+        return $configFile;
+    }
+
+    private function executeWithConfig(string $configFile): CommandTester
+    {
+        $application = new Application();
+        $this->addCommandToApplication($application, new ValidateTranslationCommand());
+
+        $commandTester = new CommandTester($application->find('validate-translations'));
+        $commandTester->execute([
+            'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
+            '--config' => $configFile,
+        ]);
+
+        return $commandTester;
     }
 
     /**

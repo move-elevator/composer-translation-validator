@@ -21,6 +21,8 @@ use MoveElevator\ComposerTranslationValidator\Validator\{ValidatorInterface, Val
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 
+use function is_array;
+
 /**
  * ValidationOrchestrationService.
  *
@@ -36,6 +38,7 @@ class ValidationOrchestrationService
     /**
      * @param array<string>                                $paths
      * @param array<string>                                $excludePatterns
+     * @param DetectorInterface|DetectorInterface[]|null   $fileDetector    one detector or a list tried in order
      * @param array<int, class-string<ValidatorInterface>> $validators
      *
      * @throws ReflectionException
@@ -44,7 +47,7 @@ class ValidationOrchestrationService
         array $paths,
         array $excludePatterns,
         bool $recursive,
-        ?DetectorInterface $fileDetector,
+        DetectorInterface|array|null $fileDetector,
         array $validators,
         TranslationValidatorConfig $config,
     ): ?ValidationResult {
@@ -68,19 +71,27 @@ class ValidationOrchestrationService
         return (new ValidationRun($this->logger))->executeFor($fileSets, $validators, $config);
     }
 
-    public function resolveFileDetector(TranslationValidatorConfig $config): ?DetectorInterface
+    /**
+     * @return DetectorInterface[] in the configured order, invalid classes are skipped
+     */
+    public function resolveFileDetectors(TranslationValidatorConfig $config): array
     {
-        $configFileDetectors = $config->getFileDetectors();
-        $fileDetectorClass = !empty($configFileDetectors) ? $configFileDetectors[0] : null;
+        $detectors = [];
 
-        $detector = ClassUtility::instantiate(
-            DetectorInterface::class,
-            $this->logger,
-            'file detector',
-            $fileDetectorClass,
-        );
+        foreach ($config->getFileDetectors() as $fileDetectorClass) {
+            $detector = ClassUtility::instantiate(
+                DetectorInterface::class,
+                $this->logger,
+                'file detector',
+                $fileDetectorClass,
+            );
 
-        return $detector instanceof DetectorInterface ? $detector : null;
+            if ($detector instanceof DetectorInterface) {
+                $detectors[] = $detector;
+            }
+        }
+
+        return $detectors;
     }
 
     /**
@@ -131,20 +142,23 @@ class ValidationOrchestrationService
     /**
      * @template T of object
      *
-     * @param class-string<T> $interface
+     * @param class-string<T>      $interface
+     * @param string|string[]|null $className comma-separated string (CLI) or list of class names from the config file
      *
      * @return array<int, class-string<T>>
      */
     public function validateClassInput(
         string $interface,
         string $type,
-        ?string $className = null,
+        string|array|null $className = null,
     ): array {
         if (null === $className) {
             return [];
         }
 
-        $classNames = str_contains($className, ',') ? explode(',', $className) : [$className];
+        $classNames = is_array($className)
+            ? $className
+            : (str_contains($className, ',') ? explode(',', $className) : [$className]);
         /** @var array<int, class-string<T>> $classes */
         $classes = [];
 

@@ -68,6 +68,31 @@ final class ValidationRunTest extends TestCase
         self::assertFalse($result->hasIssues());
     }
 
+    public function testExecuteForWarnsOncePerSingleFileSet(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())
+            ->method('warning')
+            ->with('/test/messages.de.yaml has no counterpart in other languages, cross-file checks were skipped.');
+
+        $fileSet = new FileSet('TestParser', '/test', 'set', ['/test/messages.de.yaml']);
+
+        (new ValidationRun($logger))->executeFor(
+            [$fileSet],
+            [MockValidatorWithoutIssues::class, MockValidatorWithIssues::class],
+        );
+    }
+
+    public function testExecuteForDoesNotWarnForFileSetsWithSeveralFiles(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::never())->method('warning');
+
+        $fileSet = new FileSet('TestParser', '/test', 'set', ['/test/messages.de.yaml', '/test/messages.en.yaml']);
+
+        (new ValidationRun($logger))->executeFor([$fileSet], [MockValidatorWithoutIssues::class]);
+    }
+
     public function testExecuteForWithValidatorWithoutIssues(): void
     {
         $validatorClass = MockValidatorWithoutIssues::class;
