@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - fix[!!!]: pair `messages.<locale>.*` style files and language directories (`en/`, `de/`) in auto-detection, so they are compared and report missing keys instead of ending in one-file sets
 - fix[!!!]: reject `format: yaml` and `format: php` when the configuration is validated, only `cli`, `json` and `github` exist
+- feat: add a GitHub Action and a GitLab CI template for running the PHAR in pipelines
 - feat: warn about file sets that contain only one file, cross-file validators cannot check them
 - fix: apply all configured `file-detectors` in the listed order, each detector only sees the files the previous ones did not pair
 - fix: group files per directory for configured file detectors with `--recursive`
@@ -24,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix: send logger warnings to the error output so they cannot corrupt JSON or GitHub output
 - fix: sanitize file names and parser messages in CLI, JSON and log output (control characters, console markup, line breaks)
 - fix: remove control characters from parser exception messages
+- fix: pass action inputs through environment variables to avoid shell injection and disable glob expansion for validator arguments
+- fix: set up PHP 8.4 before running the action in CI and docs
 - chore(ci): restrict token permissions and pin actions by SHA
 - chore(ci): attach PHAR to the release via gh CLI to stop a duplicate, asset-less release from being created
 - chore(deps): allow PHP 8.6
