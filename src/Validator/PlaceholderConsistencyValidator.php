@@ -17,7 +17,6 @@ use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterfac
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
 use MoveElevator\ComposerTranslationValidator\Utility\OutputUtility;
 use MoveElevator\ComposerTranslationValidator\Validator\Trait\DistributesIssuesForDisplayTrait;
-use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Helper\{Table, TableStyle};
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -104,10 +103,10 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
         $level = $resultType->toString();
         $color = $resultType->toColorString();
 
-        $key = $details['key'] ?? 'unknown';
+        $key = OutputUtility::sanitizeForConsole((string) ($details['key'] ?? 'unknown'));
         $inconsistencies = $details['inconsistencies'] ?? [];
 
-        $inconsistencyText = implode('; ', $inconsistencies);
+        $inconsistencyText = implode('; ', array_map(OutputUtility::sanitizeForConsole(...), $inconsistencies));
 
         return "- <fg={$color}>{$level}</> {$prefix}placeholder inconsistency in translation key `{$key}` - {$inconsistencyText}";
     }
@@ -145,11 +144,11 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
 
         $header = ['Translation Key'];
         foreach ($fileOrder as $fileName) {
-            $header[] = $fileName;
+            $header[] = OutputUtility::sanitizeForConsole($fileName);
         }
 
         foreach (array_keys($allKeys) as $key) {
-            $row = [$key];
+            $row = [OutputUtility::sanitizeForConsole((string) $key)];
             foreach ($fileOrder as $fileName) {
                 $value = $allFilesData[$key][$fileName] ?? '';
                 $row[] = $this->highlightPlaceholders($value);
@@ -311,7 +310,7 @@ class PlaceholderConsistencyValidator extends AbstractValidator implements Valid
         // untrusted content cannot inject terminal escapes or formatter tags.
         // Placeholder tokens contain no markup characters, so escaping the value
         // leaves them intact for the highlighting below.
-        $value = OutputFormatter::escape(OutputUtility::stripControlCharacters($value));
+        $value = OutputUtility::sanitizeForConsole($value);
 
         foreach ($placeholders as $placeholder) {
             $value = str_replace($placeholder, "<fg=yellow>{$placeholder}</>", $value);

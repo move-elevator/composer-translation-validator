@@ -15,7 +15,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Result;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Result\{Issue, ValidationResult, ValidationResultJsonRenderer, ValidationStatistics};
-use MoveElevator\ComposerTranslationValidator\Validator\{ResultType, ValidatorInterface};
+use MoveElevator\ComposerTranslationValidator\Validator\{DuplicateKeysValidator, ResultType, ValidatorInterface};
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -415,6 +415,26 @@ final class ValidationResultJsonRendererTest extends TestCase
         $this->assertNotNull($output);
         $this->assertArrayHasKey('issues', $output);
         $this->assertEmpty($output['issues']);
+    }
+
+    public function testRenderKeepsAngleBracketsAndMarkupLikeTextInMessages(): void
+    {
+        $validator = new DuplicateKeysValidator();
+        $validator->addIssue(new Issue('test.xlf', ['<bg=red>key</>' => 2], 'TestParser', 'DuplicateKeysValidator'));
+        $fileSet = new FileSet('TestParser', '/test/path', 'setKey', ['test.xlf']);
+
+        $this->renderer->render(new ValidationResult(
+            [$validator],
+            ResultType::ERROR,
+            [['validator' => $validator, 'fileSet' => $fileSet]],
+        ));
+
+        $decoded = json_decode($this->output->fetch(), true, 512, \JSON_THROW_ON_ERROR);
+        $fileIssues = reset($decoded['issues']);
+        $message = reset($fileIssues)['issues'][0]['message'];
+
+        $this->assertStringContainsString('`<bg=red>key</>`', $message);
+        $this->assertStringNotContainsString('\\', $message);
     }
 
     /**

@@ -15,6 +15,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Utility;
 
 use MoveElevator\ComposerTranslationValidator\Utility\OutputUtility;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -82,27 +83,36 @@ final class OutputUtilityTest extends TestCase
         OutputUtility::debug($output, 'Test message', false, false);
     }
 
-    public function testStripControlCharactersRemovesAnsiEscapes(): void
+    public function testSanitizeForConsoleMakesLineBreaksVisible(): void
     {
-        $input = "before\x1b[31mred\x1b[0mafter";
-
-        $this->assertSame('before[31mred[0mafter', OutputUtility::stripControlCharacters($input));
+        $this->assertSame('a\\nb\\rc', OutputUtility::sanitizeForConsole("a\nb\rc"));
     }
 
-    public function testStripControlCharactersRemovesNullAndDelete(): void
+    public function testSanitizeForConsoleRemovesEscapeSequencesAndC1Controls(): void
     {
-        $this->assertSame('clean', OutputUtility::stripControlCharacters("cl\x00ea\x7fn"));
+        $this->assertSame('x[2Jy', OutputUtility::sanitizeForConsole("x\x1b[2Jy\u{009B}"));
     }
 
-    public function testStripControlCharactersKeepsTabAndNewline(): void
+    public function testSanitizeForConsoleEscapesFormatterTags(): void
     {
-        $input = "line1\nline2\tend";
+        $sanitized = OutputUtility::sanitizeForConsole('<bg=red>RED</>');
 
-        $this->assertSame($input, OutputUtility::stripControlCharacters($input));
+        $this->assertSame('<bg=red>RED</>', (new OutputFormatter(false))->format($sanitized));
+        $this->assertSame('<bg=red>RED</>', (new OutputFormatter(true))->format($sanitized));
     }
 
-    public function testStripControlCharactersRemovesCarriageReturn(): void
+    public function testSanitizeForConsoleKeepsTrailingBackslash(): void
     {
-        $this->assertSame('safeDANGER', OutputUtility::stripControlCharacters("safe\rDANGER"));
+        $this->assertSame('key\\', (new OutputFormatter(false))->format(OutputUtility::sanitizeForConsole('key\\')));
+    }
+
+    public function testSanitizeForConsoleKeepsTabs(): void
+    {
+        $this->assertSame("a\tb", OutputUtility::sanitizeForConsole("a\tb"));
+    }
+
+    public function testSanitizeForConsoleKeepsPlainUnicode(): void
+    {
+        $this->assertSame('Schlüssel 日本', OutputUtility::sanitizeForConsole('Schlüssel 日本'));
     }
 }

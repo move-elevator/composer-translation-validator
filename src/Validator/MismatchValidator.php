@@ -15,6 +15,7 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
+use MoveElevator\ComposerTranslationValidator\Utility\OutputUtility;
 use MoveElevator\ComposerTranslationValidator\Validator\Trait\DistributesIssuesForDisplayTrait;
 use Symfony\Component\Console\Helper\{Table, TableStyle};
 use Symfony\Component\Console\Output\OutputInterface;
@@ -102,7 +103,7 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
         $level = $resultType->toString();
         $color = $resultType->toColorString();
 
-        $key = $details['key'] ?? 'unknown';
+        $key = OutputUtility::sanitizeForConsole((string) ($details['key'] ?? 'unknown'));
         $files = $details['files'] ?? [];
         $currentFile = basename($issue->getFile());
         $otherFiles = [];
@@ -123,7 +124,9 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
             $action = 'missing but present in';
         }
 
-        $otherFilesList = !empty($otherFiles) ? implode('`, `', $otherFiles) : 'other files';
+        $otherFilesList = !empty($otherFiles)
+            ? implode('`, `', array_map(OutputUtility::sanitizeForConsole(...), $otherFiles))
+            : 'other files';
 
         return "- <fg=$color>$level</> {$prefix} the translation key `$key` is $action other translation files (`$otherFilesList`)";
     }
@@ -168,18 +171,18 @@ class MismatchValidator extends AbstractValidator implements ValidatorInterface
             }
         }
 
-        $header = ['Translation Key', $currentFile];
+        $header = ['Translation Key', OutputUtility::sanitizeForConsole($currentFile)];
         foreach ($fileOrder as $fileName) {
             if ($fileName !== $currentFile) {
-                $header[] = $fileName;
+                $header[] = OutputUtility::sanitizeForConsole($fileName);
             }
         }
 
         foreach (array_keys($allKeys) as $key) {
-            $row = [$key];
+            $row = [OutputUtility::sanitizeForConsole((string) $key)];
             foreach ($fileOrder as $fileName) {
                 $value = $allFilesData[$key][$fileName] ?? null;
-                $row[] = $value ?? '';
+                $row[] = OutputUtility::sanitizeForConsole((string) ($value ?? ''));
             }
             $rows[] = $row;
         }
