@@ -116,11 +116,11 @@ resources/lang/
 
 ## Automatic Detection
 
-The validator automatically selects the most appropriate file detector based on discovered file patterns. Detection priority:
+The validator automatically selects the most appropriate file detector based on discovered file patterns. The detectors are tried per directory in this order, the first one that finds a file set is used:
 
-1. **DirectoryFileDetector** - If language directories are found
-2. **SuffixFileDetector** - If files with language suffixes are found
-3. **PrefixFileDetector** - If files with language prefixes are found
+1. **SuffixFileDetector** - If files with language suffixes are found
+2. **PrefixFileDetector** - If files with language prefixes are found
+3. **DirectoryFileDetector** - If language directories are found
 
 ## Manual Configuration
 
