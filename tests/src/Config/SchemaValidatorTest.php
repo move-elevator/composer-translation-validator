@@ -92,6 +92,14 @@ final class SchemaValidatorTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
+    public function testValidateRejectsFormatThatIsNoOutputFormat(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Configuration validation failed:');
+
+        $this->schemaValidator->validate(['paths' => ['translations'], 'format' => 'yaml']);
+    }
+
     public function testValidateWithInvalidDataThrowsException(): void
     {
         $invalidData = [

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Config;
 
+use MoveElevator\ComposerTranslationValidator\Result\FormatType;
 use RuntimeException;
 
 use function in_array;
@@ -83,7 +84,7 @@ class ConfigValidator
 
     private function validateFormat(string $format): void
     {
-        $allowedFormats = ['cli', 'json', 'yaml', 'php'];
+        $allowedFormats = array_column(FormatType::cases(), 'value');
         if (!in_array($format, $allowedFormats, true)) {
             throw new RuntimeException("Invalid format '{$format}'. Allowed formats: ".implode(', ', $allowedFormats));
         }
