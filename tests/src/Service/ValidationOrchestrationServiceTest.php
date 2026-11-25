@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\Service;
 
 use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
-use MoveElevator\ComposerTranslationValidator\FileDetector\PrefixFileDetector;
+use MoveElevator\ComposerTranslationValidator\FileDetector\{DirectoryFileDetector, PrefixFileDetector, SuffixFileDetector};
 use MoveElevator\ComposerTranslationValidator\Result\ValidationResult;
 use MoveElevator\ComposerTranslationValidator\Service\ValidationOrchestrationService;
 use MoveElevator\ComposerTranslationValidator\Validator\{MismatchValidator, ValidatorInterface, ValidatorRegistry};
@@ -122,33 +122,29 @@ final class ValidationOrchestrationServiceTest extends TestCase
         $this->assertInstanceOf(ValidationResult::class, $result);
     }
 
-    public function testResolveFileDetectorWithConfiguredDetector(): void
+    public function testResolveFileDetectorsKeepsConfiguredOrderAndSkipsInvalidClasses(): void
     {
         $config = new TranslationValidatorConfig();
-        $config->setFileDetectors([PrefixFileDetector::class]);
+        $config->setFileDetectors(['NonExistentClass', DirectoryFileDetector::class, SuffixFileDetector::class]);
 
-        $detector = $this->service->resolveFileDetector($config);
+        $detectors = $this->service->resolveFileDetectors($config);
 
-        $this->assertInstanceOf(PrefixFileDetector::class, $detector);
+        $this->assertCount(2, $detectors);
+        $this->assertInstanceOf(DirectoryFileDetector::class, $detectors[0]);
+        $this->assertInstanceOf(SuffixFileDetector::class, $detectors[1]);
     }
 
-    public function testResolveFileDetectorWithEmptyConfig(): void
+    public function testResolveFileDetectorsWithEmptyConfig(): void
     {
-        $config = new TranslationValidatorConfig();
-
-        $detector = $this->service->resolveFileDetector($config);
-
-        $this->assertNotInstanceOf(\MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface::class, $detector);
+        $this->assertSame([], $this->service->resolveFileDetectors(new TranslationValidatorConfig()));
     }
 
-    public function testResolveFileDetectorWithInvalidClass(): void
+    public function testResolveFileDetectorsWithInvalidClass(): void
     {
         $config = new TranslationValidatorConfig();
         $config->setFileDetectors(['NonExistentClass']);
 
-        $detector = $this->service->resolveFileDetector($config);
-
-        $this->assertNotInstanceOf(\MoveElevator\ComposerTranslationValidator\FileDetector\DetectorInterface::class, $detector);
+        $this->assertSame([], $this->service->resolveFileDetectors($config));
     }
 
     public function testResolveValidatorsWithOnlyParameter(): void

@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Tests\FileDetector;
 
-use MoveElevator\ComposerTranslationValidator\FileDetector\{Collector, DetectorInterface, DirectoryFileDetector, SuffixFileDetector};
+use MoveElevator\ComposerTranslationValidator\FileDetector\{Collector, DetectorInterface, DirectoryFileDetector, PrefixFileDetector, SuffixFileDetector};
 use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, XliffParser, YamlParser};
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -188,6 +188,76 @@ final class CollectorTest extends TestCase
         $result = $collector->collectFiles([$this->tempDir], new SuffixFileDetector(), null, true);
 
         $this->assertSame([(string) realpath($this->tempDir).'/a'], array_keys($result[YamlParser::class]));
+    }
+
+    public function testCollectFilesTriesConfiguredDetectorsInOrder(): void
+    {
+        file_put_contents($this->tempDir.'/messages.en.yaml', 'k: x');
+        file_put_contents($this->tempDir.'/messages.de.yaml', 'k: x');
+
+        $collector = new Collector($this->createStub(LoggerInterface::class));
+        $result = $collector->collectFiles(
+            [$this->tempDir],
+            [new DirectoryFileDetector(), new SuffixFileDetector()],
+            null,
+        );
+
+        $this->assertCount(2, $result[YamlParser::class][$this->tempDir]['messages']);
+    }
+
+    public function testCollectFilesUsesFirstConfiguredDetectorThatFindsFiles(): void
+    {
+        file_put_contents($this->tempDir.'/messages.en.yaml', 'k: x');
+        file_put_contents($this->tempDir.'/messages.de.yaml', 'k: x');
+
+        $second = $this->createMock(DetectorInterface::class);
+        $second->expects($this->never())->method('mapTranslationSet');
+
+        $collector = new Collector($this->createStub(LoggerInterface::class));
+        $result = $collector->collectFiles([$this->tempDir], [new SuffixFileDetector(), $second], null);
+
+        $this->assertCount(2, $result[YamlParser::class][$this->tempDir]['messages']);
+    }
+
+    public function testCollectFilesDoesNotDuplicateFilesForRepeatedPaths(): void
+    {
+        file_put_contents($this->tempDir.'/messages.en.yaml', 'k: x');
+        file_put_contents($this->tempDir.'/messages.de.yaml', 'k: x');
+
+        $collector = new Collector($this->createStub(LoggerInterface::class));
+        $result = $collector->collectFiles(
+            [$this->tempDir, $this->tempDir],
+            [new SuffixFileDetector(), new PrefixFileDetector()],
+            null,
+        );
+
+        $this->assertCount(2, $result[YamlParser::class][$this->tempDir]['messages']);
+    }
+
+    public function testCollectFilesFallsBackToLaterDetectorForDirectoriesTheFirstOneDoesNotMatch(): void
+    {
+        mkdir($this->tempDir.'/a');
+        mkdir($this->tempDir.'/b');
+        file_put_contents($this->tempDir.'/a/messages.en.yaml', 'k: x');
+        file_put_contents($this->tempDir.'/a/messages.de.yaml', 'k: x');
+        file_put_contents($this->tempDir.'/b/en.messages.yaml', 'k: x');
+        file_put_contents($this->tempDir.'/b/de.messages.yaml', 'k: x');
+
+        $collector = new Collector($this->createStub(LoggerInterface::class));
+        $result = $collector->collectFiles(
+            [$this->tempDir],
+            [new SuffixFileDetector(), new PrefixFileDetector()],
+            null,
+            true,
+        );
+
+        $root = (string) realpath($this->tempDir);
+        $sets = $result[YamlParser::class];
+        ksort($sets);
+
+        $this->assertSame([$root.'/a', $root.'/b'], array_keys($sets));
+        $this->assertCount(2, $sets[$root.'/a']['messages']);
+        $this->assertCount(2, $sets[$root.'/b']['messages.yaml']);
     }
 
     public function testCollectFilesWithDirectoryDetectorStillSpansLanguageDirectories(): void

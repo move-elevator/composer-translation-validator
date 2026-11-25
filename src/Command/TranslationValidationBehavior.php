@@ -185,7 +185,7 @@ HELP
 
         $excludePatterns = $config->getExclude();
 
-        $fileDetector = $this->orchestrationService->resolveFileDetector($config);
+        $fileDetectors = $this->orchestrationService->resolveFileDetectors($config);
 
         if (empty($paths)) {
             $this->io?->error('No paths provided.');
@@ -253,7 +253,7 @@ HELP
             $paths,
             $excludePatterns,
             $recursive,
-            $fileDetector,
+            $fileDetectors,
             $validators,
             $config,
         );

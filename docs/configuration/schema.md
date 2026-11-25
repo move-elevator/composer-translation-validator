@@ -30,7 +30,7 @@ validators:
 
 - **Type**: `array<string>`
 - **Default**: `[]` (uses automatic detection)
-- **Description**: Array of file detector class names to use for file grouping
+- **Description**: Array of file detector class names to use for file grouping. The detectors are applied in the listed order, a later detector only sees the files the earlier ones did not pair
 
 ```yaml
 file-detectors:
