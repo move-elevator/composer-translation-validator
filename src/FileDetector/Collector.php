@@ -23,10 +23,13 @@ use ReflectionException;
 use SplFileInfo;
 use Symfony\Component\Filesystem\Filesystem;
 
+use function count;
 use function dirname;
 use function filesize;
 use function in_array;
+use function is_array;
 use function sprintf;
+use function strlen;
 
 /**
  * Collector.
@@ -46,8 +49,9 @@ class Collector
     public function __construct(protected ?LoggerInterface $logger = null) {}
 
     /**
-     * @param string[]      $paths
-     * @param string[]|null $excludePatterns
+     * @param string[]                                   $paths
+     * @param DetectorInterface|DetectorInterface[]|null $detector        one detector or a list applied in order, later ones only see files the earlier ones did not pair
+     * @param string[]|null                              $excludePatterns
      *
      * @return array<class-string, array<string, array<mixed>>>
      *
@@ -55,10 +59,16 @@ class Collector
      */
     public function collectFiles(
         array $paths,
-        ?DetectorInterface $detector = null,
+        DetectorInterface|array|null $detector = null,
         ?array $excludePatterns = null,
         bool $recursive = false,
     ): array {
+        $detectors = match (true) {
+            null === $detector => [],
+            is_array($detector) => $detector,
+            default => [$detector],
+        };
+
         $allFiles = [];
         foreach ($paths as $path) {
             if (!(new Filesystem())->exists($path)) {
@@ -68,7 +78,8 @@ class Collector
 
             // Scan the directory once and bucket files by their parser, instead
             // of scanning it separately for every parser class.
-            $filesByParser = $this->scanFilesByParser($path, $recursive);
+            $excludeRoot = $recursive ? $this->normalizePath($path) : rtrim($path, '/');
+            $filesByParser = $this->scanFilesByParser($path, $recursive, $excludePatterns ?? [], $excludeRoot);
 
             foreach (ParserRegistry::getAvailableParsers() as $parserClass) {
                 $files = $filesByParser[$parserClass] ?? [];
@@ -80,7 +91,7 @@ class Collector
                 if ($excludePatterns) {
                     $files = array_filter(
                         $files,
-                        fn ($file) => !$this->matchesAnyPattern(basename((string) $file), $excludePatterns),
+                        fn ($file) => !$this->isExcluded((string) $file, $excludeRoot, $excludePatterns),
                     );
                 }
 
@@ -89,9 +100,34 @@ class Collector
                     continue;
                 }
 
-                if (null !== $detector) {
-                    $allFiles[$parserClass][$path] = $detector->mapTranslationSet($files);
+                if ([] !== $detectors) {
+                    // Each detector only sees the files the previous ones did not claim
+                    $unclaimed = $files;
+                    $pathSets = [];
+                    foreach ($detectors as $configuredDetector) {
+                        foreach ($this->mapWithDetector($configuredDetector, $path, $unclaimed) as $directory => $translationSet) {
+                            $pathSets[$directory] = array_merge_recursive($pathSets[$directory] ?? [], $translationSet);
+                            foreach ($translationSet as $setFiles) {
+                                $unclaimed = array_diff($unclaimed, (array) $setFiles);
+                            }
+                        }
+                    }
+
+                    foreach ($pathSets as $directory => $translationSet) {
+                        $allFiles[$parserClass][$directory] = $translationSet;
+                    }
                 } else {
+                    // Language directories (en/, de/) hold one file each, so they have to be
+                    // paired before the files are split by directory
+                    $claimed = [];
+                    foreach ($this->mapDirectoryLayouts($files) as $parent => $translationSet) {
+                        $allFiles[$parserClass][$path.'/'.$parent] = $translationSet;
+                        foreach ($translationSet as $setFiles) {
+                            array_push($claimed, ...$setFiles);
+                        }
+                    }
+                    $files = array_diff($files, $claimed);
+
                     // Group files by directory to prevent cross-directory FileSets
                     $filesByDirectory = $this->groupFilesByDirectory($files);
 
@@ -124,12 +160,14 @@ class Collector
     /**
      * Scans a path once and groups the found files by their parser class.
      *
+     * @param string[] $excludePatterns
+     *
      * @return array<class-string, string[]>
      */
-    private function scanFilesByParser(string $path, bool $recursive): array
+    private function scanFilesByParser(string $path, bool $recursive, array $excludePatterns, string $excludeRoot): array
     {
         $extensionMap = self::extensionToParserMap();
-        $files = $this->findFiles($path, array_keys($extensionMap), $recursive);
+        $files = $this->findFiles($path, array_keys($extensionMap), $recursive, $excludePatterns, $excludeRoot);
 
         $filesByParser = [];
         foreach ($files as $file) {
@@ -164,10 +202,11 @@ class Collector
      * Find files in a directory, optionally recursively.
      *
      * @param string[] $supportedExtensions
+     * @param string[] $excludePatterns     excluded directories are not traversed
      *
      * @return string[]
      */
-    private function findFiles(string $path, array $supportedExtensions, bool $recursive): array
+    private function findFiles(string $path, array $supportedExtensions, bool $recursive, array $excludePatterns, string $excludeRoot): array
     {
         if (!$recursive) {
             $globFiles = glob($path.'/*');
@@ -204,7 +243,8 @@ class Collector
             $directoryIterator = new RecursiveDirectoryIterator($normalizedPath, RecursiveDirectoryIterator::SKIP_DOTS);
             $filteredIterator = new RecursiveCallbackFilterIterator(
                 $directoryIterator,
-                static fn (SplFileInfo $current): bool => !$current->isLink(),
+                fn (SplFileInfo $current): bool => !$current->isLink()
+                    && !($current->isDir() && $this->isExcluded($current->getPathname(), $excludeRoot, $excludePatterns, true)),
             );
             $iterator = new RecursiveIteratorIterator(
                 $filteredIterator,
@@ -233,16 +273,28 @@ class Collector
     }
 
     /**
-     * Returns true as soon as the basename matches any exclude pattern,
-     * short-circuiting instead of evaluating every pattern.
+     * Returns true as soon as the name or the path relative to the scanned
+     * directory matches any exclude pattern, for files and directories alike.
+     * Candidates also exist with a leading slash, so `**\/backup/**` matches a
+     * top-level `backup/`, and directories are also tried with a trailing slash.
+     * Directories above the scanned path never take part in the matching.
      *
      * @param string[] $patterns
      */
-    private function matchesAnyPattern(string $basename, array $patterns): bool
+    private function isExcluded(string $path, string $root, array $patterns, bool $isDirectory = false): bool
     {
+        $relative = str_starts_with($path, $root.'/') ? substr($path, strlen($root) + 1) : $path;
+        $names = [basename($path), $relative];
+        if ($isDirectory) {
+            $names[] = $relative.'/';
+        }
+        $candidates = array_merge($names, array_map(static fn (string $name): string => '/'.$name, $names));
+
         foreach ($patterns as $pattern) {
-            if (fnmatch($pattern, $basename)) {
-                return true;
+            foreach ($candidates as $candidate) {
+                if (fnmatch($pattern, $candidate)) {
+                    return true;
+                }
             }
         }
 
@@ -317,6 +369,59 @@ class Collector
         }
 
         return substr_count($normalized, '/') <= 20;
+    }
+
+    /**
+     * Pairs files of language directories per parent directory of those directories.
+     *
+     * @param array<string> $files
+     *
+     * @return array<string, array<string, array<string>>> translation sets keyed by parent directory
+     */
+    private function mapDirectoryLayouts(array $files): array
+    {
+        $filesByParent = [];
+        foreach ($files as $file) {
+            $filesByParent[dirname($file, 2)][] = $file;
+        }
+
+        $detector = new DirectoryFileDetector();
+        $layouts = [];
+        foreach ($filesByParent as $parent => $parentFiles) {
+            // A set with a single file is no layout, `ui/en.json` and `ui/de.json` are prefix-named files
+            $translationSet = array_filter(
+                $detector->mapTranslationSet($parentFiles),
+                static fn (array $setFiles): bool => count($setFiles) > 1,
+            );
+            if ([] !== $translationSet) {
+                $layouts[$parent] = $translationSet;
+            }
+        }
+
+        return $layouts;
+    }
+
+    /**
+     * @param array<string> $files
+     *
+     * @return array<string, array<mixed>> non-empty translation sets keyed by directory
+     */
+    private function mapWithDetector(DetectorInterface $detector, string $path, array $files): array
+    {
+        // DirectoryFileDetector pairs files across sibling language directories
+        $filesByDirectory = $detector instanceof DirectoryFileDetector
+            ? [$path => $files]
+            : $this->groupFilesByDirectory($files);
+
+        $translationSets = [];
+        foreach ($filesByDirectory as $directory => $directoryFiles) {
+            $translationSet = $detector->mapTranslationSet($directoryFiles);
+            if (!empty($translationSet)) {
+                $translationSets[$directory] = $translationSet;
+            }
+        }
+
+        return $translationSets;
     }
 
     /**

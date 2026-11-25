@@ -30,7 +30,7 @@ validators:
 
 - **Type**: `array<string>`
 - **Default**: `[]` (uses automatic detection)
-- **Description**: Array of file detector class names to use for file grouping
+- **Description**: Array of file detector class names to use for file grouping. The detectors are applied in the listed order, a later detector only sees the files the earlier ones did not pair
 
 ```yaml
 file-detectors:
@@ -68,7 +68,7 @@ skip:
 
 - **Type**: `array<string>`
 - **Default**: `[]`
-- **Description**: Array of glob patterns for files/directories to exclude from validation
+- **Description**: Array of glob patterns for files/directories to exclude from validation. A pattern is matched against the file name and the path relative to the scanned directory (directories above it are ignored), it applies to directories as well and excluded directories are not traversed
 
 ```yaml
 exclude:

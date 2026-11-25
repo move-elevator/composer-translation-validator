@@ -15,6 +15,7 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 
 use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, ParserInterface, PhpParser, XliffParser, YamlParser};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
+use MoveElevator\ComposerTranslationValidator\Utility\OutputUtility;
 
 use function is_int;
 use function is_string;
@@ -65,7 +66,7 @@ class DuplicateKeysValidator extends AbstractValidator implements ValidatorInter
         foreach ($details as $key => $count) {
             if (is_string($key) && is_int($count)) {
                 $messages[] = "- <fg=$color>$level</> {$prefix}the translation key "
-                    ."`$key` occurs multiple times ({$count}x)";
+                    .'`'.OutputUtility::sanitizeForConsole($key)."` occurs multiple times ({$count}x)";
             }
         }
 

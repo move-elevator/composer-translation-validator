@@ -18,7 +18,7 @@ use MoveElevator\ComposerTranslationValidator\Config\CommandConfigResolver;
 use MoveElevator\ComposerTranslationValidator\Result\{FormatType, Output};
 use MoveElevator\ComposerTranslationValidator\Service\ValidationOrchestrationService;
 use MoveElevator\ComposerTranslationValidator\Validator\ValidatorInterface;
-use Psr\Log\LoggerInterface;
+use Psr\Log\{LogLevel, LoggerInterface};
 use ReflectionException;
 use RuntimeException;
 use Symfony\Component\Console\Command\Command;
@@ -163,7 +163,8 @@ HELP
         $this->input = $input;
         $this->output = $output;
         $this->io = new SymfonyStyle($input, $output);
-        $this->logger = new ConsoleLogger($output);
+        // Warnings go to the error output, so they cannot corrupt the JSON or GitHub output on stdout
+        $this->logger = new ConsoleLogger($output, [], [LogLevel::WARNING => ConsoleLogger::ERROR]);
         $this->orchestrationService = new ValidationOrchestrationService($this->logger);
         $this->configResolver = new CommandConfigResolver();
     }
@@ -184,7 +185,7 @@ HELP
 
         $excludePatterns = $config->getExclude();
 
-        $fileDetector = $this->orchestrationService->resolveFileDetector($config);
+        $fileDetectors = $this->orchestrationService->resolveFileDetectors($config);
 
         if (empty($paths)) {
             $this->io?->error('No paths provided.');
@@ -218,13 +219,41 @@ HELP
             return Command::FAILURE;
         }
 
+        if (empty($onlyOption) && !empty($config->getOnly())) {
+            $onlyValidators = $this->orchestrationService->validateClassInput(
+                ValidatorInterface::class,
+                'validator',
+                $config->getOnly(),
+            );
+
+            if (empty($onlyValidators)) {
+                $this->io?->error('The "only" setting in the configuration file contains no valid validators.');
+
+                return Command::FAILURE;
+            }
+        }
+
+        if (empty($skipOption) && empty($onlyValidators) && !empty($config->getSkip())) {
+            $skipValidators = $this->orchestrationService->validateClassInput(
+                ValidatorInterface::class,
+                'validator',
+                $config->getSkip(),
+            );
+
+            if (empty($skipValidators)) {
+                $this->io?->error('The "skip" setting in the configuration file contains no valid validators.');
+
+                return Command::FAILURE;
+            }
+        }
+
         $validators = $this->orchestrationService->resolveValidators($onlyValidators, $skipValidators, $config);
 
         $validationResult = $this->orchestrationService->executeValidation(
             $paths,
             $excludePatterns,
             $recursive,
-            $fileDetector,
+            $fileDetectors,
             $validators,
             $config,
         );

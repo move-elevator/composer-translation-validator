@@ -328,6 +328,26 @@ final class MismatchValidatorTest extends TestCase
         $this->assertStringContainsString('test_key', $result);
     }
 
+    public function testFormatIssueMessageNamesNoFilesWhenAllFilesShareTheName(): void
+    {
+        $validator = new MismatchValidator();
+
+        $issue = new Issue(
+            '/test/lang/de/messages.php',
+            [
+                'key' => 'test_key',
+                'files' => [
+                    ['file' => '/test/lang/en/messages.php', 'value' => 'value'],
+                    ['file' => '/test/lang/de/messages.php', 'value' => null],
+                ],
+            ],
+            'TestParser',
+            'MismatchValidator',
+        );
+
+        $this->assertStringContainsString('(`other files`)', $validator->formatIssueMessage($issue));
+    }
+
     public function testRenderDetailedOutputWithEmptyIssues(): void
     {
         $logger = $this->createStub(LoggerInterface::class);
