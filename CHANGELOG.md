@@ -7,7 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- fix[!!!]: pair `messages.<locale>.*` style files and language directories (`en/`, `de/`) in auto-detection, so they are compared and report missing keys instead of ending in one-file sets
+- fix[!!!]: reject `format: yaml` and `format: php` when the configuration is validated, only `cli`, `json` and `github` exist
+- feat: warn about file sets that contain only one file, cross-file validators cannot check them
+- fix: apply all configured `file-detectors` in the listed order, each detector only sees the files the previous ones did not pair
+- fix: group files per directory for configured file detectors with `--recursive`
+- fix: match `--exclude` patterns against names and paths relative to the scanned directory and do not traverse excluded directories
+- fix: resolve flat translation keys that contain dots in YAML, JSON and PHP files instead of reporting them as empty
+- fix: treat empty YAML files as having no keys instead of aborting with a TypeError
+- fix: accept `format: github` in config files
+- fix: make `paths` optional in the config schema when the paths are passed as arguments
+- fix: validate `only` and `skip` from config files like the CLI options instead of ending in a fatal error
+- fix: use the validator message in GitHub format annotations and write them raw, escaped like the actions toolkit
+- fix: send logger warnings to the error output so they cannot corrupt JSON or GitHub output
+- fix: sanitize file names and parser messages in CLI, JSON and log output (control characters, console markup, line breaks)
+- fix: remove control characters from parser exception messages
+- chore(ci): restrict token permissions and pin actions by SHA
 - chore(ci): attach PHAR to the release via gh CLI to stop a duplicate, asset-less release from being created
+- chore(deps): allow PHP 8.6
 
 ## [1.6.0] - 2026-07-28
 
