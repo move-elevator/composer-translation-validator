@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Result;
 
-use MoveElevator\ComposerTranslationValidator\Utility\PathUtility;
+use MoveElevator\ComposerTranslationValidator\Utility\{OutputUtility, PathUtility};
 use MoveElevator\ComposerTranslationValidator\Validator\{ResultType, ValidatorInterface};
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -99,7 +99,7 @@ class ValidationResultCliRenderer extends AbstractValidationResultRenderer
 
         foreach ($groupedByFile as $filePath => $validatorGroups) {
             $relativePath = PathUtility::normalizeFolderPath($filePath);
-            $this->io->writeln("<fg=cyan>$relativePath</>");
+            $this->io->writeln('<fg=cyan>'.OutputUtility::sanitizeForConsole($relativePath).'</>');
             $this->io->newLine();
 
             $fileIssues = [];
@@ -144,7 +144,7 @@ class ValidationResultCliRenderer extends AbstractValidationResultRenderer
 
         foreach ($groupedByFile as $filePath => $validatorGroups) {
             $relativePath = PathUtility::normalizeFolderPath($filePath);
-            $this->io->writeln("<fg=cyan>$relativePath</>");
+            $this->io->writeln('<fg=cyan>'.OutputUtility::sanitizeForConsole($relativePath).'</>');
             $this->io->newLine();
 
             $sortedValidatorGroups = $this->sortValidatorGroupsBySeverity($validatorGroups);

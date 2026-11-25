@@ -16,6 +16,7 @@ namespace MoveElevator\ComposerTranslationValidator\Validator;
 use MoveElevator\ComposerTranslationValidator\FileDetector\FileSet;
 use MoveElevator\ComposerTranslationValidator\Parser\{ParserCache, ParserInterface, ParserRegistry};
 use MoveElevator\ComposerTranslationValidator\Result\Issue;
+use MoveElevator\ComposerTranslationValidator\Utility\OutputUtility;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -185,7 +186,7 @@ abstract class AbstractValidator
         $level = $resultType->toString();
         $color = $resultType->toColorString();
 
-        $message = $details['message'] ?? 'Validation error';
+        $message = OutputUtility::sanitizeForConsole((string) ($details['message'] ?? 'Validation error'));
 
         return "- <fg=$color>$level</> {$prefix}$message";
     }

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Utility;
 
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -41,14 +42,18 @@ class OutputUtility
     }
 
     /**
-     * Removes control characters (except tab and newline) from a string.
+     * Makes an untrusted value safe to embed in a one-line console message.
      *
-     * Untrusted translation values may contain raw ANSI escape sequences; if
-     * rendered verbatim they could manipulate the terminal. Stripping control
-     * characters neutralises that before the value reaches the console.
+     * Line breaks become a visible \n or \r so the value cannot start a new
+     * output line (e.g. a GitHub Actions workflow command). Remaining control
+     * characters are removed first, then formatter markup is escaped. The order
+     * matters: escaping adds backslashes that stripping must not touch.
      */
-    public static function stripControlCharacters(string $value): string
+    public static function sanitizeForConsole(string $value): string
     {
-        return preg_replace('/[\x00-\x08\x0B-\x1F\x7F]/', '', $value) ?? $value;
+        $value = str_replace(["\r", "\n"], ['\\r', '\\n'], $value);
+        $value = preg_replace('/[\x00-\x08\x0B-\x1F\x7F]|\xC2[\x80-\x9F]/', '', $value) ?? $value;
+
+        return OutputFormatter::escape($value);
     }
 }
