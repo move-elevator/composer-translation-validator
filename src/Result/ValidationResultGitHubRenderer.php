@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace MoveElevator\ComposerTranslationValidator\Result;
 
-use MoveElevator\ComposerTranslationValidator\Utility\OutputUtility;
 use MoveElevator\ComposerTranslationValidator\Validator\ResultType;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -127,7 +126,7 @@ class ValidationResultGitHubRenderer extends AbstractValidationResultRenderer
      */
     private function escapeProperty(string $value): string
     {
-        return OutputUtility::stripControlCharacters(str_replace(
+        return $this->stripControlCharacters(str_replace(
             ['%', "\r", "\n", ':', ','],
             ['%25', '%0D', '%0A', '%3A', '%2C'],
             $value,
@@ -139,10 +138,15 @@ class ValidationResultGitHubRenderer extends AbstractValidationResultRenderer
      */
     private function escapeData(string $value): string
     {
-        return OutputUtility::stripControlCharacters(str_replace(
+        return $this->stripControlCharacters(str_replace(
             ['%', "\r", "\n"],
             ['%25', '%0D', '%0A'],
             $value,
         ));
+    }
+
+    private function stripControlCharacters(string $value): string
+    {
+        return preg_replace('/[\x00-\x08\x0B-\x1F\x7F]/', '', $value) ?? $value;
     }
 }
