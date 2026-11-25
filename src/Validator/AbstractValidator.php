@@ -59,7 +59,7 @@ abstract class AbstractValidator
         $name = $this->getShortName();
         $this->logger?->debug(
             sprintf(
-                '> Checking for <options=bold,underscore>%s</> ...',
+                '> Checking for %s ...',
                 $name,
             ),
         );
@@ -79,8 +79,7 @@ abstract class AbstractValidator
             if (!$file instanceof ParserInterface) {
                 $this->logger?->debug(
                     sprintf(
-                        'The file <fg=cyan>%s</> could not be parsed by the '
-                        .'validator <fg=red>%s</>.',
+                        'The file %s could not be parsed by the validator %s.',
                         $filePath,
                         static::class,
                     ),
@@ -91,7 +90,7 @@ abstract class AbstractValidator
             if (!in_array($file::class, $this->supportsParser(), true)) {
                 $this->logger?->debug(
                     sprintf(
-                        'The file <fg=cyan>%s</> is not supported by the validator <fg=red>%s</>.',
+                        'The file %s is not supported by the validator %s.',
                         $file->getFileName(),
                         static::class,
                     ),
@@ -100,11 +99,7 @@ abstract class AbstractValidator
             }
 
             $this->logger?->debug(
-                '> Checking language file: <fg=gray>'
-                .$file->getFileDirectory()
-                .'</><fg=cyan>'
-                .$file->getFileName()
-                .'</> ...',
+                '> Checking language file: '.$file->getFileDirectory().$file->getFileName().' ...',
             );
 
             $validationResult = $this->processFile($file);

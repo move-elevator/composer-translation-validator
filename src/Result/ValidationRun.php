@@ -19,7 +19,6 @@ use MoveElevator\ComposerTranslationValidator\Parser\ParserCache;
 use MoveElevator\ComposerTranslationValidator\Utility\PathUtility;
 use MoveElevator\ComposerTranslationValidator\Validator\{ResultType, ValidatorInterface};
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Formatter\OutputFormatter;
 use Throwable;
 
 use function count;
@@ -132,7 +131,7 @@ class ValidationRun
 
         $this->logger->warning(sprintf(
             '%s has no counterpart in other languages, cross-file checks were skipped.',
-            OutputFormatter::escape(PathUtility::normalizeFolderPath((string) reset($files))),
+            PathUtility::normalizeFolderPath((string) reset($files)),
         ));
     }
 
