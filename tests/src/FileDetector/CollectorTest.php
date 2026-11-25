@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace MoveElevator\ComposerTranslationValidator\Tests\FileDetector;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\{Collector, DetectorInterface};
-use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, XliffParser, YamlParser};
+use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, PhpParser, XliffParser, YamlParser};
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -147,6 +147,82 @@ final class CollectorTest extends TestCase
 
         $this->assertArrayHasKey(XliffParser::class, $result);
         $this->assertEquals(['recursive_data'], $result[XliffParser::class][$this->tempDir]);
+    }
+
+    public function testCollectFilesAutoDetectsDirectoryBasedLayout(): void
+    {
+        mkdir($this->tempDir.'/en');
+        mkdir($this->tempDir.'/de');
+        file_put_contents($this->tempDir.'/en/messages.php', "<?php return ['a' => 'x'];");
+        file_put_contents($this->tempDir.'/de/messages.php', "<?php return ['a' => 'x'];");
+
+        $collector = new Collector($this->createStub(LoggerInterface::class));
+        $result = $collector->collectFiles([$this->tempDir], null, null, true);
+
+        $sets = array_values($result[PhpParser::class]);
+
+        $this->assertCount(1, $sets);
+        $this->assertCount(2, $sets[0]['messages']);
+    }
+
+    public function testCollectFilesAutoDetectsDirectoryLayoutsOfDifferentParentsSeparately(): void
+    {
+        foreach (['a', 'b'] as $parent) {
+            mkdir($this->tempDir.'/'.$parent.'/en', 0777, true);
+            mkdir($this->tempDir.'/'.$parent.'/de', 0777, true);
+            file_put_contents($this->tempDir.'/'.$parent.'/en/messages.php', "<?php return ['a' => 'x'];");
+            file_put_contents($this->tempDir.'/'.$parent.'/de/messages.php', "<?php return ['a' => 'x'];");
+        }
+
+        $collector = new Collector($this->createStub(LoggerInterface::class));
+        $result = $collector->collectFiles([$this->tempDir], null, null, true);
+
+        $sets = array_values($result[PhpParser::class]);
+
+        $this->assertCount(2, $sets);
+        foreach ($sets as $set) {
+            $this->assertCount(2, $set['messages']);
+        }
+    }
+
+    public function testCollectFilesKeepsDirectoryLayoutAndSuffixLayoutOfTheSameParent(): void
+    {
+        mkdir($this->tempDir.'/en');
+        mkdir($this->tempDir.'/de');
+        file_put_contents($this->tempDir.'/en/auth.php', "<?php return ['a' => 'x'];");
+        file_put_contents($this->tempDir.'/de/auth.php', "<?php return ['a' => 'x'];");
+        file_put_contents($this->tempDir.'/app.en.php', "<?php return ['a' => 'x'];");
+        file_put_contents($this->tempDir.'/app.de.php', "<?php return ['a' => 'x'];");
+
+        $collector = new Collector($this->createStub(LoggerInterface::class));
+        $result = $collector->collectFiles([$this->tempDir], null, null, true);
+
+        $setNames = [];
+        foreach ($result[PhpParser::class] as $sets) {
+            foreach ($sets as $name => $files) {
+                $this->assertCount(2, $files);
+                $setNames[] = $name;
+            }
+        }
+        sort($setNames);
+
+        $this->assertSame(['app', 'auth'], $setNames);
+    }
+
+    public function testCollectFilesKeepsLanguageNamedFilesInTwoLetterDirectoriesTogether(): void
+    {
+        mkdir($this->tempDir.'/ui');
+        file_put_contents($this->tempDir.'/ui/en.json', '{"a": "x"}');
+        file_put_contents($this->tempDir.'/ui/de.json', '{"a": "x"}');
+
+        $collector = new Collector($this->createStub(LoggerInterface::class));
+        $result = $collector->collectFiles([$this->tempDir], null, null, true);
+
+        $sets = array_values($result[JsonParser::class]);
+
+        $this->assertCount(1, $sets);
+        $this->assertSame(['json'], array_keys($sets[0]));
+        $this->assertCount(2, $sets[0]['json']);
     }
 
     public function testCollectFilesDoesNotFollowSymlinks(): void
