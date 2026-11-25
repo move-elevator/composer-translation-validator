@@ -96,13 +96,21 @@ class Collector
                     $filesByDirectory = $this->groupFilesByDirectory($files);
 
                     foreach ($filesByDirectory as $directory => $directoryFiles) {
+                        // Each detector only sees the files the previous ones did not claim,
+                        // so a directory can mix layouts
+                        $unclaimed = $directoryFiles;
                         foreach (FileDetectorRegistry::getAvailableFileDetectors() as $fileDetector) {
-                            $translationSet = (new $fileDetector())->mapTranslationSet($directoryFiles);
+                            $translationSet = (new $fileDetector())->mapTranslationSet($unclaimed);
                             if (!empty($translationSet)) {
                                 // Use directory-specific path key to separate FileSets
                                 $pathKey = $path.'/'.$directory;
-                                $allFiles[$parserClass][$pathKey] = $translationSet;
-                                break; // Found a detector for this directory, move to next directory
+                                $allFiles[$parserClass][$pathKey] = array_merge_recursive(
+                                    $allFiles[$parserClass][$pathKey] ?? [],
+                                    $translationSet,
+                                );
+                                foreach ($translationSet as $setFiles) {
+                                    $unclaimed = array_diff($unclaimed, (array) $setFiles);
+                                }
                             }
                         }
                     }

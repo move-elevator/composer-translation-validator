@@ -15,6 +15,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\FileDetector;
 
 use MoveElevator\ComposerTranslationValidator\FileDetector\{Collector, DetectorInterface};
 use MoveElevator\ComposerTranslationValidator\Parser\{JsonParser, XliffParser, YamlParser};
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -147,6 +148,53 @@ final class CollectorTest extends TestCase
 
         $this->assertArrayHasKey(XliffParser::class, $result);
         $this->assertEquals(['recursive_data'], $result[XliffParser::class][$this->tempDir]);
+    }
+
+    /**
+     * @return iterable<string, array{string, string, string, string}>
+     */
+    public static function autoDetectedLayoutProvider(): iterable
+    {
+        yield 'suffix layout with a common file name' => ['messages.en.yaml', 'messages.de.yaml', 'k: x', 'messages'];
+        yield 'prefix layout (TYPO3)' => ['en.locallang.xlf', 'de.locallang.xlf', '<xliff/>', 'locallang.xlf'];
+    }
+
+    #[DataProvider('autoDetectedLayoutProvider')]
+    public function testCollectFilesPairsLocaleFilesInAutoMode(string $first, string $second, string $content, string $setName): void
+    {
+        file_put_contents($this->tempDir.'/'.$first, $content);
+        file_put_contents($this->tempDir.'/'.$second, $content);
+
+        $sets = $this->autoDetectedSets();
+
+        $this->assertSame([$setName], array_keys($sets));
+        $this->assertCount(2, $sets[$setName]);
+    }
+
+    public function testCollectFilesKeepsPrefixAndSuffixLayoutOfTheSameDirectory(): void
+    {
+        foreach (['en.a.xlf', 'de.a.xlf', 'b.en.xlf', 'b.de.xlf'] as $file) {
+            file_put_contents($this->tempDir.'/'.$file, '<xliff/>');
+        }
+
+        $sets = $this->autoDetectedSets();
+
+        $this->assertSame(['a.xlf', 'b'], array_keys($sets));
+        $this->assertCount(2, $sets['a.xlf']);
+        $this->assertCount(2, $sets['b']);
+    }
+
+    public function testCollectFilesKeepsFileWithoutLocaleNextToSuffixedFiles(): void
+    {
+        foreach (['messages.yaml', 'messages.en.yaml', 'messages.de.yaml'] as $file) {
+            file_put_contents($this->tempDir.'/'.$file, 'k: x');
+        }
+
+        $sets = $this->autoDetectedSets();
+
+        $this->assertSame(['messages', 'messages.yaml'], array_keys($sets));
+        $this->assertCount(2, $sets['messages']);
+        $this->assertCount(1, $sets['messages.yaml']);
     }
 
     public function testCollectFilesDoesNotFollowSymlinks(): void
@@ -346,6 +394,23 @@ final class CollectorTest extends TestCase
         $result = $collector->collectFiles(['/dev'], $detector, null, true);
 
         $this->assertSame([], $result);
+    }
+
+    /**
+     * @return array<string, array<mixed>> translation sets of the temp directory by name
+     */
+    private function autoDetectedSets(): array
+    {
+        $collector = new Collector($this->createStub(LoggerInterface::class));
+        $sets = [];
+        foreach ($collector->collectFiles([$this->tempDir], null, null) as $pathSets) {
+            foreach ($pathSets as $directorySets) {
+                $sets = array_merge($sets, $directorySets);
+            }
+        }
+        ksort($sets);
+
+        return $sets;
     }
 
     private function removeDirectory(string $path): void

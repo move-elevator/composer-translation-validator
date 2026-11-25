@@ -26,9 +26,10 @@ class FileDetectorRegistry
      */
     public static function getAvailableFileDetectors(): array
     {
+        // Order matters: PrefixFileDetector also claims names like messages.en.yaml, so Suffix has to go first
         return [
-            PrefixFileDetector::class,
             SuffixFileDetector::class,
+            PrefixFileDetector::class,
             DirectoryFileDetector::class,
         ];
     }
