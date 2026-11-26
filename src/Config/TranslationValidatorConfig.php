@@ -23,6 +23,14 @@ use MoveElevator\ComposerTranslationValidator\Validator\{DuplicateValuesValidato
  */
 class TranslationValidatorConfig
 {
+    /**
+     * Validators that only run when named in `only` (opt-in). They produce too many
+     * intentional/false-positive findings to run unconditionally.
+     */
+    public const OPT_IN_VALIDATORS = [
+        DuplicateValuesValidator::class,
+        KeyNamingConventionValidator::class,
+    ];
     /** @var string[] */
     private array $paths = [];
 
@@ -38,16 +46,8 @@ class TranslationValidatorConfig
     /** @var string[] */
     private array $only = [];
 
-    /**
-     * Validators disabled by default (opt-in). They produce too many
-     * intentional/false-positive findings to run unconditionally.
-     *
-     * @var string[]
-     */
-    private array $skip = [
-        DuplicateValuesValidator::class,
-        KeyNamingConventionValidator::class,
-    ];
+    /** @var string[] */
+    private array $skip = self::OPT_IN_VALIDATORS;
 
     /** @var string[] */
     private array $exclude = [];

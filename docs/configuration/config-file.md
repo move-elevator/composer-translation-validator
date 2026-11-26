@@ -40,7 +40,7 @@ return $config;
 
 ### Enabling DuplicateValuesValidator in PHP
 
-Explicitly include it in the `only` option:
+Name it in the `only` option:
 
 ```php
 <?php
@@ -55,16 +55,6 @@ $config->setPaths(['translations/'])
     ->setOnly([
         DuplicateValuesValidator::class,
     ]);
-
-return $config;
-```
-
-Or remove it from the skip list:
-
-```php
-$config = new TranslationValidatorConfig();
-$config->setPaths(['translations/'])
-    ->setSkip([]); // Empty skip list enables all validators
 
 return $config;
 ```
@@ -102,16 +92,7 @@ Create a JSON file with the following structure:
 
 ### Enabling DuplicateValuesValidator in JSON
 
-Set an empty skip array:
-
-```json
-{
-  "paths": ["translations/"],
-  "skip": []
-}
-```
-
-Or use the `only` option:
+Name it in the `only` option:
 
 ```json
 {
@@ -153,15 +134,7 @@ verbose: false
 
 ### Enabling DuplicateValuesValidator in YAML
 
-Set an empty skip array:
-
-```yaml
-paths:
-  - translations/
-skip: []
-```
-
-Or use the `only` option:
+Name it in the `only` option:
 
 ```yaml
 paths:

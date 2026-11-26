@@ -79,7 +79,7 @@ Identifies identical translation values that might indicate copy-paste errors or
 **Result:** WARNING
 
 ::: info Opt-In Validator
-This validator is disabled by default to reduce noise, as duplicate values are often intentional (e.g., "OK", "Cancel"). The default `skip` list contains this validator and `KeyNamingConventionValidator`. A non-empty `skip` setting replaces that list, so it enables both validators unless it names them. An empty `skip` list runs all validators.
+This validator is disabled by default to reduce noise, as duplicate values are often intentional (e.g., "OK", "Cancel"). It only runs when named in `only`, `skip` cannot enable it.
 :::
 
 ### Enable via CLI
@@ -94,7 +94,8 @@ composer validate-translations translations/ \
 ```yaml
 paths:
   - translations/
-skip: []  # Empty skip list enables all validators
+only:
+  - MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator
 ```
 
 ### Example
@@ -468,7 +469,7 @@ Enforces consistent naming patterns for translation keys.
 **Result:** WARNING
 
 ::: info Opt-In Validator
-This validator is disabled by default, as auto-detected naming conventions often produce false positives on mixed but intentional key styles. Enable it when you want to enforce a convention. The default `skip` list contains this validator and `DuplicateValuesValidator`. A non-empty `skip` setting replaces that list, so it enables both validators unless it names them. An empty `skip` list runs all validators.
+This validator is disabled by default, as auto-detected naming conventions often produce false positives on mixed but intentional key styles. Enable it when you want to enforce a convention. It only runs when named in `only`, `skip` cannot enable it.
 :::
 
 ::: tip
@@ -487,7 +488,8 @@ composer validate-translations translations/ \
 ```yaml
 paths:
   - translations/
-skip: []  # Empty skip list enables all validators
+only:
+  - MoveElevator\ComposerTranslationValidator\Validator\KeyNamingConventionValidator
 ```
 
 ### Supported Conventions
