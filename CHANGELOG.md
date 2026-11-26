@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- fix[!!!]: run `DuplicateValuesValidator` and `KeyNamingConventionValidator` only when `only` names them, a non-empty `skip` no longer switches them on and `skip: []` no longer runs every validator
+- fix[!!!]: remove the unused `validators` and `parsers` configuration keys, a configuration file that sets one of them is rejected by the schema, and remove `addValidator()`, `setValidators()`, `getValidators()`, `addParser()`, `setParsers()` and `getParsers()` from `TranslationValidatorConfig`
+- fix: apply `format` from the configuration file unless `--format` is given
+- fix: apply `verbose` from the configuration file, `-q` and the `-v` options on the command line still take precedence
+
 ## [1.7.0] - 2026-11-25
 
 - fix[!!!]: pair `messages.<locale>.*` style files and language directories (`en/`, `de/`) in auto-detection, so they are compared and report missing keys instead of ending in one-file sets
