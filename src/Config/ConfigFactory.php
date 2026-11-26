@@ -57,9 +57,7 @@ class ConfigFactory
     {
         $setters = [
             'paths' => 'setPaths',
-            'validators' => 'setValidators',
             'file-detectors' => 'setFileDetectors',
-            'parsers' => 'setParsers',
             'only' => 'setOnly',
             'skip' => 'setSkip',
             'exclude' => 'setExclude',

@@ -50,9 +50,7 @@ final class TranslationValidatorConfigTest extends TestCase
     public static function setterGetterProvider(): iterable
     {
         yield 'paths' => ['setPaths', 'getPaths', ['path1', 'path2']];
-        yield 'validators' => ['setValidators', 'getValidators', ['Validator1', 'Validator2']];
         yield 'file-detectors' => ['setFileDetectors', 'getFileDetectors', ['Detector1', 'Detector2']];
-        yield 'parsers' => ['setParsers', 'getParsers', ['Parser1', 'Parser2']];
         yield 'only' => ['setOnly', 'getOnly', ['Only1', 'Only2']];
         yield 'skip' => ['setSkip', 'getSkip', ['Skip1', 'Skip2']];
         yield 'exclude' => ['setExclude', 'getExclude', ['vendor/*', 'node_modules/*']];
@@ -80,9 +78,7 @@ final class TranslationValidatorConfigTest extends TestCase
      */
     public static function adderProvider(): iterable
     {
-        yield 'addValidator' => ['addValidator', 'getValidators', 'SomeValidator', ['SomeValidator']];
         yield 'addFileDetector' => ['addFileDetector', 'getFileDetectors', 'SomeFileDetector', ['SomeFileDetector']];
-        yield 'addParser' => ['addParser', 'getParsers', 'SomeParser', ['SomeParser']];
         yield 'only' => ['only', 'getOnly', 'OnlyValidator', ['OnlyValidator']];
         yield 'skip' => ['skip', 'getSkip', 'SkipValidator', [DuplicateValuesValidator::class, KeyNamingConventionValidator::class, 'SkipValidator']];
     }
@@ -90,9 +86,7 @@ final class TranslationValidatorConfigTest extends TestCase
     public function testDefaultValues(): void
     {
         self::assertSame([], $this->config->getPaths());
-        self::assertSame([], $this->config->getValidators());
         self::assertSame([], $this->config->getFileDetectors());
-        self::assertSame([], $this->config->getParsers());
         self::assertSame([], $this->config->getOnly());
         self::assertSame([DuplicateValuesValidator::class, KeyNamingConventionValidator::class], $this->config->getSkip());
         self::assertSame([], $this->config->getExclude());
@@ -111,9 +105,7 @@ final class TranslationValidatorConfigTest extends TestCase
         if ($configured) {
             $this->config
                 ->setPaths(['path1', 'path2'])
-                ->setValidators(['Validator1'])
                 ->setFileDetectors(['Detector1'])
-                ->setParsers(['Parser1'])
                 ->setOnly(['Only1'])
                 ->setSkip(['Skip1'])
                 ->setExclude(['vendor/*'])
@@ -133,9 +125,7 @@ final class TranslationValidatorConfigTest extends TestCase
     {
         yield 'all values' => [true, [
             'paths' => ['path1', 'path2'],
-            'validators' => ['Validator1'],
             'file-detectors' => ['Detector1'],
-            'parsers' => ['Parser1'],
             'only' => ['Only1'],
             'skip' => ['Skip1'],
             'exclude' => ['vendor/*'],
@@ -148,9 +138,7 @@ final class TranslationValidatorConfigTest extends TestCase
 
         yield 'default values' => [false, [
             'paths' => [],
-            'validators' => [],
             'file-detectors' => [],
-            'parsers' => [],
             'only' => [],
             'skip' => [DuplicateValuesValidator::class, KeyNamingConventionValidator::class],
             'exclude' => [],
@@ -166,14 +154,10 @@ final class TranslationValidatorConfigTest extends TestCase
     {
         $result = $this->config
             ->setPaths(['test'])
-            ->addValidator('Validator1')
             ->addFileDetector('Detector1')
-            ->addParser('Parser1')
             ->only('Only1')
             ->skip('Skip1')
-            ->setValidators(['test'])
             ->setFileDetectors(['test'])
-            ->setParsers(['test'])
             ->setOnly(['test'])
             ->setSkip(['test'])
             ->setExclude(['test'])
@@ -184,7 +168,6 @@ final class TranslationValidatorConfigTest extends TestCase
 
         self::assertSame($this->config, $result);
         self::assertSame(['test'], $this->config->getPaths());
-        self::assertSame(['test'], $this->config->getValidators());
         self::assertTrue($this->config->getStrict());
         self::assertSame('json', $this->config->getFormat());
     }

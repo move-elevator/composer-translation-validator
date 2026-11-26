@@ -15,7 +15,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Config;
 
 use JsonException;
 use MoveElevator\ComposerTranslationValidator\Config\SchemaValidator;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\{CoversClass, DataProvider};
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use RuntimeException;
@@ -67,9 +67,7 @@ final class SchemaValidatorTest extends TestCase
     {
         $validData = [
             'paths' => ['translations', 'resources/lang'],
-            'validators' => ['SomeValidator'],
             'file-detectors' => ['SomeDetector'],
-            'parsers' => ['SomeParser'],
             'only' => ['OnlyValidator'],
             'skip' => ['SkipValidator'],
             'exclude' => ['vendor/*', 'node_modules/*'],
@@ -90,6 +88,24 @@ final class SchemaValidatorTest extends TestCase
         $this->schemaValidator->validate(['file-detectors' => ['SomeDetector']]);
 
         $this->addToAssertionCount(1);
+    }
+
+    #[DataProvider('removedKeyProvider')]
+    public function testValidateRejectsRemovedKey(string $key): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Configuration validation failed:');
+
+        $this->schemaValidator->validate(['paths' => ['translations'], $key => ['SomeClass']]);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function removedKeyProvider(): iterable
+    {
+        yield 'validators' => ['validators'];
+        yield 'parsers' => ['parsers'];
     }
 
     public function testValidateRejectsFormatThatIsNoOutputFormat(): void

@@ -38,16 +38,8 @@ class ConfigValidator
             throw new RuntimeException("Configuration 'paths' must be an array");
         }
 
-        if (isset($data['validators']) && !is_array($data['validators'])) {
-            throw new RuntimeException("Configuration 'validators' must be an array");
-        }
-
         if (isset($data['file-detectors']) && !is_array($data['file-detectors'])) {
             throw new RuntimeException("Configuration 'file-detectors' must be an array");
-        }
-
-        if (isset($data['parsers']) && !is_array($data['parsers'])) {
-            throw new RuntimeException("Configuration 'parsers' must be an array");
         }
 
         if (isset($data['only']) && !is_array($data['only'])) {

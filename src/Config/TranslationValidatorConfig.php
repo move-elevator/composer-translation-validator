@@ -27,13 +27,7 @@ class TranslationValidatorConfig
     private array $paths = [];
 
     /** @var string[] */
-    private array $validators = [];
-
-    /** @var string[] */
     private array $fileDetectors = [];
-
-    /** @var string[] */
-    private array $parsers = [];
 
     /** @var string[] */
     private array $only = [];
@@ -81,31 +75,6 @@ class TranslationValidatorConfig
         return $this->paths;
     }
 
-    public function addValidator(string $validator): self
-    {
-        $this->validators[] = $validator;
-
-        return $this;
-    }
-
-    /**
-     * @param string[] $validators
-     */
-    public function setValidators(array $validators): self
-    {
-        $this->validators = $validators;
-
-        return $this;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getValidators(): array
-    {
-        return $this->validators;
-    }
-
     public function addFileDetector(string $fileDetector): self
     {
         $this->fileDetectors[] = $fileDetector;
@@ -129,31 +98,6 @@ class TranslationValidatorConfig
     public function getFileDetectors(): array
     {
         return $this->fileDetectors;
-    }
-
-    public function addParser(string $parser): self
-    {
-        $this->parsers[] = $parser;
-
-        return $this;
-    }
-
-    /**
-     * @param string[] $parsers
-     */
-    public function setParsers(array $parsers): self
-    {
-        $this->parsers = $parsers;
-
-        return $this;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getParsers(): array
-    {
-        return $this->parsers;
     }
 
     public function only(string $validator): self
@@ -331,9 +275,7 @@ class TranslationValidatorConfig
     {
         return [
             'paths' => $this->paths,
-            'validators' => $this->validators,
             'file-detectors' => $this->fileDetectors,
-            'parsers' => $this->parsers,
             'only' => $this->only,
             'skip' => $this->skip,
             'exclude' => $this->exclude,

@@ -1,8 +1,6 @@
 {
 	"paths": ["path1", "path2"],
-	"validators": ["Validator1"],
 	"file-detectors": ["Detector1"],
-	"parsers": ["Parser1"],
 	"only": ["Only1"],
 	"skip": ["Skip1"],
 	"exclude": ["vendor/*"],

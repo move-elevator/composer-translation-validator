@@ -36,9 +36,7 @@ final class ConfigFactoryTest extends TestCase
     {
         $data = [
             'paths' => ['translations/', 'locale/'],
-            'validators' => ['Validator1', 'Validator2'],
             'file-detectors' => ['Detector1'],
-            'parsers' => ['Parser1'],
             'only' => ['OnlyValidator'],
             'skip' => ['SkipValidator'],
             'exclude' => ['*.backup', '*.tmp'],
@@ -51,9 +49,7 @@ final class ConfigFactoryTest extends TestCase
         $config = $this->factory->createFromArray($data);
 
         self::assertSame(['translations/', 'locale/'], $config->getPaths());
-        self::assertSame(['Validator1', 'Validator2'], $config->getValidators());
         self::assertSame(['Detector1'], $config->getFileDetectors());
-        self::assertSame(['Parser1'], $config->getParsers());
         self::assertSame(['OnlyValidator'], $config->getOnly());
         self::assertSame(['SkipValidator'], $config->getSkip());
         self::assertSame(['*.backup', '*.tmp'], $config->getExclude());
@@ -69,9 +65,7 @@ final class ConfigFactoryTest extends TestCase
         $config = $this->factory->createFromArray(['paths' => ['translations/']]);
 
         self::assertSame(['translations/'], $config->getPaths());
-        self::assertSame([], $config->getValidators());
         self::assertSame([], $config->getFileDetectors());
-        self::assertSame([], $config->getParsers());
         self::assertSame([], $config->getOnly());
         self::assertSame([
             \MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator::class,
@@ -97,7 +91,6 @@ final class ConfigFactoryTest extends TestCase
         self::assertSame(['translations/'], $config->getPaths());
         self::assertTrue($config->getStrict());
         self::assertSame('cli', $config->getFormat());
-        self::assertSame([], $config->getValidators());
         self::assertFalse($config->getDryRun());
     }
 
