@@ -102,7 +102,7 @@ dry-run: true
 - **Type**: `string`
 - **Default**: `cli`
 - **Options**: `cli`, `json`, `github`
-- **Description**: Output format for validation results. Has no effect today: the `--format` option has the default `cli` and always overrides this setting
+- **Description**: Output format for validation results. The `--format` option replaces this setting
 
 ```yaml
 format: json

@@ -68,13 +68,10 @@ How a command line argument combines with the configuration file depends on the 
 | `--exclude` | Appended to `exclude` from the configuration file |
 | `--strict`, `--dry-run` | Can only switch the setting on. Without the flag, the value from the configuration file applies |
 | `--only`, `--skip` | Replace `only` and `skip` from the configuration file |
+| `--format` | Replaces `format` from the configuration file. Without the option, the configuration value applies |
 | `<path>` arguments | Replace `paths` from the configuration file |
 
 Relative paths resolve against the current working directory, not against the location of the configuration file.
-
-::: warning Known limitation
-A `format` set in the configuration file has no effect. The `--format` option has the default `cli` and always overrides the configuration value, so only `--format` changes the output format.
-:::
 
 ## Opt-In Validators
 
