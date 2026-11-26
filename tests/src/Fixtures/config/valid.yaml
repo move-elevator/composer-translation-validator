@@ -6,12 +6,8 @@ format: github
 exclude:
   - vendor/*
   - node_modules/*
-validators:
-  - ValidatorClass
 file-detectors:
   - DetectorClass
-parsers:
-  - ParserClass
 only:
   - OnlyValidator
 skip:

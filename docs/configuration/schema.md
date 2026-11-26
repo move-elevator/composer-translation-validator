@@ -14,12 +14,6 @@ paths:
   - resources/lang/
 ```
 
-## validators
-
-- **Type**: `array<string>`
-- **Default**: `[]`
-- **Description**: Has no effect today. Nothing reads this setting, so use `only` and `skip` to select validators. The schema also rejects fully qualified class names in this key. The `parsers` key is accepted but unused in the same way
-
 ## file-detectors
 
 - **Type**: `array<string>`

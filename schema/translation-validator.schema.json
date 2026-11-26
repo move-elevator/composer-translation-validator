@@ -20,19 +20,6 @@
 				]
 			]
 		},
-		"validators": {
-			"type": "array",
-			"description": "List of validator class names to use",
-			"items": {
-				"type": "string",
-				"pattern": "^[A-Za-z_][A-Za-z0-9_]*(?:\\\\\\\\[A-Za-z_][A-Za-z0-9_]*)*$"
-			},
-			"examples": [
-				[
-					"MoveElevator\\ComposerTranslationValidator\\Validator\\SchemaValidator"
-				]
-			]
-		},
 		"file-detectors": {
 			"type": "array",
 			"description": "List of file detector class names to use",
@@ -43,19 +30,6 @@
 			"examples": [
 				[
 					"MoveElevator\\ComposerTranslationValidator\\FileDetector\\PrefixFileDetector"
-				]
-			]
-		},
-		"parsers": {
-			"type": "array",
-			"description": "List of parser class names to use",
-			"items": {
-				"type": "string",
-				"pattern": "^[A-Za-z_][A-Za-z0-9_\\\\]*$"
-			},
-			"examples": [
-				[
-					"MoveElevator\\ComposerTranslationValidator\\Parser\\XliffParser"
 				]
 			]
 		},
@@ -180,10 +154,6 @@
 			"paths": [
 				"resources/lang",
 				"translations"
-			],
-			"validators": [
-				"MoveElevator\\ComposerTranslationValidator\\Validator\\MismatchValidator",
-				"MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateKeysValidator"
 			],
 			"exclude": [
 				"vendor/*",

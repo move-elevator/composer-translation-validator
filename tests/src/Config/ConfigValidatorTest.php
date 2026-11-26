@@ -37,9 +37,7 @@ final class ConfigValidatorTest extends TestCase
     {
         $validConfig = [
             'paths' => ['translations/'],
-            'validators' => ['SomeValidator'],
             'file-detectors' => ['SomeDetector'],
-            'parsers' => ['SomeParser'],
             'only' => ['OnlyValidator'],
             'skip' => ['SkipValidator'],
             'exclude' => ['*.backup'],
@@ -71,9 +69,7 @@ final class ConfigValidatorTest extends TestCase
     public static function invalidTypeProvider(): iterable
     {
         yield 'paths' => [['paths' => 'invalid'], "Configuration 'paths' must be an array"];
-        yield 'validators' => [['validators' => 'invalid'], "Configuration 'validators' must be an array"];
         yield 'file-detectors' => [['file-detectors' => 'invalid'], "Configuration 'file-detectors' must be an array"];
-        yield 'parsers' => [['parsers' => 'invalid'], "Configuration 'parsers' must be an array"];
         yield 'only' => [['only' => 'invalid'], "Configuration 'only' must be an array"];
         yield 'skip' => [['skip' => 'invalid'], "Configuration 'skip' must be an array"];
         yield 'exclude' => [['exclude' => 'invalid'], "Configuration 'exclude' must be an array"];

@@ -256,9 +256,7 @@ final class ConfigReaderTest extends TestCase
         $config = $this->configReader->read($configFile);
 
         self::assertSame(['path1', 'path2'], $config->getPaths());
-        self::assertSame(['Validator1'], $config->getValidators());
         self::assertSame(['Detector1'], $config->getFileDetectors());
-        self::assertSame(['Parser1'], $config->getParsers());
         self::assertSame(['Only1'], $config->getOnly());
         self::assertSame(['Skip1'], $config->getSkip());
         self::assertSame(['vendor/*'], $config->getExclude());
@@ -438,8 +436,6 @@ final class ConfigReaderTest extends TestCase
      */
     public static function invalidTypeConfigProvider(): iterable
     {
-        yield 'validators' => ['invalid-validators.json', ['validators' => 'not-array']];
-        yield 'parsers' => ['invalid-parsers.json', ['parsers' => 'not-array']];
         yield 'strict' => ['invalid-strict.json', ['strict' => 'not-bool']];
         yield 'dry-run' => ['invalid-dry-run.json', ['dry-run' => 'not-bool']];
         yield 'verbose' => ['invalid-verbose.json', ['verbose' => 'not-bool']];

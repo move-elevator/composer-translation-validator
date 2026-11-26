@@ -1,9 +1,6 @@
 paths:
   - Fixtures/examples/key-naming
 
-validators:
-  - MoveElevator\\ComposerTranslationValidator\\Validator\\KeyNamingConventionValidator
-
 validator-settings:
   KeyNamingConventionValidator:
     convention: 'snake_case'
