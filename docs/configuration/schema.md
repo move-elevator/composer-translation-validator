@@ -53,16 +53,12 @@ only:
 
 - **Type**: `array<string>`
 - **Default**: `MoveElevator\ComposerTranslationValidator\Validator\DuplicateValuesValidator` and `MoveElevator\ComposerTranslationValidator\Validator\KeyNamingConventionValidator`
-- **Description**: Array of validator class names to skip. Set explicitly to `[]` to enable every available validator, including the two skipped by default. Each entry must be the fully qualified name of an existing class that implements `ValidatorInterface`. An unusable entry is logged and ignored. If no entry is usable, the command fails
+- **Description**: Array of validator class names to skip. `DuplicateValuesValidator` and `KeyNamingConventionValidator` stay skipped whatever this list contains, name them in `only` to run them. Each entry must be the fully qualified name of an existing class that implements `ValidatorInterface`. An unusable entry is logged and ignored. If no entry is usable, the command fails
 
 ```yaml
 skip:
   - MoveElevator\ComposerTranslationValidator\Validator\HtmlTagValidator
 ```
-
-::: warning Known limitation
-A non-empty `skip`, from the configuration file or from `--skip`, replaces the default skip list. Skipping any other validator therefore enables `DuplicateValuesValidator` and `KeyNamingConventionValidator`. To keep them disabled, list them in `skip` as well.
-:::
 
 ## exclude
 

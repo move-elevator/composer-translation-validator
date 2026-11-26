@@ -82,9 +82,7 @@ The `DuplicateValuesValidator` and the `KeyNamingConventionValidator` are disabl
 - **KeyNamingConventionValidator** — auto-detected naming conventions frequently produce false positives on mixed but intentional key styles.
 :::
 
-To enable one of them, either:
-- Use `--only` to explicitly include it
-- Set `skip: []` in your configuration file (enables all validators)
+They only run when named in `only` (or `--only`). `skip` cannot enable them, not even an empty `skip: []`.
 
 ## Next Steps
 

@@ -17,7 +17,7 @@ use MoveElevator\ComposerTranslationValidator\Config\TranslationValidatorConfig;
 use MoveElevator\ComposerTranslationValidator\FileDetector\{DirectoryFileDetector, PrefixFileDetector, SuffixFileDetector};
 use MoveElevator\ComposerTranslationValidator\Result\ValidationResult;
 use MoveElevator\ComposerTranslationValidator\Service\ValidationOrchestrationService;
-use MoveElevator\ComposerTranslationValidator\Validator\{MismatchValidator, ValidatorInterface, ValidatorRegistry};
+use MoveElevator\ComposerTranslationValidator\Validator\{DuplicateValuesValidator, KeyNamingConventionValidator, MismatchValidator, ValidatorInterface, ValidatorRegistry};
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -158,12 +158,20 @@ final class ValidationOrchestrationServiceTest extends TestCase
     public function testResolveValidatorsWithSkipParameter(): void
     {
         $skip = [MismatchValidator::class];
-        $allValidators = ValidatorRegistry::getAvailableValidators();
-        $expected = array_values(array_diff($allValidators, $skip));
+        $expected = array_values(array_diff($this->defaultValidators(), $skip));
 
         $validators = $this->service->resolveValidators(null, $skip);
 
         self::assertEquals($expected, $validators);
+        self::assertNotContains(DuplicateValuesValidator::class, $validators);
+        self::assertNotContains(KeyNamingConventionValidator::class, $validators);
+    }
+
+    public function testResolveValidatorsWithOnlyParameterEnablesOptInValidator(): void
+    {
+        $only = [DuplicateValuesValidator::class];
+
+        self::assertSame($only, $this->service->resolveValidators($only));
     }
 
     public function testResolveValidatorsWithConfig(): void
@@ -180,12 +188,23 @@ final class ValidationOrchestrationServiceTest extends TestCase
     {
         $config = new TranslationValidatorConfig();
         $config->setSkip([MismatchValidator::class]);
-        $allValidators = ValidatorRegistry::getAvailableValidators();
-        $expected = array_values(array_diff($allValidators, [MismatchValidator::class]));
+        $expected = array_values(array_diff($this->defaultValidators(), [MismatchValidator::class]));
 
         $validators = $this->service->resolveValidators(null, null, $config);
 
         self::assertEquals($expected, $validators);
+    }
+
+    public function testResolveValidatorsWithEmptyConfigSkipKeepsOptInValidatorsSkipped(): void
+    {
+        $config = new TranslationValidatorConfig();
+        $config->setSkip([]);
+
+        $validators = $this->service->resolveValidators(null, null, $config);
+
+        self::assertEquals($this->defaultValidators(), $validators);
+        self::assertNotContains(DuplicateValuesValidator::class, $validators);
+        self::assertNotContains(KeyNamingConventionValidator::class, $validators);
     }
 
     public function testResolveValidatorsWithParameterOverridingConfig(): void
@@ -203,9 +222,8 @@ final class ValidationOrchestrationServiceTest extends TestCase
     public function testResolveValidatorsWithDefaultBehavior(): void
     {
         $validators = $this->service->resolveValidators();
-        $expected = ValidatorRegistry::getAvailableValidators();
 
-        self::assertEquals($expected, $validators);
+        self::assertEquals($this->defaultValidators(), $validators);
     }
 
     public function testResolvePathsWithInputPaths(): void
@@ -312,5 +330,16 @@ final class ValidationOrchestrationServiceTest extends TestCase
         );
 
         self::assertSame([MismatchValidator::class], $result);
+    }
+
+    /**
+     * @return array<int, class-string<ValidatorInterface>>
+     */
+    private function defaultValidators(): array
+    {
+        return array_values(array_diff(
+            ValidatorRegistry::getAvailableValidators(),
+            [DuplicateValuesValidator::class, KeyNamingConventionValidator::class],
+        ));
     }
 }

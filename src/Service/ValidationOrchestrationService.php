@@ -112,11 +112,13 @@ class ValidationOrchestrationService
         $resolvedSkip = !empty($skip) ? $skip : $configSkip;
 
         /** @var array<int, class-string<ValidatorInterface>> $result */
-        $result = match (true) {
-            !empty($resolvedOnly) => $resolvedOnly,
-            !empty($resolvedSkip) => array_values(array_diff(ValidatorRegistry::getAvailableValidators(), $resolvedSkip)),
-            default => ValidatorRegistry::getAvailableValidators(),
-        };
+        $result = !empty($resolvedOnly)
+            ? $resolvedOnly
+            : array_values(array_diff(
+                ValidatorRegistry::getAvailableValidators(),
+                $resolvedSkip,
+                TranslationValidatorConfig::OPT_IN_VALIDATORS,
+            ));
 
         return $result;
     }
