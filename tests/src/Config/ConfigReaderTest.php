@@ -48,16 +48,18 @@ final class ConfigReaderTest extends TestCase
 
     public function testReadUnsupportedFormat(): void
     {
-        $configFile = $this->fixturesDir.'/unsupported.txt';
-        file_put_contents($configFile, 'some content');
+        $tempFile = (string) tempnam(sys_get_temp_dir(), 'tv-config-');
+        $configFile = $tempFile.'.txt';
+        rename($tempFile, $configFile);
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Unsupported configuration file format: txt');
 
-        $this->configReader->read($configFile);
-
-        // Clean up
-        unlink($configFile);
+        try {
+            $this->configReader->read($configFile);
+        } finally {
+            unlink($configFile);
+        }
     }
 
     /**
