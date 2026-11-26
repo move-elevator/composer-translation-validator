@@ -16,7 +16,7 @@ namespace MoveElevator\ComposerTranslationValidator\Tests\Config;
 use MoveElevator\ComposerTranslationValidator\Config\CommandConfigResolver;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Console\Input\{ArrayInput, InputDefinition, InputOption};
+use Symfony\Component\Console\Input\{ArgvInput, ArrayInput, InputDefinition, InputOption};
 
 #[CoversClass(CommandConfigResolver::class)]
 /**
@@ -178,6 +178,51 @@ final class CommandConfigResolverTest extends TestCase
         rmdir($tempDir);
     }
 
+    public function testResolveKeepsFormatFromConfigFileWithoutCliOption(): void
+    {
+        $tempDir = $this->createConfigDirectory(['paths' => ['src'], 'format' => 'json']);
+
+        $config = $this->resolver->resolve($this->createInput([]), $tempDir);
+
+        self::assertSame('json', $config->getFormat());
+
+        $this->removeConfigDirectory($tempDir);
+    }
+
+    public function testResolveExplicitDefaultCliFormatOverridesConfigFileFormat(): void
+    {
+        $tempDir = $this->createConfigDirectory(['paths' => ['src'], 'format' => 'json']);
+
+        $config = $this->resolver->resolve($this->createInput(['--format' => 'cli']), $tempDir);
+
+        self::assertSame('cli', $config->getFormat());
+
+        $this->removeConfigDirectory($tempDir);
+    }
+
+    public function testResolveShortFormatOptionOverridesConfigFileFormat(): void
+    {
+        $tempDir = $this->createConfigDirectory(['paths' => ['src'], 'format' => 'json']);
+
+        $config = $this->resolver->resolve($this->createInput(['-f' => 'github']), $tempDir);
+
+        self::assertSame('github', $config->getFormat());
+
+        $this->removeConfigDirectory($tempDir);
+    }
+
+    public function testResolveGroupedShortOptionsOverrideConfigFileFormat(): void
+    {
+        $tempDir = $this->createConfigDirectory(['paths' => ['src'], 'format' => 'json']);
+        $input = new ArgvInput(['validate-translations', '-rf', 'github'], $this->createDefinition());
+
+        $config = $this->resolver->resolve($input, $tempDir);
+
+        self::assertSame('github', $config->getFormat());
+
+        $this->removeConfigDirectory($tempDir);
+    }
+
     public function testResolveLoadsConfigFromComposerJson(): void
     {
         $tempDir = sys_get_temp_dir().'/translation-validator-resolver-composer-'.uniqid('', true);
@@ -206,21 +251,42 @@ final class CommandConfigResolverTest extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $configuration
+     */
+    private function createConfigDirectory(array $configuration): string
+    {
+        $tempDir = sys_get_temp_dir().'/translation-validator-resolver-format-'.uniqid('', true);
+        mkdir($tempDir, 0o777, true);
+        file_put_contents($tempDir.'/translation-validator.json', json_encode($configuration));
+
+        return $tempDir;
+    }
+
+    private function removeConfigDirectory(string $tempDir): void
+    {
+        unlink($tempDir.'/translation-validator.json');
+        rmdir($tempDir);
+    }
+
+    /**
      * @param array<string, mixed> $options
      */
     private function createInput(array $options): ArrayInput
     {
-        $definition = new InputDefinition([
+        return new ArrayInput($options, $this->createDefinition());
+    }
+
+    private function createDefinition(): InputDefinition
+    {
+        return new InputDefinition([
             new InputOption('dry-run', null, InputOption::VALUE_NONE),
             new InputOption('strict', null, InputOption::VALUE_NONE),
-            new InputOption('format', 'f', InputOption::VALUE_OPTIONAL, '', 'cli'),
+            new InputOption('format', 'f', InputOption::VALUE_OPTIONAL),
             new InputOption('only', 'o', InputOption::VALUE_OPTIONAL),
             new InputOption('skip', 's', InputOption::VALUE_OPTIONAL),
             new InputOption('config', 'c', InputOption::VALUE_OPTIONAL),
             new InputOption('recursive', 'r', InputOption::VALUE_NONE),
             new InputOption('exclude', 'e', InputOption::VALUE_OPTIONAL),
         ]);
-
-        return new ArrayInput($options, $definition);
     }
 }
