@@ -113,7 +113,7 @@ composer validate-translations ./translations --only "MoveElevator\\ComposerTran
 Skip specific validators:
 
 ```bash
-composer validate-translations ./translations --skip "MoveElevator\\ComposerTranslationValidator\\Validator\\DuplicateValuesValidator"
+composer validate-translations ./translations --skip "MoveElevator\\ComposerTranslationValidator\\Validator\\HtmlTagValidator"
 ```
 
 ## Next Steps

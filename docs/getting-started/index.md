@@ -2,6 +2,8 @@
 
 Composer Translation Validator is a Composer plugin that validates translation files in your PHP projects. It automatically detects translation files based on naming conventions and runs a comprehensive set of validators to ensure translation quality.
 
+It also runs as a standalone CLI and PHAR, with a GitHub Action and a GitLab CI template. See [Installation](/getting-started/installation).
+
 ## Why Use Translation Validation?
 
 Translation files are critical for internationalized applications. Common issues include:

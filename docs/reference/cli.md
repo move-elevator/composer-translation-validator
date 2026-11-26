@@ -20,11 +20,11 @@ The command is also available under the alias `vt`.
 
 | Option | Shortcut | Description |
 |--------|----------|-------------|
-| `--format` | `-f` | Sets the output format: `cli`, `json`, or `github` |
+| `--format` | `-f` | Sets the output format: `cli` (default), `json`, or `github` |
 | `--skip` | `-s` | Skips specific validators (FQCN, comma-separated) |
 | `--only` | `-o` | Runs only the specified validators (FQCN, comma-separated) |
 | `--recursive` | `-r` | Search for translation files recursively in subdirectories |
-| `--exclude` | `-e` | Exclude files and directories matching glob patterns, comma-separated |
+| `--exclude` | `-e` | Exclude files and directories matching glob patterns, comma-separated. A pattern matches a file or directory name or its path relative to the scanned directory. Excluded directories are not traversed |
 | `--verbose` | `-v` | Shows additional output for detailed information |
 | `--strict` | | Enables strict mode, treating warnings as errors |
 | `--dry-run` | | Runs validation without failing on errors |
@@ -131,22 +131,32 @@ composer validate-translations ./translations --dry-run
 |------|-------------|
 | `0` | Validation passed (no errors, or only warnings without `--strict`) |
 | `1` | Validation failed (errors found, or warnings found with `--strict`) |
+| `0` | No files found (the command prints a warning) |
+| `1` | No paths provided (`No paths provided.`) |
+| `1` | Invalid `--format` value (only checked after files were found) |
 
 In `--dry-run` mode, errors no longer produce a non-zero exit code. This does **not** apply to `--strict`: warnings still produce exit code `1` under `--strict` even when combined with `--dry-run`.
 
 ## Output Formats
+
+Logger warnings and notices (for example the warning for a file set with a single file) go to stderr, so JSON and GitHub output on stdout stays valid. The "No files found" warning is printed to stdout and is not JSON.
 
 ### CLI Format (Default)
 
 Human-readable output with colored indicators:
 
 ```text
+translations/messages.de.yaml
+
+- Error (MismatchValidator)  the translation key `delete` is missing but present in other translation files (`messages.en.yaml`)
+
 translations/messages.en.yaml
 
-  MismatchValidator
-    - Error  the translation key `delete` is missing but present in other files
+- Error (MismatchValidator)  the translation key `delete` is missing from other translation files (`messages.de.yaml`)
 
-[ERROR] Language validation failed with errors.
+
+ [ERROR] Language validation failed with errors. See more details with the `-v`
+         verbose option.
 ```
 
 ### JSON Format
@@ -155,45 +165,58 @@ Machine-readable JSON output. Issues are keyed by file path, then by validator s
 
 ```json
 {
-  "status": 1,
-  "message": "Language validation failed with errors.",
-  "issues": {
-    "translations/messages.en.yaml": {
-      "MismatchValidator": {
-        "type": "Error",
-        "issues": [
-          {
-            "message": "the translation key `delete` is missing but present in other files",
-            "details": {
-              "key": "delete"
+    "status": 1,
+    "message": "Language validation failed with errors.",
+    "issues": {
+        "translations\/messages.de.yaml": {
+            "MismatchValidator": {
+                "type": "Error",
+                "issues": [
+                    {
+                        "message": "- Error  the translation key `delete` is missing but present in other translation files (`messages.en.yaml`)",
+                        "details": {
+                            "key": "delete",
+                            "files": [
+                                {
+                                    "file": "\/project\/translations\/messages.de.yaml",
+                                    "value": null
+                                },
+                                {
+                                    "file": "\/project\/translations\/messages.en.yaml",
+                                    "value": "Delete"
+                                }
+                            ]
+                        }
+                    }
+                ]
             }
-          }
-        ]
-      }
+        }
+    },
+    "statistics": {
+        "execution_time": 0.002724885940551758,
+        "execution_time_formatted": "3ms",
+        "files_checked": 2,
+        "keys_checked": 3,
+        "validators_run": 9,
+        "parsers_cached": 2
     }
-  },
-  "statistics": {
-    "execution_time": 0.012,
-    "execution_time_formatted": "12ms",
-    "files_checked": 1,
-    "keys_checked": 4,
-    "validators_run": 10,
-    "parsers_cached": 1
-  }
 }
 ```
 
-`status` is the same process exit code described under [Exit Codes](#exit-codes) above (`0` success, `1` failure). `details` varies per validator and mirrors the data available to `--verbose` CLI output.
+`status` is the same process exit code described under [Exit Codes](#exit-codes) above (`0` success, `1` failure). `details` varies per validator and mirrors the data available to `--verbose` CLI output. A clean run emits `"issues": []`. The example is shortened to one file and uses `/project` for the absolute paths in `details`.
 
 ### GitHub Format
 
 Outputs GitHub Actions workflow commands for annotations, one per issue, followed by a summary annotation and a statistics notice:
 
 ```text
-::error file=translations/messages.en.yaml::the translation key `delete` is missing but present in other files
+::error file=translations/messages.de.yaml::- Error  the translation key `delete` is missing but present in other translation files (`messages.en.yaml`)
+::error file=translations/messages.en.yaml::- Error  the translation key `delete` is missing from other translation files (`messages.de.yaml`)
 ::error::Language validation failed with errors.
-::notice::Validation completed in 12ms - Files: 1, Keys: 4, Validators: 10
+::notice::Validation completed in 3ms - Files: 2, Keys: 3, Validators: 9
 ```
+
+The annotation message is the validator message prefixed with `- <Level> `. In the message, `%`, CR and LF are percent-encoded. In properties such as `file=` and `title=`, `:` and `,` are encoded as well. Spaces are not encoded.
 
 Annotations additionally include `line=`/`col=` when a validator reports a source position (e.g. `XliffSchemaValidator`), and `title=` when available.
 
