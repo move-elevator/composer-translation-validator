@@ -75,8 +75,7 @@ trait TranslationValidationBehavior
                 'format',
                 'f',
                 InputOption::VALUE_OPTIONAL,
-                'Output format: cli, json, or github',
-                FormatType::CLI->value,
+                'Output format: cli, json, or github (default: cli)',
             )
             ->addOption(
                 'only',

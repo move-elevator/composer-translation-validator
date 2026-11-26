@@ -54,7 +54,7 @@ class CommandConfigResolver
         }
 
         $cliFormat = $input->getOption('format');
-        if ($cliFormat) {
+        if (null !== $cliFormat) {
             $config->setFormat((string) $cliFormat);
         }
 
