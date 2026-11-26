@@ -176,6 +176,10 @@ HELP
     {
         $config = $this->configResolver->resolve($input);
 
+        if ($config->getVerbose() && OutputInterface::VERBOSITY_NORMAL === $output->getVerbosity()) {
+            $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
+        }
+
         $inputPaths = $input->getArgument('path') ?: [];
         $paths = $this->orchestrationService->resolvePaths($inputPaths, $config);
 
