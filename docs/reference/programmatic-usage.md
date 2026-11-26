@@ -53,6 +53,24 @@ $result = $service->executeValidation(
 );
 ```
 
+## Multiple File Detectors
+
+`fileDetector` accepts a single detector, a list of detectors or `null`. With a list, the detectors are applied in order and each later detector only sees the files the earlier ones did not pair:
+
+```php
+use MoveElevator\ComposerTranslationValidator\FileDetector\DirectoryFileDetector;
+use MoveElevator\ComposerTranslationValidator\FileDetector\SuffixFileDetector;
+
+$result = $service->executeValidation(
+    paths: ['/path/to/translations'],
+    excludePatterns: [],
+    recursive: true,
+    fileDetector: [new DirectoryFileDetector(), new SuffixFileDetector()],
+    validators: ValidatorRegistry::getAvailableValidators(),
+    config: $config,
+);
+```
+
 ## Working with Results
 
 The `executeValidation()` method returns a `ValidationResult` object, or `null` if no matching
