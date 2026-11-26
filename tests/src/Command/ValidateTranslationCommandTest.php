@@ -290,6 +290,27 @@ final class ValidateTranslationCommandTest extends TestCase
         self::assertSame(1, $commandTester->getStatusCode());
     }
 
+    public function testExecuteAppliesVerboseFromConfigFile(): void
+    {
+        $display = $this->displayForFailFixtureWithConfig(['verbose' => true]);
+
+        self::assertStringContainsString('Files checked:', $display);
+    }
+
+    public function testExecuteQuietOptionWinsOverVerboseFromConfigFile(): void
+    {
+        $display = $this->displayForFailFixtureWithConfig(['verbose' => true], OutputInterface::VERBOSITY_QUIET);
+
+        self::assertSame('', $display);
+    }
+
+    public function testExecuteStaysCompactWhenConfigFileVerboseIsFalse(): void
+    {
+        $display = $this->displayForFailFixtureWithConfig(['verbose' => false]);
+
+        self::assertStringNotContainsString('Files checked:', $display);
+    }
+
     public function testExecuteWithJsonFormatAndErrors(): void
     {
         $application = new Application();
@@ -493,18 +514,37 @@ final class ValidateTranslationCommandTest extends TestCase
         return $configFile;
     }
 
-    private function executeWithConfig(string $configFile): CommandTester
-    {
+    private function executeWithConfig(
+        string $configFile,
+        string $fixture = 'success',
+        int $verbosity = OutputInterface::VERBOSITY_NORMAL,
+    ): CommandTester {
         $application = new Application();
         $this->addCommandToApplication($application, new ValidateTranslationCommand());
 
         $commandTester = new CommandTester($application->find('validate-translations'));
         $commandTester->execute([
-            'path' => [__DIR__.'/../Fixtures/translations/xliff/success'],
+            'path' => [__DIR__.'/../Fixtures/translations/xliff/'.$fixture],
             '--config' => $configFile,
-        ]);
+        ], ['verbosity' => $verbosity]);
 
         return $commandTester;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function displayForFailFixtureWithConfig(
+        array $config,
+        int $verbosity = OutputInterface::VERBOSITY_NORMAL,
+    ): string {
+        $configFile = $this->createConfigFile($config);
+
+        try {
+            return $this->executeWithConfig($configFile, 'fail', $verbosity)->getDisplay();
+        } finally {
+            unlink($configFile);
+        }
     }
 
     /**

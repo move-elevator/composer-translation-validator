@@ -112,15 +112,11 @@ format: json
 
 - **Type**: `boolean`
 - **Default**: `false`
-- **Description**: Whether to enable verbose output
+- **Description**: Whether to enable verbose output. Has the same effect as `-v`. A verbosity option on the command line (`-q`, `-v`, `-vv`, `-vvv`) takes precedence
 
 ```yaml
 verbose: true
 ```
-
-::: warning Known limitation
-A `verbose` set in the configuration file has no effect. Only the `-v` option of the command changes the output.
-:::
 
 ## validator-settings
 
